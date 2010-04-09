@@ -27,6 +27,12 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 class ZipArchive(object):
 
+    PACKAGE_PROPS = 'docProps'
+
+    ARC_CORE = PACKAGE_PROPS + '/core.xml'
+    ARC_APP = PACKAGE_PROPS + '/app.xml'
+
+
     def __init__(self, filename, mode = 'r'):
 
         self._zipfile = ZipFile(file = filename,
