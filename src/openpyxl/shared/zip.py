@@ -23,29 +23,26 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-import os
-import os.path as osp
-import shutil
-import unittest
+from zipfile import ZipFile, ZIP_DEFLATED
 
-DATADIR = osp.abspath(osp.join(osp.dirname(__file__), 'test_data'))
-TMPDIR = osp.join(osp.dirname(DATADIR), 'tmp')
+class ZipArchive(object):
 
-def clean_tmpdir():
-    if osp.isdir(TMPDIR):
-        shutil.rmtree(TMPDIR, ignore_errors = True)
-    os.makedirs(TMPDIR)
+    def __init__(self, filename, mode = 'r'):
 
-clean_tmpdir()
+        self._zipfile = ZipFile(file = filename,
+                                mode = mode,
+                                compression = ZIP_DEFLATED,
+                                allowZip64 = False)
 
-class BaseTestCase(unittest.TestCase):
 
-    pass
+    def add_from_string(self, arc_name, content):
 
-    def tearDown(self):
+        self._zipfile.writestr(arc_name, content)
 
-        self.clean_tmpdir()
+    def get_from_name(self, arc_name):
 
-    def clean_tmpdir(self):
+        return self._zipfile.read(arc_name)
 
-        clean_tmpdir()
+    def close(self):
+
+        self._zipfile.close()

@@ -22,30 +22,3 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-
-import os
-import os.path as osp
-import shutil
-import unittest
-
-DATADIR = osp.abspath(osp.join(osp.dirname(__file__), 'test_data'))
-TMPDIR = osp.join(osp.dirname(DATADIR), 'tmp')
-
-def clean_tmpdir():
-    if osp.isdir(TMPDIR):
-        shutil.rmtree(TMPDIR, ignore_errors = True)
-    os.makedirs(TMPDIR)
-
-clean_tmpdir()
-
-class BaseTestCase(unittest.TestCase):
-
-    pass
-
-    def tearDown(self):
-
-        self.clean_tmpdir()
-
-    def clean_tmpdir(self):
-
-        clean_tmpdir()
