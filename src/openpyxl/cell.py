@@ -48,7 +48,7 @@ class Cell(object):
 
         self.data_type = data_type
 
-    def coordinate(self):
+    def get_coordinate(self):
 
         return '%s%s' % (self.column, self.row)
 
