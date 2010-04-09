@@ -23,25 +23,45 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
+import datetime
+
 from openpyxl.worksheet import Worksheet
 from openpyxl.namedrange import NamedRange
 from openpyxl.style import DocumentStyle
 
 class DocumentProperties(object):
 
-    pass
+    def __init__(self):
+
+        self.creator = 'Unkwnown'
+        self.last_modified_by = self.creator
+        self.created = datetime.datetime.now()
+        self.modified = datetime.datetime.now()
+        self.title = 'Untitled'
+        self.subject = ''
+        self.description = ''
+        self.keywords = ''
+        self.category = ''
+        self.company = 'Microsoft Corporation'
 
 
 class DocumentSecurity(object):
 
-    pass
+    def __init__(self):
 
+        self.lock_revision = False
+        self.lock_structure = False
+        self.lock_windows = False
+
+        self.revision_password = ''
+        self.workbook_password = ''
 
 class Workbook(object):
 
     def __init__(self):
 
-        self.worksheets = [Worksheet(self)]
+        self.worksheets = []
+        self.worksheets.append(Worksheet(self))
 
         self._active_sheet_index = 0
 
@@ -67,7 +87,10 @@ class Workbook(object):
 
     def add_sheet(self, worksheet, index = None):
 
-        self.worksheets.insert(index = index, object = worksheet)
+        if index is None:
+            index = len(self.worksheets)
+
+        self.worksheets.insert(index, worksheet)
 
     def remove_sheet(self, worksheet):
 
@@ -83,7 +106,7 @@ class Workbook(object):
 
     def get_index(self, worksheet):
 
-        self.worksheets.index(worksheet)
+        return self.worksheets.index(worksheet)
 
     def get_sheet_names(self):
 
@@ -100,7 +123,7 @@ class Workbook(object):
 
     def get_named_range(self, name):
 
-        for nr in self._named_ranges:
+        for nr in self._named_ranges.values():
             if nr.name == name:
                 return nr
 
