@@ -26,9 +26,8 @@ THE SOFTWARE.
 import os.path as osp
 from tests.helper import BaseTestCase, DATADIR, TMPDIR
 
-from openpyxl.reader.workbook import fill_properties
+from openpyxl.reader.workbook import read_properties
 from openpyxl.shared.zip import ZipArchive
-from openpyxl.workbook import DocumentProperties, DocumentSecurity, Workbook
 
 class TestReader(BaseTestCase):
 
@@ -38,11 +37,9 @@ class TestReader(BaseTestCase):
 
     def test_read_properties(self):
 
-        prop = DocumentProperties()
-
         zip = ZipArchive(filename = self.gen_filename)
 
-        fill_properties(properties = prop, archive = zip)
+        prop = read_properties(archive = zip)
 
         self.assertEqual(prop.creator, '*.*')
         self.assertEqual(prop.last_modified_by, '*.*')

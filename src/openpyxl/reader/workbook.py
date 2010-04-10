@@ -24,8 +24,11 @@ THE SOFTWARE.
 '''
 
 from xml.etree.cElementTree import fromstring
+from openpyxl.workbook import DocumentProperties
 
-def fill_properties(properties, archive):
+def read_properties(archive):
+
+    properties = DocumentProperties()
 
     content = archive.get_from_name(arc_name = archive.ARC_CORE)
 
@@ -34,3 +37,4 @@ def fill_properties(properties, archive):
     properties.creator = root.find('{http://purl.org/dc/elements/1.1/}creator').text
     properties.last_modified_by = root.find('{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}lastModifiedBy').text
 
+    return properties
