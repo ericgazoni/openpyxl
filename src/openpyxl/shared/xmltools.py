@@ -23,15 +23,13 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-PACKAGE_PROPS = 'docProps'
+from xml.etree.cElementTree import ElementTree
+from cStringIO import StringIO
 
-ARC_CORE = PACKAGE_PROPS + '/core.xml'
-ARC_APP = PACKAGE_PROPS + '/app.xml'
+def get_document_content(xml_node):
 
-NAMESPACES = {
-'cp' : 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
-'dc' : 'http://purl.org/dc/elements/1.1/',
-'dcterms' : 'http://purl.org/dc/terms/',
-'dcmitype' : 'http://purl.org/dc/dcmitype/',
-'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
-}
+    fl = StringIO()
+
+    ElementTree(xml_node).write(file = fl, encoding = 'UTF-8')
+
+    return fl.getvalue()

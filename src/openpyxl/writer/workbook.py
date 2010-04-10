@@ -23,15 +23,25 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-PACKAGE_PROPS = 'docProps'
+from xml.etree.cElementTree import ElementTree, Element, SubElement
 
-ARC_CORE = PACKAGE_PROPS + '/core.xml'
-ARC_APP = PACKAGE_PROPS + '/app.xml'
+from openpyxl.shared.xmltools import get_document_content
+from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE
+from openpyxl.shared.date_time import datetime_to_W3CDTF
 
-NAMESPACES = {
-'cp' : 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
-'dc' : 'http://purl.org/dc/elements/1.1/',
-'dcterms' : 'http://purl.org/dc/terms/',
-'dcmitype' : 'http://purl.org/dc/dcmitype/',
-'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
-}
+def write_properties(properties):
+
+    root = Element('cp:coreProperties', {'xmlns:cp': NAMESPACES['cp'],
+                                         'xmlns:dc': NAMESPACES['dc'],
+                                         'xmlns:dcterms': NAMESPACES['dcterms'],
+                                         'xmlns:dcmitype': NAMESPACES['dcmitype'],
+                                         'xmlns:xsi': NAMESPACES['xsi']})
+
+    SubElement(root, 'dc:creator').text = properties.creator
+    SubElement(root, 'cp:lastModifiedBy').text = properties.last_modified_by
+
+    SubElement(root, 'dcterms:created', {'xsi:type': 'dcterms:W3CDTF'}).text = datetime_to_W3CDTF(properties.created)
+    SubElement(root, 'dcterms:modified', {'xsi:type': 'dcterms:W3CDTF'}).text = datetime_to_W3CDTF(properties.modified)
+
+    return get_document_content(root)
+

@@ -22,15 +22,19 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
+from __future__ import with_statement
 
 import os.path as osp
 from tests.helper import BaseTestCase, DATADIR, TMPDIR
 import datetime
 
 from openpyxl.reader.workbook import read_properties
-from openpyxl.shared.zip import ZipArchive
+from openpyxl.writer.workbook import write_properties
 
-class TestReader(BaseTestCase):
+from openpyxl.shared.zip import ZipArchive
+from openpyxl.workbook import DocumentProperties
+
+class TestReaderProps(BaseTestCase):
 
     def setUp(self):
 
@@ -47,3 +51,25 @@ class TestReader(BaseTestCase):
 
         self.assertEqual(prop.created, datetime.datetime(2010, 4, 9, 20, 43, 12))
         self.assertEqual(prop.modified, datetime.datetime(2010, 4, 9, 20, 43, 30))
+
+class TestWriteProps(BaseTestCase):
+
+    def setUp(self):
+
+        self.tmp_filename = osp.join(TMPDIR, 'test.xlsx')
+        self.prop = DocumentProperties()
+
+    def test_write_properties(self):
+
+        self.prop.creator = 'TEST_USER'
+        self.prop.last_modified_by = 'SOMEBODY'
+
+        self.prop.created = datetime.datetime(2010, 4, 1, 20, 30, 00)
+        self.prop.modified = datetime.datetime(2010, 4, 5, 14, 5, 30)
+
+        content = write_properties(self.prop)
+
+        with open(osp.join(DATADIR, 'writer', 'expected', 'core.xml')) as core:
+            expected = core.read()
+
+        self.assertEqual(content, expected)
