@@ -25,6 +25,7 @@ THE SOFTWARE.
 
 import os.path as osp
 from tests.helper import BaseTestCase, DATADIR, TMPDIR
+import datetime
 
 from openpyxl.reader.workbook import read_properties
 from openpyxl.shared.zip import ZipArchive
@@ -43,3 +44,6 @@ class TestReader(BaseTestCase):
 
         self.assertEqual(prop.creator, '*.*')
         self.assertEqual(prop.last_modified_by, '*.*')
+
+        self.assertEqual(prop.created, datetime.datetime(2010, 4, 9, 20, 43, 12))
+        self.assertEqual(prop.modified, datetime.datetime(2010, 4, 9, 20, 43, 30))

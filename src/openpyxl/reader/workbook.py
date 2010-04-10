@@ -26,6 +26,7 @@ THE SOFTWARE.
 from xml.etree.cElementTree import fromstring, QName
 from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE
 from openpyxl.workbook import DocumentProperties
+from openpyxl.shared.date_time import W3CDTF_to_datetime
 
 def read_properties(archive):
 
@@ -37,5 +38,8 @@ def read_properties(archive):
 
     properties.creator = root.find(QName(NAMESPACES['dc'], 'creator').text).text
     properties.last_modified_by = root.find(QName(NAMESPACES['cp'], 'lastModifiedBy').text).text
+
+    properties.created = W3CDTF_to_datetime(root.find(QName(NAMESPACES['dcterms'], 'created').text).text)
+    properties.modified = W3CDTF_to_datetime(root.find(QName(NAMESPACES['dcterms'], 'modified').text).text)
 
     return properties
