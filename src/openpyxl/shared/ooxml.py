@@ -23,19 +23,14 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from xml.etree.cElementTree import fromstring, QName
-from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE
-from openpyxl.workbook import DocumentProperties
+PACKAGE_PROPS = 'docProps'
 
-def read_properties(archive):
+ARC_CORE = PACKAGE_PROPS + '/core.xml'
+ARC_APP = PACKAGE_PROPS + '/app.xml'
 
-    properties = DocumentProperties()
-
-    content = archive.get_from_name(arc_name = ARC_CORE)
-
-    root = fromstring(text = content)
-
-    properties.creator = root.find(QName(NAMESPACES['dc'], 'creator').text).text
-    properties.last_modified_by = root.find(QName(NAMESPACES['cp'], 'lastModifiedBy').text).text
-
-    return properties
+NAMESPACES = {
+'cp' : 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
+'dc' : 'http://purl.org/dc/elements/1.1/',
+'dcterms' : 'http://purl.org/dc/terms/',
+'dcmitype' : 'http://purl.org/dc/dcmitype/',
+}
