@@ -28,7 +28,7 @@ import os.path as osp
 from tests.helper import BaseTestCase, DATADIR, TMPDIR
 import datetime
 
-from openpyxl.reader.workbook import read_properties_core
+from openpyxl.reader.workbook import read_properties_core, read_sheets_titles
 from openpyxl.writer.workbook import write_properties_core, write_properties_app
 
 from openpyxl.shared.zip import ZipArchive
@@ -50,7 +50,15 @@ class TestReaderProps(BaseTestCase):
         self.assertEqual(prop.last_modified_by, '*.*')
 
         self.assertEqual(prop.created, datetime.datetime(2010, 4, 9, 20, 43, 12))
-        self.assertEqual(prop.modified, datetime.datetime(2010, 4, 9, 20, 43, 30))
+        self.assertEqual(prop.modified, datetime.datetime(2010, 4, 11, 16, 20, 29))
+
+    def test_read_sheets_titles(self):
+
+        zip = ZipArchive(filename = self.gen_filename)
+
+        sheet_titles = read_sheets_titles(archive = zip)
+
+        self.assertEqual(sheet_titles, ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas'])
 
 
 class TestWriteProps(BaseTestCase):

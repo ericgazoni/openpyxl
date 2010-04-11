@@ -33,5 +33,6 @@ NAMESPACES = {
 'dc' : 'http://purl.org/dc/elements/1.1/',
 'dcterms' : 'http://purl.org/dc/terms/',
 'dcmitype' : 'http://purl.org/dc/dcmitype/',
-'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
+'xsi' : 'http://www.w3.org/2001/XMLSchema-instance',
+'vt' : 'http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes',
 }
