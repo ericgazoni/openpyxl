@@ -29,7 +29,7 @@ from openpyxl.shared.xmltools import get_document_content
 from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE
 from openpyxl.shared.date_time import datetime_to_W3CDTF
 
-def write_properties(properties):
+def write_properties_core(properties):
 
     root = Element('cp:coreProperties', {'xmlns:cp': NAMESPACES['cp'],
                                          'xmlns:dc': NAMESPACES['dc'],
@@ -70,3 +70,43 @@ def write_content_types(workbook):
                                       'ContentType' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'})
 
     return get_document_content(root)
+
+def write_properties_app(workbook):
+
+    worksheets_count = len(workbook.worksheets)
+
+
+    root = Element('Properties', {'xmlns' : 'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
+                                  'xmlns:vt' : 'http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes'})
+
+    SubElement(root, 'Application').text = 'Microsoft Excel'
+    SubElement(root, 'DocSecurity').text = '0'
+    SubElement(root, 'ScaleCrop').text = 'false'
+    SubElement(root, 'Company')
+
+    SubElement(root, 'LinksUpToDate').text = 'false'
+    SubElement(root, 'SharedDoc').text = 'false'
+    SubElement(root, 'HyperlinksChanged').text = 'false'
+    SubElement(root, 'AppVersion').text = '12.0000'
+
+    # heading pairs part
+    heading_pairs = SubElement(root, 'HeadingPairs')
+    vector = SubElement(heading_pairs, 'vt:vector', {'size' : '2',
+                                                     'baseType' : 'variant'})
+    variant = SubElement(vector, 'vt:variant')
+    SubElement(variant, 'vt:lpstr').text = 'Worksheets'
+
+    variant = SubElement(vector, 'vt:variant')
+    SubElement(variant, 'vt:i4').text = '%d' % worksheets_count
+
+    # title of parts
+    title_of_parts = SubElement(root, 'TitlesOfParts')
+    vector = SubElement(title_of_parts, 'vt:vector', {'size' : '%d' % worksheets_count,
+                                                     'baseType' : 'lpstr'})
+
+    for ws in workbook.worksheets:
+        SubElement(vector, 'vt:lpstr').text = '%s' % ws.title
+
+    return get_document_content(root)
+
+

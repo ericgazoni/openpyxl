@@ -28,11 +28,11 @@ import os.path as osp
 from tests.helper import BaseTestCase, DATADIR, TMPDIR
 import datetime
 
-from openpyxl.reader.workbook import read_properties
-from openpyxl.writer.workbook import write_properties
+from openpyxl.reader.workbook import read_properties_core
+from openpyxl.writer.workbook import write_properties_core, write_properties_app
 
 from openpyxl.shared.zip import ZipArchive
-from openpyxl.workbook import DocumentProperties
+from openpyxl.workbook import DocumentProperties, Workbook
 
 class TestReaderProps(BaseTestCase):
 
@@ -40,17 +40,18 @@ class TestReaderProps(BaseTestCase):
 
         self.gen_filename = osp.join(DATADIR, 'genuine', 'empty.xlsx')
 
-    def test_read_properties(self):
+    def test_read_properties_core(self):
 
         zip = ZipArchive(filename = self.gen_filename)
 
-        prop = read_properties(archive = zip)
+        prop = read_properties_core(archive = zip)
 
         self.assertEqual(prop.creator, '*.*')
         self.assertEqual(prop.last_modified_by, '*.*')
 
         self.assertEqual(prop.created, datetime.datetime(2010, 4, 9, 20, 43, 12))
         self.assertEqual(prop.modified, datetime.datetime(2010, 4, 9, 20, 43, 30))
+
 
 class TestWriteProps(BaseTestCase):
 
@@ -59,7 +60,7 @@ class TestWriteProps(BaseTestCase):
         self.tmp_filename = osp.join(TMPDIR, 'test.xlsx')
         self.prop = DocumentProperties()
 
-    def test_write_properties(self):
+    def test_write_properties_core(self):
 
         self.prop.creator = 'TEST_USER'
         self.prop.last_modified_by = 'SOMEBODY'
@@ -67,9 +68,24 @@ class TestWriteProps(BaseTestCase):
         self.prop.created = datetime.datetime(2010, 4, 1, 20, 30, 00)
         self.prop.modified = datetime.datetime(2010, 4, 5, 14, 5, 30)
 
-        content = write_properties(self.prop)
+        content = write_properties_core(self.prop)
 
         with open(osp.join(DATADIR, 'writer', 'expected', 'core.xml')) as core:
             expected = core.read()
+
+        self.assertEqual(content, expected)
+
+    def test_write_properties_app(self):
+
+        wb = Workbook()
+
+        wb.create_sheet()
+
+        wb.create_sheet()
+
+        content = write_properties_app(wb)
+
+        with open(osp.join(DATADIR, 'writer', 'expected', 'app.xml')) as app:
+            expected = app.read()
 
         self.assertEqual(content, expected)
