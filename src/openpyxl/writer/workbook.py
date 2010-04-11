@@ -50,21 +50,21 @@ def write_content_types(workbook):
 
     root = Element('Types', {'xmlns' : "http://schemas.openxmlformats.org/package/2006/content-types"})
 
-    SubElement(root, 'Override', {'PartName' : ARC_THEME,
+    SubElement(root, 'Override', {'PartName' : '/' + ARC_THEME,
                                   'ContentType' : 'application/vnd.openxmlformats-officedocument.theme+xml'})
-    SubElement(root, 'Override', {'PartName' : ARC_STYLE,
+    SubElement(root, 'Override', {'PartName' : '/' + ARC_STYLE,
                                   'ContentType' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml'})
     SubElement(root, 'Default', {'Extension' : 'rels',
                                   'ContentType' : 'application/vnd.openxmlformats-package.relationships+xml'})
     SubElement(root, 'Default', {'Extension' : 'xml',
                                   'ContentType' : 'application/xml'})
-    SubElement(root, 'Override', {'PartName' : ARC_WORKBOOK,
+    SubElement(root, 'Override', {'PartName' : '/' + ARC_WORKBOOK,
                                   'ContentType' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'})
-    SubElement(root, 'Override', {'PartName' : ARC_APP,
+    SubElement(root, 'Override', {'PartName' : '/' + ARC_APP,
                                   'ContentType' : 'application/vnd.openxmlformats-officedocument.extended-properties+xml'})
-    SubElement(root, 'Override', {'PartName' : ARC_CORE,
+    SubElement(root, 'Override', {'PartName' : '/' + ARC_CORE,
                                   'ContentType' : 'application/vnd.openxmlformats-package.core-properties+xml'})
-    SubElement(root, 'Override', {'PartName' : ARC_SHARED_STRINGS,
+    SubElement(root, 'Override', {'PartName' : '/' + ARC_SHARED_STRINGS,
                                   'ContentType' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml'})
 
     for sheet_id in xrange(len(workbook.worksheets)):

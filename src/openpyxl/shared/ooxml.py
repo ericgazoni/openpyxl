@@ -25,13 +25,14 @@ THE SOFTWARE.
 
 PACKAGE_PROPS = 'docProps'
 PACKAGE_XL = 'xl'
-PACKAGE_THEME = 'theme'
+PACKAGE_THEME = PACKAGE_XL + '/' + 'theme'
+PACKAGE_WORKSHEETS = PACKAGE_XL + '/' + 'worksheets'
 
 ARC_CORE = PACKAGE_PROPS + '/core.xml'
 ARC_APP = PACKAGE_PROPS + '/app.xml'
 ARC_WORKBOOK = PACKAGE_XL + '/workbook.xml'
 ARC_STYLE = PACKAGE_XL + '/style.xml'
-ARC_THEME = PACKAGE_XL + '/' + PACKAGE_THEME + '/theme1.xml'
+ARC_THEME = PACKAGE_THEME + '/theme1.xml'
 ARC_SHARED_STRINGS = PACKAGE_XL + '/sharedStrings.xml'
 
 NAMESPACES = {
