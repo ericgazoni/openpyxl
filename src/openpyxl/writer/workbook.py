@@ -45,3 +45,28 @@ def write_properties(properties):
 
     return get_document_content(root)
 
+
+def write_content_types(workbook):
+
+    root = Element('Types', {'xmlns' : "http://schemas.openxmlformats.org/package/2006/content-types"})
+
+    SubElement(root, 'Override', {'PartName' : '/xl/theme/theme1.xml',
+                                  'ContentType' : 'application/vnd.openxmlformats-officedocument.theme+xml'})
+    SubElement(root, 'Override', {'PartName' : '/xl/styles.xml',
+                                  'ContentType' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml'})
+    SubElement(root, 'Default', {'Extension' : 'rels',
+                                  'ContentType' : 'application/vnd.openxmlformats-package.relationships+xml'})
+    SubElement(root, 'Default', {'Extension' : 'xml',
+                                  'ContentType' : 'application/xml'})
+    SubElement(root, 'Override', {'PartName' : '/xl/workbook.xml',
+                                  'ContentType' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'})
+    SubElement(root, 'Override', {'PartName' : '/docProps/app.xml',
+                                  'ContentType' : 'application/vnd.openxmlformats-officedocument.extended-properties+xml'})
+    SubElement(root, 'Override', {'PartName' : '/docProps/core.xml',
+                                  'ContentType' : 'application/vnd.openxmlformats-package.core-properties+xml'})
+
+    for sheet_id in xrange(len(workbook.worksheets)):
+        SubElement(root, 'Override', {'PartName' : '/xl/worksheets/sheet%d.xml' % (sheet_id + 1),
+                                      'ContentType' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'})
+
+    return get_document_content(root)
