@@ -48,7 +48,7 @@ class Worksheet(object):
         self._parent = parent_workbook
 
         if not title:
-            self.title = 'Sheet%d' % len(self._parent.worksheets)
+            self.title = 'Sheet%d' % (1 + len(self._parent.worksheets))
         else:
             self.title = title
 

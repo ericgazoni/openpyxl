@@ -88,7 +88,7 @@ class TestWorkbook(BaseTestCase):
 
         wb = Workbook()
 
-        names = ['Sheet0', 'Sheet1', 'Sheet2', 'Sheet3', 'Sheet4', 'Sheet5']
+        names = ['Sheet1', 'Sheet2', 'Sheet3', 'Sheet4', 'Sheet5', 'Sheet6']
         for i in xrange(5):
             wb.create_sheet(index = 0)
 
