@@ -28,7 +28,7 @@ from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE
 from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import W3CDTF_to_datetime
 
-def read_properties(archive):
+def read_properties_core(archive):
 
     properties = DocumentProperties()
 
