@@ -27,7 +27,7 @@ from __future__ import with_statement
 import os.path as osp
 from tests.helper import BaseTestCase, DATADIR, TMPDIR
 
-from openpyxl.writer.workbook import write_content_types
+from openpyxl.writer.workbook import write_content_types, write_root_rels
 
 from openpyxl.workbook import Workbook
 
@@ -45,5 +45,16 @@ class TestWriteMeta(BaseTestCase):
 
         with open(osp.join(DATADIR, 'writer', 'expected', '[Content_Types].xml')) as core:
             expected = core.read()
+
+        self.assertEqual(content, expected)
+
+    def test_write_root_rels(self):
+
+        wb = Workbook()
+
+        content = write_root_rels(wb)
+
+        with open(osp.join(DATADIR, 'writer', 'expected', '.rels')) as rels:
+            expected = rels.read()
 
         self.assertEqual(content, expected)

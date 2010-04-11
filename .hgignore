@@ -1,2 +1,4 @@
 syntax: regexp
 \.pyc$
+syntax: regexp
+.coverage
