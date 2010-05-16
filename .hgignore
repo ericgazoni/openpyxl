@@ -2,3 +2,5 @@ syntax: regexp
 \.pyc$
 syntax: regexp
 .coverage
+syntax: regexp
+org.eclipse
