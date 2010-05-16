@@ -22,7 +22,7 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-
+from __future__ import with_statement
 import os
 import os.path as osp
 import shutil
@@ -40,7 +40,12 @@ clean_tmpdir()
 
 class BaseTestCase(unittest.TestCase):
 
-    pass
+    def assertEqualsFileContent(self, reference_file, fixture):
+
+        with open(reference_file) as fix:
+            expected = fix.read()
+
+        self.assertEqual(expected, fixture)
 
     def tearDown(self):
 

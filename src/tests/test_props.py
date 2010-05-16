@@ -78,10 +78,7 @@ class TestWriteProps(BaseTestCase):
 
         content = write_properties_core(self.prop)
 
-        with open(osp.join(DATADIR, 'writer', 'expected', 'core.xml')) as core:
-            expected = core.read()
-
-        self.assertEqual(content, expected)
+        self.assertEqualsFileContent(osp.join(DATADIR, 'writer', 'expected', 'core.xml'), content)
 
     def test_write_properties_app(self):
 
@@ -93,7 +90,4 @@ class TestWriteProps(BaseTestCase):
 
         content = write_properties_app(wb)
 
-        with open(osp.join(DATADIR, 'writer', 'expected', 'app.xml')) as app:
-            expected = app.read()
-
-        self.assertEqual(content, expected)
+        self.assertEqualsFileContent(osp.join(DATADIR, 'writer', 'expected', 'app.xml'), content)
