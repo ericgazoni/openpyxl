@@ -24,14 +24,55 @@ THE SOFTWARE.
 '''
 
 from openpyxl.cell import Cell, coordinate_from_string
+from openpyxl.shared.password_hasher import hash_password
 
 class PageSetup(object): pass
 class PageMargins(object): pass
 class HeaderFooter(object): pass
 class SheetView(object): pass
-class SheetProtection(object): pass
 class RowDimension(object): pass
 class ColumnDimension(object): pass
+
+class SheetProtection(object):
+
+    def __init__(self):
+
+        self.sheet = False
+        self.objects = False
+        self.scenarios = False
+        self.format_cells = False
+        self.format_columns = False
+        self.format_rows = False
+        self.insert_columns = False
+        self.insert_rows = False
+        self.insert_hyperlinks = False
+        self.delete_columns = False
+        self.delete_rows = False
+        self.select_locked_cells = False
+        self.sort = False
+        self.auto_filter = False
+        self.pivot_tables = False
+        self.select_unlocked_cells = False
+        self._password = ''
+
+    def set_password(self, value = '', already_hashed = False):
+
+        if not already_hashed:
+            value = hash_password(value)
+
+        self._password = value
+
+    def _set_raw_password(self, value):
+
+        self.set_password(value, already_hashed = False)
+
+    def _get_raw_password(self):
+
+        return self._password
+
+    password = property(_get_raw_password, _set_raw_password,
+                        'get/set the password (if already hashed, use set_password() instead)')
+
 
 class Worksheet(object):
 
