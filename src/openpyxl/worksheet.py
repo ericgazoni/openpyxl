@@ -27,11 +27,42 @@ from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.shared.password_hasher import hash_password
 
 class PageSetup(object): pass
-class PageMargins(object): pass
 class HeaderFooter(object): pass
 class SheetView(object): pass
-class RowDimension(object): pass
-class ColumnDimension(object): pass
+
+
+class RowDimension(object):
+
+    def __init__(self, index = 0):
+
+        self.row_index = index
+        self.height = -1
+        self.visible = True
+        self.outline_level = 0
+        self.collapsed = False
+
+        self.style_index = None
+
+class ColumnDimension(object):
+
+    def __init__(self, index = 'A'):
+
+        self.column_index = index
+        self.width = -1
+        self.auto_size = False
+        self.visible = True
+        self.outline_level = 0
+        self.collapsed = False
+
+        self.style_index = 0
+
+class PageMargins(object):
+
+    def __init__(self):
+
+        self.left = self.right = 0.7
+        self.top = self.bottom = 0.75
+        self.header = self.footer = 0.3
 
 class SheetProtection(object):
 
@@ -112,6 +143,9 @@ class Worksheet(object):
 
         self.show_summary_below = True
         self.show_summary_right = True
+
+        self.default_row_dimension = RowDimension()
+        self.default_column_dimension = ColumnDimension()
 
 
     def cell(self, coordinate):
