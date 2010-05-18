@@ -116,10 +116,13 @@ class Worksheet(object):
     SHEETSTATE_HIDDEN = 'hidden'
     SHEETSTATE_VERYHIDDEN = 'veryHidden'
 
-    def __init__(self, parent_workbook, title = None):
+    def __init__(self, parent_workbook, title = 'Sheet'):
 
         self._parent = parent_workbook
         self._title = ''
+
+        self.row_dimensions = {}
+        self.column_dimensions = {}
 
         if not title:
             self.title = 'Sheet%d' % (1 + len(self._parent.worksheets))
@@ -156,6 +159,17 @@ class Worksheet(object):
 
         if len(value) > 31:
             raise Exception('Maximum 31 characters allowed in sheet title')
+
+        # is there already such sheet name ?
+        if self._parent.get_sheet_by_name(value):
+
+            # use name, but append with lowest possible integer
+            i = 1
+            while self._parent.get_sheet_by_name('%s%d' % (value, i)):
+                i += 1
+
+            self.title = '%s%d' % (value, i)
+            return
 
         self._title = value
 
