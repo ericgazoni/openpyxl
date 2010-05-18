@@ -143,6 +143,17 @@ def write_workbook(workbook):
     SubElement(root, 'workbookPr', {'defaultThemeVersion' : '124226',
                                     'codeName' : 'ThisWorkbook'})
 
+    # book views
+    SubElement(root, 'bookViews', {'activeTab' : '%d' % workbook.get_index(workbook.get_active_sheet()),
+                                   'autoFilterDateGrouping' : '1',
+                                   'firstSheet' : '0',
+                                   'minimized' : '0',
+                                   'showHorizontalScroll' : '1',
+                                   'showSheetTabs' : '1',
+                                   'showVerticalScroll' : '1',
+                                   'tabRatio' : '600',
+                                   'visibility' : 'visible'})
+
     # worksheets
     sheets = SubElement(root, 'sheets')
     for i, sheet in enumerate(workbook.worksheets):
