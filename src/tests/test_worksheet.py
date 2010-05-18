@@ -46,4 +46,8 @@ class TestWorksheet(BaseTestCase):
 
         self.assertEqual(c.get_coordinate(), 'A1')
 
+    def test_set_wrong_title(self):
+
+        self.assertRaises(Exception, Worksheet, self.wb, 'X' * 50)
+
 
