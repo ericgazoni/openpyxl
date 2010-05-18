@@ -24,7 +24,7 @@ THE SOFTWARE.
 '''
 
 import re
-from openpyxl.cell import Cell, coordinate_from_string
+from openpyxl.cell import Cell, coordinate_from_string, column_index_from_string, get_column_letter
 from openpyxl.shared.password_hasher import hash_password
 
 class PageSetup(object): pass
@@ -186,6 +186,28 @@ class Worksheet(object):
             new_cell = Cell(worksheet = self, column = column, row = row)
             self._cells[coordinate] = new_cell
 
+            if column not in self.column_dimensions:
+                self.column_dimensions[column] = ColumnDimension(index = column)
+
+            if row not in self.row_dimensions:
+                self.row_dimensions[row] = RowDimension(index = row)
+
         return self._cells[coordinate]
 
+    def calculate_dimension(self):
 
+        max_col = max_row = 1
+
+        for cdim in self.column_dimensions.values():
+
+            cidx = column_index_from_string(column = cdim.column_index)
+
+            if cidx > max_col:
+                max_col = cidx
+
+        for rdim in self.row_dimensions.values():
+
+            if rdim.row_index > max_row:
+                max_row = rdim.row_index
+
+        return 'A1:%s%d' % (get_column_letter(max_col), max_row)
