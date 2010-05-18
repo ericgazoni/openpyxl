@@ -4,3 +4,5 @@ syntax: regexp
 .coverage
 syntax: regexp
 org.eclipse
+syntax: regexp
+\.pytest
