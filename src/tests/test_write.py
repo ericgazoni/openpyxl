@@ -30,6 +30,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.writer.excel import ExcelWriter
 
 from openpyxl.writer.workbook import write_workbook
+from openpyxl.writer.worksheet import write_worksheet
 
 class TestWriter(BaseTestCase):
 
@@ -54,4 +55,22 @@ class TestWriteWorkbook(BaseTestCase):
         content = write_workbook(workbook = wb)
 
         self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'workbook.xml'),
+                                     fixture = content)
+
+class TestWriteWorksheet(BaseTestCase):
+
+    def test_write_worksheet(self):
+
+        wb = Workbook()
+
+        ws = wb.create_sheet()
+
+        ws.cell('F42').value = 'hello'
+
+        content = write_worksheet(worksheet = ws)
+
+        with open(osp.join(DATADIR, 'writer', 'expected', 'sheet1.xml'), 'w') as f:
+            f.write(content)
+
+        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1.xml'),
                                      fixture = content)

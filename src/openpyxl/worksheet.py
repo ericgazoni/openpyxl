@@ -131,6 +131,9 @@ class Worksheet(object):
 
         self._cells = {}
 
+        self.selected_cell = 'A1'
+        self.active_cell = 'A1'
+
         self.sheet_state = self.SHEETSTATE_VISIBLE
 
         self.page_setup = PageSetup()
@@ -151,6 +154,10 @@ class Worksheet(object):
 
         self.default_row_dimension = RowDimension()
         self.default_column_dimension = ColumnDimension()
+
+    def get_cell_collection(self):
+
+        return self._cells.values()
 
     def _set_title(self, value):
 
@@ -194,9 +201,20 @@ class Worksheet(object):
 
         return self._cells[coordinate]
 
-    def calculate_dimension(self):
+    def get_highest_row(self):
 
-        max_col = max_row = 1
+        max_row = 1
+
+        for rdim in self.row_dimensions.values():
+
+          if rdim.row_index > max_row:
+              max_row = rdim.row_index
+
+        return max_row
+
+    def get_highest_column(self):
+
+        max_col = 1
 
         for cdim in self.column_dimensions.values():
 
@@ -205,9 +223,9 @@ class Worksheet(object):
             if cidx > max_col:
                 max_col = cidx
 
-        for rdim in self.row_dimensions.values():
+        return max_col
 
-            if rdim.row_index > max_row:
-                max_row = rdim.row_index
+    def calculate_dimension(self):
 
-        return 'A1:%s%d' % (get_column_letter(max_col), max_row)
+        return 'A1:%s%d' % (get_column_letter(self.get_highest_column()),
+                            self.get_highest_row())
