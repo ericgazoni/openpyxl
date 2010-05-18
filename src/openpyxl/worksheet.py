@@ -23,6 +23,7 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
+import re
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.shared.password_hasher import hash_password
 
@@ -118,6 +119,7 @@ class Worksheet(object):
     def __init__(self, parent_workbook, title = None):
 
         self._parent = parent_workbook
+        self._title = ''
 
         if not title:
             self.title = 'Sheet%d' % (1 + len(self._parent.worksheets))
@@ -147,6 +149,21 @@ class Worksheet(object):
         self.default_row_dimension = RowDimension()
         self.default_column_dimension = ColumnDimension()
 
+    def _set_title(self, value):
+
+        if re.match(pattern = '(\\*|\\:|\\/|\\\\|\\?|\\[|\\])', string = value):
+            raise Exception('Invalid character found in sheet title')
+
+        if len(value) > 31:
+            raise Exception('Maximum 31 characters allowed in sheet title')
+
+        self._title = value
+
+    def _get_title(self):
+
+        return self._title
+
+    title = property(_get_title, _set_title)
 
     def cell(self, coordinate):
 
