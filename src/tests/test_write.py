@@ -24,10 +24,12 @@ THE SOFTWARE.
 '''
 
 import os.path as osp
-from tests.helper import BaseTestCase, TMPDIR
+from tests.helper import BaseTestCase, TMPDIR, DATADIR
 
 from openpyxl.workbook import Workbook
 from openpyxl.writer.excel import ExcelWriter
+
+from openpyxl.writer.workbook import write_workbook
 
 class TestWriter(BaseTestCase):
 
@@ -42,3 +44,14 @@ class TestWriter(BaseTestCase):
         ew.save(filename = dest_filename)
 
         self.assertTrue(osp.isfile(dest_filename))
+
+class TestWriteWorkbook(BaseTestCase):
+
+    def test_write_workbook(self):
+
+        wb = Workbook()
+
+        content = write_workbook(workbook = wb)
+
+        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'workbook.xml'),
+                                     fixture = content)

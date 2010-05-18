@@ -126,3 +126,36 @@ def write_root_rels(workbook):
                                       'Target' : ARC_APP})
 
     return get_document_content(root)
+
+def write_workbook(workbook):
+
+    root = Element('workbook', {'xmlns' : 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+                                'xml:space' : 'preserve',
+                                'xmlns:r' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
+
+    # file version
+    SubElement(root, 'fileVersion', {'appName' : 'xl',
+                                     'lastEdited' : '4',
+                                     'lowestEdited' : '4',
+                                     'rupBuild' : '4505'})
+
+    # workbook pr
+    SubElement(root, 'workbookPr', {'defaultThemeVersion' : '124226',
+                                    'codeName' : 'ThisWorkbook'})
+
+    # worksheets
+    sheets = SubElement(root, 'sheets')
+    for i, sheet in enumerate(workbook.worksheets):
+        nd_sheet = SubElement(sheets, 'sheet', {'name' : sheet.title,
+                                                'sheetId' : '%d' % (i + 1),
+                                                'r:id' : 'rId%d' % (i + 1)})
+
+        if not sheet.sheet_state == sheet.SHEETSTATE_VISIBLE:
+            nd_sheet.set('state', sheet.sheet_state)
+
+    # calc pr
+    SubElement(root, 'calcPr', {'calcId' : '124519',
+                                'calcMode' : 'auto',
+                                'fullCalcOnLoad' : '1'})
+
+    return get_document_content(root)
