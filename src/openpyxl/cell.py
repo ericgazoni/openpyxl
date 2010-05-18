@@ -32,8 +32,46 @@ def coordinate_from_string(coord_string):
     if not matches:
         raise Exception('invalid cell coordinates')
     else:
-        return matches.groups()
+        column, row = matches.groups()
+        return (column, int(row))
 
+def column_index_from_string(column):
+
+    column = column.upper()
+
+    clen = len(column)
+
+    if clen == 1:
+        return ord(column[0]) - 64
+    elif clen == 2:
+        return ((1 + (ord(column[0]) - 65)) * 26) + (ord(column[1]) - 64)
+    elif clen == 3:
+        return ((1 + (ord(column[0]) - 65)) * 676) + ((1 + (ord(column[1]) - 65)) * 26) + (ord(column[2]) - 64);
+    elif clen > 3:
+        raise Exception('Column string index can not be longer than 3 characters')
+    else:
+        raise Exception('Column string index can not be empty')
+
+def get_column_letter(col_idx):
+
+    col_name = ""
+    quotient = col_idx
+
+    while col_idx > 26:
+        quotient = col_idx / 26
+        rest = col_idx % 26
+
+        if rest > 0:
+            col_name = chr(64 + rest) + col_name
+        else:
+            col_name = 'Z' + col_name # not beautiful, but it works fine ...
+            quotient -= 1
+
+        col_idx = quotient
+
+    col_name = chr(64 + quotient) + col_name
+
+    return col_name
 
 class Cell(object):
 
