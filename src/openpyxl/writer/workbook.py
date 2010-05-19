@@ -144,7 +144,8 @@ def write_workbook(workbook):
                                     'codeName' : 'ThisWorkbook'})
 
     # book views
-    SubElement(root, 'bookViews', {'activeTab' : '%d' % workbook.get_index(workbook.get_active_sheet()),
+    book_views = SubElement(root, 'bookViews')
+    SubElement(book_views, 'workbookView', {'activeTab' : '%d' % workbook.get_index(workbook.get_active_sheet()),
                                    'autoFilterDateGrouping' : '1',
                                    'firstSheet' : '0',
                                    'minimized' : '0',

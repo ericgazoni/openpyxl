@@ -41,7 +41,7 @@ class TestWriter(BaseTestCase):
 
         ew = ExcelWriter(workbook = wb)
 
-        dest_filename = osp.join(TMPDIR, 'empty_book.xslx')
+        dest_filename = osp.join(r'c:\data\temp', 'empty_book.xlsx')
 
         ew.save(filename = dest_filename)
 
