@@ -31,6 +31,7 @@ from openpyxl.writer.excel import ExcelWriter
 
 from openpyxl.writer.workbook import write_workbook
 from openpyxl.writer.worksheet import write_worksheet
+from openpyxl.writer.strings import write_string_table
 
 class TestWriter(BaseTestCase):
 
@@ -55,6 +56,19 @@ class TestWriteWorkbook(BaseTestCase):
         content = write_workbook(workbook = wb)
 
         self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'workbook.xml'),
+                                     fixture = content)
+
+class TestWriteStrings(BaseTestCase):
+
+    def test_write_string_table(self):
+
+        table = {'hello' : 1,
+                 'world' : 2,
+                 'nice' : 3}
+
+        content = write_string_table(string_table = table)
+
+        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sharedStrings.xml'),
                                      fixture = content)
 
 class TestWriteWorksheet(BaseTestCase):

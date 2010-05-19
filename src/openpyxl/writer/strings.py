@@ -23,6 +23,10 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
+from xml.etree.cElementTree import ElementTree, Element, SubElement
+
+from openpyxl.shared.xmltools import get_document_content
+
 def create_string_table(workbook):
 
     strings_list = []
@@ -37,5 +41,19 @@ def create_string_table(workbook):
 
     return dict((key, i) for i, key in enumerate(set(strings_list)))
 
+def write_string_table(string_table):
+
+    root = Element('sst', {'xmlns' : 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+                           'uniqueCount' : '%d' % len(string_table)})
+
+    for key in string_table:
+
+        si = SubElement(root, 'si')
+        t = SubElement(si, 't')
+        t.text = key
+
+        if key.strip() != key:
+            t.set('xml:space' , 'preserve')
 
 
+    return get_document_content(xml_node = root)
