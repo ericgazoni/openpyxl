@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 from tests.helper import BaseTestCase
 
-from openpyxl.cell import column_index_from_string, coordinate_from_string, get_column_letter
+from openpyxl.cell import column_index_from_string, coordinate_from_string, get_column_letter, Cell
 
 class TestCell(BaseTestCase):
 
@@ -44,3 +44,24 @@ class TestCell(BaseTestCase):
     def test_column_letter(self):
 
         self.assertEqual('ZZZ', get_column_letter(col_idx = 18278))
+
+    def test_value(self):
+
+        c = Cell(worksheet = None, column = 'A', row = 1)
+
+        self.assertEqual(c.TYPE_NULL, c.data_type)
+
+        c.value = 42
+        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+
+        c.value = 'hello'
+        self.assertEqual(c.TYPE_STRING, c.data_type)
+
+        c.value = '=42'
+        self.assertEqual(c.TYPE_FORMULA, c.data_type)
+
+        c.value = '4.2'
+        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+
+        c.value = '-42.00'
+        self.assertEqual(c.TYPE_NUMERIC, c.data_type)

@@ -27,7 +27,7 @@ import re
 
 def coordinate_from_string(coord_string):
 
-    matches = re.match(pattern = '[$]?([A-Z]+)[$]?(\d+)', string = coord_string)
+    matches = re.match(pattern = '[$]?([A-Z]+)[$]?(\d+)', string = coord_string.upper())
 
     if not matches:
         raise Exception('invalid cell coordinates')
@@ -75,16 +75,53 @@ def get_column_letter(col_idx):
 
 class Cell(object):
 
-    def __init__(self, worksheet, column, row, value = None, data_type = None):
+    TYPE_STRING = 's'
+    TYPE_FORMULA = 'f'
+    TYPE_NUMERIC = 'n'
+    TYPE_BOOL = 'b'
+    TYPE_NULL = 's'
+    TYPE_INLINE = 'inlineStr'
+    TYPE_ERROR = 'e'
+
+    def __init__(self, worksheet, column, row, value = None):
 
         self.column = column.upper()
         self.row = row
 
-        self.value = value
+        self._value = None
+        self._data_type = self.TYPE_NULL
+
+        if value:
+            self.value = value
 
         self.parent = worksheet
 
-        self.data_type = data_type
+    def _get_value(self):
+
+        return self._value
+
+    def _set_value(self, value):
+
+        self._value = value
+        if value is None:
+            self._data_type = self.TYPE_NULL
+        elif not value:
+            self._data_type = self.TYPE_STRING
+        elif isinstance(value, basestring) and value[0] == '=':
+            self._data_type = self.TYPE_FORMULA
+        elif isinstance(value, (int, float)):
+            self._data_type = self.TYPE_NUMERIC
+        elif re.match(pattern = '^\-?([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$', string = value):
+            self._value = float(value)
+            self._data_type = self.TYPE_NUMERIC
+        else:
+            self._data_type = self.TYPE_STRING
+
+    value = property(_get_value, _set_value)
+
+    @property
+    def data_type(self):
+        return self._data_type
 
     def get_coordinate(self):
 
