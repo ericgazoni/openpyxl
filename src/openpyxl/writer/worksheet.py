@@ -82,4 +82,4 @@ def write_worksheet_data(root_node, worksheet, string_table):
             if cell.data_type == cell.TYPE_STRING:
                 SubElement(c, 'v').text = '%s' % string_table[cell.value]
             else:
-                SubElement(c, 'v').text = cell.value
+                SubElement(c, 'v').text = '%s' % cell.value
