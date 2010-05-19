@@ -31,7 +31,7 @@ from openpyxl.shared.xmltools import get_document_content
 
 def write_worksheet(worksheet, string_table):
 
-    root = Element('workseet', {'xml:space':'preserve',
+    root = Element('worksheet', {'xml:space':'preserve',
                                 'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
                                 'xmlns:r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
 
