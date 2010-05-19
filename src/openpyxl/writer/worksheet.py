@@ -29,7 +29,7 @@ from xml.etree.cElementTree import ElementTree, Element, SubElement
 from openpyxl.shared.xmltools import get_document_content
 
 
-def write_worksheet(worksheet):
+def write_worksheet(worksheet, string_table):
 
     root = Element('workseet', {'xml:space':'preserve',
                                 'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
@@ -54,11 +54,11 @@ def write_worksheet(worksheet):
     SubElement(root, 'sheetFormatPr', {'defaultRowHeight' : '15'})
 
     # sheet data
-    write_worksheet_data(root, worksheet)
+    write_worksheet_data(root, worksheet, string_table)
 
     return get_document_content(xml_node = root)
 
-def write_worksheet_data(root_node, worksheet):
+def write_worksheet_data(root_node, worksheet, string_table):
 
     sheet_data = SubElement(root_node, 'sheetData')
 
@@ -75,6 +75,11 @@ def write_worksheet_data(root_node, worksheet):
                                              'spans' : '1:%d' % max_column})
 
         for cell in cells_by_row[row_idx]:
+
             c = SubElement(row, 'c', {'r' : cell.get_coordinate(),
                                       't' : cell.data_type})
-            SubElement(c, 'v').text = cell.value
+
+            if cell.data_type == cell.TYPE_STRING:
+                SubElement(c, 'v').text = '%s' % string_table[cell.value]
+            else:
+                SubElement(c, 'v').text = cell.value

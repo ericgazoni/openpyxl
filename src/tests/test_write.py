@@ -67,7 +67,7 @@ class TestWriteWorksheet(BaseTestCase):
 
         ws.cell('F42').value = 'hello'
 
-        content = write_worksheet(worksheet = ws)
+        content = write_worksheet(worksheet = ws, string_table = {'hello' : 0})
 
         self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1.xml'),
                                      fixture = content)
