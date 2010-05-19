@@ -46,7 +46,9 @@ def write_string_table(string_table):
     root = Element('sst', {'xmlns' : 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
                            'uniqueCount' : '%d' % len(string_table)})
 
-    for key in string_table:
+    strings_to_write = sorted(string_table.iteritems(), key = lambda pair:pair[1])
+
+    for key in [key for (key, rank) in strings_to_write]:
 
         si = SubElement(root, 'si')
         t = SubElement(si, 't')
