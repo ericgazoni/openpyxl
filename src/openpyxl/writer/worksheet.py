@@ -26,6 +26,8 @@ THE SOFTWARE.
 
 from xml.etree.cElementTree import ElementTree, Element, SubElement
 
+from openpyxl.cell import column_index_from_string
+
 from openpyxl.shared.xmltools import get_document_content
 
 
@@ -74,7 +76,11 @@ def write_worksheet_data(root_node, worksheet, string_table):
         row = SubElement(sheet_data, 'row', {'r' : '%d' % row_idx,
                                              'spans' : '1:%d' % max_column})
 
-        for cell in cells_by_row[row_idx]:
+        row_cells = cells_by_row[row_idx]
+
+        sorted_cells = sorted(row_cells, key = lambda cell:column_index_from_string(cell.column))
+
+        for cell in sorted_cells:
 
             c = SubElement(row, 'c', {'r' : cell.get_coordinate(),
                                       't' : cell.data_type})
