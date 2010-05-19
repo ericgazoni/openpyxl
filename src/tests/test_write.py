@@ -29,7 +29,7 @@ from tests.helper import BaseTestCase, TMPDIR, DATADIR
 from openpyxl.workbook import Workbook
 from openpyxl.writer.excel import ExcelWriter
 
-from openpyxl.writer.workbook import write_workbook
+from openpyxl.writer.workbook import write_workbook, write_workbook_rels
 from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.writer.strings import write_string_table
 
@@ -48,6 +48,15 @@ class TestWriter(BaseTestCase):
         self.assertTrue(osp.isfile(dest_filename))
 
 class TestWriteWorkbook(BaseTestCase):
+
+    def test_write_workbook_rels(self):
+
+        wb = Workbook()
+
+        content = write_workbook_rels(workbook = wb)
+
+        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'workbook.xml.rels'),
+                                     fixture = content)
 
     def test_write_workbook(self):
 

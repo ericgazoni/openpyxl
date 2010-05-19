@@ -170,3 +170,29 @@ def write_workbook(workbook):
                                 'fullCalcOnLoad' : '1'})
 
     return get_document_content(root)
+
+def write_workbook_rels(workbook):
+
+    root = Element('Relationships', {'xmlns' : 'http://schemas.openxmlformats.org/package/2006/relationships'})
+
+    for i, sheet in enumerate(workbook.worksheets):
+
+        SubElement(root, 'Relationship', {'Id' : 'rId%d' % (i + 1),
+                                          'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
+                                          'Target' : 'worksheets/sheet%s.xml' % (i + 1)})
+
+    rid = len(workbook.worksheets) + 1
+
+    SubElement(root, 'Relationship', {'Id' : 'rId%d' % rid,
+                                     'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
+                                     'Target' : 'sharedStrings.xml'})
+
+    SubElement(root, 'Relationship', {'Id' : 'rId%d' % (rid + 1),
+                                      'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
+                                      'Target' : 'styles.xml'})
+
+    SubElement(root, 'Relationship', {'Id' : 'rId%d' % (rid + 2),
+                                      'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
+                                      'Target' : 'theme/theme1.xml'})
+
+    return get_document_content(root)
