@@ -76,5 +76,5 @@ def write_worksheet_data(root_node, worksheet):
 
         for cell in cells_by_row[row_idx]:
             c = SubElement(row, 'c', {'r' : cell.get_coordinate(),
-                                      't' : 's'})
+                                      't' : cell.data_type})
             SubElement(c, 'v').text = cell.value
