@@ -25,15 +25,20 @@ THE SOFTWARE.
 
 PACKAGE_PROPS = 'docProps'
 PACKAGE_XL = 'xl'
+PACKAGE_RELS = '_rels'
 PACKAGE_THEME = PACKAGE_XL + '/' + 'theme'
 PACKAGE_WORKSHEETS = PACKAGE_XL + '/' + 'worksheets'
 
+ARC_CONTENT_TYPES = '[Content_Types].xml'
+ARC_ROOT_RELS = PACKAGE_RELS + '/.rels'
+ARC_WORKBOOK_RELS = PACKAGE_XL + '/' + PACKAGE_RELS + '/workbook.xml.rels'
 ARC_CORE = PACKAGE_PROPS + '/core.xml'
 ARC_APP = PACKAGE_PROPS + '/app.xml'
 ARC_WORKBOOK = PACKAGE_XL + '/workbook.xml'
 ARC_STYLE = PACKAGE_XL + '/style.xml'
 ARC_THEME = PACKAGE_THEME + '/theme1.xml'
 ARC_SHARED_STRINGS = PACKAGE_XL + '/sharedStrings.xml'
+
 
 NAMESPACES = {
 'cp' : 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
