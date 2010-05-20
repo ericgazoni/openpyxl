@@ -94,3 +94,19 @@ class TestWriteWorksheet(BaseTestCase):
 
         self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1.xml'),
                                      fixture = content)
+
+
+    def test_write_worksheet_with_formula(self):
+
+        wb = Workbook()
+
+        ws = wb.create_sheet()
+
+        ws.cell('F1').value = 10
+        ws.cell('F2').value = 32
+        ws.cell('F3').value = '=F1+F2'
+
+        content = write_worksheet(worksheet = ws, string_table = { })
+
+        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1_formula.xml'),
+                                     fixture = content)
