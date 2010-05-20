@@ -112,6 +112,10 @@ class Workbook(object):
 
         return [s.title for s in self.worksheets]
 
+    def create_named_range(self, name, worksheet, range):
+        named_range = NamedRange(name, worksheet, range)
+        self.add_named_range(named_range)
+
     def get_named_ranges(self):
 
         return self._named_ranges

@@ -35,6 +35,10 @@ def coordinate_from_string(coord_string):
         column, row = matches.groups()
         return (column, int(row))
 
+def absolute_coordinate(coord_string):
+
+    return '$%s$%d' % coordinate_from_string(coord_string)
+
 def column_index_from_string(column):
 
     column = column.upper()

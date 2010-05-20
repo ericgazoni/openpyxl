@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 from tests.helper import BaseTestCase
 
-from openpyxl.cell import column_index_from_string, coordinate_from_string, get_column_letter, Cell
+from openpyxl.cell import column_index_from_string, coordinate_from_string, get_column_letter, Cell, absolute_coordinate
 
 class TestCell(BaseTestCase):
 
@@ -36,6 +36,10 @@ class TestCell(BaseTestCase):
 
         self.assertEqual("ZF", column)
         self.assertEqual(46, row)
+
+    def test_absolute(self):
+
+        self.assertEqual('$ZF$51', absolute_coordinate(coord_string = 'ZF51'))
 
     def test_column_index(self):
 

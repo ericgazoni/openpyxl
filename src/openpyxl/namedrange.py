@@ -30,3 +30,4 @@ class NamedRange(object):
         self.name = name
         self.worksheet = worksheet
         self.range = range
+        self.local_only = False

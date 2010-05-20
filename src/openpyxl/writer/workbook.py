@@ -25,6 +25,7 @@ THE SOFTWARE.
 
 from xml.etree.cElementTree import ElementTree, Element, SubElement
 
+from openpyxl.cell import absolute_coordinate
 from openpyxl.shared.xmltools import get_document_content
 from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE, ARC_WORKBOOK, ARC_APP, ARC_THEME, ARC_STYLE, ARC_SHARED_STRINGS
 from openpyxl.shared.date_time import datetime_to_W3CDTF
@@ -164,6 +165,18 @@ def write_workbook(workbook):
 
         if not sheet.sheet_state == sheet.SHEETSTATE_VISIBLE:
             nd_sheet.set('state', sheet.sheet_state)
+
+    # named ranges
+    defined_names = SubElement(root, 'definedNames')
+    for named_range in workbook.get_named_ranges().values():
+        name = SubElement(defined_names, 'definedName', {'name' : named_range.name})
+        if named_range.local_only:
+            name.set('localSheetId', workbook.get_index(named_range.worksheet))
+
+        name.text = "'%s'!%s" % (named_range.worksheet.title.replace("'", "''"),
+                                 absolute_coordinate(named_range.range))
+
+
 
     # calc pr
     SubElement(root, 'calcPr', {'calcId' : '124519',
