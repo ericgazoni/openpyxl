@@ -37,17 +37,33 @@ class TestCell(BaseTestCase):
         self.assertEqual("ZF", column)
         self.assertEqual(46, row)
 
+    def test_invalid_coordinate(self):
+
+        self.assertRaises(Exception, coordinate_from_string, "AAA")
+
     def test_absolute(self):
 
         self.assertEqual('$ZF$51', absolute_coordinate(coord_string = 'ZF51'))
 
     def test_column_index(self):
 
+        self.assertEqual(10, column_index_from_string(column = 'J'))
+
         self.assertEqual(270, column_index_from_string(column = 'JJ'))
+
+        self.assertEqual(7030, column_index_from_string(column = 'JJJ'))
+
+        self.assertRaises(Exception, column_index_from_string, 'JJJJ')
+
+        self.assertRaises(Exception, column_index_from_string, '')
 
     def test_column_letter(self):
 
         self.assertEqual('ZZZ', get_column_letter(col_idx = 18278))
+
+        self.assertEqual('AA', get_column_letter(col_idx = 27))
+
+        self.assertEqual('Z', get_column_letter(col_idx = 26))
 
     def test_value(self):
 
@@ -69,3 +85,5 @@ class TestCell(BaseTestCase):
 
         c.value = '-42.00'
         self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+
+
