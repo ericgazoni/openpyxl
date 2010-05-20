@@ -28,13 +28,11 @@ from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE, ARC_APP
 from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import W3CDTF_to_datetime
 
-def read_properties_core(archive):
+def read_properties_core(xml_source):
 
     properties = DocumentProperties()
 
-    content = archive.get_from_name(arc_name = ARC_CORE)
-
-    root = fromstring(text = content)
+    root = fromstring(text = xml_source)
 
     properties.creator = root.find(QName(NAMESPACES['dc'], 'creator').text).text
     properties.last_modified_by = root.find(QName(NAMESPACES['cp'], 'lastModifiedBy').text).text
@@ -44,11 +42,9 @@ def read_properties_core(archive):
 
     return properties
 
-def read_sheets_titles(archive):
+def read_sheets_titles(xml_source):
 
-    content = archive.get_from_name(arc_name = ARC_APP)
-
-    root = fromstring(text = content)
+    root = fromstring(text = xml_source)
 
     titles_root = root.find(QName('http://schemas.openxmlformats.org/officeDocument/2006/extended-properties', 'TitlesOfParts').text)
 

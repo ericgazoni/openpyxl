@@ -31,6 +31,8 @@ import datetime
 from openpyxl.reader.workbook import read_properties_core, read_sheets_titles
 from openpyxl.writer.workbook import write_properties_core, write_properties_app
 
+from openpyxl.shared.ooxml import ARC_APP, ARC_CORE
+
 from openpyxl.shared.zip import ZipArchive
 from openpyxl.workbook import DocumentProperties, Workbook
 
@@ -42,9 +44,11 @@ class TestReaderProps(BaseTestCase):
 
     def test_read_properties_core(self):
 
-        zip = ZipArchive(filename = self.gen_filename)
+        archive = ZipArchive(filename = self.gen_filename)
 
-        prop = read_properties_core(archive = zip)
+        content = archive.get_from_name(arc_name = ARC_CORE)
+
+        prop = read_properties_core(xml_source = content)
 
         self.assertEqual(prop.creator, '*.*')
         self.assertEqual(prop.last_modified_by, '*.*')
@@ -54,9 +58,11 @@ class TestReaderProps(BaseTestCase):
 
     def test_read_sheets_titles(self):
 
-        zip = ZipArchive(filename = self.gen_filename)
+        archive = ZipArchive(filename = self.gen_filename)
 
-        sheet_titles = read_sheets_titles(archive = zip)
+        content = archive.get_from_name(arc_name = ARC_APP)
+
+        sheet_titles = read_sheets_titles(xml_source = content)
 
         self.assertEqual(sheet_titles, ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas'])
 
