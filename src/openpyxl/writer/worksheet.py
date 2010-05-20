@@ -70,7 +70,7 @@ def write_worksheet_data(root_node, worksheet, string_table):
     for cell in worksheet.get_cell_collection():
         cells_by_row.setdefault(cell.row, []).append(cell)
 
-    for row_idx in cells_by_row:
+    for row_idx in sorted(cells_by_row):
         row_dimension = worksheet.row_dimensions[row_idx]
 
         row = SubElement(sheet_data, 'row', {'r' : '%d' % row_idx,
