@@ -27,6 +27,7 @@ from xml.etree.cElementTree import fromstring, QName
 from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE, ARC_APP
 from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import W3CDTF_to_datetime
+from openpyxl.namedrange import NamedRange, split_named_range
 
 def read_properties_core(xml_source):
 
@@ -51,3 +52,27 @@ def read_sheets_titles(xml_source):
     vector = titles_root.find(QName(NAMESPACES['vt'], 'vector').text)
 
     return [c.text for c in vector.getchildren()]
+
+def read_named_ranges(xml_source, workbook):
+
+    named_ranges = {}
+
+    root = fromstring(text = xml_source)
+
+    names_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'definedNames').text)
+
+    if names_root:
+
+        for name_node in names_root.getchildren():
+
+            worksheet_name, column, row = split_named_range(range_string = name_node.text)
+            worksheet = workbook.get_sheet_by_name(worksheet_name)
+            range = '%s%s' % (column, row)
+
+            named_range = NamedRange(name = name_node.get('name'),
+                                     worksheet = worksheet,
+                                     range = range)
+
+            named_ranges['%s!%s' % (worksheet_name, range)] = named_range
+
+    return named_ranges

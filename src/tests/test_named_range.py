@@ -22,25 +22,44 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
+from __future__ import with_statement
+import os.path as osp
+from tests.helper import BaseTestCase, DATADIR
 
-import re
+from openpyxl.namedrange import split_named_range
+from openpyxl.reader.workbook import read_named_ranges
+from openpyxl.shared.zip import ZipArchive
+from openpyxl.shared.ooxml import ARC_WORKBOOK
 
-class NamedRange(object):
+class TestNamedRanges(BaseTestCase):
 
-    def __init__(self, name, worksheet, range):
+    def test_split(self):
 
-        self.name = name
-        self.worksheet = worksheet
-        self.range = range
-        self.local_only = False
+        self.assertEqual(('My Sheet', 'D', 8),
+                         split_named_range(range_string = "'My Sheet'!$D$8"))
 
-def split_named_range(range_string):
+class TestReadNamedRanges(BaseTestCase):
 
-    matches = re.match(pattern = "'(.*)'!\$([A-Za-z]+)\$([0-9]+)",
-                       string = range_string)
+    def setUp(self):
 
-    if not matches:
-        raise Exception('invalid named range string')
-    else:
-        sheet_name, column, row = matches.groups()
-        return (sheet_name, column, int(row))
+        self.gen_filename = osp.join(DATADIR, 'genuine', 'empty.xlsx')
+
+    def test_read_named_ranges(self):
+
+        class DummyWs(object):
+
+            pass
+
+        class DummyWB(object):
+
+            def get_sheet_by_name(self, name):
+                return DummyWs()
+
+        with open(osp.join(DATADIR, 'reader', 'workbook.xml')) as f:
+            content = f.read()
+
+            named_ranges = read_named_ranges(xml_source = content,
+                                             workbook = DummyWB())
+
+            self.assertEqual(["My Sheeet!D8"], named_ranges.keys())
+

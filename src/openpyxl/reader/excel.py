@@ -23,24 +23,14 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-import re
+from openpyxl.shared.zip import ZipArchive
 
-class NamedRange(object):
+class ExcelReader(object):
 
-    def __init__(self, name, worksheet, range):
+    def __init__(self, workbook):
 
-        self.name = name
-        self.worksheet = worksheet
-        self.range = range
-        self.local_only = False
+        self.workbook = workbook
 
-def split_named_range(range_string):
+    def load(self, filename):
 
-    matches = re.match(pattern = "'(.*)'!\$([A-Za-z]+)\$([0-9]+)",
-                       string = range_string)
-
-    if not matches:
-        raise Exception('invalid named range string')
-    else:
-        sheet_name, column, row = matches.groups()
-        return (sheet_name, column, int(row))
+        pass
