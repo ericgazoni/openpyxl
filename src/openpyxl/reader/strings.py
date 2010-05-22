@@ -1,3 +1,4 @@
+# coding=UTF-8
 '''
 Copyright (c) 2010 openpyxl
 
@@ -22,40 +23,23 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-from __future__ import with_statement
-import os.path as osp
-from tests.helper import BaseTestCase, DATADIR
 
-from openpyxl.namedrange import split_named_range
-from openpyxl.reader.workbook import read_named_ranges
-from openpyxl.shared.zip import ZipArchive
-from openpyxl.shared.ooxml import ARC_WORKBOOK
+from xml.etree.cElementTree import fromstring, QName
 
-class TestNamedRanges(BaseTestCase):
+def read_string_table(xml_source):
 
-    def test_split(self):
+    table = {}
 
-        self.assertEqual(('My Sheet', 'D', 8),
-                         split_named_range(range_string = "'My Sheet'!$D$8"))
+    xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 
-class TestReadNamedRanges(BaseTestCase):
+    root = fromstring(text = xml_source)
 
-    def test_read_named_ranges(self):
+    si_nodes = root.findall(QName(xmlns, 'si').text)
 
-        class DummyWs(object):
+    for i, si in enumerate(si_nodes):
 
-            pass
+        table[i] = si.findtext(QName(xmlns, 't').text)
 
-        class DummyWB(object):
 
-            def get_sheet_by_name(self, name):
-                return DummyWs()
-
-        with open(osp.join(DATADIR, 'reader', 'workbook.xml')) as f:
-            content = f.read()
-
-            named_ranges = read_named_ranges(xml_source = content,
-                                             workbook = DummyWB())
-
-            self.assertEqual(["My Sheeet!D8"], named_ranges.keys())
+    return table
 

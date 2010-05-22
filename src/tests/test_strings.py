@@ -23,10 +23,14 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from tests.helper import BaseTestCase
+from __future__ import with_statement
+import os.path as osp
+
+from tests.helper import BaseTestCase, DATADIR
 
 from openpyxl.workbook import Workbook
 from openpyxl.writer.strings import create_string_table
+from openpyxl.reader.strings import read_string_table
 
 class TestWriterStrings(BaseTestCase):
 
@@ -44,4 +48,18 @@ class TestWriterStrings(BaseTestCase):
 
         self.assertEqual({'hello' : 1,
                           'world' : 0}, table)
+
+
+
+class TestReaderStrings(BaseTestCase):
+
+    def test_read_string_table(self):
+
+        with open(osp.join(DATADIR, 'reader', 'sharedStrings.xml')) as f:
+            content = f.read()
+
+            string_table = read_string_table(content)
+
+            self.assertEqual({0 : 'This is cell A1 in Sheet 1',
+                              1 : 'This is cell G5'}, string_table)
 
