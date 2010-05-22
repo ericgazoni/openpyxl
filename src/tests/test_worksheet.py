@@ -38,6 +38,8 @@ class TestWorksheet(BaseTestCase):
 
         ws = Worksheet(parent_workbook = self.wb)
 
+        self.assertEqual(self.wb, ws._parent)
+
     def test_get_cell(self):
 
         ws = Worksheet(parent_workbook = self.wb)
