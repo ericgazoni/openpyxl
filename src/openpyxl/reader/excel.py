@@ -23,14 +23,48 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
+from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, ARC_WORKBOOK, PACKAGE_WORKSHEETS
 from openpyxl.shared.zip import ZipArchive
 
-class ExcelReader(object):
+from openpyxl.workbook import Workbook
 
-    def __init__(self, workbook):
+from openpyxl.reader.strings import read_string_table
+from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, read_properties_core
+from openpyxl.reader.worksheet import read_worksheet
 
-        self.workbook = workbook
+def load_workbook(filename):
 
-    def load(self, filename):
+    archive = ZipArchive(filename = filename, mode = 'r')
 
-        pass
+    # define the result workbook
+    wb = Workbook()
+
+    try:
+        # add properties
+        wb.properties = read_properties_core(xml_source = archive.get_from_name(arc_name = ARC_CORE))
+
+
+        # add worksheets        
+        wb.worksheets = [] # remove preset worksheet
+        sheet_names = read_sheets_titles(xml_source = archive.get_from_name(arc_name = ARC_APP))
+        string_table = read_string_table(xml_source = archive.get_from_name(arc_name = ARC_SHARED_STRINGS))
+
+        for i, sheet_name in enumerate(sheet_names):
+
+            worksheet_path = '%s/%s' % (PACKAGE_WORKSHEETS, 'sheet%d.xml' % (i + 1))
+
+            new_ws = read_worksheet(xml_source = archive.get_from_name(arc_name = worksheet_path),
+                                    parent = wb,
+                                    preset_title = sheet_name,
+                                    string_table = string_table)
+
+            wb.add_sheet(worksheet = new_ws, index = i)
+
+        # add named ranges
+        wb._named_ranges = read_named_ranges(xml_source = archive.get_from_name(arc_name = ARC_WORKBOOK),
+                                             workbook = wb)
+
+    finally:
+        archive.close()
+
+    return wb

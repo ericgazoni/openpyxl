@@ -25,11 +25,15 @@ THE SOFTWARE.
 '''
 from __future__ import with_statement
 import os.path as osp
+from shutil import copy
 from tests.helper import BaseTestCase, TMPDIR, DATADIR
 
 from openpyxl.worksheet import Worksheet
+from openpyxl.workbook import Workbook
 
 from openpyxl.reader.worksheet import read_worksheet
+
+from openpyxl.reader.excel import load_workbook
 
 class TestReadWorksheet(BaseTestCase):
 
@@ -56,3 +60,31 @@ class TestReadWorksheet(BaseTestCase):
             self.assertEqual(ws.cell('D30').value, 30)
 
             self.assertEqual(ws.cell('K9').value, 0.09)
+
+class TestReadWorkbook(BaseTestCase):
+
+    def setUp(self):
+
+        self.genuine_wb = osp.join(DATADIR, 'genuine', 'empty.xlsx')
+        self.test_wb = osp.join(TMPDIR, 'test.xlsx')
+
+        copy(self.genuine_wb, self.test_wb)
+
+    def test_read_workbook(self):
+
+        wb = load_workbook(filename = self.test_wb)
+
+        self.assertTrue(isinstance(wb, Workbook))
+
+    def test_read_worksheet(self):
+
+        wb = load_workbook(filename = self.test_wb)
+
+        sheet2 = wb.get_sheet_by_name(name = 'Sheet2 - Numbers')
+
+        self.assertTrue(isinstance(sheet2, Worksheet))
+
+        self.assertEqual('This is cell G5', sheet2.cell('G5').value)
+
+        self.assertEqual(18, sheet2.cell('D18').value)
+
