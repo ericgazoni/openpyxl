@@ -27,6 +27,7 @@ from tests.helper import BaseTestCase
 
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet
+from openpyxl.cell import Cell
 
 class TestWorksheet(BaseTestCase):
 
@@ -61,5 +62,29 @@ class TestWorksheet(BaseTestCase):
         ws.cell('B12').value = 'AAA'
 
         self.assertEqual('A1:B12', ws.calculate_dimension())
+
+    def test_worksheet_range(self):
+
+        ws = Worksheet(parent_workbook = self.wb)
+
+        rng = ws.range('A1:C4')
+
+        self.assertTrue(isinstance(rng, tuple))
+
+        self.assertEqual(4, len(rng))
+
+        self.assertEqual(3, len(rng[0]))
+
+    def test_worksheet_range_named_range(self):
+
+        ws = Worksheet(parent_workbook = self.wb)
+
+        self.wb.create_named_range(name = 'test_range', worksheet = ws, range = 'C5')
+
+        rng = ws.range("test_range")
+
+        self.assertTrue(isinstance(rng, Cell))
+
+        self.assertEqual(5, rng.row)
 
 

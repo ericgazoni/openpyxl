@@ -229,3 +229,49 @@ class Worksheet(object):
 
         return 'A1:%s%d' % (get_column_letter(self.get_highest_column()),
                             self.get_highest_row())
+
+    def range(self, range_string):
+
+        if ':' in range_string:
+            # R1C1 range
+
+            res = []
+
+            min_range, max_range = range_string.split(':')
+            min_col, min_row = coordinate_from_string(coord_string = min_range)
+            max_col, max_row = coordinate_from_string(coord_string = max_range)
+
+            min_col = column_index_from_string(min_col)
+            max_col = column_index_from_string(max_col)
+
+            cache_cols = {}
+            for col in xrange(min_col, max_col + 1):
+                cache_cols[col] = get_column_letter(col_idx = col)
+
+            rows = xrange(min_row, max_row + 1)
+            cols = xrange(min_col, max_col + 1)
+
+            for row in rows:
+
+                new_row = []
+
+                for col in cols:
+
+                    new_row.append(self.cell('%s%s' % (cache_cols[col], row)))
+
+                res.append(tuple(new_row))
+
+            return tuple(res)
+
+        else:
+            # named range
+            named_range = self._parent.get_named_range(range_string)
+
+            if named_range is None:
+                raise Exception('%s is not a valid range name' % range_string)
+
+            if named_range.worksheet is not self:
+                raise Exception('Range %s is not defined on worksheet %s' % (range_string, self.title))
+
+            return self.cell(named_range.range)
+
