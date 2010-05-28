@@ -100,6 +100,8 @@ class Cell(object):
 
         self.parent = worksheet
 
+        self.xf_index = 0
+
     def _get_value(self):
 
         return self._value
