@@ -200,13 +200,59 @@ class NumberFormat(object):
     FORMAT_CURRENCY_USD = '$#,##0_-'
     FORMAT_CURRENCY_EUR_SIMPLE = '[$EUR ]#,##0.00_-'
 
-    def builtin_format_codes(self):
+    _BUILTIN_FORMATS = {
+                        0  : 'General',
+                        1  : '0',
+                        2  : '0.00',
+                        3  : '#,##0',
+                        4  : '#,##0.00',
 
-        return dict([(f, getattr(self, f)) for f in dir(self) if f.startswith('FORMAT_')])
+                        9  : '0%',
+                        10 : '0.00%',
+                        11 : '0.00E+00',
+                        12 : '# ?/?',
+                        13 : '# ??/??',
+                        14 : 'mm-dd-yy',
+                        15 : 'd-mmm-yy',
+                        16 : 'd-mmm',
+                        17 : 'mmm-yy',
+                        18 : 'h:mm AM/PM',
+                        19 : 'h:mm:ss AM/PM',
+                        20 : 'h:mm',
+                        21 : 'h:mm:ss',
+                        22 : 'm/d/yy h:mm',
+
+                        37 : '#,##0 (#,##0)',
+                        38 : '#,##0 [Red](#,##0)',
+                        39 : '#,##0.00(#,##0.00)',
+                        40 : '#,##0.00[Red](#,##0.00)',
+
+                        44 : '_("$"* #,##0.00_)_("$"* \(#,##0.00\)_("$"* "-"??_)_(@_)',
+                        45 : 'mm:ss',
+                        46 : '[h]:mm:ss',
+                        47 : 'mmss.0',
+                        48 : '##0.0E+0',
+                        49 : '@',
+                       }
+
+    _BUILTIN_FORMATS_REVERSE = dict([(value, key) for key, value in _BUILTIN_FORMATS.iteritems()])
 
     def __init__(self):
 
         self.format_code = self.FORMAT_GENERAL
+        self.format_index = 0
+
+    def builtin_format_code(self, index):
+
+        return self._BUILTIN_FORMATS[index]
+
+    def is_builtin(self, format):
+
+        return format in self._BUILTIN_FORMATS.values()
+
+    def builtin_format_id(self, format):
+
+        return self._BUILTIN_FORMATS_REVERSE.get(format, None)
 
 class Protection(object):
 
