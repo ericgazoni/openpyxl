@@ -27,7 +27,7 @@ import datetime
 
 from openpyxl.worksheet import Worksheet
 from openpyxl.namedrange import NamedRange
-from openpyxl.style import DocumentStyle
+from openpyxl.style import Style
 
 class DocumentProperties(object):
 
@@ -69,7 +69,7 @@ class Workbook(object):
 
         self.properties = DocumentProperties()
 
-        self.style = DocumentStyle()
+        self.style = Style()
 
         self.security = DocumentSecurity()
 

@@ -239,8 +239,19 @@ class NumberFormat(object):
 
     def __init__(self):
 
-        self.format_code = self.FORMAT_GENERAL
-        self.format_index = 0
+        self._format_code = self.FORMAT_GENERAL
+        self._format_index = 0
+
+    def _set_format_code(self, format_code = FORMAT_GENERAL):
+
+        self._format_code = format_code
+        self._format_index = self.builtin_format_id(format = format_code)
+
+    def _get_format_code(self):
+
+        return self._format_code
+
+    format_code = property(_get_format_code, _set_format_code)
 
     def builtin_format_code(self, index):
 
@@ -265,7 +276,7 @@ class Protection(object):
         self.locked = self.PROTECTION_INHERIT
         self.hidden = self.PROTECTION_INHERIT
 
-class DocumentStyle(object):
+class Style(object):
 
     def __init__(self):
 

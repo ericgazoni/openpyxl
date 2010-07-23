@@ -24,6 +24,9 @@ THE SOFTWARE.
 '''
 
 import re
+import datetime
+from openpyxl.style import NumberFormat
+from openpyxl.shared.date_time import SharedDate
 
 def coordinate_from_string(coord_string):
 
@@ -79,6 +82,14 @@ def get_column_letter(col_idx):
 
 class Cell(object):
 
+    ERROR_CODES = {'#NULL!'  : 0,
+                   '#DIV/0!' : 1,
+                   '#VALUE!' : 2,
+                   '#REF!'   : 3,
+                   '#NAME?'  : 4,
+                   '#NUM!'   : 5,
+                   '#N/A'    : 6}
+
     TYPE_STRING = 's'
     TYPE_FORMULA = 'f'
     TYPE_NUMERIC = 'n'
@@ -86,6 +97,9 @@ class Cell(object):
     TYPE_NULL = 's'
     TYPE_INLINE = 'inlineStr'
     TYPE_ERROR = 'e'
+
+    VALID_TYPES = [TYPE_STRING, TYPE_FORMULA, TYPE_NUMERIC, TYPE_BOOL,
+                   TYPE_NULL, TYPE_INLINE, TYPE_ERROR]
 
     def __init__(self, worksheet, column, row, value = None):
 
@@ -108,22 +122,117 @@ class Cell(object):
 
     def _set_value(self, value):
 
-        self._value = value
-        if value is None:
-            self._data_type = self.TYPE_NULL
-        elif not value:
-            self._data_type = self.TYPE_STRING
-        elif isinstance(value, basestring) and value[0] == '=':
-            self._data_type = self.TYPE_FORMULA
-        elif isinstance(value, (int, float)):
-            self._data_type = self.TYPE_NUMERIC
-        elif re.match(pattern = '^\-?([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$', string = value):
-            self._value = float(value)
-            self._data_type = self.TYPE_NUMERIC
-        else:
-            self._data_type = self.TYPE_STRING
+        self.bind_value(value)
 
     value = property(_get_value, _set_value)
+
+    def bind_value(self, value):
+
+        data_type = self._data_type = self.data_type_for_value(value)
+
+        if data_type == self.TYPE_STRING:
+
+            # percentage detection
+
+            percentage_search = re.match('^\-?[0-9]*\.?[0-9]*\s?\%$', value)
+
+            if percentage_search:
+
+                value = float(value.replace('%', '') / 100.0)
+                self.set_value_explicit(value = value,
+                                        data_type = self.TYPE_NUMERIC)
+
+                self._set_number_format(NumberFormat.FORMAT_PERCENTAGE)
+
+                return True
+
+            # time detection
+
+            time_search = re.match('^(\d|[0-1]\d|2[0-3]):[0-5]\d$', value)
+
+            if time_search:
+
+                h, m = map(int, value.split(':')) #pylint: disable=E1103
+
+                days = (h / 24) + (m / 1440)
+
+                self.set_value_explicit(value = days,
+                                        data_type = self.TYPE_NUMERIC)
+
+                self._set_number_format(NumberFormat.FORMAT_DATE_TIME3)
+
+                return True
+
+        if data_type == self.TYPE_NUMERIC:
+
+            # date detection
+
+            if isinstance(value, (datetime.datetime, datetime.time)):
+
+                value = SharedDate().datetime_to_julian(date = value)
+
+                self.set_value_explicit(value = value,
+                                        data_type = self.TYPE_NUMERIC)
+
+                self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
+
+                return True
+
+        self.set_value_explicit(value, data_type)
+
+    def _set_number_format(self, format_code):
+
+        self.parent.get_style(self.get_coordinate()).number_format.format_code = format_code
+
+    def data_type_for_value(self, value):
+
+        if value is None:
+            return self.TYPE_NULL
+        elif value is True or value is False:
+            return self.TYPE_BOOL
+        elif not value:
+            return self.TYPE_STRING
+        elif isinstance(value, basestring) and value[0] == '=':
+            return self.TYPE_FORMULA
+        elif isinstance(value, (int, float)):
+            return self.TYPE_NUMERIC
+        elif re.match(pattern = '^\-?([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$', string = value):
+            return self.TYPE_NUMERIC
+        elif value.strip() in self.ERROR_CODES:
+            return self.TYPE_ERROR
+        else:
+            return self.TYPE_STRING
+
+
+    def set_value_explicit(self, value = None, data_type = TYPE_STRING):
+
+        if data_type == self.TYPE_INLINE:
+            self._value = self.check_string(value)
+        elif data_type == self.TYPE_FORMULA:
+            self._value = unicode(value)
+        elif data_type == self.TYPE_BOOL:
+            self._value = bool(value)
+        elif data_type == self.TYPE_STRING:
+            self._value = self.check_string(value)
+        elif data_type == self.TYPE_NUMERIC:
+            try:
+                self._value = int(value)
+            except:
+                self._value = float(value)
+
+        elif data_type not in self.VALID_TYPES:
+            raise Exception('Invalid data type: %s' % data_type)
+
+    def check_string(self, value):
+
+        # convert to unicode string
+        value = unicode(value)
+        # string must never be longer than 32,767 characters, truncate if necessary
+        value = value[:32767]
+        # we require that newline is represented as "\n" in core, not as "\r\n" or "\r"
+        value = value.replace('\r\n', '\n')
+
+        return value
 
     @property
     def data_type(self):
@@ -132,4 +241,5 @@ class Cell(object):
     def get_coordinate(self):
 
         return '%s%s' % (self.column, self.row)
+
 

@@ -26,6 +26,7 @@ THE SOFTWARE.
 import re
 from openpyxl.cell import Cell, coordinate_from_string, column_index_from_string, get_column_letter
 from openpyxl.shared.password_hasher import hash_password
+from openpyxl.style import Style
 
 class PageSetup(object): pass
 class HeaderFooter(object): pass
@@ -130,6 +131,8 @@ class Worksheet(object):
             self.title = title
 
         self._cells = {}
+
+        self._styles = {}
 
         self.selected_cell = 'A1'
         self.active_cell = 'A1'
@@ -275,3 +278,9 @@ class Worksheet(object):
 
             return self.cell(named_range.range)
 
+    def get_style(self, coordinate):
+
+        if not coordinate in self._styles:
+            self._styles[coordinate] = Style()
+
+        return self._styles[coordinate]

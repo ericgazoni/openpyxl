@@ -54,3 +54,9 @@ class TestNumberFormat(BaseTestCase):
     def test_convert_datetime_to_julian(self):
 
         self.assertEqual(40167, self.sd.datetime_to_julian(date = datetime.datetime(2009, 12, 20)))
+
+    def test_insert_float(self):
+
+        self.worksheet.cell(coordinate = 'A1').value = 3.14
+
+        self.assertEqual(Cell.TYPE_NUMERIC, self.worksheet.cell(coordinate = 'A1')._data_type)

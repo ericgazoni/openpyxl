@@ -67,7 +67,7 @@ class BaseTestCase(unittest.TestCase):
         fixture_lines = fixture_content.split('\n')
         expected_lines = expected_content.split('\n')
 
-        differences = list(difflib.unified_diff(fixture_lines, expected_lines))
+        differences = list(difflib.unified_diff(expected_lines, fixture_lines))
 
         if differences:
             temp = StringIO()
