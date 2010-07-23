@@ -37,7 +37,7 @@ def read_properties_core(xml_source):
 
     creator_node = root.find(QName(NAMESPACES['dc'], 'creator').text)
 
-    if creator_node:
+    if creator_node is not None:
         properties.creator = creator_node.text
     else:
         properties.creator = ''
