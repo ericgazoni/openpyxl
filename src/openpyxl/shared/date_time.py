@@ -22,10 +22,11 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
+from __future__ import division
+from math import floor
+import datetime
 
 W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
-import datetime
 
 def datetime_to_W3CDTF(dt):
 
@@ -34,3 +35,57 @@ def datetime_to_W3CDTF(dt):
 def W3CDTF_to_datetime(formatted_string):
 
     return datetime.datetime.strptime(formatted_string, W3CDTF_FORMAT)
+
+
+class SharedDate(object):
+
+    CALENDAR_WINDOWS_1900 = 1900
+    CALENDAR_MAC_1904 = 1904
+
+    datetime_object_type = 'DateTime'
+
+    def __init__(self):
+
+        self.excel_base_date = self.CALENDAR_WINDOWS_1900
+
+
+    def to_julian(self, year, month, day, hours = 0, minutes = 0, seconds = 0):
+
+        excel_1900_leap_year = None
+        excel_base_date = 0
+
+        if self.excel_base_date == self.CALENDAR_WINDOWS_1900:
+            #
+            #    Fudge factor for the erroneous fact that the year 1900 is treated as a Leap Year in MS Excel
+            #    This affects every date following 28th February 1900
+            #
+
+            excel_1900_leap_year = True
+
+            if year == 1900 and month <= 2:
+                excel_1900_leap_year = False
+
+            excel_base_date = 2415020
+        else:
+
+            excel_base_date = 2416481
+            excel_1900_leap_year = False
+
+
+        # Julian base date adjustment
+        if month > 2:
+            month = month - 3
+        else:
+            month = month + 9
+            year -= 1
+
+        century, decade = int(str(year)[:2]), int(str(year)[2:])
+
+        excel_date = floor(146097 * century / 4) + floor((1461 * decade) / 4) + floor((153 * month + 2) / 5) + day + 1721119 - excel_base_date
+
+        if excel_1900_leap_year:
+            excel_date += 1
+
+        excel_time = ((hours * 3600) + (minutes * 60) + seconds) / 86400
+
+        return excel_date + excel_time
