@@ -38,6 +38,11 @@ class TestNamedRanges(BaseTestCase):
         self.assertEqual(('My Sheet', 'D', 8),
                          split_named_range(range_string = "'My Sheet'!$D$8"))
 
+    def test_split_no_quotes(self):
+
+        self.assertEqual(('HYPOTHESES', 'B', 3),
+                         split_named_range(range_string = 'HYPOTHESES!$B$3:$L$3'))
+
 class TestReadNamedRanges(BaseTestCase):
 
     def test_read_named_ranges(self):
