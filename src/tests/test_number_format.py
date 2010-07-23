@@ -24,6 +24,7 @@ THE SOFTWARE.
 '''
 from __future__ import with_statement
 import os.path as osp
+import datetime
 from tests.helper import BaseTestCase, DATADIR
 
 from openpyxl.workbook import Workbook
@@ -40,9 +41,12 @@ class TestNumberFormat(BaseTestCase):
         self.worksheet = Worksheet(parent_workbook = self.workbook,
                                    title = 'Test')
 
-    def test_add_date(self):
+        self.sd = SharedDate()
 
-        sd = SharedDate()
+    def test_convert_date_to_julian(self):
 
+        self.assertEqual(40167, self.sd.to_julian(year = 2009, month = 12, day = 20))
 
-        self.assertEqual(40167, sd.to_julian(year = 2009, month = 12, day = 20))
+    def test_convert_date_from_julian(self):
+
+        self.assertEqual(datetime.datetime(2009, 12, 20) , self.sd.from_julian(40167))

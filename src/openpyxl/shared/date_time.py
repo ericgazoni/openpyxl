@@ -25,6 +25,7 @@ THE SOFTWARE.
 from __future__ import division
 from math import floor
 import datetime
+import time
 
 W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
@@ -79,6 +80,7 @@ class SharedDate(object):
             month = month + 9
             year -= 1
 
+        # Calculate the Julian Date, then subtract the Excel base date (JD 2415020 = 31 - Dec - 1899 Giving Excel Date of 0)
         century, decade = int(str(year)[:2]), int(str(year)[2:])
 
         excel_date = floor(146097 * century / 4) + floor((1461 * decade) / 4) + floor((153 * month + 2) / 5) + day + 1721119 - excel_base_date
@@ -89,3 +91,30 @@ class SharedDate(object):
         excel_time = ((hours * 3600) + (minutes * 60) + seconds) / 86400
 
         return excel_date + excel_time
+
+
+    def from_julian(self, value = 0):
+
+        excel_base_date = 0
+
+        if self.excel_base_date == self.CALENDAR_WINDOWS_1900:
+
+            excel_base_date = 25569
+
+            if value < 60:
+                excel_base_date -= 1
+
+        else:
+            excel_base_date = 24107
+
+
+        if value >= 1:
+            utc_days = value - excel_base_date
+
+            seconds = round(utc_days * 24 * 60 * 60)
+
+            return datetime.datetime.fromtimestamp(time.mktime(time.gmtime(seconds)))
+
+        else:
+
+            raise ValueError('%s is not supported on this platform' % value)
