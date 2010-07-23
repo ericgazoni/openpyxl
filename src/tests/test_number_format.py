@@ -50,3 +50,7 @@ class TestNumberFormat(BaseTestCase):
     def test_convert_date_from_julian(self):
 
         self.assertEqual(datetime.datetime(2009, 12, 20) , self.sd.from_julian(40167))
+
+    def test_convert_datetime_to_julian(self):
+
+        self.assertEqual(40167, self.sd.datetime_to_julian(date = datetime.datetime(2009, 12, 20)))

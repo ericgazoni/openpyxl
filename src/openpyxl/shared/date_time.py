@@ -50,6 +50,15 @@ class SharedDate(object):
         self.excel_base_date = self.CALENDAR_WINDOWS_1900
 
 
+    def datetime_to_julian(self, date):
+
+        return self.to_julian(year = date.year,
+                              month = date.month,
+                              day = date.day,
+                              hours = date.hour,
+                              minutes = date.minute,
+                              seconds = date.second)
+
     def to_julian(self, year, month, day, hours = 0, minutes = 0, seconds = 0):
 
         excel_1900_leap_year = None
