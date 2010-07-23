@@ -27,6 +27,10 @@ import os
 import os.path as osp
 import shutil
 import unittest
+import difflib
+from StringIO import StringIO
+from xml.etree.ElementTree import  fromstring, ElementTree
+from pprint import pprint
 
 DATADIR = osp.abspath(osp.join(osp.dirname(__file__), 'test_data'))
 TMPDIR = osp.join(osp.dirname(DATADIR), 'tmp')
@@ -40,12 +44,36 @@ clean_tmpdir()
 
 class BaseTestCase(unittest.TestCase):
 
-    def assertEqualsFileContent(self, reference_file, fixture):
+    def assertEqualsFileContent(self, reference_file, fixture, filetype = 'xml'):
 
-        with open(reference_file) as fix:
-            expected = fix.read()
+        fixture_content = fixture
+        with open(reference_file) as expected_file:
+            expected_content = expected_file.read()
 
-        self.assertEqual(expected, fixture)
+        if filetype == 'xml':
+
+            fixture_content = fromstring(fixture_content)
+            pretty_indent(fixture_content)
+            temp = StringIO()
+            ElementTree(fixture_content).write(temp)
+            fixture_content = temp.getvalue()
+
+            expected_content = fromstring(expected_content)
+            pretty_indent(expected_content)
+            temp = StringIO()
+            ElementTree(expected_content).write(temp)
+            expected_content = temp.getvalue()
+
+        fixture_lines = fixture_content.split('\n')
+        expected_lines = expected_content.split('\n')
+
+        differences = list(difflib.unified_diff(fixture_lines, expected_lines))
+
+        if differences:
+            temp = StringIO()
+            pprint(differences, stream = temp)
+            self.fail('Differences found : %s' % temp.getvalue())
+
 
     def tearDown(self):
 
@@ -54,3 +82,21 @@ class BaseTestCase(unittest.TestCase):
     def clean_tmpdir(self):
 
         clean_tmpdir()
+
+
+
+def pretty_indent(elem, level = 0):
+    i = "\n" + level * "  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            pretty_indent(elem, level + 1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
