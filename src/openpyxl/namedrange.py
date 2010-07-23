@@ -36,7 +36,7 @@ class NamedRange(object):
 
 def split_named_range(range_string):
 
-    matches = re.match(pattern = "'(.*)'!\$([A-Za-z]+)\$([0-9]+)",
+    matches = re.match(pattern = "'?([^']*)'?!\$([A-Za-z]+)\$([0-9]+)",
                        string = range_string)
 
     if not matches:
