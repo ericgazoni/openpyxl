@@ -30,10 +30,11 @@ __release__ = 1     # for tweaks, bug-fixes, or development
 __version__ = '%d.%d.%d' % (__major__,
                             __minor__,
                             __release__)
+
 __author__ = 'Eric Gazoni'
 __license__ = 'MIT/Expat'
-__author_email__='eric.gazoni@gmail.com'
-__maintainer_email__='psychopy-users@googlegroups.com'
-__url__='http://bitbucket.org/ericgazoni/openpyxl/wiki/Home'
-__downloadUrl__="http://bitbucket.org/ericgazoni/openpyxl/downloads"
+__author_email__ = 'eric.gazoni@gmail.com'
+__maintainer_email__ = 'psychopy-users@googlegroups.com'
+__url__ = 'http://bitbucket.org/ericgazoni/openpyxl/wiki/Home'
+__downloadUrl__ = "http://bitbucket.org/ericgazoni/openpyxl/downloads"
 
