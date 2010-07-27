@@ -1,0 +1,3 @@
+recursive-include src/tests *.xml *.rels *.xlsx
+include LICENCE
+include CREDITS
