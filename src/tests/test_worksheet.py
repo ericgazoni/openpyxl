@@ -85,6 +85,6 @@ class TestWorksheet(BaseTestCase):
 
         self.assertTrue(isinstance(rng, Cell))
 
-        self.assertEqual(5, rng.row)
+        self.assertEqual(5, rng.row) #pylint: disable-msg=E1103
 
 
