@@ -43,10 +43,9 @@ class TestWriteMeta(BaseTestCase):
 
         content = write_content_types(wb)
 
-        with open(osp.join(DATADIR, 'writer', 'expected', '[Content_Types].xml')) as core:
-            expected = core.read()
+        reference_file = osp.join(DATADIR, 'writer', 'expected', '[Content_Types].xml')
 
-        self.assertEqual(content, expected)
+        self.assertEqualsFileContent(reference_file, fixture = content)
 
     def test_write_root_rels(self):
 
@@ -54,7 +53,6 @@ class TestWriteMeta(BaseTestCase):
 
         content = write_root_rels(wb)
 
-        with open(osp.join(DATADIR, 'writer', 'expected', '.rels')) as rels:
-            expected = rels.read()
+        reference_file = osp.join(DATADIR, 'writer', 'expected', '.rels')
 
-        self.assertEqual(content, expected)
+        self.assertEqualsFileContent(reference_file, fixture = content)
