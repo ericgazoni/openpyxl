@@ -60,3 +60,9 @@ class TestNumberFormat(BaseTestCase):
         self.worksheet.cell(coordinate = 'A1').value = 3.14
 
         self.assertEqual(Cell.TYPE_NUMERIC, self.worksheet.cell(coordinate = 'A1')._data_type)
+
+    def test_insert_percentage(self):
+
+        self.worksheet.cell(coordinate = 'A1').value = '3.14%'
+
+        self.assertEqual(Cell.TYPE_NUMERIC, self.worksheet.cell(coordinate = 'A1')._data_type)

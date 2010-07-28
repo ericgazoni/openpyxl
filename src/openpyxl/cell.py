@@ -138,7 +138,7 @@ class Cell(object):
 
             if percentage_search:
 
-                value = float(value.replace('%', '') / 100.0)
+                value = float(value.replace('%', '')) / 100.0
                 self.set_value_explicit(value = value,
                                         data_type = self.TYPE_NUMERIC)
 
@@ -222,6 +222,9 @@ class Cell(object):
 
         elif data_type not in self.VALID_TYPES:
             raise Exception('Invalid data type: %s' % data_type)
+
+
+        self._data_type = data_type
 
     def check_string(self, value):
 
