@@ -167,7 +167,7 @@ class Cell(object):
 
             # date detection
 
-            if isinstance(value, (datetime.datetime, datetime.time)):
+            if isinstance(value, datetime.datetime):
 
                 value = SharedDate().datetime_to_julian(date = value)
 
@@ -182,7 +182,11 @@ class Cell(object):
 
     def _set_number_format(self, format_code):
 
-        self.parent.get_style(self.get_coordinate()).number_format.format_code = format_code
+        self.style.number_format.format_code = format_code
+
+    @property
+    def style(self):
+        return self.parent.get_style(self.get_coordinate())
 
     def data_type_for_value(self, value):
 
@@ -192,6 +196,8 @@ class Cell(object):
             return self.TYPE_BOOL
         elif not value:
             return self.TYPE_STRING
+        elif isinstance(value, datetime.datetime):
+            return self.TYPE_NUMERIC
         elif isinstance(value, basestring) and value[0] == '=':
             return self.TYPE_FORMULA
         elif isinstance(value, (int, float)):

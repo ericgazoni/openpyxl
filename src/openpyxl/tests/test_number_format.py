@@ -30,6 +30,8 @@ from openpyxl.tests.helper import BaseTestCase, DATADIR
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import Cell
+from openpyxl.style import NumberFormat
+
 
 from openpyxl.shared.date_time import SharedDate
 
@@ -66,3 +68,16 @@ class TestNumberFormat(BaseTestCase):
         self.worksheet.cell(coordinate = 'A1').value = '3.14%'
 
         self.assertEqual(Cell.TYPE_NUMERIC, self.worksheet.cell(coordinate = 'A1')._data_type)
+
+    def test_insert_date(self):
+
+        self.worksheet.cell(coordinate = 'A1').value = datetime.datetime.now()
+
+    def test_number_format_style(self):
+
+        ws = self.worksheet
+
+        ws.cell('A1').value = '12.6%'
+
+        self.assertEqual(NumberFormat.FORMAT_PERCENTAGE, ws.cell(coordinate = 'A1').style.number_format.format_code)
+
