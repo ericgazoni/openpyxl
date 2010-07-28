@@ -22,7 +22,7 @@ setup(name = "openpyxl",
     packages = find_packages('src'),
     include_package_data = True,
     package_dir = {'':'src'},
-    package_data = {'': ['tests/*.xml', 'tests/*.xslx']}, #DOESN'T AFFECT zip DISTRIBUTION. MUST MODIFY MANIFEST.in TOO
+    package_data = {'': ['openpyxl/tests/*.xml', 'openpyxl/tests/*.xslx']}, #DOESN'T AFFECT zip DISTRIBUTION. MUST MODIFY MANIFEST.in TOO
     #metadata
     version = openpyxl.__version__,
     description = "A Python library to read/write Excel 2007 xlsx/xlsm files",
