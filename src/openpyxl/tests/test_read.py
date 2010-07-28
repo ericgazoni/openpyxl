@@ -88,3 +88,15 @@ class TestReadWorkbook(BaseTestCase):
 
         self.assertEqual(18, sheet2.cell('D18').value)
 
+
+class TestReadWorkbookNoStringTable(BaseTestCase):
+
+    def setUp(self):
+
+        self.genuine_wb = osp.join(DATADIR, 'genuine', 'empty-no-string.xlsx')
+
+    def test_read_workbook(self):
+
+        wb = load_workbook(filename = self.genuine_wb)
+
+        self.assertTrue(isinstance(wb, Workbook))

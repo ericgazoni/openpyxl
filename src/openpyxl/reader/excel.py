@@ -47,7 +47,11 @@ def load_workbook(filename):
         # add worksheets        
         wb.worksheets = [] # remove preset worksheet
         sheet_names = read_sheets_titles(xml_source = archive.get_from_name(arc_name = ARC_APP))
-        string_table = read_string_table(xml_source = archive.get_from_name(arc_name = ARC_SHARED_STRINGS))
+
+        if archive.is_in_archive(arc_name = ARC_SHARED_STRINGS):
+            string_table = read_string_table(xml_source = archive.get_from_name(arc_name = ARC_SHARED_STRINGS))
+        else:
+            string_table = {}
 
         for i, sheet_name in enumerate(sheet_names):
 

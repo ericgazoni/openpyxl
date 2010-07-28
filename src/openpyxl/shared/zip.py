@@ -34,6 +34,13 @@ class ZipArchive(object):
                                 compression = ZIP_DEFLATED,
                                 allowZip64 = False)
 
+    def is_in_archive(self, arc_name):
+
+        try:
+            self._zipfile.getinfo(name = arc_name)
+            return True
+        except KeyError:
+            return False
 
     def add_from_string(self, arc_name, content):
 
