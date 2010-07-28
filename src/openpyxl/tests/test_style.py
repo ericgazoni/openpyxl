@@ -24,7 +24,7 @@ THE SOFTWARE.
 '''
 
 import os.path as osp
-from tests.helper import BaseTestCase, DATADIR, TMPDIR
+from openpyxl.tests.helper import BaseTestCase, DATADIR, TMPDIR
 
 from openpyxl.writer.styles import write_styles
 

@@ -26,7 +26,7 @@ THE SOFTWARE.
 from __future__ import with_statement
 import os.path as osp
 
-from tests.helper import BaseTestCase, DATADIR
+from openpyxl.tests.helper import BaseTestCase, DATADIR
 
 from openpyxl.workbook import Workbook
 from openpyxl.writer.strings import create_string_table

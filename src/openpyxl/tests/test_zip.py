@@ -27,7 +27,7 @@ import os.path as osp
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from tests.helper import BaseTestCase, TMPDIR
+from openpyxl.tests.helper import BaseTestCase, TMPDIR
 from openpyxl.shared.zip import ZipArchive
 
 class TestZip(BaseTestCase):

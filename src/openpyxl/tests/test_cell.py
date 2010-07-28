@@ -24,7 +24,7 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from tests.helper import BaseTestCase
+from openpyxl.tests.helper import BaseTestCase
 
 from openpyxl.cell import column_index_from_string, coordinate_from_string, get_column_letter, Cell, absolute_coordinate
 

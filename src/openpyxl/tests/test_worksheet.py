@@ -23,7 +23,7 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from tests.helper import BaseTestCase
+from openpyxl.tests.helper import BaseTestCase
 
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet

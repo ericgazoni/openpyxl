@@ -25,7 +25,7 @@ THE SOFTWARE.
 from __future__ import with_statement
 
 import os.path as osp
-from tests.helper import BaseTestCase, DATADIR, TMPDIR
+from openpyxl.tests.helper import BaseTestCase, DATADIR, TMPDIR
 import datetime
 
 from openpyxl.reader.workbook import read_properties_core, read_sheets_titles

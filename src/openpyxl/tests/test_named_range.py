@@ -24,7 +24,7 @@ THE SOFTWARE.
 '''
 from __future__ import with_statement
 import os.path as osp
-from tests.helper import BaseTestCase, DATADIR
+from openpyxl.tests.helper import BaseTestCase, DATADIR
 
 from openpyxl.namedrange import split_named_range
 from openpyxl.reader.workbook import read_named_ranges

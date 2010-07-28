@@ -26,7 +26,7 @@ THE SOFTWARE.
 from __future__ import with_statement
 import os.path as osp
 from shutil import copy
-from tests.helper import BaseTestCase, TMPDIR, DATADIR
+from openpyxl.tests.helper import BaseTestCase, TMPDIR, DATADIR
 
 from openpyxl.worksheet import Worksheet
 from openpyxl.workbook import Workbook

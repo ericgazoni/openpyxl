@@ -23,7 +23,7 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from tests.helper import BaseTestCase
+from openpyxl.tests.helper import BaseTestCase
 
 from openpyxl.shared.password_hasher import hash_password
 

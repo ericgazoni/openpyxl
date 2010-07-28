@@ -25,7 +25,7 @@ THE SOFTWARE.
 from __future__ import with_statement
 import os.path as osp
 import datetime
-from tests.helper import BaseTestCase, DATADIR
+from openpyxl.tests.helper import BaseTestCase, DATADIR
 
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet
