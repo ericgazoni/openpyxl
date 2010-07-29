@@ -44,24 +44,28 @@ def write_style_table(style_table):
 
     root_node = Element('styleSheet', {'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'})
 
-    number_format_table = write_number_formats(root_node, style_table)
+    sorted_styles = sorted(style_table.iteritems(), key = lambda pair:pair[1])
 
-    write_fonts(root_node, style_table)
+    style_list = [s[0] for s in sorted_styles]
 
-    write_fills(root_node, style_table)
+    number_format_table = write_number_formats(root_node, style_list)
 
-    write_borders(root_node, style_table)
+    write_fonts(root_node, style_list)
 
-    write_cell_style_xfs(root_node, style_table)
+    write_fills(root_node, style_list)
+
+    write_borders(root_node, style_list)
+
+    write_cell_style_xfs(root_node, style_list)
 
     # writing the cellXfs
-    cell_xfs = SubElement(root_node, 'cellXfs', {'count':'%d' % (len(style_table) + 1)})
+    cell_xfs = SubElement(root_node, 'cellXfs', {'count':'%d' % (len(style_list) + 1)})
     SubElement(cell_xfs, 'xf', {'numFmtId':'0',
                                 'fontId':'0',
                                 'fillId':'0',
                                 'xfId':'0',
                                 'borderId':'0'})
-    for style in style_table:
+    for style in style_list:
 
         SubElement(cell_xfs, 'xf', {'numFmtId':'%d' % number_format_table[style.number_format],
                                     'applyNumberFormat':'1',
@@ -70,15 +74,15 @@ def write_style_table(style_table):
                                     'xfId':'0',
                                     'borderId':'0'})
 
-    write_cell_style(root_node, style_table)
+    write_cell_style(root_node, style_list)
 
-    write_dxfs(root_node, style_table)
+    write_dxfs(root_node, style_list)
 
-    write_table_styles(root_node, style_table)
+    write_table_styles(root_node, style_list)
 
     return get_document_content(xml_node = root_node)
 
-def write_fonts(root_node, style_table):
+def write_fonts(root_node, style_list):
 
     fonts = SubElement(root_node, 'fonts', {'count':'1'})
 
@@ -90,7 +94,7 @@ def write_fonts(root_node, style_table):
     SubElement(font_node, 'family', {'val':'2'})
     SubElement(font_node, 'scheme', {'val':'minor'})
 
-def write_fills(root_node, style_table):
+def write_fills(root_node, style_list):
 
     fills = SubElement(root_node, 'fills', {'count':'2'})
 
@@ -101,7 +105,7 @@ def write_fills(root_node, style_table):
     SubElement(fill, 'patternFill', {'patternType':'gray125'})
 
 
-def write_borders(root_node, style_table):
+def write_borders(root_node, style_list):
 
     borders = SubElement(root_node, 'borders', {'count':'1'})
 
@@ -113,7 +117,7 @@ def write_borders(root_node, style_table):
     SubElement(border, 'bottom')
     SubElement(border, 'diagonal')
 
-def write_cell_style_xfs(root_node, style_table):
+def write_cell_style_xfs(root_node, style_list):
 
     cell_style_xfs = SubElement(root_node, 'cellStyleXfs', {'count':'1'})
 
@@ -122,7 +126,7 @@ def write_cell_style_xfs(root_node, style_table):
                                            'fillId':"0",
                                            'borderId':"0"})
 
-def write_cell_style(root_node, style_table):
+def write_cell_style(root_node, style_list):
 
     cell_styles = SubElement(root_node, 'cellStyles', {'count':'1'})
 
@@ -130,17 +134,17 @@ def write_cell_style(root_node, style_table):
                                                        'xfId':"0",
                                                        'builtinId':"0"})
 
-def write_dxfs(root_node, style_table):
+def write_dxfs(root_node, style_list):
 
     dxfs = SubElement(root_node, 'dxfs', {'count':'0'})
 
-def write_table_styles(root_node, style_table):
+def write_table_styles(root_node, style_list):
 
     table_styles = SubElement(root_node, 'tableStyles', {'count':'0',
                                                          'defaultTableStyle':'TableStyleMedium9',
                                                          'defaultPivotStyle':'PivotStyleLight16'})
 
-def write_number_formats(root_node, style_table):
+def write_number_formats(root_node, style_list):
 
     number_format_table = {}
 
@@ -149,7 +153,7 @@ def write_number_formats(root_node, style_table):
     num_fmt_id = 165 # start at a greatly higher value as any builtin can go
     num_fmt_offset = 0
 
-    for style in style_table.keys():
+    for style in style_list:
 
         if not style.number_format in number_format_list  :
             number_format_list.append(style.number_format)
