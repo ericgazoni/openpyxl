@@ -32,9 +32,10 @@ from StringIO import StringIO
 from xml.etree.ElementTree import  fromstring, ElementTree
 from pprint import pprint
 from openpyxl.shared.xmltools import pretty_indent
+from tempfile import gettempdir
 
 DATADIR = osp.abspath(osp.join(osp.dirname(__file__), 'test_data'))
-TMPDIR = osp.join(osp.dirname(DATADIR), 'tmp')
+TMPDIR = osp.join(gettempdir(), 'openpyxl_test_temp')
 
 def clean_tmpdir():
     if osp.isdir(TMPDIR):

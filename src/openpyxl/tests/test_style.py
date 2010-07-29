@@ -26,6 +26,7 @@ from __future__ import with_statement
 import os.path as osp
 from openpyxl.tests.helper import BaseTestCase, DATADIR, TMPDIR
 from openpyxl.writer.excel import ExcelWriter
+from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
 from openpyxl.style import NumberFormat
 import datetime
@@ -33,15 +34,6 @@ import datetime
 from openpyxl.writer.styles import  create_style_table
 
 from openpyxl.writer.styles import write_style_table
-
-#class TestStyle(BaseTestCase):
-#
-#    def test_write_style(self):
-#
-#        content = write_style_table(style_table = {})
-#
-#        self.assertEqualsFileContent(osp.join(DATADIR, 'writer', 'expected', 'styles.xml'), content)
-
 
 class TestCreateStyle(BaseTestCase):
 
@@ -80,3 +72,24 @@ class TestCreateStyle(BaseTestCase):
         reference_file = osp.join(DATADIR, 'writer', 'expected', 'simple-styles.xml')
         self.assertEqualsFileContent(reference_file = reference_file,
                                      fixture = content)
+
+class TestReadStyle(BaseTestCase):
+
+    def test_read_style(self):
+
+        reference_file = osp.join(DATADIR, 'writer', 'expected', 'simple-styles.xml')
+
+        with open(reference_file) as ref_file:
+
+            content = ref_file.read()
+
+            style_table = read_style_table(xml_source = content)
+
+        self.assertEqual(4, len(style_table))
+
+        self.assertEqual(NumberFormat._BUILTIN_FORMATS[9], style_table[1].number_format.format_code)
+
+        self.assertEqual('yyyy-mm-dd', style_table[2].number_format.format_code)
+
+
+

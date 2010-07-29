@@ -1,4 +1,3 @@
-# coding=UTF-8
 '''
 Copyright (c) 2010 openpyxl
 
@@ -23,33 +22,52 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-
 from xml.etree.cElementTree import fromstring, QName
-from openpyxl.cell import Cell
-from openpyxl.worksheet import Worksheet
+from openpyxl.style import Style, NumberFormat
 
-def read_worksheet(xml_source, parent, preset_title, string_table):
+def read_style_table(xml_source):
+
+    table = {}
 
     xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 
-    ws = Worksheet(parent_workbook = parent, title = preset_title)
-
     root = fromstring(text = xml_source)
 
-    sheet_data = root.find(QName(xmlns, 'sheetData').text)
+    custom_num_formats = parse_custom_num_formats(root, xmlns)
+    builtin_formats = NumberFormat._BUILTIN_FORMATS
 
-    for row in sheet_data.getchildren():
 
-        for cell in row.getchildren():
+    cell_xfs = root.find(QName(xmlns, 'cellXfs').text)
 
-            coordinate = cell.get('r')
-            data_type = cell.get('t', 'n')
-            value = cell.findtext(QName(xmlns, 'v').text)
+    cell_xfs_nodes = cell_xfs.findall(QName(xmlns, 'xf').text)
 
-            if data_type == Cell.TYPE_STRING:
-                value = string_table[int(value)]
+    for i, cell_xfs_node in enumerate(cell_xfs_nodes):
 
-            c = ws.cell(coordinate)
-            c.value = value
+        new_style = Style()
 
-    return ws
+        number_format_id = int(cell_xfs_node.get('numFmtId'))
+
+        if number_format_id <= 164:
+
+            new_style.number_format.format_code = builtin_formats[number_format_id]
+
+        else:
+
+            new_style.number_format.format_code = custom_num_formats[number_format_id]
+
+        table[i] = new_style
+
+    return table
+
+def parse_custom_num_formats(root, xmlns):
+
+    custom_formats = {}
+
+
+    num_fmts = root.find(QName(xmlns, 'numFmts').text)
+    num_fmt_nodes = num_fmts.findall(QName(xmlns, 'numFmt').text)
+
+    for num_fmt_node in num_fmt_nodes:
+         custom_formats[int(num_fmt_node.get('numFmtId'))] = num_fmt_node.get('formatCode')
+
+    return custom_formats
