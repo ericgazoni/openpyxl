@@ -46,13 +46,15 @@ def read_worksheet(xml_source, parent, preset_title, string_table, style_table):
             data_type = cell.get('t', 'n')
             value = cell.findtext(QName(xmlns, 'v').text)
 
-            if data_type == Cell.TYPE_STRING:
-                value = string_table[int(value)]
+            if value is not None:
 
-            ws.cell(coordinate).value = value
+                if data_type == Cell.TYPE_STRING:
+                    value = string_table[int(value)]
 
-            style_id = cell.get('s')
-            if style_id is not None:
-               ws._styles[coordinate] = style_table[int(style_id)]
+                ws.cell(coordinate).value = value
+
+                style_id = cell.get('s')
+                if style_id is not None:
+                    ws._styles[coordinate] = style_table[int(style_id)]
 
     return ws
