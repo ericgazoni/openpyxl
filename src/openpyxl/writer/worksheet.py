@@ -31,7 +31,7 @@ from openpyxl.cell import column_index_from_string
 from openpyxl.shared.xmltools import get_document_content
 
 
-def write_worksheet(worksheet, string_table):
+def write_worksheet(worksheet, string_table, style_table):
 
     root = Element('worksheet', {'xml:space':'preserve',
                                 'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
@@ -56,11 +56,11 @@ def write_worksheet(worksheet, string_table):
     SubElement(root, 'sheetFormatPr', {'defaultRowHeight' : '15'})
 
     # sheet data
-    write_worksheet_data(root, worksheet, string_table)
+    write_worksheet_data(root, worksheet, string_table, style_table)
 
     return get_document_content(xml_node = root)
 
-def write_worksheet_data(root_node, worksheet, string_table):
+def write_worksheet_data(root_node, worksheet, string_table, style_table):
 
     sheet_data = SubElement(root_node, 'sheetData')
 
@@ -82,8 +82,17 @@ def write_worksheet_data(root_node, worksheet, string_table):
 
         for cell in sorted_cells:
 
-            c = SubElement(row, 'c', {'r' : cell.get_coordinate(),
-                                      't' : cell.data_type})
+            coordinate = cell.get_coordinate()
+
+            attributes = {'r' : coordinate}
+
+            if coordinate in worksheet._styles:
+                attributes['s'] = '%d' % get_style_id_by_hash(current_style = worksheet._styles[coordinate],
+                                                              style_table = style_table)
+            else:
+                attributes['t'] = cell.data_type
+
+            c = SubElement(row, 'c', attributes)
 
             if cell.data_type == cell.TYPE_STRING:
                 SubElement(c, 'v').text = '%s' % string_table[cell.value]
@@ -92,3 +101,9 @@ def write_worksheet_data(root_node, worksheet, string_table):
                 SubElement(c, 'v').text = 0
             else:
                 SubElement(c, 'v').text = '%s' % cell.value
+
+def get_style_id_by_hash(current_style, style_table):
+
+    for style in style_table.keys():
+        if current_style == style:
+            return style_table[style]

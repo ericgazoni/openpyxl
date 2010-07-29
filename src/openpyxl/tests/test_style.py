@@ -22,16 +22,55 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-
+from __future__ import with_statement
 import os.path as osp
 from openpyxl.tests.helper import BaseTestCase, DATADIR, TMPDIR
+from openpyxl.writer.excel import ExcelWriter
+from openpyxl.workbook import Workbook
+from openpyxl.style import NumberFormat
+import datetime
 
-from openpyxl.writer.styles import write_styles
+from openpyxl.writer.styles import  create_style_table
 
-class TestStyle(BaseTestCase):
+from openpyxl.writer.styles import write_style_table
 
-    def test_write_style(self):
+#class TestStyle(BaseTestCase):
+#
+#    def test_write_style(self):
+#
+#        content = write_style_table(style_table = {})
+#
+#        self.assertEqualsFileContent(osp.join(DATADIR, 'writer', 'expected', 'styles.xml'), content)
 
-        content = write_styles()
 
-        self.assertEqualsFileContent(osp.join(DATADIR, 'writer', 'expected', 'styles.xml'), content)
+class TestCreateStyle(BaseTestCase):
+
+    def setUp(self):
+
+        self.workbook = Workbook()
+
+        self.worksheet = self.workbook.create_sheet()
+
+        self.worksheet.cell(coordinate = 'A1').value = '12.34%'
+
+        now = datetime.datetime.now()
+        self.worksheet.cell(coordinate = 'B4').value = now
+        self.worksheet.cell(coordinate = 'B5').value = now
+
+    def test_create_style_table(self):
+
+        table = create_style_table(workbook = self.workbook)
+
+        self.assertEqual(2, len(table))
+
+    def test_write_style_table(self):
+
+        table = create_style_table(workbook = self.workbook)
+
+        content = write_style_table(style_table = table)
+
+        reference_file = osp.join(DATADIR, 'writer', 'expected', 'simple-styles.xml')
+
+        self.assertEqualsFileContent(reference_file = reference_file,
+                                     fixture = content)
+

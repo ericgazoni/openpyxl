@@ -30,7 +30,7 @@ from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, ARC_ROO
 from openpyxl.writer.strings import create_string_table, write_string_table
 from openpyxl.writer.workbook import write_content_types, write_root_rels, write_workbook_rels, write_properties_app, write_properties_core, write_workbook
 from openpyxl.writer.theme import write_theme
-from openpyxl.writer.styles import write_styles
+from openpyxl.writer.styles import create_style_table, write_style_table
 from openpyxl.writer.worksheet import write_worksheet
 
 class ExcelWriter(object):
@@ -44,6 +44,7 @@ class ExcelWriter(object):
         archive = ZipArchive(filename = filename, mode = 'w')
 
         shared_string_table = create_string_table(workbook = self.workbook)
+        shared_style_table = create_style_table(workbook = self.workbook)
 
         # write shared strings
         archive.add_from_string(arc_name = ARC_SHARED_STRINGS,
@@ -71,7 +72,7 @@ class ExcelWriter(object):
         archive.add_from_string(arc_name = ARC_THEME, content = write_theme())
 
         # write style
-        archive.add_from_string(arc_name = ARC_STYLE, content = write_styles())
+        archive.add_from_string(arc_name = ARC_STYLE, content = write_style_table(style_table = shared_style_table))
 
         # write workbook
         archive.add_from_string(arc_name = ARC_WORKBOOK, content = write_workbook(workbook = self.workbook))
@@ -79,4 +80,6 @@ class ExcelWriter(object):
         # write sheets
         for i, sheet in enumerate(self.workbook.worksheets):
             archive.add_from_string(arc_name = PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1),
-                                    content = write_worksheet(worksheet = sheet, string_table = shared_string_table))
+                                    content = write_worksheet(worksheet = sheet,
+                                                              string_table = shared_string_table,
+                                                              style_table = shared_style_table))

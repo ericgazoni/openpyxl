@@ -90,7 +90,7 @@ class TestWriteWorksheet(BaseTestCase):
 
         ws.cell('F42').value = 'hello'
 
-        content = write_worksheet(worksheet = ws, string_table = {'hello' : 0})
+        content = write_worksheet(worksheet = ws, string_table = {'hello' : 0}, style_table = {})
 
         self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1.xml'),
                                      fixture = content)
@@ -106,7 +106,7 @@ class TestWriteWorksheet(BaseTestCase):
         ws.cell('F2').value = 32
         ws.cell('F3').value = '=F1+F2'
 
-        content = write_worksheet(worksheet = ws, string_table = { })
+        content = write_worksheet(worksheet = ws, string_table = { }, style_table = {})
 
         self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1_formula.xml'),
                                      fixture = content)

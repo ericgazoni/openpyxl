@@ -23,7 +23,35 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-class Color(object):
+from hashlib import md5
+
+class HashableObject(object):
+
+    def __fields__(self):
+
+        return [a for a in dir(self) if a not in dir(self.__class__)]
+
+    def __crc__(self):
+
+        data = ''.join([unicode(getattr(self, a)) for a in self.__fields__()])
+
+        return md5(data).hexdigest()
+
+    def __cmp__(self, other):
+
+        return cmp(self.__crc__(), other.__crc__())
+
+    def __eq__(self, other):
+
+        return self.__crc__() == other.__crc__()
+
+    def __ne__(self, other):
+
+        return not self.__eq__(other)
+
+    __str__ = __crc__
+
+class Color(HashableObject):
 
     BLACK = 'FF000000'
     WHITE = 'FFFFFFFF'
@@ -38,10 +66,11 @@ class Color(object):
 
     def __init__(self, index):
 
+        HashableObject.__init__(self)
+
         self.index = index
 
-
-class Font(object):
+class Font(HashableObject):
 
     UNDERLINE_NONE = 'none'
     UNDERLINE_DOUBLE = 'double'
@@ -50,6 +79,8 @@ class Font(object):
     UNDERLINE_SINGLE_ACCOUNTING = 'singleAccounting'
 
     def __init__(self):
+
+        HashableObject.__init__(self)
 
         self.name = 'Calibri'
         self.size = 11
@@ -61,7 +92,7 @@ class Font(object):
         self.strikethrough = False
         self.color = Color(Color.BLACK)
 
-class Fill(object):
+class Fill(HashableObject):
 
     FILL_NONE = 'none'
     FILL_SOLID = 'solid'
@@ -87,12 +118,14 @@ class Fill(object):
 
     def __init__(self):
 
+        HashableObject.__init__(self)
+
         self.fill_type = self.FILL_NONE
         self.rotation = 0
         self.start_color = Color(Color.WHITE)
         self.end_color = Color(Color.BLACK)
 
-class Border(object):
+class Border(HashableObject):
 
     BORDER_NONE = 'none'
     BORDER_DASHDOT = 'dashDot'
@@ -111,10 +144,12 @@ class Border(object):
 
     def __init__(self):
 
+        HashableObject.__init__(self)
+
         self.border_style = self.BORDER_NONE
         self.color = Color(Color.BLACK)
 
-class Borders(object):
+class Borders(HashableObject):
 
     DIAGONAL_NONE = 0
     DIAGONAL_UP = 1
@@ -122,6 +157,8 @@ class Borders(object):
     DIAGONAL_BOTH = 3
 
     def __init__(self):
+
+        HashableObject.__init__(self)
 
         self.left = Border()
         self.right = Border()
@@ -136,7 +173,7 @@ class Borders(object):
         self.vertical = Border()
         self.horizontal = Border()
 
-class Alignment(object):
+class Alignment(HashableObject):
 
     HORIZONTAL_GENERAL = 'general'
     HORIZONTAL_LEFT = 'left'
@@ -152,6 +189,8 @@ class Alignment(object):
 
     def __init__(self):
 
+        HashableObject.__init__(self)
+
         self.horizontal = self.HORIZONTAL_GENERAL
         self.vetical = self.VERTICAL_BOTTOM
         self.text_rotation = 0
@@ -159,7 +198,7 @@ class Alignment(object):
         self.shrink_to_fit = False
         self.indent = 0
 
-class NumberFormat(object):
+class NumberFormat(HashableObject):
 
     FORMAT_GENERAL = 'General'
 
@@ -239,6 +278,8 @@ class NumberFormat(object):
 
     def __init__(self):
 
+        HashableObject.__init__(self)
+
         self._format_code = self.FORMAT_GENERAL
         self._format_index = 0
 
@@ -257,7 +298,10 @@ class NumberFormat(object):
 
         return self._BUILTIN_FORMATS[index]
 
-    def is_builtin(self, format):
+    def is_builtin(self, format = None):
+
+        if format is None:
+            format = self._format_code
 
         return format in self._BUILTIN_FORMATS.values()
 
@@ -265,7 +309,7 @@ class NumberFormat(object):
 
         return self._BUILTIN_FORMATS_REVERSE.get(format, None)
 
-class Protection(object):
+class Protection(HashableObject):
 
     PROTECTION_INHERIT = 'inherit'
     PROTECTION_PROTECTED = 'protected'
@@ -273,12 +317,16 @@ class Protection(object):
 
     def __init__(self):
 
+        HashableObject.__init__(self)
+
         self.locked = self.PROTECTION_INHERIT
         self.hidden = self.PROTECTION_INHERIT
 
-class Style(object):
+class Style(HashableObject):
 
     def __init__(self):
+
+        HashableObject.__init__(self)
 
         self.font = Font()
         self.fill = Fill()
