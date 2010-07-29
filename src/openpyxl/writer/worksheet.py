@@ -99,6 +99,8 @@ def write_worksheet_data(root_node, worksheet, string_table, style_table):
             elif cell.data_type == cell.TYPE_FORMULA:
                 SubElement(c, 'f').text = '%s' % cell.value[1:]
                 SubElement(c, 'v').text = 0
+            elif cell.data_type == cell.TYPE_NUMERIC:
+                SubElement(c, 'v').text = '%s' % cell._value
             else:
                 SubElement(c, 'v').text = '%s' % cell.value
 
