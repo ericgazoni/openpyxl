@@ -23,12 +23,13 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, ARC_WORKBOOK, PACKAGE_WORKSHEETS
+from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, ARC_WORKBOOK, PACKAGE_WORKSHEETS, ARC_STYLE
 from openpyxl.shared.zip import ZipArchive
 
 from openpyxl.workbook import Workbook
 
 from openpyxl.reader.strings import read_string_table
+from openpyxl.reader.style import read_style_table
 from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, read_properties_core
 from openpyxl.reader.worksheet import read_worksheet
 
@@ -53,6 +54,8 @@ def load_workbook(filename):
         else:
             string_table = {}
 
+        style_table = read_style_table(xml_source = archive.get_from_name(arc_name = ARC_STYLE))
+
         for i, sheet_name in enumerate(sheet_names):
 
             worksheet_path = '%s/%s' % (PACKAGE_WORKSHEETS, 'sheet%d.xml' % (i + 1))
@@ -60,7 +63,8 @@ def load_workbook(filename):
             new_ws = read_worksheet(xml_source = archive.get_from_name(arc_name = worksheet_path),
                                     parent = wb,
                                     preset_title = sheet_name,
-                                    string_table = string_table)
+                                    string_table = string_table,
+                                    style_table = style_table)
 
             wb.add_sheet(worksheet = new_ws, index = i)
 

@@ -31,6 +31,8 @@ from openpyxl.tests.helper import BaseTestCase, TMPDIR, DATADIR
 from openpyxl.worksheet import Worksheet
 from openpyxl.workbook import Workbook
 
+from openpyxl.style import NumberFormat, Style
+
 from openpyxl.reader.worksheet import read_worksheet
 
 from openpyxl.reader.excel import load_workbook
@@ -51,7 +53,8 @@ class TestReadWorksheet(BaseTestCase):
             ws = read_worksheet(xml_source = content,
                                 parent = DummyWb(),
                                 preset_title = 'Sheet 2',
-                                string_table = {1 : 'hello'})
+                                string_table = {1 : 'hello'},
+                                style_table = {1 : Style()})
 
             self.assertTrue(isinstance(ws, Worksheet))
 
@@ -100,3 +103,19 @@ class TestReadWorkbookNoStringTable(BaseTestCase):
         wb = load_workbook(filename = self.genuine_wb)
 
         self.assertTrue(isinstance(wb, Workbook))
+
+class TestReadWorkbookWithStyles(BaseTestCase):
+
+    def setUp(self):
+
+        self.genuine_wb = osp.join(DATADIR, 'genuine', 'empty-with-styles.xlsx')
+        wb = load_workbook(filename = self.genuine_wb)
+        self.ws = wb.get_sheet_by_name(name = 'Sheet1')
+
+    def test_read_general_style(self):
+
+        self.assertEqual(self.ws.cell('A1').style.number_format.format_code, NumberFormat.FORMAT_GENERAL)
+
+    def test_read_percentage_style(self):
+
+        self.assertEqual(self.ws.cell('A2').style.number_format.format_code, NumberFormat.FORMAT_DATE_XLSX14)

@@ -28,7 +28,7 @@ from xml.etree.cElementTree import fromstring, QName
 from openpyxl.cell import Cell
 from openpyxl.worksheet import Worksheet
 
-def read_worksheet(xml_source, parent, preset_title, string_table):
+def read_worksheet(xml_source, parent, preset_title, string_table, style_table):
 
     xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 
@@ -49,7 +49,10 @@ def read_worksheet(xml_source, parent, preset_title, string_table):
             if data_type == Cell.TYPE_STRING:
                 value = string_table[int(value)]
 
-            c = ws.cell(coordinate)
-            c.value = value
+            ws.cell(coordinate).value = value
+
+            style_id = cell.get('s')
+            if style_id is not None:
+               ws._styles[coordinate] = style_table[int(style_id)]
 
     return ws

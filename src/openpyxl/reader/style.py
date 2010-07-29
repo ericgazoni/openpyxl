@@ -63,11 +63,12 @@ def parse_custom_num_formats(root, xmlns):
 
     custom_formats = {}
 
-
     num_fmts = root.find(QName(xmlns, 'numFmts').text)
-    num_fmt_nodes = num_fmts.findall(QName(xmlns, 'numFmt').text)
 
-    for num_fmt_node in num_fmt_nodes:
-         custom_formats[int(num_fmt_node.get('numFmtId'))] = num_fmt_node.get('formatCode')
+    if num_fmts is not None:
+        num_fmt_nodes = num_fmts.findall(QName(xmlns, 'numFmt').text)
+
+        for num_fmt_node in num_fmt_nodes:
+             custom_formats[int(num_fmt_node.get('numFmtId'))] = num_fmt_node.get('formatCode')
 
     return custom_formats

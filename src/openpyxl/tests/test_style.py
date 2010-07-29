@@ -91,5 +91,15 @@ class TestReadStyle(BaseTestCase):
 
         self.assertEqual('yyyy-mm-dd', style_table[2].number_format.format_code)
 
+    def test_read_style(self):
 
+        reference_file = osp.join(DATADIR, 'reader', 'empty-workbook-styles.xml')
+
+        with open(reference_file) as ref_file:
+
+            content = ref_file.read()
+
+            style_table = read_style_table(xml_source = content)
+
+        self.assertEqual(2, len(style_table))
 
