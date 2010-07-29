@@ -31,6 +31,7 @@ import difflib
 from StringIO import StringIO
 from xml.etree.ElementTree import  fromstring, ElementTree
 from pprint import pprint
+from openpyxl.shared.xmltools import pretty_indent
 
 DATADIR = osp.abspath(osp.join(osp.dirname(__file__), 'test_data'))
 TMPDIR = osp.join(osp.dirname(DATADIR), 'tmp')
@@ -82,21 +83,4 @@ class BaseTestCase(unittest.TestCase):
     def clean_tmpdir(self):
 
         clean_tmpdir()
-
-
-
-def pretty_indent(elem, level = 0):
-    i = "\n" + level * "  "
-    if len(elem):
-        if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-        for elem in elem:
-            pretty_indent(elem, level + 1)
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-    else:
-        if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
 
