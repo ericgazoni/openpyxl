@@ -69,6 +69,8 @@ class TestNumberFormat(BaseTestCase):
 
         self.assertEqual(Cell.TYPE_NUMERIC, self.worksheet.cell(coordinate = 'A1')._data_type)
 
+        self.assertAlmostEqual(0.0314, self.worksheet.cell(coordinate = 'A1').value)
+
     def test_insert_date(self):
 
         self.worksheet.cell(coordinate = 'A1').value = datetime.datetime.now()
