@@ -221,10 +221,14 @@ class Cell(object):
         elif data_type == self.TYPE_STRING:
             self._value = self.check_string(value)
         elif data_type == self.TYPE_NUMERIC:
-            try:
-                self._value = int(value)
-            except:
-                self._value = float(value)
+
+            if isinstance(value, (int, float)):
+                self._value = value
+            else:
+                try:
+                    self._value = int(value)
+                except:
+                    self._value = float(value)
 
         elif data_type not in self.VALID_TYPES:
             raise Exception('Invalid data type: %s' % data_type)
