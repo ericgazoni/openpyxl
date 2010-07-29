@@ -35,7 +35,7 @@ ARC_WORKBOOK_RELS = PACKAGE_XL + '/' + PACKAGE_RELS + '/workbook.xml.rels'
 ARC_CORE = PACKAGE_PROPS + '/core.xml'
 ARC_APP = PACKAGE_PROPS + '/app.xml'
 ARC_WORKBOOK = PACKAGE_XL + '/workbook.xml'
-ARC_STYLE = PACKAGE_XL + '/style.xml'
+ARC_STYLE = PACKAGE_XL + '/styles.xml'
 ARC_THEME = PACKAGE_THEME + '/theme1.xml'
 ARC_SHARED_STRINGS = PACKAGE_XL + '/sharedStrings.xml'
 
