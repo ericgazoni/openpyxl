@@ -42,7 +42,12 @@ def read_properties_core(xml_source):
     else:
         properties.creator = ''
 
-    properties.last_modified_by = root.find(QName(NAMESPACES['cp'], 'lastModifiedBy').text).text
+    last_modified_by_node = root.find(QName(NAMESPACES['cp'], 'lastModifiedBy').text)
+
+    if last_modified_by_node is not None:
+        properties.last_modified_by = last_modified_by_node.text
+    else:
+        properties.last_modified_by = ''
 
     properties.created = W3CDTF_to_datetime(root.find(QName(NAMESPACES['dcterms'], 'created').text).text)
     properties.modified = W3CDTF_to_datetime(root.find(QName(NAMESPACES['dcterms'], 'modified').text).text)
