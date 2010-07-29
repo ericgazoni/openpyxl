@@ -116,6 +116,18 @@ class TestReadWorkbookWithStyles(BaseTestCase):
 
         self.assertEqual(self.ws.cell('A1').style.number_format.format_code, NumberFormat.FORMAT_GENERAL)
 
-    def test_read_percentage_style(self):
+    def test_read_date_style(self):
 
         self.assertEqual(self.ws.cell('A2').style.number_format.format_code, NumberFormat.FORMAT_DATE_XLSX14)
+
+    def test_read_number_style(self):
+
+        self.assertEqual(self.ws.cell('A3').style.number_format.format_code, NumberFormat.FORMAT_NUMBER_00)
+
+    def test_read_time_style(self):
+
+        self.assertEqual(self.ws.cell('A4').style.number_format.format_code, NumberFormat.FORMAT_DATE_TIME3)
+
+    def test_read_percentage_style(self):
+
+        self.assertEqual(self.ws.cell('A5').style.number_format.format_code, NumberFormat.FORMAT_PERCENTAGE_00)
