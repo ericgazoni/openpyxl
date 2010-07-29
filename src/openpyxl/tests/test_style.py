@@ -57,11 +57,19 @@ class TestCreateStyle(BaseTestCase):
         self.worksheet.cell(coordinate = 'B4').value = now
         self.worksheet.cell(coordinate = 'B5').value = now
 
+
+        self.worksheet.cell(coordinate = 'C14').value = u'This is a test'
+
+
+        self.worksheet.cell(coordinate = 'D9').value = '31.31415'
+        self.worksheet.cell(coordinate = 'D9').style.number_format.format_code = NumberFormat.FORMAT_NUMBER_00
+
+
     def test_create_style_table(self):
 
         table = create_style_table(workbook = self.workbook)
 
-        self.assertEqual(2, len(table))
+        self.assertEqual(3, len(table))
 
     def test_write_style_table(self):
 
@@ -70,7 +78,5 @@ class TestCreateStyle(BaseTestCase):
         content = write_style_table(style_table = table)
 
         reference_file = osp.join(DATADIR, 'writer', 'expected', 'simple-styles.xml')
-
         self.assertEqualsFileContent(reference_file = reference_file,
                                      fixture = content)
-
