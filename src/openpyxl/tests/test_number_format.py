@@ -73,6 +73,25 @@ class TestNumberFormat(BaseTestCase):
 
         self.worksheet.cell(coordinate = 'A1').value = datetime.datetime.now()
 
+        self.assertEqual(Cell.TYPE_NUMERIC, self.worksheet.cell(coordinate = 'A1')._data_type)
+
+    def test_internal_date(self):
+
+        dt = datetime.datetime(2010, 7, 13, 6, 37, 41)
+
+        self.worksheet.cell(coordinate = 'A3').value = dt
+
+        self.assertEqual(40372.27616898148, self.worksheet.cell(coordinate = 'A3')._value)
+
+
+    def test_date_interpretation(self):
+
+        dt = datetime.datetime(2010, 7, 13, 6, 37, 41)
+
+        self.worksheet.cell(coordinate = 'A3').value = dt
+
+        self.assertEqual(dt, self.worksheet.cell(coordinate = 'A3').value)
+
     def test_number_format_style(self):
 
         ws = self.worksheet

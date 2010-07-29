@@ -118,7 +118,12 @@ class Cell(object):
 
     def _get_value(self):
 
-        return self._value
+        value = self._value
+
+        if self.style.number_format.is_date_format():
+            value = SharedDate().from_julian(value)
+
+        return value
 
     def _set_value(self, value):
 
@@ -254,5 +259,3 @@ class Cell(object):
     def get_coordinate(self):
 
         return '%s%s' % (self.column, self.row)
-
-

@@ -24,6 +24,7 @@ THE SOFTWARE.
 '''
 from __future__ import division
 from math import floor
+import calendar
 import datetime
 import time
 
@@ -122,7 +123,7 @@ class SharedDate(object):
 
             seconds = round(utc_days * 24 * 60 * 60)
 
-            return datetime.datetime.fromtimestamp(time.mktime(time.gmtime(seconds)))
+            return datetime.datetime.utcfromtimestamp(calendar.timegm(time.gmtime(seconds)))
 
         else:
 

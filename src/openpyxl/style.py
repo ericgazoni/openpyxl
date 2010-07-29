@@ -23,6 +23,7 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
+import re
 from hashlib import md5
 
 class HashableObject(object):
@@ -308,6 +309,17 @@ class NumberFormat(HashableObject):
     def builtin_format_id(self, format):
 
         return self._BUILTIN_FORMATS_REVERSE.get(format, None)
+
+    def is_date_format(self, format = None):
+
+        if format is None:
+            format = self._format_code
+
+        for format_code in [getattr(self, a) for a in dir(self.__class__) if a.startswith('FORMAT_DATE_')]:
+            if re.search(format_code, format):
+                return True
+
+        return False
 
 class Protection(HashableObject):
 
