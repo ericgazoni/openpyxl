@@ -77,7 +77,7 @@ class TestReadStyle(BaseTestCase):
 
     def test_read_style(self):
 
-        reference_file = osp.join(DATADIR, 'writer', 'expected', 'simple-styles.xml')
+        reference_file = osp.join(DATADIR, 'reader', 'simple-styles.xml')
 
         with open(reference_file) as ref_file:
 
