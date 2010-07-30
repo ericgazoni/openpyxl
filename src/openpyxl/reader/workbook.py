@@ -76,19 +76,35 @@ def read_named_ranges(xml_source, workbook):
 
     names_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'definedNames').text)
 
+    BUGGY_NAMED_RANGES = ['NA()', '#REF!']
+    DISCARDED_RANGES = ['Excel_BuiltIn', ]
+
     if names_root:
 
         for name_node in names_root.getchildren():
 
-            worksheet_name, column, row = split_named_range(range_string = name_node.text)
-            worksheet = workbook.get_sheet_by_name(worksheet_name)
-            range = '%s%s' % (column, row)
+            range_name = name_node.get('name')
 
-            named_range = NamedRange(name = name_node.get('name'),
-                                     worksheet = worksheet,
-                                     range = range)
+            discard = False
 
-            named_ranges['%s!%s' % (worksheet_name, range)] = named_range
+            for bug in BUGGY_NAMED_RANGES:
+                if bug in name_node.text:
+                    discard = True
+
+            for bug in DISCARDED_RANGES:
+                if bug in range_name:
+                    discard = True
+
+            if not discard:
+                worksheet_name, column, row = split_named_range(range_string = name_node.text)
+                worksheet = workbook.get_sheet_by_name(worksheet_name)
+                range = '%s%s' % (column, row)
+
+                named_range = NamedRange(name = range_name,
+                                         worksheet = worksheet,
+                                         range = range)
+
+                named_ranges['%s!%s' % (worksheet_name, range)] = named_range
 
     return named_ranges
 
