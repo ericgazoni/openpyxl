@@ -28,7 +28,7 @@ import os.path as osp
 from openpyxl.tests.helper import BaseTestCase, DATADIR, TMPDIR
 import datetime
 
-from openpyxl.reader.workbook import read_properties_core, read_sheets_titles
+from openpyxl.reader.workbook import read_properties_core, read_sheets_titles, get_number_of_parts
 from openpyxl.writer.workbook import write_properties_core, write_properties_app
 
 from openpyxl.shared.ooxml import ARC_APP, ARC_CORE
@@ -65,6 +65,31 @@ class TestReaderProps(BaseTestCase):
         sheet_titles = read_sheets_titles(xml_source = content)
 
         self.assertEqual(sheet_titles, ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas'])
+
+class TestReaderPropsMixed(BaseTestCase):
+
+    def setUp(self):
+
+        self.reference_filename = osp.join(DATADIR, 'reader', 'app-multi-titles.xml')
+
+        with open(self.reference_filename) as ref_file:
+
+            self.content = ref_file.read()
+
+    def test_read_sheet_titles_mixed(self):
+
+        sheet_titles = read_sheets_titles(xml_source = self.content)
+
+        self.assertEqual(sheet_titles, ['ToC', 'ContractYear', 'ContractTier',
+                                        'Demand', 'LinearizedFunction',
+                                        'Market', 'Transmission'])
+
+    def test_number_of_parts(self):
+
+        parts_number = get_number_of_parts(xml_source = self.content)
+
+        self.assertEqual(parts_number, {'Worksheets':7,
+                                        'Named Ranges':7})
 
 
 class TestWriteProps(BaseTestCase):

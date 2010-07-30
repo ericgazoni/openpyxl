@@ -62,7 +62,11 @@ def read_sheets_titles(xml_source):
 
     vector = titles_root.find(QName(NAMESPACES['vt'], 'vector').text)
 
-    return [c.text for c in vector.getchildren()]
+    size = get_number_of_parts(xml_source)['Worksheets']
+
+    children = [c.text for c in vector.getchildren()]
+
+    return children[:size]
 
 def read_named_ranges(xml_source, workbook):
 
@@ -87,3 +91,23 @@ def read_named_ranges(xml_source, workbook):
             named_ranges['%s!%s' % (worksheet_name, range)] = named_range
 
     return named_ranges
+
+def get_number_of_parts(xml_source):
+
+    parts_size = {}
+
+    root = fromstring(text = xml_source)
+
+    heading_pairs = root.find(QName('http://schemas.openxmlformats.org/officeDocument/2006/extended-properties', 'HeadingPairs').text)
+
+    vector = heading_pairs.find(QName(NAMESPACES['vt'], 'vector').text)
+
+    children = vector.getchildren()
+
+    for child_id in range(0, len(children), 2):
+
+        part_name = children[child_id].find(QName(NAMESPACES['vt'], 'lpstr').text).text
+        part_size = int(children[child_id + 1].find(QName(NAMESPACES['vt'], 'i4').text).text)
+        parts_size[part_name] = part_size
+
+    return parts_size
