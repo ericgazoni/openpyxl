@@ -242,6 +242,29 @@ class NumberFormat(HashableObject):
     FORMAT_DATE_TIME8 = 'h:mm:ss@'
     FORMAT_DATE_YYYYMMDDSLASH = 'yy/mm/dd@'
 
+    _DATE_PATTERNS = (re.compile(FORMAT_DATE_YYYYMMDD2) ,
+                     re.compile(FORMAT_DATE_YYYYMMDD) ,
+                     re.compile(FORMAT_DATE_DDMMYYYY) ,
+                     re.compile(FORMAT_DATE_DMYSLASH) ,
+                     re.compile(FORMAT_DATE_DMYMINUS) ,
+                     re.compile(FORMAT_DATE_DMMINUS) ,
+                     re.compile(FORMAT_DATE_MYMINUS) ,
+                     re.compile(FORMAT_DATE_XLSX14) ,
+                     re.compile(FORMAT_DATE_XLSX15) ,
+                     re.compile(FORMAT_DATE_XLSX16) ,
+                     re.compile(FORMAT_DATE_XLSX17) ,
+                     re.compile(FORMAT_DATE_XLSX22) ,
+                     re.compile(FORMAT_DATE_DATETIME) ,
+                     re.compile(FORMAT_DATE_TIME1) ,
+                     re.compile(FORMAT_DATE_TIME2) ,
+                     re.compile(FORMAT_DATE_TIME3) ,
+                     re.compile(FORMAT_DATE_TIME4) ,
+                     re.compile(FORMAT_DATE_TIME5) ,
+                     re.compile(FORMAT_DATE_TIME6) ,
+                     re.compile(FORMAT_DATE_TIME7) ,
+                     re.compile(FORMAT_DATE_TIME8) ,
+                     re.compile(FORMAT_DATE_YYYYMMDDSLASH))
+
     FORMAT_CURRENCY_USD_SIMPLE = '"$"#,##0.00_-'
     FORMAT_CURRENCY_USD = '$#,##0_-'
     FORMAT_CURRENCY_EUR_SIMPLE = '[$EUR ]#,##0.00_-'
@@ -321,8 +344,8 @@ class NumberFormat(HashableObject):
         if format is None:
             format = self._format_code
 
-        for format_code in [getattr(self, a) for a in dir(self.__class__) if a.startswith('FORMAT_DATE_')]:
-            if re.search(format_code, format):
+        for pattern in self._DATE_PATTERNS:
+            if pattern.search(format):
                 return True
 
         return False
