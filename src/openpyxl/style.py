@@ -28,19 +28,11 @@ from hashlib import md5
 
 class HashableObject(object):
 
-    __fieldnames__ = []
-
-    def __fields__(self):
-
-        if not self.__fieldnames__:
-
-            self.__fieldnames__.extend(sorted(set(dir(self)) - set(dir(self.__class__))))
-
-        return self.__fieldnames__
+    __fields__ = None
 
     def __crc__(self):
 
-        data = ''.join([unicode(getattr(self, a)) for a in self.__fields__()])
+        data = ''.join([unicode(getattr(self, a)) for a in self.__fields__])
 
         return md5(data).hexdigest()
 
@@ -71,6 +63,8 @@ class Color(HashableObject):
     YELLOW = 'FFFFFF00'
     DARKYELLOW = 'FF808000'
 
+    __fields__ = ('index',)
+
     def __init__(self, index):
 
         HashableObject.__init__(self)
@@ -84,6 +78,16 @@ class Font(HashableObject):
     UNDERLINE_DOUBLE_ACCOUNTING = 'doubleAccounting'
     UNDERLINE_SINGLE = 'single'
     UNDERLINE_SINGLE_ACCOUNTING = 'singleAccounting'
+
+    __fields__ = ('name',
+                  'size',
+                  'bold',
+                  'italic',
+                  'superscript',
+                  'subscript',
+                  'underline',
+                  'strikethrough',
+                  'color')
 
     def __init__(self):
 
@@ -123,6 +127,11 @@ class Fill(HashableObject):
     FILL_PATTERN_LIGHTVERTICAL = 'lightVertical'
     FILL_PATTERN_MEDIUMGRAY = 'mediumGray'
 
+    __fields__ = ('fill_type',
+                  'rotation',
+                  'start_color',
+                  'end_color')
+
     def __init__(self):
 
         HashableObject.__init__(self)
@@ -149,6 +158,9 @@ class Border(HashableObject):
     BORDER_THICK = 'thick'
     BORDER_THIN = 'thin'
 
+    __fields__ = ('border_style',
+                  'color')
+
     def __init__(self):
 
         HashableObject.__init__(self)
@@ -162,6 +174,18 @@ class Borders(HashableObject):
     DIAGONAL_UP = 1
     DIAGONAL_DOWN = 2
     DIAGONAL_BOTH = 3
+
+    __fields__ = ('left',
+                  'right',
+                  'top',
+                  'bottom',
+                  'diagonal',
+                  'diagonal_direction',
+                  'all_borders' ,
+                  'outline',
+                  'inside',
+                  'vertical',
+                  'horizontal')
 
     def __init__(self):
 
@@ -193,6 +217,13 @@ class Alignment(HashableObject):
     VERTICAL_TOP = 'top'
     VERTICAL_CENTER = 'center'
     VERTICAL_JUSTIFY = 'justify'
+
+    __fields__ = ('horizontal',
+                  'vetical',
+                  'text_rotation',
+                  'wrap_text',
+                  'shrink_to_fit',
+                  'indent')
 
     def __init__(self):
 
@@ -306,6 +337,9 @@ class NumberFormat(HashableObject):
 
     _BUILTIN_FORMATS_REVERSE = dict([(value, key) for key, value in _BUILTIN_FORMATS.iteritems()])
 
+    __fields__ = ('_format_code',
+                  '_format_index')
+
     def __init__(self):
 
         HashableObject.__init__(self)
@@ -356,6 +390,9 @@ class Protection(HashableObject):
     PROTECTION_PROTECTED = 'protected'
     PROTECTION_UNPROTECTED = 'unprotected'
 
+    __fields__ = ('locked',
+                  'hidden')
+
     def __init__(self):
 
         HashableObject.__init__(self)
@@ -364,6 +401,13 @@ class Protection(HashableObject):
         self.hidden = self.PROTECTION_INHERIT
 
 class Style(HashableObject):
+
+    __fields__ = ('font',
+                  'fill',
+                  'borders',
+                  'alignment',
+                  'number_format',
+                  'protection')
 
     def __init__(self):
 
@@ -375,3 +419,4 @@ class Style(HashableObject):
         self.alignment = Alignment()
         self.number_format = NumberFormat()
         self.protection = Protection()
+
