@@ -85,12 +85,11 @@ def write_worksheet_data(root_node, worksheet, string_table, style_table):
             coordinate = cell.get_coordinate()
 
             attributes = {'r' : coordinate}
+            attributes['t'] = cell.data_type
 
             if coordinate in worksheet._styles:
                 attributes['s'] = '%d' % get_style_id_by_hash(current_style = worksheet._styles[coordinate],
                                                               style_table = style_table)
-            else:
-                attributes['t'] = cell.data_type
 
             c = SubElement(row, 'c', attributes)
 
