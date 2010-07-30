@@ -29,12 +29,26 @@ from hashlib import md5
 class HashableObject(object):
 
     __fields__ = None
+    __leaf__ = False
+
+    def __init__(self):
+
+        self.__dirty__ = True
+        self.__crc_cache__ = ''
+
+    def __setattr(self, key, value):
+
+        object.__setattr__(self, key, value)
+        object.__setattr__(self, '__dirty__', True)
 
     def __crc__(self):
 
-        data = ''.join([unicode(getattr(self, a)) for a in self.__fields__])
+        if self.__dirty__ or not self.__leaf__:
+            data = ''.join([unicode(getattr(self, a)) for a in self.__fields__])
+            self.__crc_cache__ = md5(data).hexdigest()
+            self.__dirty__ = False
 
-        return md5(data).hexdigest()
+        return self.__crc_cache__
 
     def __cmp__(self, other):
 
@@ -64,6 +78,7 @@ class Color(HashableObject):
     DARKYELLOW = 'FF808000'
 
     __fields__ = ('index',)
+    __leaf__ = True
 
     def __init__(self, index):
 
@@ -225,6 +240,8 @@ class Alignment(HashableObject):
                   'shrink_to_fit',
                   'indent')
 
+    __leaf__ = True
+
     def __init__(self):
 
         HashableObject.__init__(self)
@@ -340,6 +357,8 @@ class NumberFormat(HashableObject):
     __fields__ = ('_format_code',
                   '_format_index')
 
+    __leaf__ = True
+
     def __init__(self):
 
         HashableObject.__init__(self)
@@ -392,6 +411,8 @@ class Protection(HashableObject):
 
     __fields__ = ('locked',
                   'hidden')
+
+    __leaf__ = True
 
     def __init__(self):
 
