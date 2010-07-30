@@ -8,3 +8,5 @@ syntax: regexp
 \.pytest
 syntax: regexp
 (build|dist|openpyxl.egg-info)
+syntax: regexp
+\.(dot|svg|pf)
