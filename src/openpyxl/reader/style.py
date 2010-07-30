@@ -47,7 +47,7 @@ def read_style_table(xml_source):
 
         number_format_id = int(cell_xfs_node.get('numFmtId'))
 
-        if number_format_id <= 164:
+        if number_format_id < 164:
 
             new_style.number_format.format_code = builtin_formats[number_format_id]
 
