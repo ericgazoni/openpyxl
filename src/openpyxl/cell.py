@@ -120,7 +120,7 @@ class Cell(object):
 
         value = self._value
 
-        if self.style.number_format.is_date_format():
+        if self.has_style and self.style.number_format.is_date_format():
             value = SharedDate().from_julian(value)
 
         return value
@@ -188,6 +188,10 @@ class Cell(object):
     def _set_number_format(self, format_code):
 
         self.style.number_format.format_code = format_code
+
+    @property
+    def has_style(self):
+        return self.get_coordinate() in self.parent._styles
 
     @property
     def style(self):

@@ -37,7 +37,7 @@ def create_string_table(workbook):
 
             if cell.data_type == cell.TYPE_STRING:
 
-                strings_list.append(cell.value)
+                strings_list.append(cell._value)
 
     return dict((key, i) for i, key in enumerate(set(strings_list)))
 

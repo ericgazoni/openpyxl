@@ -82,6 +82,8 @@ def write_worksheet_data(root_node, worksheet, string_table, style_table):
 
         for cell in sorted_cells:
 
+            value = cell._value
+
             coordinate = cell.get_coordinate()
 
             attributes = {'r' : coordinate}
@@ -94,14 +96,14 @@ def write_worksheet_data(root_node, worksheet, string_table, style_table):
             c = SubElement(row, 'c', attributes)
 
             if cell.data_type == cell.TYPE_STRING:
-                SubElement(c, 'v').text = '%s' % string_table[cell.value]
+                SubElement(c, 'v').text = '%s' % string_table[value]
             elif cell.data_type == cell.TYPE_FORMULA:
-                SubElement(c, 'f').text = '%s' % cell.value[1:]
+                SubElement(c, 'f').text = '%s' % value[1:]
                 SubElement(c, 'v').text = 0
             elif cell.data_type == cell.TYPE_NUMERIC:
-                SubElement(c, 'v').text = '%s' % cell._value
+                SubElement(c, 'v').text = '%s' % value
             else:
-                SubElement(c, 'v').text = '%s' % cell.value
+                SubElement(c, 'v').text = '%s' % value
 
 def get_style_id_by_hash(current_style, style_table):
 
