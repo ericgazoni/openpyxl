@@ -29,16 +29,16 @@ from openpyxl.shared.xmltools import get_document_content
 
 def create_style_table(workbook):
 
-    global_styles = []
+    styles_by_crc = {}
 
     for worksheet in workbook.worksheets:
 
         for style in worksheet._styles.values():
 
-            if not style in global_styles:
-                global_styles.append(style)
+            styles_by_crc[style.__crc__()] = style
 
-    return dict([(style, i + 1) for i, style in enumerate(global_styles)])
+
+    return dict([(style, i + 1) for i, style in enumerate(styles_by_crc.values())])
 
 def write_style_table(style_table):
 

@@ -106,6 +106,6 @@ def write_worksheet_data(root_node, worksheet, string_table, style_table):
 
 def get_style_id_by_hash(current_style, style_table):
 
-    for style in style_table.keys():
-        if current_style == style:
-            return style_table[style]
+    styles_by_hash = dict([(style.__crc__(), style) for style in style_table.keys()])
+
+    return styles_by_hash[current_style.__crc__()]

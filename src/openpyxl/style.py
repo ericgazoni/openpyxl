@@ -28,9 +28,15 @@ from hashlib import md5
 
 class HashableObject(object):
 
+    __fieldnames__ = []
+
     def __fields__(self):
 
-        return [a for a in dir(self) if a not in dir(self.__class__)]
+        if not self.__fieldnames__:
+
+            self.__fieldnames__.extend(sorted(set(dir(self)) - set(dir(self.__class__))))
+
+        return self.__fieldnames__
 
     def __crc__(self):
 
