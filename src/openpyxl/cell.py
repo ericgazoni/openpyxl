@@ -141,7 +141,7 @@ class Cell(object):
 
             percentage_search = re.match('^\-?[0-9]*\.?[0-9]*\s?\%$', value)
 
-            if percentage_search:
+            if percentage_search and value.strip() != '%':
 
                 value = float(value.replace('%', '')) / 100.0
                 self.set_value_explicit(value = value,
