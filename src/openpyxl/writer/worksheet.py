@@ -30,6 +30,9 @@ from openpyxl.cell import column_index_from_string
 
 from openpyxl.shared.xmltools import get_document_content
 
+def row_sort(cell):
+
+    return column_index_from_string(cell.column)
 
 def write_worksheet(worksheet, string_table, style_table):
 
@@ -62,6 +65,8 @@ def write_worksheet(worksheet, string_table, style_table):
 
 def write_worksheet_data(root_node, worksheet, string_table, style_table):
 
+    style_id_by_hash = dict([(style.__crc__(), id) for style, id in style_table.iteritems()])
+
     sheet_data = SubElement(root_node, 'sheetData')
 
     max_column = worksheet.get_highest_column()
@@ -78,7 +83,7 @@ def write_worksheet_data(root_node, worksheet, string_table, style_table):
 
         row_cells = cells_by_row[row_idx]
 
-        sorted_cells = sorted(row_cells, key = lambda cell:column_index_from_string(cell.column))
+        sorted_cells = sorted(row_cells, key = row_sort)
 
         for cell in sorted_cells:
 
@@ -90,8 +95,8 @@ def write_worksheet_data(root_node, worksheet, string_table, style_table):
             attributes['t'] = cell.data_type
 
             if coordinate in worksheet._styles:
-                attributes['s'] = '%d' % get_style_id_by_hash(current_style = worksheet._styles[coordinate],
-                                                              style_table = style_table)
+
+                attributes['s'] = '%d' % style_id_by_hash[worksheet._styles[coordinate].__crc__()]
 
             c = SubElement(row, 'c', attributes)
 
@@ -105,8 +110,4 @@ def write_worksheet_data(root_node, worksheet, string_table, style_table):
             else:
                 SubElement(c, 'v').text = '%s' % value
 
-def get_style_id_by_hash(current_style, style_table):
 
-    styles_by_hash = dict([(style.__crc__(), id) for style, id in style_table.iteritems()])
-
-    return styles_by_hash[current_style.__crc__()]
