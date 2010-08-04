@@ -101,6 +101,11 @@ class Cell(object):
     VALID_TYPES = [TYPE_STRING, TYPE_FORMULA, TYPE_NUMERIC, TYPE_BOOL,
                    TYPE_NULL, TYPE_INLINE, TYPE_ERROR]
 
+    RE_PATTERNS = {'percentage' : re.compile('^\-?[0-9]*\.?[0-9]*\s?\%$'),
+                   'time' : re.compile('^(\d|[0-1]\d|2[0-3]):[0-5]\d$'),
+                   'numeric' : re.compile('^\-?([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$'),
+                   }
+
     def __init__(self, worksheet, column, row, value = None):
 
         self.column = column.upper()
@@ -139,7 +144,7 @@ class Cell(object):
 
             # percentage detection
 
-            percentage_search = re.match('^\-?[0-9]*\.?[0-9]*\s?\%$', value)
+            percentage_search = Cell.RE_PATTERNS['percentage'].match(value)
 
             if percentage_search and value.strip() != '%':
 
@@ -153,7 +158,7 @@ class Cell(object):
 
             # time detection
 
-            time_search = re.match('^(\d|[0-1]\d|2[0-3]):[0-5]\d$', value)
+            time_search = Cell.RE_PATTERNS['time'].match(value)
 
             if time_search:
 
@@ -211,7 +216,7 @@ class Cell(object):
             return self.TYPE_FORMULA
         elif isinstance(value, (int, float)):
             return self.TYPE_NUMERIC
-        elif re.match(pattern = '^\-?([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$', string = value):
+        elif Cell.RE_PATTERNS['numeric'].match(value):
             return self.TYPE_NUMERIC
         elif value.strip() in self.ERROR_CODES:
             return self.TYPE_ERROR
