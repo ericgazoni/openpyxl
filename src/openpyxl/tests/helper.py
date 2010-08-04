@@ -29,7 +29,7 @@ import shutil
 import unittest
 import difflib
 from StringIO import StringIO
-from xml.etree.ElementTree import  fromstring, ElementTree
+from xml.etree.cElementTree import fromstring, ElementTree
 from pprint import pprint
 from openpyxl.shared.xmltools import pretty_indent
 from tempfile import gettempdir
