@@ -47,4 +47,5 @@ NAMESPACES = {
 'dcmitype' : 'http://purl.org/dc/dcmitype/',
 'xsi' : 'http://www.w3.org/2001/XMLSchema-instance',
 'vt' : 'http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes',
+'xml' : 'http://www.w3.org/XML/1998/namespace'
 }

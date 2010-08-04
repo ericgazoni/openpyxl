@@ -25,6 +25,7 @@ THE SOFTWARE.
 '''
 
 from xml.etree.cElementTree import fromstring, QName
+from openpyxl.shared.ooxml import NAMESPACES
 
 def read_string_table(xml_source):
 
@@ -38,8 +39,39 @@ def read_string_table(xml_source):
 
     for i, si in enumerate(si_nodes):
 
-        table[i] = si.findtext(QName(xmlns, 't').text)
-
+        table[i] = get_string(xmlns, si)
 
     return table
 
+def get_string(xmlns, si):
+
+    rich_nodes = si.findall(QName(xmlns, 'r').text)
+
+    if rich_nodes:
+
+        res = ''
+
+        for r in rich_nodes:
+
+            cur = get_text(xmlns, r)
+
+            res += cur
+
+        return res
+
+    else:
+
+        return get_text(xmlns, si)
+
+
+def get_text(xmlns, r):
+
+    t = r.find(QName(xmlns, 't').text)
+
+    cur = t.text
+
+    if t.get(QName(NAMESPACES['xml'], 'space').text) != 'preserve':
+
+        cur = cur.strip()
+
+    return cur
