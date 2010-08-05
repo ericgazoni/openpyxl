@@ -78,6 +78,9 @@ class Color(HashableObject):
     DARKYELLOW = 'FF808000'
 
     __fields__ = ('index',)
+
+    __slots__ = __fields__
+
     __leaf__ = True
 
     def __init__(self, index):
@@ -103,6 +106,8 @@ class Font(HashableObject):
                   'underline',
                   'strikethrough',
                   'color')
+
+    __slots__ = __fields__
 
     def __init__(self):
 
@@ -147,6 +152,8 @@ class Fill(HashableObject):
                   'start_color',
                   'end_color')
 
+    __slots__ = __fields__
+
     def __init__(self):
 
         HashableObject.__init__(self)
@@ -176,6 +183,8 @@ class Border(HashableObject):
     __fields__ = ('border_style',
                   'color')
 
+    __slots__ = __fields__
+
     def __init__(self):
 
         HashableObject.__init__(self)
@@ -201,6 +210,8 @@ class Borders(HashableObject):
                   'inside',
                   'vertical',
                   'horizontal')
+
+    __slots__ = __fields__
 
     def __init__(self):
 
@@ -239,6 +250,8 @@ class Alignment(HashableObject):
                   'wrap_text',
                   'shrink_to_fit',
                   'indent')
+
+    __slots__ = __fields__
 
     __leaf__ = True
 
@@ -357,6 +370,8 @@ class NumberFormat(HashableObject):
     __fields__ = ('_format_code',
                   '_format_index')
 
+    __slots__ = __fields__
+
     __leaf__ = True
 
     def __init__(self):
@@ -412,6 +427,8 @@ class Protection(HashableObject):
     __fields__ = ('locked',
                   'hidden')
 
+    __slots__ = __fields__
+
     __leaf__ = True
 
     def __init__(self):
@@ -429,6 +446,8 @@ class Style(HashableObject):
                   'alignment',
                   'number_format',
                   'protection')
+
+    __slots__ = __fields__
 
     def __init__(self):
 

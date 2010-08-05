@@ -35,6 +35,13 @@ class SheetView(object): pass
 
 class RowDimension(object):
 
+    __slots__ = ('row_index',
+                 'height',
+                 'visible',
+                 'outline_level',
+                 'collapsed',
+                 'style_index',)
+
     def __init__(self, index = 0):
 
         self.row_index = index
@@ -46,6 +53,14 @@ class RowDimension(object):
         self.style_index = None
 
 class ColumnDimension(object):
+
+    __slots__ = ('column_index',
+                 'width',
+                 'auto_size',
+                 'visible',
+                 'outline_level',
+                 'collapsed',
+                 'style_index',)
 
     def __init__(self, index = 'A'):
 
@@ -210,8 +225,8 @@ class Worksheet(object):
 
         for rdim in self.row_dimensions.values():
 
-          if rdim.row_index > max_row:
-              max_row = rdim.row_index
+            if rdim.row_index > max_row:
+                max_row = rdim.row_index
 
         return max_row
 

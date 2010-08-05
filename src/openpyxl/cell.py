@@ -82,6 +82,13 @@ def get_column_letter(col_idx):
 
 class Cell(object):
 
+    __slots__ = ('column',
+                 'row',
+                 '_value',
+                 '_data_type',
+                 'parent',
+                 'xf_index')
+
     ERROR_CODES = {'#NULL!'  : 0,
                    '#DIV/0!' : 1,
                    '#VALUE!' : 2,

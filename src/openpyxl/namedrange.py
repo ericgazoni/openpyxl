@@ -27,6 +27,8 @@ import re
 
 class NamedRange(object):
 
+    __slots__ = ('name', 'worksheet', 'range', 'local_only')
+
     def __init__(self, name, worksheet, range):
 
         self.name = name
