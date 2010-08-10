@@ -255,7 +255,7 @@ class Worksheet(object):
         return 'A1:%s%d' % (get_column_letter(self.get_highest_column()),
                             self.get_highest_row())
 
-    def range(self, range_string):
+    def range(self, range_string, row = 0, column = 0):
 
         if ':' in range_string:
             # R1C1 range
@@ -266,6 +266,10 @@ class Worksheet(object):
             min_col, min_row = coordinate_from_string(coord_string = min_range)
             max_col, max_row = coordinate_from_string(coord_string = max_range)
 
+            if column:
+                min_col = get_column_letter(column_index_from_string(min_col) + column)
+                max_col = get_column_letter(column_index_from_string(max_col) + column)
+
             min_col = column_index_from_string(min_col)
             max_col = column_index_from_string(max_col)
 
@@ -273,7 +277,7 @@ class Worksheet(object):
             for col in xrange(min_col, max_col + 1):
                 cache_cols[col] = get_column_letter(col_idx = col)
 
-            rows = xrange(min_row, max_row + 1)
+            rows = xrange(min_row + row, max_row + row + 1)
             cols = xrange(min_col, max_col + 1)
 
             for row in rows:

@@ -94,3 +94,17 @@ class TestWorksheet(BaseTestCase):
         self.assertEqual('C17', ws.cell('B15').offset(row = 2, column = 1).get_coordinate())
 
 
+    def test_range_offset(self):
+
+        ws = Worksheet(parent_workbook = self.wb)
+
+        rng = ws.range('A1:C4', row = 1, column = 3)
+
+        self.assertTrue(isinstance(rng, tuple))
+
+        self.assertEqual(4, len(rng))
+
+        self.assertEqual(3, len(rng[0]))
+
+        self.assertEqual('D2', rng[0][0].get_coordinate())
+
