@@ -173,6 +173,13 @@ class Worksheet(object):
         self.default_row_dimension = RowDimension()
         self.default_column_dimension = ColumnDimension()
 
+    def garbage_collect(self):
+
+        delete_list = [coordinate for coordinate, cell in self._cells.iteritems() if not cell.value]
+
+        for coordinate in delete_list:
+            del self._cells[coordinate]
+
     def get_cell_collection(self):
 
         return self._cells.values()

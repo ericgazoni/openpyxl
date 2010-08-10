@@ -43,6 +43,10 @@ class ExcelWriter(object):
 
         archive = ZipArchive(filename = filename, mode = 'w')
 
+        # cleanup all worksheets
+        for ws in self.workbook.worksheets:
+            ws.garbage_collect()
+
         shared_string_table = create_string_table(workbook = self.workbook)
         shared_style_table = create_style_table(workbook = self.workbook)
 
