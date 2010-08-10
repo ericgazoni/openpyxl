@@ -87,4 +87,10 @@ class TestWorksheet(BaseTestCase):
 
         self.assertEqual(5, rng.row) #pylint: disable-msg=E1103
 
+    def test_cell_offset(self):
+
+        ws = Worksheet(parent_workbook = self.wb)
+
+        self.assertEqual('C17', ws.cell('B15').offset(row = 2, column = 1).get_coordinate())
+
 

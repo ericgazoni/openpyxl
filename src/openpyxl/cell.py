@@ -275,3 +275,10 @@ class Cell(object):
     def get_coordinate(self):
 
         return '%s%s' % (self.column, self.row)
+
+    def offset(self, row = 0, column = 0):
+
+        offset_column = get_column_letter(column_index_from_string(column = self.column) + column)
+        offset_row = self.row + row
+
+        return self.parent.cell('%s%s' % (offset_column, offset_row))
