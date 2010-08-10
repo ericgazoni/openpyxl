@@ -93,7 +93,6 @@ class TestWorksheet(BaseTestCase):
 
         self.assertEqual('C17', ws.cell('B15').offset(row = 2, column = 1).get_coordinate())
 
-
     def test_range_offset(self):
 
         ws = Worksheet(parent_workbook = self.wb)
@@ -108,3 +107,10 @@ class TestWorksheet(BaseTestCase):
 
         self.assertEqual('D2', rng[0][0].get_coordinate())
 
+    def test_cell_alternate_coordinates(self):
+
+        ws = Worksheet(parent_workbook = self.wb)
+
+        c = ws.cell(row = 8, column = 4)
+
+        self.assertEqual('D8', c.get_coordinate())

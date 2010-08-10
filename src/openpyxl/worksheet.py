@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 from openpyxl.cell import Cell, coordinate_from_string, column_index_from_string, \
     get_column_letter
-from openpyxl.shared.exc import SheetTitleException
+from openpyxl.shared.exc import SheetTitleException, InsufficientCoordinatesException
 from openpyxl.shared.password_hasher import hash_password
 from openpyxl.style import Style
 import re
@@ -213,7 +213,13 @@ class Worksheet(object):
 
     title = property(_get_title, _set_title)
 
-    def cell(self, coordinate):
+    def cell(self, coordinate = None, row = None, column = None):
+
+        if not coordinate:
+            if not (row and column):
+                raise InsufficientCoordinatesException("You have to provide a value either for 'coordinate' or for 'row' *and* 'column'")
+            else:
+                coordinate = '%s%s' % (get_column_letter(column), row)
 
         if not coordinate in self._cells:
             column, row = coordinate_from_string(coord_string = coordinate)
