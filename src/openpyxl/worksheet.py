@@ -23,10 +23,12 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-import re
-from openpyxl.cell import Cell, coordinate_from_string, column_index_from_string, get_column_letter
+from openpyxl.cell import Cell, coordinate_from_string, column_index_from_string, \
+    get_column_letter
+from openpyxl.shared.exc import SheetTitleException
 from openpyxl.shared.password_hasher import hash_password
 from openpyxl.style import Style
+import re
 
 class PageSetup(object): pass
 class HeaderFooter(object): pass
@@ -187,10 +189,10 @@ class Worksheet(object):
     def _set_title(self, value):
 
         if re.match(pattern = '(\\*|\\:|\\/|\\\\|\\?|\\[|\\])', string = value):
-            raise Exception('Invalid character found in sheet title')
+            raise SheetTitleException('Invalid character found in sheet title')
 
         if len(value) > 31:
-            raise Exception('Maximum 31 characters allowed in sheet title')
+            raise SheetTitleException('Maximum 31 characters allowed in sheet title')
 
         # is there already such sheet name ?
         if self._parent.get_sheet_by_name(value):

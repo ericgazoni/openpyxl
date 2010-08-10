@@ -23,17 +23,19 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-import re
-import datetime
-from openpyxl.style import NumberFormat
 from openpyxl.shared.date_time import SharedDate
+from openpyxl.shared.exc import CellCoordinatesException, \
+    ColumnStringIndexException, DataTypeException
+from openpyxl.style import NumberFormat
+import datetime
+import re
 
 def coordinate_from_string(coord_string):
 
     matches = re.match(pattern = '[$]?([A-Z]+)[$]?(\d+)', string = coord_string.upper())
 
     if not matches:
-        raise Exception('invalid cell coordinates')
+        raise CellCoordinatesException('Invalid cell coordinates')
     else:
         column, row = matches.groups()
         return (column, int(row))
@@ -55,9 +57,9 @@ def column_index_from_string(column):
     elif clen == 3:
         return ((1 + (ord(column[0]) - 65)) * 676) + ((1 + (ord(column[1]) - 65)) * 26) + (ord(column[2]) - 64);
     elif clen > 3:
-        raise Exception('Column string index can not be longer than 3 characters')
+        raise ColumnStringIndexException('Column string index can not be longer than 3 characters')
     else:
-        raise Exception('Column string index can not be empty')
+        raise ColumnStringIndexException('Column string index can not be empty')
 
 def get_column_letter(col_idx):
 
@@ -252,7 +254,7 @@ class Cell(object):
                     self._value = float(value)
 
         elif data_type not in self.VALID_TYPES:
-            raise Exception('Invalid data type: %s' % data_type)
+            raise DataTypeException('Invalid data type: %s' % data_type)
 
 
         self._data_type = data_type

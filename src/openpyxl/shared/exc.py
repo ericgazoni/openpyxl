@@ -23,27 +23,16 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-import re
-from openpyxl.shared.exc import NamedRangeException
+class IncompleteRangeException(Exception): pass
 
-class NamedRange(object):
+class CellCoordinatesException(Exception):pass
 
-    __slots__ = ('name', 'worksheet', 'range', 'local_only')
+class ColumnStringIndexException(Exception):pass
 
-    def __init__(self, name, worksheet, range):
+class DataTypeException(Exception):pass
 
-        self.name = name
-        self.worksheet = worksheet
-        self.range = range
-        self.local_only = False
+class NamedRangeException(Exception):pass
 
-def split_named_range(range_string):
+class SheetTitleException(Exception):pass
 
-    matches = re.match(pattern = "'?([^']*)'?!\$([A-Za-z]+)\$([0-9]+)",
-                       string = range_string)
-
-    if not matches:
-        raise NamedRangeException('Invalid named range string')
-    else:
-        sheet_name, column, row = matches.groups()
-        return (sheet_name, column, int(row))
+class RangeException(Exception):pass
