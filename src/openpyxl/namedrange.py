@@ -37,6 +37,10 @@ class NamedRange(object):
         self.range = range
         self.local_only = False
 
+    def __str__(self):
+
+        return u'%s!%s' % (self.worksheet.title, self.range)
+
 def split_named_range(range_string):
 
     matches = re.match(pattern = "'?([^']*)'?!\$([A-Za-z]+)\$([0-9]+)",

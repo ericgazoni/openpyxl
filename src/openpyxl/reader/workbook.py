@@ -70,7 +70,7 @@ def read_sheets_titles(xml_source):
 
 def read_named_ranges(xml_source, workbook):
 
-    named_ranges = {}
+    named_ranges = []
 
     root = fromstring(text = xml_source)
 
@@ -96,6 +96,7 @@ def read_named_ranges(xml_source, workbook):
                     discard = True
 
             if not discard:
+
                 worksheet_name, column, row = split_named_range(range_string = name_node.text)
                 worksheet = workbook.get_sheet_by_name(worksheet_name)
                 range = '%s%s' % (column, row)
@@ -104,7 +105,7 @@ def read_named_ranges(xml_source, workbook):
                                          worksheet = worksheet,
                                          range = range)
 
-                named_ranges['%s!%s' % (worksheet_name, range)] = named_range
+                named_ranges.append(named_range)
 
     return named_ranges
 

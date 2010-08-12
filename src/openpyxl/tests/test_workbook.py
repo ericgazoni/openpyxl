@@ -112,9 +112,9 @@ class TestWorkbook(BaseTestCase):
 
         wb.add_named_range(named_range = nr)
 
-        named_ranges_dict = wb.get_named_ranges()
+        named_ranges_list = wb.get_named_ranges()
 
-        self.assertTrue(nr in named_ranges_dict.values())
+        self.assertTrue(nr in named_ranges_list)
 
     def test_get_named_range(self):
 
@@ -142,7 +142,7 @@ class TestWorkbook(BaseTestCase):
 
         wb.remove_named_range(named_range = nr)
 
-        named_ranges_dict = wb.get_named_ranges()
+        named_ranges_list = wb.get_named_ranges()
 
-        self.assertFalse(nr in named_ranges_dict.values())
+        self.assertFalse(nr in named_ranges_list)
 

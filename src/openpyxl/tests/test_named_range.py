@@ -49,7 +49,7 @@ class TestReadNamedRanges(BaseTestCase):
 
         class DummyWs(object):
 
-            pass
+            title = 'My Sheeet'
 
         class DummyWB(object):
 
@@ -62,5 +62,5 @@ class TestReadNamedRanges(BaseTestCase):
             named_ranges = read_named_ranges(xml_source = content,
                                              workbook = DummyWB())
 
-            self.assertEqual(["My Sheeet!D8"], named_ranges.keys())
+            self.assertEqual(["My Sheeet!D8"], map(str, named_ranges))
 

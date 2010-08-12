@@ -65,7 +65,7 @@ class Workbook(object):
 
         self._active_sheet_index = 0
 
-        self._named_ranges = {}
+        self._named_ranges = []
 
         self.properties = DocumentProperties()
 
@@ -122,12 +122,11 @@ class Workbook(object):
 
     def add_named_range(self, named_range):
 
-        self._named_ranges['%s!%s' % (named_range.worksheet.title,
-                                      named_range.name)] = named_range
+        self._named_ranges.append(named_range)
 
     def get_named_range(self, name):
 
-        for nr in self._named_ranges.values():
+        for nr in self._named_ranges:
             if nr.name == name:
                 return nr
 
@@ -135,7 +134,6 @@ class Workbook(object):
 
     def remove_named_range(self, named_range):
 
-        del self._named_ranges['%s!%s' % (named_range.worksheet.title,
-                                          named_range.name)]
+        self._named_ranges.remove(named_range)
 
 

@@ -168,7 +168,7 @@ def write_workbook(workbook):
 
     # named ranges
     defined_names = SubElement(root, 'definedNames')
-    for named_range in workbook.get_named_ranges().values():
+    for named_range in workbook.get_named_ranges():
         name = SubElement(defined_names, 'definedName', {'name' : named_range.name})
         if named_range.local_only:
             name.set('localSheetId', workbook.get_index(named_range.worksheet))
