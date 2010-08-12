@@ -29,6 +29,8 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import Cell
 
+from openpyxl.shared.exc import CellCoordinatesException
+
 class TestWorksheet(BaseTestCase):
 
     def setUp(self):
@@ -114,3 +116,18 @@ class TestWorksheet(BaseTestCase):
         c = ws.cell(row = 8, column = 4)
 
         self.assertEqual('D8', c.get_coordinate())
+
+    def test_cell_range_name(self):
+
+        ws = Worksheet(parent_workbook = self.wb)
+
+        self.wb.create_named_range(name = 'test_range_single', worksheet = ws, range = 'B12')
+
+        self.assertRaises(CellCoordinatesException, ws.cell, 'test_range_single')
+
+        c_range_name = ws.range('test_range_single')
+        c_range_coord = ws.range('B12')
+        c_cell = ws.cell('B12')
+
+        self.assertEqual(c_range_coord, c_range_name)
+        self.assertEqual(c_range_coord, c_cell)
