@@ -25,7 +25,8 @@ THE SOFTWARE.
 
 from openpyxl.cell import Cell, coordinate_from_string, column_index_from_string, \
     get_column_letter
-from openpyxl.shared.exc import SheetTitleException, InsufficientCoordinatesException
+from openpyxl.shared.exc import SheetTitleException, \
+    InsufficientCoordinatesException, CellCoordinatesException
 from openpyxl.shared.password_hasher import hash_password
 from openpyxl.style import Style
 import re
@@ -301,6 +302,14 @@ class Worksheet(object):
             return tuple(res)
 
         else:
+
+            try:
+                return self.cell(coordinate = range_string,
+                                 row = row,
+                                 column = column)
+            except CellCoordinatesException:
+                pass
+
             # named range
             named_range = self._parent.get_named_range(range_string)
 
