@@ -35,7 +35,7 @@ def coordinate_from_string(coord_string):
     matches = re.match(pattern = '[$]?([A-Z]+)[$]?(\d+)', string = coord_string.upper())
 
     if not matches:
-        raise CellCoordinatesException('Invalid cell coordinates')
+        raise CellCoordinatesException('Invalid cell coordinates (%s)' % coord_string)
     else:
         column, row = matches.groups()
         return (column, int(row))
