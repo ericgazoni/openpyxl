@@ -29,6 +29,7 @@ class ZipArchive(object):
 
     def __init__(self, filename, mode = 'r'):
 
+        self._filename = filename
         self._zipfile = ZipFile(file = filename,
                                 mode = mode,
                                 compression = ZIP_DEFLATED,
