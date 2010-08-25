@@ -92,4 +92,10 @@ class TestCell(BaseTestCase):
         c.value = 0
         self.assertEqual(c.TYPE_NUMERIC, c.data_type)
 
+        c.value = 0.0001
+        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+
+        c.value = '0.9999'
+        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+
 
