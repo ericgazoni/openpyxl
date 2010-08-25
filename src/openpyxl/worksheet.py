@@ -178,7 +178,7 @@ class Worksheet(object):
 
     def garbage_collect(self):
 
-        delete_list = [coordinate for coordinate, cell in self._cells.iteritems() if not cell.value]
+        delete_list = [coordinate for coordinate, cell in self._cells.iteritems() if cell.value == '']
 
         for coordinate in delete_list:
             del self._cells[coordinate]

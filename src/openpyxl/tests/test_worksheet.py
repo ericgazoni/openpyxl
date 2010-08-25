@@ -131,3 +131,15 @@ class TestWorksheet(BaseTestCase):
 
         self.assertEqual(c_range_coord, c_range_name)
         self.assertEqual(c_range_coord, c_cell)
+
+    def test_garbage_collect(self):
+
+        ws = Worksheet(parent_workbook = self.wb)
+
+        ws.cell('A1').value = ''
+        ws.cell('B2').value = '0'
+        ws.cell('C4').value = 0
+
+        ws.garbage_collect()
+
+        self.assertEqual(ws.get_cell_collection(), [ws.cell('B2'), ws.cell('C4')])
