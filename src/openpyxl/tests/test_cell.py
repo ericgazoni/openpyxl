@@ -86,4 +86,10 @@ class TestCell(BaseTestCase):
         c.value = '-42.00'
         self.assertEqual(c.TYPE_NUMERIC, c.data_type)
 
+        c.value = '0'
+        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+
+        c.value = 0
+        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+
 

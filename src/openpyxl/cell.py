@@ -217,14 +217,14 @@ class Cell(object):
             return self.TYPE_NULL
         elif value is True or value is False:
             return self.TYPE_BOOL
+        elif isinstance(value, (int, float)):
+            return self.TYPE_NUMERIC
         elif not value:
             return self.TYPE_STRING
         elif isinstance(value, datetime.datetime):
             return self.TYPE_NUMERIC
         elif isinstance(value, basestring) and value[0] == '=':
             return self.TYPE_FORMULA
-        elif isinstance(value, (int, float)):
-            return self.TYPE_NUMERIC
         elif Cell.RE_PATTERNS['numeric'].match(value):
             return self.TYPE_NUMERIC
         elif value.strip() in self.ERROR_CODES:
