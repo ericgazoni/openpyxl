@@ -125,6 +125,14 @@ class SharedDate(object):
 
             return datetime.datetime.utcfromtimestamp(calendar.timegm(time.gmtime(seconds)))
 
+        elif value >= 0:
+
+            hours = floor(value * 24)
+            mins = floor(value * 24 * 60) - floor(hours * 60)
+            secs = floor(value * 24 * 60 * 60) - floor(hours * 60 * 60) - floor(mins * 60)
+
+            return datetime.time(int(hours), int(mins), int(secs))
+
         else:
 
-            raise ValueError('%s is not supported on this platform' % value)
+            raise ValueError('Negative dates (%s) are not supported on this platform' % value)

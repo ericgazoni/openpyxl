@@ -26,7 +26,10 @@ THE SOFTWARE.
 
 from openpyxl.tests.helper import BaseTestCase
 
+from openpyxl.worksheet import Worksheet
+from openpyxl.workbook import Workbook
 from openpyxl.cell import column_index_from_string, coordinate_from_string, get_column_letter, Cell, absolute_coordinate
+from datetime import time
 
 class TestCell(BaseTestCase):
 
@@ -97,5 +100,17 @@ class TestCell(BaseTestCase):
 
         c.value = '0.9999'
         self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+
+    def test_time_value(self):
+
+        wb = Workbook()
+        ws = Worksheet(parent_workbook = wb)
+
+        c = Cell(worksheet = ws, column = 'A', row = 1)
+
+        c.value = '03:40:16'
+        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+
+        self.assertEqual(time(3, 40, 16), c.value)
 
 

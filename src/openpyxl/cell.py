@@ -111,7 +111,7 @@ class Cell(object):
                    TYPE_NULL, TYPE_INLINE, TYPE_ERROR]
 
     RE_PATTERNS = {'percentage' : re.compile('^\-?[0-9]*\.?[0-9]*\s?\%$'),
-                   'time' : re.compile('^(\d|[0-1]\d|2[0-3]):[0-5]\d$'),
+                   'time' : re.compile('^(\d|[0-1]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'),
                    'numeric' : re.compile('^\-?([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$'),
                    }
 
@@ -171,9 +171,15 @@ class Cell(object):
 
             if time_search:
 
-                h, m = map(int, value.split(':')) #pylint: disable=E1103
+                sep_count = value.count(':') #pylint: disable-msg=E1103
 
-                days = (h / 24) + (m / 1440)
+                if sep_count == 1:
+                    h, m = map(int, value.split(':')) #pylint: disable-msg=E1103
+                    s = 0
+                elif sep_count == 2:
+                    h, m, s = map(int, value.split(':')) #pylint: disable-msg=E1103
+
+                days = (h / 24.0) + (m / 1440.0) + (s / 86400.0)
 
                 self.set_value_explicit(value = days,
                                         data_type = self.TYPE_NUMERIC)
