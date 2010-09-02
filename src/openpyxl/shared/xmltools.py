@@ -24,9 +24,9 @@ THE SOFTWARE.
 '''
 
 try:
-    from xml.etree.ElementTree import ElementTree, Element, SubElement, QName, fromstring
+    from xml.etree.ElementTree import ElementTree, Element, SubElement, QName, fromstring #pylint: disable-msg=W0611
 except ImportError:
-    from cElementTree import ElementTree, Element, SubElement, QName, fromstring #pytlint: disable-msg=F0401
+    from cElementTree import ElementTree, Element, SubElement, QName, fromstring #pylint: disable-msg=F0401
 from cStringIO import StringIO
 
 def get_document_content(xml_node):
