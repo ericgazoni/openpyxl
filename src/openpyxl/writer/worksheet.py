@@ -24,11 +24,10 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from openpyxl.shared.xmltools import ElementTree, Element, SubElement
-
+from __future__ import with_statement
 from openpyxl.cell import column_index_from_string
-
-from openpyxl.shared.xmltools import get_document_content
+from openpyxl.shared.xmltools import ElementTree, Element, SubElement, \
+    get_document_content, get_tempfile, start_tag, end_tag, tag, XMLGenerator
 
 def row_sort(cell):
 
@@ -36,38 +35,49 @@ def row_sort(cell):
 
 def write_worksheet(worksheet, string_table, style_table):
 
-    root = Element('worksheet', {'xml:space':'preserve',
-                                'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
-                                'xmlns:r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
+    filename = get_tempfile()
 
-    # sheet pr
-    sheet_pr = SubElement(root, 'sheetPr')
-    SubElement(sheet_pr, 'outlinePr', {'summaryBelow' : '%d' % (worksheet.show_summary_below),
-                                       'summaryRight' : '%d' % (worksheet.show_summary_right)
-                                       })
+    with open(filename, 'w') as xml_file:
 
-    # dimensions
-    SubElement(root, 'dimension', {'ref' : '%s' % worksheet.calculate_dimension()})
+        doc = XMLGenerator(out = xml_file, encoding = 'utf-8')
 
-    # sheet views
-    sheet_views = SubElement(root, 'sheetViews')
-    sheet_view = SubElement(sheet_views, 'sheetView', {'workbookViewId' : '0'})
-    SubElement(sheet_view, 'selection', {'activeCell' : worksheet.active_cell,
-                                         'sqref' : worksheet.selected_cell})
+        start_tag(doc = doc,
+                  name = 'worksheet',
+                  attr = {'xml:space':'preserve',
+                          'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+                          'xmlns:r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
 
-    # sheet format pr
-    SubElement(root, 'sheetFormatPr', {'defaultRowHeight' : '15'})
+        start_tag(doc, 'sheetPr')
 
-    # sheet data
-    write_worksheet_data(root, worksheet, string_table, style_table)
+        tag(doc, 'outlinePr', {'summaryBelow' : '%d' % (worksheet.show_summary_below),
+                               'summaryRight' : '%d' % (worksheet.show_summary_right)})
 
-    return get_document_content(xml_node = root)
+        end_tag(doc, 'sheetPr')
 
-def write_worksheet_data(root_node, worksheet, string_table, style_table):
+        tag(doc, 'dimension', {'ref' : '%s' % worksheet.calculate_dimension()})
+
+        start_tag(doc, 'sheetViews')
+        start_tag(doc, 'sheetView', {'workbookViewId' : '0'})
+        tag(doc, 'selection', {'activeCell' : worksheet.active_cell,
+                               'sqref' : worksheet.selected_cell})
+        end_tag(doc, 'sheetView')
+        end_tag(doc, 'sheetViews')
+
+        tag(doc, 'sheetFormatPr', {'defaultRowHeight' : '15'})
+
+        write_worksheet_data(doc, worksheet, string_table, style_table)
+
+        end_tag(doc, 'worksheet')
+
+        doc.endDocument()
+
+    return filename
+
+def write_worksheet_data(doc, worksheet, string_table, style_table):
 
     style_id_by_hash = dict([(style.__crc__(), id) for style, id in style_table.iteritems()])
 
-    sheet_data = SubElement(root_node, 'sheetData')
+    start_tag(doc, 'sheetData')
 
     max_column = worksheet.get_highest_column()
 
@@ -78,8 +88,8 @@ def write_worksheet_data(root_node, worksheet, string_table, style_table):
     for row_idx in sorted(cells_by_row):
         row_dimension = worksheet.row_dimensions[row_idx]
 
-        row = SubElement(sheet_data, 'row', {'r' : '%d' % row_idx,
-                                             'spans' : '1:%d' % max_column})
+        start_tag(doc, 'row', {'r' : '%d' % row_idx,
+                               'spans' : '1:%d' % max_column})
 
         row_cells = cells_by_row[row_idx]
 
@@ -98,16 +108,20 @@ def write_worksheet_data(root_node, worksheet, string_table, style_table):
 
                 attributes['s'] = '%d' % style_id_by_hash[worksheet._styles[coordinate].__crc__()]
 
-            c = SubElement(row, 'c', attributes)
+            start_tag(doc, 'c', attributes)
 
             if cell.data_type == cell.TYPE_STRING:
-                SubElement(c, 'v').text = '%s' % string_table[value]
+                tag(doc, 'v', body = '%s' % string_table[value])
             elif cell.data_type == cell.TYPE_FORMULA:
-                SubElement(c, 'f').text = '%s' % value[1:]
-                SubElement(c, 'v').text = 0
+                tag(doc, 'f', body = '%s' % value[1:])
+                tag(doc, 'v')
             elif cell.data_type == cell.TYPE_NUMERIC:
-                SubElement(c, 'v').text = '%s' % value
+                tag(doc, 'v', body = '%s' % value)
             else:
-                SubElement(c, 'v').text = '%s' % value
+                tag(doc, 'v', body = '%s' % value)
 
+            end_tag(doc, 'c')
 
+        end_tag(doc, 'row')
+
+    end_tag(doc, 'sheetData')

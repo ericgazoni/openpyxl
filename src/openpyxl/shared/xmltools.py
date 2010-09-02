@@ -26,6 +26,8 @@ from __future__ import with_statement
 from openpyxl import __name__ as prefix
 from os import close, remove
 from tempfile import mkstemp
+from xml.sax.saxutils import XMLGenerator
+from xml.sax.xmlreader import AttributesNSImpl
 import atexit
 
 try:
@@ -78,3 +80,28 @@ def pretty_indent(elem, level = 0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
+
+#===============================================================================
+# Shortcut functions taken from 
+# http://lethain.com/entry/2009/jan/22/handling-very-large-csv-and-xml-files-in-python/
+#===============================================================================
+
+def start_tag(doc, name, attr = {}, body = None, namespace = None):
+    attr_vals = {}
+    attr_keys = {}
+    for key, val in attr.iteritems():
+        key_tuple = (namespace, key)
+        attr_vals[key_tuple] = val
+        attr_keys[key_tuple] = key
+
+    attr2 = AttributesNSImpl(attr_vals, attr_keys)
+    doc.startElementNS((namespace, name), name, attr2)
+    if body:
+        doc.characters(body)
+
+def end_tag(doc, name, namespace = None):
+    doc.endElementNS((namespace, name), name)
+
+def tag(doc, name, attr = {}, body = None, namespace = None):
+    start_tag(doc, name, attr, body, namespace)
+    end_tag(doc, name, namespace)
