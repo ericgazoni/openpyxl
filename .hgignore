@@ -1,12 +1,8 @@
 syntax: regexp
 \.pyc$
-syntax: regexp
 .coverage
-syntax: regexp
 org.eclipse
-syntax: regexp
 \.pytest
-syntax: regexp
 (build|dist|openpyxl.egg-info)
-syntax: regexp
 \.(dot|svg|pf)
+\.noseids
