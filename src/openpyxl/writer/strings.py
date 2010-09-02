@@ -22,10 +22,10 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
+from __future__ import with_statement
+from openpyxl.shared.xmltools import ElementTree, Element, SubElement, \
+    get_document_content, get_tempfile, start_tag, end_tag, tag, XMLGenerator
 
-from openpyxl.shared.xmltools import ElementTree, Element, SubElement
-
-from openpyxl.shared.xmltools import get_document_content
 
 def create_string_table(workbook):
 
@@ -43,19 +43,30 @@ def create_string_table(workbook):
 
 def write_string_table(string_table):
 
-    root = Element('sst', {'xmlns' : 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
-                           'uniqueCount' : '%d' % len(string_table)})
+    filename = get_tempfile()
 
-    strings_to_write = sorted(string_table.iteritems(), key = lambda pair:pair[1])
+    with open(filename, 'w') as xml_file:
 
-    for key in [key for (key, rank) in strings_to_write]:
+        doc = XMLGenerator(out = xml_file, encoding = 'utf-8')
 
-        si = SubElement(root, 'si')
-        t = SubElement(si, 't')
-        t.text = key
+        start_tag(doc, 'sst', {'xmlns' : 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+                               'uniqueCount' : '%d' % len(string_table)})
 
-        if key.strip() != key:
-            t.set('xml:space' , 'preserve')
+        strings_to_write = sorted(string_table.iteritems(), key = lambda pair:pair[1])
 
+        for key in [key for (key, rank) in strings_to_write]:
 
-    return get_document_content(xml_node = root)
+            start_tag(doc, 'si')
+
+            if key.strip() != key:
+                attr = {'xml:space' : 'preserve'}
+            else:
+                attr = {}
+
+            tag(doc, 't', attr = attr, body = key)
+
+            end_tag(doc, 'si')
+
+        end_tag(doc, 'sst')
+
+    return filename
