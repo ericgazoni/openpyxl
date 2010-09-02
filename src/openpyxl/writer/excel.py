@@ -24,6 +24,7 @@ THE SOFTWARE.
 '''
 
 from openpyxl.shared.zip import ZipArchive
+from openpyxl.shared.xmltools import cleanup_tempfiles
 
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, ARC_ROOT_RELS, ARC_WORKBOOK_RELS, ARC_APP, ARC_CORE, ARC_THEME, ARC_STYLE, ARC_WORKBOOK, PACKAGE_WORKSHEETS
 
@@ -51,39 +52,39 @@ class ExcelWriter(object):
         shared_style_table = create_style_table(workbook = self.workbook)
 
         # write shared strings
-        archive.add_from_string(arc_name = ARC_SHARED_STRINGS,
+        archive.add_from_file(arc_name = ARC_SHARED_STRINGS,
                                 content = write_string_table(string_table = shared_string_table))
 
         # write content types
-        archive.add_from_string(arc_name = ARC_CONTENT_TYPES,
+        archive.add_from_file(arc_name = ARC_CONTENT_TYPES,
                                 content = write_content_types(workbook = self.workbook))
 
         # write relationships
-        archive.add_from_string(arc_name = ARC_ROOT_RELS,
+        archive.add_from_file(arc_name = ARC_ROOT_RELS,
                                 content = write_root_rels(workbook = self.workbook))
 
-        archive.add_from_string(arc_name = ARC_WORKBOOK_RELS,
+        archive.add_from_file(arc_name = ARC_WORKBOOK_RELS,
                                 content = write_workbook_rels(workbook = self.workbook))
 
         # write properties
-        archive.add_from_string(arc_name = ARC_APP,
+        archive.add_from_file(arc_name = ARC_APP,
                                 content = write_properties_app(workbook = self.workbook))
 
-        archive.add_from_string(arc_name = ARC_CORE,
+        archive.add_from_file(arc_name = ARC_CORE,
                                 content = write_properties_core(properties = self.workbook.properties))
 
         # write theme
-        archive.add_from_string(arc_name = ARC_THEME, content = write_theme())
+        archive.add_from_file(arc_name = ARC_THEME, content = write_theme())
 
         # write style
-        archive.add_from_string(arc_name = ARC_STYLE, content = write_style_table(style_table = shared_style_table))
+        archive.add_from_file(arc_name = ARC_STYLE, content = write_style_table(style_table = shared_style_table))
 
         # write workbook
-        archive.add_from_string(arc_name = ARC_WORKBOOK, content = write_workbook(workbook = self.workbook))
+        archive.add_from_file(arc_name = ARC_WORKBOOK, content = write_workbook(workbook = self.workbook))
 
         # write sheets
         for i, sheet in enumerate(self.workbook.worksheets):
-            archive.add_from_string(arc_name = PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1),
+            archive.add_from_file(arc_name = PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1),
                                     content = write_worksheet(worksheet = sheet,
                                                               string_table = shared_string_table,
                                                               style_table = shared_style_table))

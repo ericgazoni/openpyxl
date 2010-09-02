@@ -22,22 +22,47 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
+from __future__ import with_statement
+from openpyxl import __name__ as prefix
+from os import close, remove
+from tempfile import mkstemp
+import atexit
 
 try:
     from xml.etree.ElementTree import ElementTree, Element, SubElement, QName, fromstring #pylint: disable-msg=W0611
 except ImportError:
     from cElementTree import ElementTree, Element, SubElement, QName, fromstring #pylint: disable-msg=F0401
-from cStringIO import StringIO
+
+XML_TEMP_FILES = []
+
+@atexit.register
+def cleanup_tempfiles():
+
+    for handle, filename in XML_TEMP_FILES:
+        try:
+            close(handle)
+            remove(filename)
+        except:
+            pass
+
+def get_tempfile():
+
+    fd, filename = mkstemp(prefix = prefix, text = True)
+    XML_TEMP_FILES.append((fd, filename))
+
+    return filename
 
 def get_document_content(xml_node):
 
-    fl = StringIO()
-
     pretty_indent(xml_node)
 
-    ElementTree(xml_node).write(file = fl, encoding = 'UTF-8')
+    filename = get_tempfile()
 
-    return fl.getvalue()
+    with open(filename, 'w') as fl:
+
+        ElementTree(xml_node).write(file = fl, encoding = 'UTF-8')
+
+    return filename
 
 def pretty_indent(elem, level = 0):
     i = "\n" + level * "  "

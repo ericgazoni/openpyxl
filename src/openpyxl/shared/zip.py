@@ -22,7 +22,7 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-
+from __future__ import with_statement
 from zipfile import ZipFile, ZIP_DEFLATED
 
 class ZipArchive(object):
@@ -51,6 +51,10 @@ class ZipArchive(object):
     def add_from_string(self, arc_name, content):
 
         self._zipfile.writestr(arc_name, content)
+
+    def add_from_file(self, arc_name, content):
+
+        self._zipfile.write(content, arc_name)
 
     def get_from_name(self, arc_name):
 

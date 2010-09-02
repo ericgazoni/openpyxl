@@ -42,8 +42,8 @@ def write_worksheet(worksheet, string_table, style_table):
 
     # sheet pr
     sheet_pr = SubElement(root, 'sheetPr')
-    SubElement(sheet_pr, 'outlinePr', {'summaryBelow' : '%d' % (1 if worksheet.show_summary_below else 0),
-                                       'summaryRight' : '%d' % (1 if worksheet.show_summary_right else 0)
+    SubElement(sheet_pr, 'outlinePr', {'summaryBelow' : '%d' % (worksheet.show_summary_below),
+                                       'summaryRight' : '%d' % (worksheet.show_summary_right)
                                        })
 
     # dimensions

@@ -48,7 +48,12 @@ class BaseTestCase(unittest.TestCase):
 
     def assertEqualsFileContent(self, reference_file, fixture, filetype = 'xml'):
 
-        fixture_content = fixture
+        if osp.isfile(fixture):
+            with open(fixture) as fixture_file:
+                 fixture_content = fixture_file.read()
+        else:
+            fixture_content = fixture
+
         with open(reference_file) as expected_file:
             expected_content = expected_file.read()
 
