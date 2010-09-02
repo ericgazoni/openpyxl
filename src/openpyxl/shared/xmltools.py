@@ -23,7 +23,10 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from xml.etree.cElementTree import ElementTree
+try:
+    from xml.etree.ElementTree import ElementTree, Element, SubElement, QName, fromstring
+except ImportError:
+    from cElementTree import ElementTree, Element, SubElement, QName, fromstring #pytlint: disable-msg=F0401
 from cStringIO import StringIO
 
 def get_document_content(xml_node):

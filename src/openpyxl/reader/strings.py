@@ -24,7 +24,7 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from xml.etree.cElementTree import fromstring, QName
+from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.shared.ooxml import NAMESPACES
 
 def read_string_table(xml_source):

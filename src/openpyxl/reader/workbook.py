@@ -23,7 +23,7 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from xml.etree.cElementTree import fromstring, QName
+from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE, ARC_APP
 from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import W3CDTF_to_datetime

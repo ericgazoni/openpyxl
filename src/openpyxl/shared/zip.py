@@ -30,10 +30,15 @@ class ZipArchive(object):
     def __init__(self, filename, mode = 'r'):
 
         self._filename = filename
-        self._zipfile = ZipFile(file = filename,
-                                mode = mode,
-                                compression = ZIP_DEFLATED,
-                                allowZip64 = False)
+        try :
+            self._zipfile = ZipFile(file = filename,
+                                    mode = mode,
+                                    compression = ZIP_DEFLATED,
+                                    allowZip64 = False)
+        except:
+            self._zipfile = ZipFile(file = filename,
+                                    mode = mode,
+                                    compression = ZIP_DEFLATED)
 
     def is_in_archive(self, arc_name):
 

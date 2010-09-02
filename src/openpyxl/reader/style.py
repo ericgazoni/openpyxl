@@ -22,7 +22,7 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-from xml.etree.cElementTree import fromstring, QName
+from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.style import Style, NumberFormat
 
 def read_style_table(xml_source):

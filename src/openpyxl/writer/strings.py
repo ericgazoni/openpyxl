@@ -23,7 +23,7 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from xml.etree.cElementTree import ElementTree, Element, SubElement
+from openpyxl.shared.xmltools import ElementTree, Element, SubElement
 
 from openpyxl.shared.xmltools import get_document_content
 

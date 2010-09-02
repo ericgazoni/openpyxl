@@ -24,7 +24,7 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from xml.etree.cElementTree import fromstring, QName
+from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.cell import Cell
 from openpyxl.worksheet import Worksheet
 
