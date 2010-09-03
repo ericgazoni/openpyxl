@@ -22,7 +22,6 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-from __future__ import with_statement
 from openpyxl import __name__ as prefix
 from os import close, remove
 from tempfile import mkstemp
@@ -60,9 +59,9 @@ def get_document_content(xml_node):
 
     filename = get_tempfile()
 
-    with open(filename, 'w') as fl:
-
-        ElementTree(xml_node).write(file = fl, encoding = 'UTF-8')
+    fl = open(filename, 'w')
+    ElementTree(xml_node).write(file = fl, encoding = 'UTF-8')
+    fl.close()
 
     return filename
 

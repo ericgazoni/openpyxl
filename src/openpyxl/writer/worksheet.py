@@ -24,7 +24,6 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from __future__ import with_statement
 from openpyxl.cell import column_index_from_string
 from openpyxl.shared.xmltools import ElementTree, Element, SubElement, \
     get_document_content, get_tempfile, start_tag, end_tag, tag, XMLGenerator
@@ -37,41 +36,43 @@ def write_worksheet(worksheet, string_table, style_table):
 
     filename = get_tempfile()
 
-    with open(filename, 'w') as xml_file:
+    xml_file = open(filename, 'w')
 
-        doc = XMLGenerator(out = xml_file, encoding = 'utf-8')
+    doc = XMLGenerator(out = xml_file, encoding = 'utf-8')
 
-        start_tag(doc = doc,
-                  name = 'worksheet',
-                  attr = {'xml:space':'preserve',
-                          'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
-                          'xmlns:r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
+    start_tag(doc = doc,
+              name = 'worksheet',
+              attr = {'xml:space':'preserve',
+                      'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+                      'xmlns:r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
 
-        start_tag(doc, 'sheetPr')
+    start_tag(doc, 'sheetPr')
 
-        tag(doc, 'outlinePr', {'summaryBelow' : '%d' % (worksheet.show_summary_below),
-                               'summaryRight' : '%d' % (worksheet.show_summary_right)})
+    tag(doc, 'outlinePr', {'summaryBelow' : '%d' % (worksheet.show_summary_below),
+                           'summaryRight' : '%d' % (worksheet.show_summary_right)})
 
-        end_tag(doc, 'sheetPr')
+    end_tag(doc, 'sheetPr')
 
-        tag(doc, 'dimension', {'ref' : '%s' % worksheet.calculate_dimension()})
+    tag(doc, 'dimension', {'ref' : '%s' % worksheet.calculate_dimension()})
 
-        start_tag(doc, 'sheetViews')
-        start_tag(doc, 'sheetView', {'workbookViewId' : '0'})
-        tag(doc, 'selection', {'activeCell' : worksheet.active_cell,
-                               'sqref' : worksheet.selected_cell})
-        end_tag(doc, 'sheetView')
-        end_tag(doc, 'sheetViews')
+    start_tag(doc, 'sheetViews')
+    start_tag(doc, 'sheetView', {'workbookViewId' : '0'})
+    tag(doc, 'selection', {'activeCell' : worksheet.active_cell,
+                           'sqref' : worksheet.selected_cell})
+    end_tag(doc, 'sheetView')
+    end_tag(doc, 'sheetViews')
 
-        tag(doc, 'sheetFormatPr', {'defaultRowHeight' : '15'})
+    tag(doc, 'sheetFormatPr', {'defaultRowHeight' : '15'})
 
-        write_worksheet_cols(doc, worksheet)
+    write_worksheet_cols(doc, worksheet)
 
-        write_worksheet_data(doc, worksheet, string_table, style_table)
+    write_worksheet_data(doc, worksheet, string_table, style_table)
 
-        end_tag(doc, 'worksheet')
+    end_tag(doc, 'worksheet')
 
-        doc.endDocument()
+    doc.endDocument()
+
+    xml_file.close()
 
     return filename
 
