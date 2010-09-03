@@ -65,6 +65,8 @@ def write_worksheet(worksheet, string_table, style_table):
 
         tag(doc, 'sheetFormatPr', {'defaultRowHeight' : '15'})
 
+        write_worksheet_cols(doc, worksheet)
+
         write_worksheet_data(doc, worksheet, string_table, style_table)
 
         end_tag(doc, 'worksheet')
@@ -72,6 +74,44 @@ def write_worksheet(worksheet, string_table, style_table):
         doc.endDocument()
 
     return filename
+
+def write_worksheet_cols(doc, worksheet):
+
+    if worksheet.column_dimensions:
+
+        start_tag(doc, 'cols')
+
+        for column_string, columndimension in worksheet.column_dimensions.iteritems():
+
+            cidx = column_index_from_string(column = column_string)
+
+            col_def = {}
+            col_def['collapsed'] = str(columndimension.style_index)
+            col_def['min'] = str(cidx)
+            col_def['max'] = str(cidx)
+
+            if columndimension.width != worksheet.default_column_dimension.width:
+                col_def['customWidth'] = 'true'
+
+            if not columndimension.visible:
+                col_def['hidden'] = 'true'
+
+            if columndimension.outline_level > 0:
+                col_def['outlineLevel'] = str(columndimension.outline_level)
+
+            if columndimension.collapsed:
+                col_def['collapsed'] = 'true'
+
+            if columndimension.auto_size:
+                col_def['bestFit'] = 'true'
+            if columndimension.width > 0:
+                col_def['width'] = str(columndimension.width)
+            else:
+                col_def['width'] = '9.10'
+
+            tag(doc, 'col', col_def)
+
+        end_tag(doc, 'cols')
 
 def write_worksheet_data(doc, worksheet, string_table, style_table):
 
