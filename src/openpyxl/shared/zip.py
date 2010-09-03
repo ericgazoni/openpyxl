@@ -22,7 +22,6 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-from __future__ import with_statement
 from zipfile import ZipFile, ZIP_DEFLATED
 
 class ZipArchive(object):
