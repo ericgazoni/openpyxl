@@ -83,8 +83,10 @@ class ExcelWriter(object):
         archive.add_from_file(arc_name = ARC_WORKBOOK, content = write_workbook(workbook = self.workbook))
 
         # write sheets
+        style_id_by_hash = dict([(style.__crc__(), id) for style, id in shared_style_table.iteritems()])
+
         for i, sheet in enumerate(self.workbook.worksheets):
             archive.add_from_file(arc_name = PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1),
                                     content = write_worksheet(worksheet = sheet,
                                                               string_table = shared_string_table,
-                                                              style_table = shared_style_table))
+                                                              style_table = style_id_by_hash))

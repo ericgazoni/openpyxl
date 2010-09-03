@@ -115,8 +115,6 @@ def write_worksheet_cols(doc, worksheet):
 
 def write_worksheet_data(doc, worksheet, string_table, style_table):
 
-    style_id_by_hash = dict([(style.__crc__(), id) for style, id in style_table.iteritems()])
-
     start_tag(doc, 'sheetData')
 
     max_column = worksheet.get_highest_column()
