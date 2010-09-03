@@ -24,37 +24,46 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 
-from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.cell import Cell
+from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.worksheet import Worksheet
+from xml.sax import parseString
+from xml.sax.handler import ContentHandler
+
+class WorksheetReader(ContentHandler):
+
+    def __init__(self, ws, string_table, style_table):
+
+        ContentHandler.__init__(self)
+        self.ws = ws
+        self.string_table = string_table
+        self.style_table = style_table
+
+    def startElement(self, name, attrs):
+
+        if name == 'c':
+            self.coordinate = attrs.get('r')
+            self.data_type = attrs.get('t', 'n')
+            self.style_id = attrs.get('s')
+
+    def characters(self, value):
+
+        if value is not None:
+
+            if self.data_type == Cell.TYPE_STRING:
+                value = self.string_table.get(int(value))
+
+            self.ws.cell(self.coordinate).value = value
+
+            if self.style_id is not None:
+                self.ws._styles[self.coordinate] = self.style_table.get(int(self.style_id))
 
 def read_worksheet(xml_source, parent, preset_title, string_table, style_table):
 
-    xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
-
     ws = Worksheet(parent_workbook = parent, title = preset_title)
 
-    root = fromstring(text = xml_source)
+    h = WorksheetReader(ws, string_table, style_table)
 
-    sheet_data = root.find(QName(xmlns, 'sheetData').text)
-
-    for row in sheet_data.getchildren():
-
-        for cell in row.getchildren():
-
-            coordinate = cell.get('r')
-            data_type = cell.get('t', 'n')
-            value = cell.findtext(QName(xmlns, 'v').text)
-
-            if value is not None:
-
-                if data_type == Cell.TYPE_STRING:
-                    value = string_table[int(value)]
-
-                ws.cell(coordinate).value = value
-
-                style_id = cell.get('s')
-                if style_id is not None:
-                    ws._styles[coordinate] = style_table[int(style_id)]
+    parseString(string = xml_source, handler = h)
 
     return ws
