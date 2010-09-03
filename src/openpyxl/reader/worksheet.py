@@ -39,16 +39,19 @@ class WorksheetReader(ContentHandler):
         self.string_table = string_table
         self.style_table = style_table
 
+        self.read_value = False
+
     def startElement(self, name, attrs):
 
         if name == 'c':
             self.coordinate = attrs.get('r')
             self.data_type = attrs.get('t', 'n')
             self.style_id = attrs.get('s')
+            self.read_value = True
 
     def characters(self, value):
 
-        if value is not None:
+        if self.read_value and value is not None:
 
             if self.data_type == Cell.TYPE_STRING:
                 value = self.string_table.get(int(value))
@@ -57,6 +60,11 @@ class WorksheetReader(ContentHandler):
 
             if self.style_id is not None:
                 self.ws._styles[self.coordinate] = self.style_table.get(int(self.style_id))
+
+    def endElement(self, name):
+
+        if name == 'c':
+            self.read_value = False
 
 def read_worksheet(xml_source, parent, preset_title, string_table, style_table):
 
