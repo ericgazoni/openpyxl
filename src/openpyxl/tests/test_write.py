@@ -127,3 +127,17 @@ class TestWriteWorksheet(BaseTestCase):
 
         self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1_style.xml'),
                                      fixture = content)
+
+    def test_write_worksheet_with_height(self):
+
+        wb = Workbook()
+
+        ws = wb.create_sheet()
+
+        ws.cell('F1').value = 10
+        ws.row_dimensions[ws.cell('F1').row].height = 30
+
+        content = write_worksheet(worksheet = ws, string_table = { }, style_table = {})
+
+        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1_height.xml'),
+                                     fixture = content)

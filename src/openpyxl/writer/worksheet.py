@@ -129,8 +129,14 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
     for row_idx in sorted(cells_by_row):
         row_dimension = worksheet.row_dimensions[row_idx]
 
-        start_tag(doc, 'row', {'r' : '%d' % row_idx,
-                               'spans' : '1:%d' % max_column})
+        attrs = {'r' : '%d' % row_idx,
+                 'spans' : '1:%d' % max_column}
+
+        if row_dimension.height > 0:
+            attrs['ht'] = str(row_dimension.height)
+            attrs['customHeight'] = "1"
+
+        start_tag(doc, 'row', attrs)
 
         row_cells = cells_by_row[row_idx]
 
