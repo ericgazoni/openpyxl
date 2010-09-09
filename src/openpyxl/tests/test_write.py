@@ -22,7 +22,7 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-
+from __future__ import with_statement
 import os.path as osp
 from openpyxl.tests.helper import BaseTestCase, TMPDIR, DATADIR
 
@@ -32,6 +32,7 @@ from openpyxl.writer.excel import ExcelWriter
 from openpyxl.writer.workbook import write_workbook, write_workbook_rels
 from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.writer.strings import write_string_table
+from openpyxl.writer.styles import create_style_table
 
 class TestWriter(BaseTestCase):
 
@@ -109,4 +110,20 @@ class TestWriteWorksheet(BaseTestCase):
         content = write_worksheet(worksheet = ws, string_table = { }, style_table = {})
 
         self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1_formula.xml'),
+                                     fixture = content)
+
+    def test_write_worksheet_with_style(self):
+
+        wb = Workbook()
+
+        ws = wb.create_sheet()
+
+        ws.cell('F1').value = '13%'
+
+        shared_style_table = create_style_table(workbook = wb)
+        style_id_by_hash = dict([(style.__crc__(), id) for style, id in shared_style_table.iteritems()])
+
+        content = write_worksheet(worksheet = ws, string_table = { }, style_table = style_id_by_hash)
+
+        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1_style.xml'),
                                      fixture = content)

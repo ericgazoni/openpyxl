@@ -120,6 +120,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
 
     max_column = worksheet.get_highest_column()
 
+    style_id_by_hash = style_table
+
     cells_by_row = {}
     for cell in worksheet.get_cell_collection():
         cells_by_row.setdefault(cell.row, []).append(cell)
