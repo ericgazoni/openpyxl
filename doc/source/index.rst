@@ -5,18 +5,28 @@
 .. moduleauthor:: Eric Gazoni
 
 Usage examples
------------------- 
+------------------
+ 
+Tutorial
+++++++++
 
 .. toctree::
 
-   usage
+    tutorial
+
+Cookbook
+++++++++
+    
+.. toctree::
+
+   	usage
 
 API Documentation
 ------------------ 
 
 .. toctree::
 
-   api
+   	api
 
 Indices and tables
 ==================

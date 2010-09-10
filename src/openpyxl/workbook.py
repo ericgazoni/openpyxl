@@ -19,9 +19,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-@license: http://www.opensource.org/licenses/mit-license.php
-@author: Eric Gazoni
+:License: http://www.opensource.org/licenses/mit-license.php
+:Author: Eric Gazoni
 '''
+
+__docformat__ = "restructuredtext en"
 
 import datetime
 
@@ -57,6 +59,8 @@ class DocumentSecurity(object):
         self.workbook_password = ''
 
 class Workbook(object):
+    """The main workbook object
+    """
 
     def __init__(self):
 
@@ -74,10 +78,17 @@ class Workbook(object):
         self.security = DocumentSecurity()
 
     def get_active_sheet(self):
+        """Returns the current active sheet
+        """
 
         return self.worksheets[self._active_sheet_index]
 
     def create_sheet(self, index = None):
+        """Create a worksheet (at an optional index)
+        
+        :param index: optional position at which the sheet will be inserted
+        :type index: int 
+        """
 
         new_ws = Worksheet(parent_workbook = self)
 
@@ -97,6 +108,12 @@ class Workbook(object):
         self.worksheets.remove(worksheet)
 
     def get_sheet_by_name(self, name):
+        """Returns a worksheet by its name or None if no worksheet has 
+        this name
+        
+        :param name: the name of the worksheet to look for
+        :type name: string
+        """
 
         for sheet in self.worksheets:
             if sheet.title == name:
@@ -109,6 +126,12 @@ class Workbook(object):
         return self.worksheets.index(worksheet)
 
     def get_sheet_names(self):
+        """Returns the list of the names of worksheets in the workbook
+        
+        Names are returned in the worksheets order.
+        
+        :rtype: list of strings
+        """
 
         return [s.title for s in self.worksheets]
 

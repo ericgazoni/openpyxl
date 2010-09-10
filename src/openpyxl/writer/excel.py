@@ -34,6 +34,23 @@ from openpyxl.writer.theme import write_theme
 from openpyxl.writer.styles import create_style_table, write_style_table
 from openpyxl.writer.worksheet import write_worksheet
 
+def save_workbook(workbook, filename):
+    """Save the given workbook on the filesystem under the name fielename
+    
+    :param workbook: the workbook to save
+    :type workbook: :class:`openpyxl.workbook.Workbook`
+    
+    :param filename: the path to which save the workbook
+    :type filename: string
+    
+    :rtype: bool 
+    """
+
+    ew = ExcelWriter(workbook)
+    ew.save(filename)
+
+    return True
+
 class ExcelWriter(object):
 
     def __init__(self, workbook):

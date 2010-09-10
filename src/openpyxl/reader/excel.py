@@ -34,6 +34,14 @@ from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, read
 from openpyxl.reader.worksheet import read_worksheet
 
 def load_workbook(filename):
+    """Open the given filename and return the workbook
+    
+    :param filename: the path to open
+    :type filename: string
+    
+    :rtype: :class:`openpyxl.workbook.Workbook`
+    
+    """
 
     archive = ZipArchive(filename = filename, mode = 'r')
 

@@ -126,6 +126,11 @@ class SheetProtection(object):
 
 
 class Worksheet(object):
+    """Represents a worksheet
+    
+    Do not create worksheets yourself, 
+    use :func:`openpyxl.workbook.Workbook.create_sheet` instead
+    """
 
     BREAK_NONE = 0
     BREAK_ROW = 1
@@ -135,7 +140,12 @@ class Worksheet(object):
     SHEETSTATE_HIDDEN = 'hidden'
     SHEETSTATE_VERYHIDDEN = 'veryHidden'
 
+    def __repr__(self):
+
+        return u'<Worksheet %s>' % self.title
+
     def __init__(self, parent_workbook, title = 'Sheet'):
+
 
         self._parent = parent_workbook
         self._title = ''
@@ -212,9 +222,35 @@ class Worksheet(object):
 
         return self._title
 
-    title = property(_get_title, _set_title)
+    title = property(_get_title,
+                     _set_title,
+                     doc = """Get or set the title of the worksheet.
+                     Limited to 31 characters, no special characters. 
+                     """)
 
     def cell(self, coordinate = None, row = None, column = None):
+        """Returns a cell object based on the given coordinates
+        
+        Usage: cell(coodinate = 'A15') *or* cell(row = 15, column = 0)
+        
+        If `coordinates` are not given, then row *and* column must be given.
+        
+        Cells are kept in a dictionary which is empty at the worksheet creation. 
+        Calling `cell` creates the cell in memory when they are first accessed, to
+        reduce memory usage.
+        
+        :param coordinate: coordinates of the cell (e.g. 'B12')
+        :type coordinate: string
+        
+        :param row: row index of the cell (e.g. 4)
+        :type row: int
+        
+        :param column: column index of the cell (e.g. 3)
+        :type column: int
+        
+        :raise: InsufficientCoordinatesException when coordinate or (row and column) are not given
+        
+        """
 
         if not coordinate:
             if not (row and column):

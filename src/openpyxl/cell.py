@@ -128,6 +128,10 @@ class Cell(object):
                    'numeric' : re.compile('^\-?([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$'),
                    }
 
+    def __repr__(self):
+
+        return u"<Cell %s.%s>" % (self.parent.title, self.get_coordinate())
+
     def __init__(self, worksheet, column, row, value = None):
 
         self.column = column.upper()
@@ -156,7 +160,12 @@ class Cell(object):
 
         self.bind_value(value)
 
-    value = property(_get_value, _set_value, doc = "Get or set the value held in the cell")
+    value = property(_get_value,
+                     _set_value,
+                     doc = """Get or set the value held in the cell
+                     
+                     :rtype: depends on the value (string, float, int or :class:`datetime.datetime`)
+                     """)
 
     def bind_value(self, value):
 
@@ -228,7 +237,7 @@ class Cell(object):
 
     @property
     def style(self):
-        """Returns the style object for this cell
+        """Returns the :class:`openpyxl.style.Style` object for this cell
         """
         return self.parent.get_style(self.get_coordinate())
 
@@ -296,10 +305,24 @@ class Cell(object):
         return self._data_type
 
     def get_coordinate(self):
+        """Return the coordinate string for this cell (e.g. 'B12')
+        
+        :rtype: string
+        """
 
         return '%s%s' % (self.column, self.row)
 
     def offset(self, row = 0, column = 0):
+        """Returns the cell located at this cell's address, offsetted by `row` and `column`
+        
+        :param row: number of rows to offset
+        :type row: int
+        
+        :param column: number of columns to offset
+        :type column: int
+        
+        :rtype: :class:`openpyxl.cell.Cell`
+        """
 
         offset_column = get_column_letter(column_index_from_string(column = self.column) + column)
         offset_row = self.row + row
