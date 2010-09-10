@@ -19,9 +19,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-@license: http://www.opensource.org/licenses/mit-license.php
-@author: Eric Gazoni
+:License: http://www.opensource.org/licenses/mit-license.php
+:Author: Eric Gazoni
 '''
+
+__docformat__ = "restructuredtext en"
 
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.exc import CellCoordinatesException, \
@@ -31,6 +33,8 @@ import datetime
 import re
 
 def coordinate_from_string(coord_string):
+    """Convert a coordinate string like 'B12' to a tuple ('B', 12)
+    """
 
     matches = re.match(pattern = '[$]?([A-Z]+)[$]?(\d+)', string = coord_string.upper())
 
@@ -41,10 +45,14 @@ def coordinate_from_string(coord_string):
         return (column, int(row))
 
 def absolute_coordinate(coord_string):
+    """Convert coordinate string (e.g. 'B12') to absolute coordinate string (e.g. '$B$12')
+    """
 
     return '$%s$%d' % coordinate_from_string(coord_string)
 
 def column_index_from_string(column):
+    """Convert a column letter (e.g. 'B') into a column number (e.g. 2)
+    """
 
     column = column.upper()
 
@@ -62,6 +70,8 @@ def column_index_from_string(column):
         raise ColumnStringIndexException('Column string index can not be empty')
 
 def get_column_letter(col_idx):
+    """Convert a column number (e.g. 3) into a column letter (e.g. 'C')
+    """
 
     col_name = ""
     quotient = col_idx
@@ -83,6 +93,9 @@ def get_column_letter(col_idx):
     return col_name
 
 class Cell(object):
+    """Describes cell associated properties (style, type, value, address,...)
+    """
+
 
     __slots__ = ('column',
                  'row',
@@ -143,7 +156,7 @@ class Cell(object):
 
         self.bind_value(value)
 
-    value = property(_get_value, _set_value)
+    value = property(_get_value, _set_value, doc = "Get or set the value held in the cell")
 
     def bind_value(self, value):
 
@@ -215,6 +228,8 @@ class Cell(object):
 
     @property
     def style(self):
+        """Returns the style object for this cell
+        """
         return self.parent.get_style(self.get_coordinate())
 
     def data_type_for_value(self, value):
