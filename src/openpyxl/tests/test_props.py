@@ -88,8 +88,8 @@ class TestReaderPropsMixed(BaseTestCase):
 
         parts_number = get_number_of_parts(xml_source = self.content)
 
-        self.assertEqual(parts_number, {'Worksheets':7,
-                                        'Named Ranges':7})
+        self.assertEqual(parts_number, ({'Worksheets':7,
+                                        'Named Ranges':7}, ['Worksheets', 'Named Ranges']))
 
 
 class TestWriteProps(BaseTestCase):

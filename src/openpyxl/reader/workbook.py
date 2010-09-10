@@ -62,7 +62,10 @@ def read_sheets_titles(xml_source):
 
     vector = titles_root.find(QName(NAMESPACES['vt'], 'vector').text)
 
-    size = get_number_of_parts(xml_source)['Worksheets']
+    parts, names = get_number_of_parts(xml_source)
+    # we can't assume 'Worksheets' to be written in english, 
+    # but it's always the first item of the parts list (see bug #22)
+    size = parts[names[0]]
 
     children = [c.text for c in vector.getchildren()]
 
@@ -112,6 +115,7 @@ def read_named_ranges(xml_source, workbook):
 def get_number_of_parts(xml_source):
 
     parts_size = {}
+    parts_names = []
 
     root = fromstring(text = xml_source)
 
@@ -124,7 +128,10 @@ def get_number_of_parts(xml_source):
     for child_id in range(0, len(children), 2):
 
         part_name = children[child_id].find(QName(NAMESPACES['vt'], 'lpstr').text).text
+        if not part_name in parts_names:
+            parts_names.append(part_name)
+
         part_size = int(children[child_id + 1].find(QName(NAMESPACES['vt'], 'i4').text).text)
         parts_size[part_name] = part_size
 
-    return parts_size
+    return parts_size, parts_names
