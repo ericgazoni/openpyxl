@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 __major__ = 1       # for major interface/format changes
 __minor__ = 1       # for minor interface/format changes
-__release__ = 5     # for tweaks, bug-fixes, or development
+__release__ = 6     # for tweaks, bug-fixes, or development
 
 __version__ = '%d.%d.%d' % (__major__,
                             __minor__,
