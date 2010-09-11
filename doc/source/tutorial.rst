@@ -56,7 +56,7 @@ Accessing one cell
 
 Now we know how to access a worksheet, we can start modifying cells content.
 
-To access a cell, use the :func:`openpyxl.workheet.Worksheet.cell` method::
+To access a cell, use the :func:`openpyxl.worksheet.Worksheet.cell` method::
 
 	>>> c = ws.cell('A4')
 	

@@ -301,6 +301,19 @@ class Worksheet(object):
                             self.get_highest_row())
 
     def range(self, range_string, row = 0, column = 0):
+        """Returns a 2D array of cells, with optional row and column offsets
+        
+        :param range_string: cell range string or `named range` name
+        :type range_string: string
+        
+        :param row: number of rows to offset
+        :type row: int
+        
+        :param column: number of columns to offset
+        :type column: int
+        
+        :rtype: tuples of tuples of :class:`openpyxl.cell.Cell` 
+        """
 
         if ':' in range_string:
             # R1C1 range
