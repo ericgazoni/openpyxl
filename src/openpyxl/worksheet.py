@@ -250,6 +250,8 @@ class Worksheet(object):
         
         :raise: InsufficientCoordinatesException when coordinate or (row and column) are not given
         
+        :rtype: :class:`openpyxl.cell.Cell` 
+        
         """
 
         if not coordinate:
