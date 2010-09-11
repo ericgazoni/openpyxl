@@ -4,6 +4,13 @@
 .. module:: openpyxl
 .. moduleauthor:: Eric Gazoni
 
+:Author: Eric Gazoni
+:Source code: http://bitbucket.org/ericgazoni/openpyxl/src
+:Issues: http://bitbucket.org/ericgazoni/openpyxl/issues
+:Generated: |today|
+:License: MIT/Expat
+:Version: |release|
+
 Usage examples
 ------------------
  
