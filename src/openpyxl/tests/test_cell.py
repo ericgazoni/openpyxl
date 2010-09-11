@@ -29,7 +29,7 @@ from openpyxl.tests.helper import BaseTestCase
 from openpyxl.worksheet import Worksheet
 from openpyxl.workbook import Workbook
 from openpyxl.cell import column_index_from_string, coordinate_from_string, get_column_letter, Cell, absolute_coordinate
-from datetime import time
+from datetime import time, datetime
 
 class TestCell(BaseTestCase):
 
@@ -113,4 +113,15 @@ class TestCell(BaseTestCase):
 
         self.assertEqual(time(3, 40, 16), c.value)
 
+    def test_date_format_applied_on_non_dates(self):
 
+        wb = Workbook()
+        ws = Worksheet(parent_workbook = wb)
+
+        c = Cell(worksheet = ws, column = 'A', row = 1)
+
+        c.value = datetime.now()
+
+        c.value = 'testme'
+
+        self.assertEqual('testme', c.value)

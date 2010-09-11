@@ -151,7 +151,11 @@ class Cell(object):
 
         value = self._value
 
-        if self.has_style and self.style.number_format.is_date_format():
+        if (self.has_style
+            and self.style.number_format.is_date_format()
+            and isinstance(value, (int, float))
+            ):
+
             value = SharedDate().from_julian(value)
 
         return value
