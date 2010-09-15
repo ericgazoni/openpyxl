@@ -22,11 +22,6 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
-if __name__ == '__main__':
-    import sys
-    sys.path.insert(0, "../..")
-    import unittest
-
 from openpyxl.tests.helper import BaseTestCase
 
 from openpyxl.workbook import Workbook
@@ -166,7 +161,3 @@ class TestWorksheet(BaseTestCase):
         self.assertEqual("rId2", ws.relationships[1].id)
         self.assertEqual("http://test2.com", ws.relationships[1].target)
         self.assertEqual("External", ws.relationships[1].target_mode)
-
-if __name__ == '__main__':
-    unittest.main()
-

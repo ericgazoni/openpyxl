@@ -23,10 +23,6 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 from __future__ import with_statement
-if __name__ == '__main__':
-    import sys
-    sys.path.insert(0, "../..")
-    import unittest
 import os.path as osp
 from openpyxl.tests.helper import BaseTestCase, TMPDIR, DATADIR
 from openpyxl.workbook import Workbook
@@ -176,7 +172,3 @@ class TestWriteWorksheet(BaseTestCase):
         content = write_worksheet(worksheet = ws, string_table = {"http://test.com" : 0}, style_table = {})
         ws.cell('A1').value = "test"
         self.assertEqual("test", ws.cell('A1').value)
-
-if __name__ == '__main__':
-    unittest.main()
-
