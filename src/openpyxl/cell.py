@@ -140,7 +140,15 @@ class Cell(object):
     def _get_hyperlink(self):
         return self._hyperlink_rel is not None and self._hyperlink_rel.target or ""
 
-    hyperlink = property(_get_hyperlink, _set_hyperlink)
+    hyperlink = property(_get_hyperlink,
+                         _set_hyperlink,
+                         doc = """Get or set the hyperlink held in the cell. 
+                         Automatically sets the `value` of the cell with link text, 
+                         but you can modify it afterwards by setting the `value` property, 
+                         and the hyperlink will remain.
+                     
+                         :rtype: string
+                         """)
     @property
     def hyperlink_rel_id(self):
         return self._hyperlink_rel is not None and self._hyperlink_rel.id or None

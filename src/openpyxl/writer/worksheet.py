@@ -198,8 +198,8 @@ def write_worksheet_rels(worksheet):
     if worksheet.relationships:
         for i, rel in enumerate(worksheet.relationships):
             attrs = {'Id' : rel.id,
-                                              'Type' : rel.type,
-                                              'Target' : rel.target }
+                     'Type' : rel.type,
+                     'Target' : rel.target }
             if rel.target_mode:
                 attrs["TargetMode"] = rel.target_mode
             SubElement(root, 'Relationship', attrs)

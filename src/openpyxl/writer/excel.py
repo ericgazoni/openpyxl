@@ -107,7 +107,7 @@ class ExcelWriter(object):
                                     content = write_worksheet(worksheet = sheet,
                                                               string_table = shared_string_table,
                                                               style_table = style_id_by_hash))
-            if worksheet.relationships:
+            if sheet.relationships:
                 archive.add_from_file(arc_name = PACKAGE_WORKSHEETS + '/_rels/sheet%d.xml.rels' % (i + 1),
                                         content = write_worksheet_rels(worksheet = sheet))
 
