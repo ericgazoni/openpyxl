@@ -68,6 +68,8 @@ def write_worksheet(worksheet, string_table, style_table):
 
     write_worksheet_data(doc, worksheet, string_table, style_table)
 
+    write_worksheet_hyperlinks(doc, worksheet)
+
     end_tag(doc, 'worksheet')
 
     doc.endDocument()
@@ -172,3 +174,36 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
         end_tag(doc, 'row')
 
     end_tag(doc, 'sheetData')
+
+def write_worksheet_hyperlinks(doc, worksheet):
+    write_hyperlinks = False
+    for cell in worksheet.get_cell_collection():
+        if cell.hyperlink_rel_id is not None:
+            write_hyperlinks = True
+            break
+    if write_hyperlinks:
+        index = 1
+        start_tag(doc, 'hyperlinks')
+        for cell in worksheet.get_cell_collection():
+            if cell.hyperlink_rel_id is not None:
+                attrs = {'display' : cell.hyperlink,
+                    'ref' : cell.get_coordinate(),
+                    'r:id' : cell.hyperlink_rel_id }
+                tag(doc, 'hyperlink', attrs)
+        end_tag(doc, 'hyperlinks')
+
+
+def write_worksheet_rels(worksheet):
+    root = Element('Relationships', {'xmlns' : 'http://schemas.openxmlformats.org/package/2006/relationships'})
+    if worksheet.relationships:
+        for i, rel in enumerate(worksheet.relationships):
+            attrs = {'Id' : rel.id,
+                                              'Type' : rel.type,
+                                              'Target' : rel.target }
+            if rel.target_mode:
+                attrs["TargetMode"] = rel.target_mode
+            SubElement(root, 'Relationship', attrs)
+
+    return get_document_content(root)
+
+

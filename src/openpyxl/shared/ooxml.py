@@ -39,7 +39,6 @@ ARC_STYLE = PACKAGE_XL + '/styles.xml'
 ARC_THEME = PACKAGE_THEME + '/theme1.xml'
 ARC_SHARED_STRINGS = PACKAGE_XL + '/sharedStrings.xml'
 
-
 NAMESPACES = {
 'cp' : 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
 'dc' : 'http://purl.org/dc/elements/1.1/',

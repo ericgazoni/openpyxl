@@ -32,7 +32,7 @@ from openpyxl.writer.strings import create_string_table, write_string_table
 from openpyxl.writer.workbook import write_content_types, write_root_rels, write_workbook_rels, write_properties_app, write_properties_core, write_workbook
 from openpyxl.writer.theme import write_theme
 from openpyxl.writer.styles import create_style_table, write_style_table
-from openpyxl.writer.worksheet import write_worksheet
+from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
 
 def save_workbook(workbook, filename):
     """Save the given workbook on the filesystem under the name fielename
@@ -107,3 +107,7 @@ class ExcelWriter(object):
                                     content = write_worksheet(worksheet = sheet,
                                                               string_table = shared_string_table,
                                                               style_table = style_id_by_hash))
+            if worksheet.relationships:
+                archive.add_from_file(arc_name = PACKAGE_WORKSHEETS + '/_rels/sheet%d.xml.rels' % (i + 1),
+                                        content = write_worksheet_rels(worksheet = sheet))
+

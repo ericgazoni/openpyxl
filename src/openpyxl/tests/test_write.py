@@ -23,14 +23,16 @@ THE SOFTWARE.
 @author: Eric Gazoni
 '''
 from __future__ import with_statement
+if __name__ == '__main__':
+    import sys
+    sys.path.insert(0, "../..")
+    import unittest
 import os.path as osp
 from openpyxl.tests.helper import BaseTestCase, TMPDIR, DATADIR
-
 from openpyxl.workbook import Workbook
 from openpyxl.writer.excel import ExcelWriter
-
 from openpyxl.writer.workbook import write_workbook, write_workbook_rels
-from openpyxl.writer.worksheet import write_worksheet
+from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
 from openpyxl.writer.strings import write_string_table
 from openpyxl.writer.styles import create_style_table
 
@@ -141,3 +143,40 @@ class TestWriteWorksheet(BaseTestCase):
 
         self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1_height.xml'),
                                      fixture = content)
+
+    def test_write_worksheet_with_hyperlink(self):
+        wb = Workbook()
+        ws = wb.create_sheet()
+        ws.cell('A1').value = "test"
+        ws.cell('A1').hyperlink = "http://test.com"
+        content = write_worksheet(worksheet = ws, string_table = {'test' : 0}, style_table = {})
+        self.assertEqualsFileContent(reference_file = osp.join(DATADIR,
+            'writer', 'expected', 'sheet1_hyperlink.xml'), fixture = content)
+
+    def test_write_worksheet_with_hyperlink_relationships(self):
+        wb = Workbook()
+        ws = wb.create_sheet()
+        self.assertEqual(0, len(ws.relationships))
+        ws.cell('A1').value = "test"
+        ws.cell('A1').hyperlink = "http://test.com/"
+        self.assertEqual(1, len(ws.relationships))
+        ws.cell('A2').value = "test"
+        ws.cell('A2').hyperlink = "http://test2.com/"
+        self.assertEqual(2, len(ws.relationships))
+
+        content = write_worksheet_rels(worksheet = ws)
+        self.assertEqualsFileContent(reference_file = osp.join(DATADIR,
+            'writer', 'expected', 'sheet1_hyperlink.xml.rels'), fixture = content)
+
+    def test_hyperlink_value(self):
+        wb = Workbook()
+        ws = wb.create_sheet()
+        ws.cell('A1').hyperlink = "http://test.com"
+        self.assertEqual("http://test.com", ws.cell('A1').value)
+        content = write_worksheet(worksheet = ws, string_table = {"http://test.com" : 0}, style_table = {})
+        ws.cell('A1').value = "test"
+        self.assertEqual("test", ws.cell('A1').value)
+
+if __name__ == '__main__':
+    unittest.main()
+

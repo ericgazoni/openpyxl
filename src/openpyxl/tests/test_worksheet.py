@@ -22,6 +22,10 @@ THE SOFTWARE.
 @license: http://www.opensource.org/licenses/mit-license.php
 @author: Eric Gazoni
 '''
+if __name__ == '__main__':
+    import sys
+    sys.path.insert(0, "../..")
+    import unittest
 
 from openpyxl.tests.helper import BaseTestCase
 
@@ -143,3 +147,26 @@ class TestWorksheet(BaseTestCase):
         ws.garbage_collect()
 
         self.assertEqual(ws.get_cell_collection(), [ws.cell('B2'), ws.cell('C4')])
+
+
+    def test_hyperlink_relationships(self):
+        ws = Worksheet(parent_workbook = self.wb)
+        self.assertEqual(len(ws.relationships), 0)
+
+        ws.cell('A1').hyperlink = "http://test.com"
+        self.assertEqual(len(ws.relationships), 1)
+        self.assertEqual("rId1", ws.cell('A1').hyperlink_rel_id)
+        self.assertEqual("rId1", ws.relationships[0].id)
+        self.assertEqual("http://test.com", ws.relationships[0].target)
+        self.assertEqual("External", ws.relationships[0].target_mode)
+
+        ws.cell('A2').hyperlink = "http://test2.com"
+        self.assertEqual(len(ws.relationships), 2)
+        self.assertEqual("rId2", ws.cell('A2').hyperlink_rel_id)
+        self.assertEqual("rId2", ws.relationships[1].id)
+        self.assertEqual("http://test2.com", ws.relationships[1].target)
+        self.assertEqual("External", ws.relationships[1].target_mode)
+
+if __name__ == '__main__':
+    unittest.main()
+

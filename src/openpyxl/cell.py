@@ -102,7 +102,8 @@ class Cell(object):
                  '_value',
                  '_data_type',
                  'parent',
-                 'xf_index')
+                 'xf_index',
+                 '_hyperlink_rel')
 
     ERROR_CODES = {'#NULL!'  : 0,
                    '#DIV/0!' : 1,
@@ -128,6 +129,23 @@ class Cell(object):
                    'numeric' : re.compile('^\-?([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$'),
                    }
 
+    def _set_hyperlink(self, val):
+        if self._hyperlink_rel is None:
+            self._hyperlink_rel = self.parent.create_relationship("hyperlink")
+        self._hyperlink_rel.target = val
+        self._hyperlink_rel.target_mode = "External"
+        if self._value is None:
+            self.value = val
+
+    def _get_hyperlink(self):
+        return self._hyperlink_rel is not None and self._hyperlink_rel.target or ""
+
+    hyperlink = property(_get_hyperlink, _set_hyperlink)
+    @property
+    def hyperlink_rel_id(self):
+        return self._hyperlink_rel is not None and self._hyperlink_rel.id or None
+
+
     def __repr__(self):
 
         return u"<Cell %s.%s>" % (self.parent.title, self.get_coordinate())
@@ -138,6 +156,7 @@ class Cell(object):
         self.row = row
 
         self._value = None
+        self._hyperlink_rel = None
         self._data_type = self.TYPE_NULL
 
         if value:

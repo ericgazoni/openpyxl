@@ -31,6 +31,23 @@ from openpyxl.shared.password_hasher import hash_password
 from openpyxl.style import Style
 import re
 
+class Relationship(object):
+    #TODO: Use this object for workbook relationships as well as worksheet relationships
+    TYPES = {
+        'hyperlink': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+#        'worksheet': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
+#        'sharedStrings': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
+#        'styles': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
+#        'theme': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
+    }
+    def __init__(self, rel_type):
+        if rel_type not in self.TYPES:
+            raise Exception("Invalid relationship type %s" % rel_type)
+        self.type = self.TYPES[rel_type]
+        self.target = ""
+        self.target_mode = ""
+        self.id = ""
+
 class PageSetup(object): pass
 class HeaderFooter(object): pass
 class SheetView(object): pass
@@ -146,7 +163,6 @@ class Worksheet(object):
 
     def __init__(self, parent_workbook, title = 'Sheet'):
 
-
         self._parent = parent_workbook
         self._title = ''
 
@@ -161,6 +177,8 @@ class Worksheet(object):
         self._cells = {}
 
         self._styles = {}
+
+        self.relationships = []
 
         self.selected_cell = 'A1'
         self.active_cell = 'A1'
@@ -378,3 +396,12 @@ class Worksheet(object):
             self._styles[coordinate] = Style()
 
         return self._styles[coordinate]
+
+
+    def create_relationship(self, rel_type):
+        rel = Relationship(rel_type)
+        self.relationships.append(rel)
+        rel_id = self.relationships.index(rel)
+        rel.id = 'rId' + str(rel_id + 1)
+        return self.relationships[rel_id]
+
