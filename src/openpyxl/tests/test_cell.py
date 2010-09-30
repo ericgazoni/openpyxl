@@ -1,127 +1,149 @@
-# coding=UTF-8
-'''
-Copyright (c) 2010 openpyxl
+# file openpyxl/tests/test_cell.py
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-@license: http://www.opensource.org/licenses/mit-license.php
-@author: Eric Gazoni
-'''
-
-from openpyxl.tests.helper import BaseTestCase
-
-from openpyxl.worksheet import Worksheet
-from openpyxl.workbook import Workbook
-from openpyxl.cell import column_index_from_string, coordinate_from_string, get_column_letter, Cell, absolute_coordinate
+# Python stdlib imports
 from datetime import time, datetime
 
-class TestCell(BaseTestCase):
+# 3rd party imports
+from nose.tools import eq_, raises, assert_raises
 
-    def test_coordinates(self):
+# package imports
+from openpyxl.worksheet import Worksheet
+from openpyxl.workbook import Workbook
+from openpyxl.shared.exc import ColumnStringIndexException, \
+        CellCoordinatesException, DataTypeException
+from openpyxl.cell import column_index_from_string, \
+        coordinate_from_string, get_column_letter, Cell, absolute_coordinate
 
-        column, row = coordinate_from_string(coord_string = "ZF46")
 
-        self.assertEqual("ZF", column)
-        self.assertEqual(46, row)
+def test_coordinates():
+    column, row = coordinate_from_string('ZF46')
+    eq_("ZF", column)
+    eq_(46, row)
 
-    def test_invalid_coordinate(self):
 
-        self.assertRaises(Exception, coordinate_from_string, "AAA")
+@raises(CellCoordinatesException)
+def test_invalid_coordinate():
+    coordinate_from_string('AAA')
 
-    def test_absolute(self):
 
-        self.assertEqual('$ZF$51', absolute_coordinate(coord_string = 'ZF51'))
+def test_absolute():
+    eq_('$ZF$51', absolute_coordinate('ZF51'))
 
-    def test_column_index(self):
 
-        self.assertEqual(10, column_index_from_string(column = 'J'))
+def test_column_index():
+    eq_(10, column_index_from_string('J'))
+    eq_(270, column_index_from_string('jJ'))
+    eq_(7030, column_index_from_string('jjj'))
 
-        self.assertEqual(270, column_index_from_string(column = 'JJ'))
 
-        self.assertEqual(7030, column_index_from_string(column = 'JJJ'))
+def test_bad_column_index():
 
-        self.assertRaises(Exception, column_index_from_string, 'JJJJ')
+    @raises(ColumnStringIndexException)
+    def _check(bad_string):
+        column_index_from_string(bad_string)
 
-        self.assertRaises(Exception, column_index_from_string, '')
+    bad_strings = ('JJJJ', '', '$', '1', )
+    for bad_string in bad_strings:
+        yield _check, bad_string
 
-    def test_column_letter(self):
 
-        self.assertEqual('ZZZ', get_column_letter(col_idx = 18278))
+def test_column_letter_boundries():
+    assert_raises(ColumnStringIndexException, get_column_letter, 0)
+    assert_raises(ColumnStringIndexException, get_column_letter, 18279)
 
-        self.assertEqual('AA', get_column_letter(col_idx = 27))
 
-        self.assertEqual('Z', get_column_letter(col_idx = 26))
+def test_column_letter():
+    eq_('ZZZ', get_column_letter(18278))
+    eq_('JJJ', get_column_letter(7030))
+    eq_('AB', get_column_letter(28))
+    eq_('AA', get_column_letter(27))
+    eq_('Z', get_column_letter(26))
 
-    def test_value(self):
 
-        c = Cell(worksheet = None, column = 'A', row = 1)
+def test_initial_value():
+    cell = Cell(None, 'A', 1, value='17.5')
+    eq_(cell.TYPE_NUMERIC, cell.data_type)
 
-        self.assertEqual(c.TYPE_NULL, c.data_type)
 
-        c.value = 42
-        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+class TestCellValueTypes():
 
-        c.value = 'hello'
-        self.assertEqual(c.TYPE_STRING, c.data_type)
+    @classmethod
+    def setup_class(cls):
+        cls.cell = Cell(None, 'A', 1)
 
-        c.value = '=42'
-        self.assertEqual(c.TYPE_FORMULA, c.data_type)
+    def test_1st(self):
+        eq_(self.cell.TYPE_NULL, self.cell.data_type)
 
-        c.value = '4.2'
-        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+    def test_null(self):
+        self.cell.value = None
+        eq_(self.cell.TYPE_NULL, self.cell.data_type)
 
-        c.value = '-42.00'
-        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+    def test_numeric(self):
 
-        c.value = '0'
-        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+        def check_numeric():
+            self.cell.value = value
+            eq_(self.cell.TYPE_NUMERIC, self.cell.data_type)
 
-        c.value = 0
-        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', )
+        for value in values:
+            yield check_numeric
 
-        c.value = 0.0001
-        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+    def test_string(self):
+        self.cell.value = 'hello'
+        eq_(self.cell.TYPE_STRING, self.cell.data_type)
 
-        c.value = '0.9999'
-        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+    def test_formula(self):
+        self.cell.value = '=42'
+        eq_(self.cell.TYPE_FORMULA, self.cell.data_type)
 
-    def test_time_value(self):
+    def test_boolean(self):
+        self.cell.value = True
+        eq_(self.cell.TYPE_BOOL, self.cell.data_type)
+        self.cell.value = False
+        eq_(self.cell.TYPE_BOOL, self.cell.data_type)
 
-        wb = Workbook()
-        ws = Worksheet(parent_workbook = wb)
+    def test_error_codes(self):
 
-        c = Cell(worksheet = ws, column = 'A', row = 1)
+        def check_error():
+            eq_(self.cell.TYPE_ERROR, self.cell.data_type)
 
-        c.value = '03:40:16'
-        self.assertEqual(c.TYPE_NUMERIC, c.data_type)
+        for error_string in self.cell.ERROR_CODES.keys():
+            self.cell.value = error_string
+            yield check_error
 
-        self.assertEqual(time(3, 40, 16), c.value)
 
-    def test_date_format_applied_on_non_dates(self):
+@raises(DataTypeException)
+def test_set_bad_type():
+    cell = Cell(None, 'A', 1)
+    cell.set_value_explicit(1, 'q')
 
-        wb = Workbook()
-        ws = Worksheet(parent_workbook = wb)
 
-        c = Cell(worksheet = ws, column = 'A', row = 1)
+def test_time():
 
-        c.value = datetime.now()
+    def check_time(raw_value, coerced_value):
+        cell.value = raw_value
+        eq_(cell.value, coerced_value)
+        eq_(cell.TYPE_NUMERIC, cell.data_type)
 
-        c.value = 'testme'
+    wb = Workbook()
+    ws = Worksheet(wb)
+    cell = Cell(ws, 'A', 1)
+    values = (('03:40:16', time(3, 40, 16)), ('03:40', time(3, 40)), )
+    for raw_value, coerced_value in values:
+        yield check_time, raw_value, coerced_value
 
-        self.assertEqual('testme', c.value)
+
+def test_date_format_on_non_date():
+    wb = Workbook()
+    ws = Worksheet(wb)
+    cell = Cell(ws, 'A', 1)
+    cell.value = datetime.now()
+    cell.value = 'testme'
+    eq_('testme', cell.value)
+
+
+def test_repr():
+    wb = Workbook()
+    ws = Worksheet(wb)
+    cell = Cell(ws, 'A', 1)
+    assert repr(cell) == '<Cell Sheet1.A1>', 'Got bad repr: %s' % repr(cell)

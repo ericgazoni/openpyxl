@@ -1,27 +1,4 @@
-'''
-Copyright (c) 2010 openpyxl
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-@license: http://www.opensource.org/licenses/mit-license.php
-@author: Eric Gazoni
-'''
+# file openpyxl/worksheet.py
 
 from openpyxl.cell import Cell, coordinate_from_string, column_index_from_string, \
     get_column_letter
@@ -144,8 +121,8 @@ class SheetProtection(object):
 
 class Worksheet(object):
     """Represents a worksheet
-    
-    Do not create worksheets yourself, 
+
+    Do not create worksheets yourself,
     use :func:`openpyxl.workbook.Workbook.create_sheet` instead
     """
 
@@ -205,8 +182,8 @@ class Worksheet(object):
         self.default_column_dimension = ColumnDimension()
 
     def garbage_collect(self):
-
-        delete_list = [coordinate for coordinate, cell in self._cells.iteritems() if cell.value == '']
+        delete_list = [coordinate for coordinate, cell in 
+                self._cells.iteritems() if cell.value == '']
 
         for coordinate in delete_list:
             del self._cells[coordinate]
@@ -243,33 +220,33 @@ class Worksheet(object):
     title = property(_get_title,
                      _set_title,
                      doc = """Get or set the title of the worksheet.
-                     Limited to 31 characters, no special characters. 
+                     Limited to 31 characters, no special characters.
                      """)
 
     def cell(self, coordinate = None, row = None, column = None):
         """Returns a cell object based on the given coordinates
-        
+
         Usage: cell(coodinate = 'A15') *or* cell(row = 15, column = 0)
-        
+
         If `coordinates` are not given, then row *and* column must be given.
-        
-        Cells are kept in a dictionary which is empty at the worksheet creation. 
+
+        Cells are kept in a dictionary which is empty at the worksheet creation.
         Calling `cell` creates the cell in memory when they are first accessed, to
         reduce memory usage.
-        
+
         :param coordinate: coordinates of the cell (e.g. 'B12')
         :type coordinate: string
-        
+
         :param row: row index of the cell (e.g. 4)
         :type row: int
-        
+
         :param column: column index of the cell (e.g. 3)
         :type column: int
-        
+
         :raise: InsufficientCoordinatesException when coordinate or (row and column) are not given
-        
-        :rtype: :class:`openpyxl.cell.Cell` 
-        
+
+        :rtype: :class:`openpyxl.cell.Cell`
+
         """
 
         if not coordinate:
@@ -322,17 +299,17 @@ class Worksheet(object):
 
     def range(self, range_string, row = 0, column = 0):
         """Returns a 2D array of cells, with optional row and column offsets
-        
+
         :param range_string: cell range string or `named range` name
         :type range_string: string
-        
+
         :param row: number of rows to offset
         :type row: int
-        
+
         :param column: number of columns to offset
         :type column: int
-        
-        :rtype: tuples of tuples of :class:`openpyxl.cell.Cell` 
+
+        :rtype: tuples of tuples of :class:`openpyxl.cell.Cell`
         """
 
         if ':' in range_string:
@@ -353,7 +330,7 @@ class Worksheet(object):
 
             cache_cols = {}
             for col in xrange(min_col, max_col + 1):
-                cache_cols[col] = get_column_letter(col_idx = col)
+                cache_cols[col] = get_column_letter(col)
 
             rows = xrange(min_row + row, max_row + row + 1)
             cols = xrange(min_col, max_col + 1)
@@ -391,10 +368,8 @@ class Worksheet(object):
             return self.cell(named_range.range)
 
     def get_style(self, coordinate):
-
         if not coordinate in self._styles:
             self._styles[coordinate] = Style()
-
         return self._styles[coordinate]
 
 

@@ -1,27 +1,4 @@
-'''
-Copyright (c) 2010 openpyxl
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-:License: http://www.opensource.org/licenses/mit-license.php
-:Author: Eric Gazoni
-'''
+# file openpyxl/workbook.py
 
 __docformat__ = "restructuredtext en"
 
@@ -85,9 +62,9 @@ class Workbook(object):
 
     def create_sheet(self, index = None):
         """Create a worksheet (at an optional index)
-        
+
         :param index: optional position at which the sheet will be inserted
-        :type index: int 
+        :type index: int
         """
 
         new_ws = Worksheet(parent_workbook = self)
@@ -108,9 +85,9 @@ class Workbook(object):
         self.worksheets.remove(worksheet)
 
     def get_sheet_by_name(self, name):
-        """Returns a worksheet by its name or None if no worksheet has 
+        """Returns a worksheet by its name or None if no worksheet has
         this name
-        
+
         :param name: the name of the worksheet to look for
         :type name: string
         """
@@ -127,9 +104,9 @@ class Workbook(object):
 
     def get_sheet_names(self):
         """Returns the list of the names of worksheets in the workbook
-        
+
         Names are returned in the worksheets order.
-        
+
         :rtype: list of strings
         """
 

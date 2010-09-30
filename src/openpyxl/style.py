@@ -1,75 +1,48 @@
-'''
-Copyright (c) 2010 openpyxl
+# file openpyxl/style.py
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-@license: http://www.opensource.org/licenses/mit-license.php
-@author: Eric Gazoni
-'''
-
+# Python stdlib imports
 import re
-
-try :
+try:
     from hashlib import md5
 except ImportError:
     from md5 import md5
 
-class HashableObject(object):
 
+class HashableObject(object):
+    """Define how to hash property classes."""
     __fields__ = None
     __leaf__ = False
 
     def __init__(self):
-
         self.__dirty__ = True
         self.__crc_cache__ = ''
 
-    def __setattr(self, key, value):
-
+    def __setattr__(self, key, value):
         object.__setattr__(self, key, value)
         object.__setattr__(self, '__dirty__', True)
 
     def __crc__(self):
-
         if self.__dirty__ or not self.__leaf__:
-            data = ''.join([unicode(getattr(self, a)) for a in self.__fields__])
+            data = ''.join([unicode(getattr(self, attribute))
+                    for attribute in self.__fields__])
             self.__crc_cache__ = md5(data).hexdigest()
             self.__dirty__ = False
-
         return self.__crc_cache__
 
     def __cmp__(self, other):
-
         return cmp(self.__crc__(), other.__crc__())
 
     def __eq__(self, other):
-
         return self.__crc__() == other.__crc__()
 
     def __ne__(self, other):
-
         return not self.__eq__(other)
 
     __str__ = __crc__
 
-class Color(HashableObject):
 
+class Color(HashableObject):
+    """Named colors for use in styles."""
     BLACK = 'FF000000'
     WHITE = 'FFFFFFFF'
     RED = 'FFFF0000'
@@ -82,19 +55,16 @@ class Color(HashableObject):
     DARKYELLOW = 'FF808000'
 
     __fields__ = ('index',)
-
     __slots__ = __fields__
-
     __leaf__ = True
 
     def __init__(self, index):
-
-        HashableObject.__init__(self)
-
+        super(Color, self).__init__()
         self.index = index
 
-class Font(HashableObject):
 
+class Font(HashableObject):
+    """Font options used in styles."""
     UNDERLINE_NONE = 'none'
     UNDERLINE_DOUBLE = 'double'
     UNDERLINE_DOUBLE_ACCOUNTING = 'doubleAccounting'
@@ -110,13 +80,10 @@ class Font(HashableObject):
                   'underline',
                   'strikethrough',
                   'color')
-
     __slots__ = __fields__
 
     def __init__(self):
-
-        HashableObject.__init__(self)
-
+        super(Font, self).__init__()
         self.name = 'Calibri'
         self.size = 11
         self.bold = False
@@ -127,8 +94,9 @@ class Font(HashableObject):
         self.strikethrough = False
         self.color = Color(Color.BLACK)
 
-class Fill(HashableObject):
 
+class Fill(HashableObject):
+    """Area fill patterns for use in styles."""
     FILL_NONE = 'none'
     FILL_SOLID = 'solid'
     FILL_GRADIENT_LINEAR = 'linear'
@@ -155,20 +123,18 @@ class Fill(HashableObject):
                   'rotation',
                   'start_color',
                   'end_color')
-
     __slots__ = __fields__
 
     def __init__(self):
-
-        HashableObject.__init__(self)
-
+        super(Fill, self).__init__()
         self.fill_type = self.FILL_NONE
         self.rotation = 0
         self.start_color = Color(Color.WHITE)
         self.end_color = Color(Color.BLACK)
 
-class Border(HashableObject):
 
+class Border(HashableObject):
+    """Border options for use in styles."""
     BORDER_NONE = 'none'
     BORDER_DASHDOT = 'dashDot'
     BORDER_DASHDOTDOT = 'dashDotDot'
@@ -186,18 +152,16 @@ class Border(HashableObject):
 
     __fields__ = ('border_style',
                   'color')
-
     __slots__ = __fields__
 
     def __init__(self):
-
-        HashableObject.__init__(self)
-
+        super(Border, self).__init__()
         self.border_style = self.BORDER_NONE
         self.color = Color(Color.BLACK)
 
-class Borders(HashableObject):
 
+class Borders(HashableObject):
+    """Border positioning for use in styles."""
     DIAGONAL_NONE = 0
     DIAGONAL_UP = 1
     DIAGONAL_DOWN = 2
@@ -209,18 +173,15 @@ class Borders(HashableObject):
                   'bottom',
                   'diagonal',
                   'diagonal_direction',
-                  'all_borders' ,
+                  'all_borders',
                   'outline',
                   'inside',
                   'vertical',
                   'horizontal')
-
     __slots__ = __fields__
 
     def __init__(self):
-
-        HashableObject.__init__(self)
-
+        super(Borders, self).__init__()
         self.left = Border()
         self.right = Border()
         self.top = Border()
@@ -234,15 +195,15 @@ class Borders(HashableObject):
         self.vertical = Border()
         self.horizontal = Border()
 
-class Alignment(HashableObject):
 
+class Alignment(HashableObject):
+    """Alignment options for use in styles."""
     HORIZONTAL_GENERAL = 'general'
     HORIZONTAL_LEFT = 'left'
     HORIZONTAL_RIGHT = 'right'
     HORIZONTAL_CENTER = 'center'
     HORIZONTAL_CENTER_CONTINUOUS = 'centerContinuous'
     HORIZONTAL_JUSTIFY = 'justify'
-
     VERTICAL_BOTTOM = 'bottom'
     VERTICAL_TOP = 'top'
     VERTICAL_CENTER = 'center'
@@ -254,15 +215,11 @@ class Alignment(HashableObject):
                   'wrap_text',
                   'shrink_to_fit',
                   'indent')
-
     __slots__ = __fields__
-
     __leaf__ = True
 
     def __init__(self):
-
-        HashableObject.__init__(self)
-
+        super(Alignment, self).__init__()
         self.horizontal = self.HORIZONTAL_GENERAL
         self.vetical = self.VERTICAL_BOTTOM
         self.text_rotation = 0
@@ -270,20 +227,17 @@ class Alignment(HashableObject):
         self.shrink_to_fit = False
         self.indent = 0
 
+
 class NumberFormat(HashableObject):
-
+    """Numer formatting for use in styles."""
     FORMAT_GENERAL = 'General'
-
     FORMAT_TEXT = '@'
-
     FORMAT_NUMBER = '0'
     FORMAT_NUMBER_00 = '0.00'
     FORMAT_NUMBER_COMMA_SEPARATED1 = '#,##0.00'
     FORMAT_NUMBER_COMMA_SEPARATED2 = '#,##0.00_-'
-
     FORMAT_PERCENTAGE = '0%'
     FORMAT_PERCENTAGE_00 = '0.00%'
-
     FORMAT_DATE_YYYYMMDD2 = 'yyyy-mm-dd'
     FORMAT_DATE_YYYYMMDD = 'yy-mm-dd'
     FORMAT_DATE_DDMMYYYY = 'dd/mm/yy'
@@ -306,161 +260,142 @@ class NumberFormat(HashableObject):
     FORMAT_DATE_TIME7 = 'i:s.S'
     FORMAT_DATE_TIME8 = 'h:mm:ss@'
     FORMAT_DATE_YYYYMMDDSLASH = 'yy/mm/dd@'
-
-    _DATE_PATTERNS = (re.compile(FORMAT_DATE_YYYYMMDD2) ,
-                     re.compile(FORMAT_DATE_YYYYMMDD) ,
-                     re.compile(FORMAT_DATE_DDMMYYYY) ,
-                     re.compile(FORMAT_DATE_DMYSLASH) ,
-                     re.compile(FORMAT_DATE_DMYMINUS) ,
-                     re.compile(FORMAT_DATE_DMMINUS) ,
-                     re.compile(FORMAT_DATE_MYMINUS) ,
-                     re.compile(FORMAT_DATE_XLSX14) ,
-                     re.compile(FORMAT_DATE_XLSX15) ,
-                     re.compile(FORMAT_DATE_XLSX16) ,
-                     re.compile(FORMAT_DATE_XLSX17) ,
-                     re.compile(FORMAT_DATE_XLSX22) ,
-                     re.compile(FORMAT_DATE_DATETIME) ,
-                     re.compile(FORMAT_DATE_TIME1) ,
-                     re.compile(FORMAT_DATE_TIME2) ,
-                     re.compile(FORMAT_DATE_TIME3) ,
-                     re.compile(FORMAT_DATE_TIME4) ,
-                     re.compile(FORMAT_DATE_TIME5) ,
-                     re.compile(FORMAT_DATE_TIME6) ,
-                     re.compile(FORMAT_DATE_TIME7) ,
-                     re.compile(FORMAT_DATE_TIME8) ,
-                     re.compile(FORMAT_DATE_YYYYMMDDSLASH))
-
+    _DATE_PATTERNS = (
+        re.compile(FORMAT_DATE_YYYYMMDD2),
+        re.compile(FORMAT_DATE_YYYYMMDD),
+        re.compile(FORMAT_DATE_DDMMYYYY),
+        re.compile(FORMAT_DATE_DMYSLASH),
+        re.compile(FORMAT_DATE_DMYMINUS),
+        re.compile(FORMAT_DATE_DMMINUS),
+        re.compile(FORMAT_DATE_MYMINUS),
+        re.compile(FORMAT_DATE_XLSX14),
+        re.compile(FORMAT_DATE_XLSX15),
+        re.compile(FORMAT_DATE_XLSX16),
+        re.compile(FORMAT_DATE_XLSX17),
+        re.compile(FORMAT_DATE_XLSX22),
+        re.compile(FORMAT_DATE_DATETIME),
+        re.compile(FORMAT_DATE_TIME1),
+        re.compile(FORMAT_DATE_TIME2),
+        re.compile(FORMAT_DATE_TIME3),
+        re.compile(FORMAT_DATE_TIME4),
+        re.compile(FORMAT_DATE_TIME5),
+        re.compile(FORMAT_DATE_TIME6),
+        re.compile(FORMAT_DATE_TIME7),
+        re.compile(FORMAT_DATE_TIME8),
+        re.compile(FORMAT_DATE_YYYYMMDDSLASH), )
     FORMAT_CURRENCY_USD_SIMPLE = '"$"#,##0.00_-'
     FORMAT_CURRENCY_USD = '$#,##0_-'
     FORMAT_CURRENCY_EUR_SIMPLE = '[$EUR ]#,##0.00_-'
-
     _BUILTIN_FORMATS = {
-                        0  : 'General',
-                        1  : '0',
-                        2  : '0.00',
-                        3  : '#,##0',
-                        4  : '#,##0.00',
+        0: 'General',
+        1: '0',
+        2: '0.00',
+        3: '#,##0',
+        4: '#,##0.00',
 
-                        9  : '0%',
-                        10 : '0.00%',
-                        11 : '0.00E+00',
-                        12 : '# ?/?',
-                        13 : '# ??/??',
-                        14 : 'mm-dd-yy',
-                        15 : 'd-mmm-yy',
-                        16 : 'd-mmm',
-                        17 : 'mmm-yy',
-                        18 : 'h:mm AM/PM',
-                        19 : 'h:mm:ss AM/PM',
-                        20 : 'h:mm',
-                        21 : 'h:mm:ss',
-                        22 : 'm/d/yy h:mm',
+        9: '0%',
+        10: '0.00%',
+        11: '0.00E+00',
+        12: '# ?/?',
+        13: '# ??/??',
+        14: 'mm-dd-yy',
+        15: 'd-mmm-yy',
+        16: 'd-mmm',
+        17: 'mmm-yy',
+        18: 'h:mm AM/PM',
+        19: 'h:mm:ss AM/PM',
+        20: 'h:mm',
+        21: 'h:mm:ss',
+        22: 'm/d/yy h:mm',
 
-                        37 : '#,##0 (#,##0)',
-                        38 : '#,##0 [Red](#,##0)',
-                        39 : '#,##0.00(#,##0.00)',
-                        40 : '#,##0.00[Red](#,##0.00)',
+        37: '#,##0 (#,##0)',
+        38: '#,##0 [Red](#,##0)',
+        39: '#,##0.00(#,##0.00)',
+        40: '#,##0.00[Red](#,##0.00)',
 
-                        44 : '_("$"* #,##0.00_)_("$"* \(#,##0.00\)_("$"* "-"??_)_(@_)',
-                        45 : 'mm:ss',
-                        46 : '[h]:mm:ss',
-                        47 : 'mmss.0',
-                        48 : '##0.0E+0',
-                        49 : '@',
-                       }
-
-    _BUILTIN_FORMATS_REVERSE = dict([(__value, __key) for __key, __value in _BUILTIN_FORMATS.iteritems()])
+        44: '_("$"* #,##0.00_)_("$"* \(#,##0.00\)_("$"* "-"??_)_(@_)',
+        45: 'mm:ss',
+        46: '[h]:mm:ss',
+        47: 'mmss.0',
+        48: '##0.0E+0',
+        49: '@', }
+    _BUILTIN_FORMATS_REVERSE = dict(
+            [(value, key) for key, value in _BUILTIN_FORMATS.iteritems()])
 
     __fields__ = ('_format_code',
                   '_format_index')
-
     __slots__ = __fields__
-
     __leaf__ = True
 
     def __init__(self):
-
-        HashableObject.__init__(self)
-
+        super(NumberFormat, self).__init__()
         self._format_code = self.FORMAT_GENERAL
         self._format_index = 0
 
-    def _set_format_code(self, format_code = FORMAT_GENERAL):
-
+    def _set_format_code(self, format_code=FORMAT_GENERAL):
         self._format_code = format_code
-        self._format_index = self.builtin_format_id(format = format_code)
+        self._format_index = self.builtin_format_id(format=format_code)
 
     def _get_format_code(self):
-
         return self._format_code
 
     format_code = property(_get_format_code, _set_format_code)
 
     def builtin_format_code(self, index):
-
         return self._BUILTIN_FORMATS[index]
 
-    def is_builtin(self, format = None):
+    def is_builtin(self, format=None):
 
         if format is None:
             format = self._format_code
-
         return format in self._BUILTIN_FORMATS.values()
 
     def builtin_format_id(self, format):
-
+        """Return the id of a standard style."""
         return self._BUILTIN_FORMATS_REVERSE.get(format, None)
 
-    def is_date_format(self, format = None):
-
+    def is_date_format(self, format=None):
+        """Check if the number format is actually representing a date."""
         if format is None:
             format = self._format_code
-
         for pattern in self._DATE_PATTERNS:
             if pattern.search(format):
                 return True
-
         return False
 
-class Protection(HashableObject):
 
+class Protection(HashableObject):
+    """Protection options for use in styles."""
     PROTECTION_INHERIT = 'inherit'
     PROTECTION_PROTECTED = 'protected'
     PROTECTION_UNPROTECTED = 'unprotected'
 
     __fields__ = ('locked',
                   'hidden')
-
     __slots__ = __fields__
-
     __leaf__ = True
 
     def __init__(self):
-
-        HashableObject.__init__(self)
-
+        super(Protection, self).__init__()
         self.locked = self.PROTECTION_INHERIT
         self.hidden = self.PROTECTION_INHERIT
 
-class Style(HashableObject):
 
+class Style(HashableObject):
+    """Style object containing all formatting details."""
     __fields__ = ('font',
                   'fill',
                   'borders',
                   'alignment',
                   'number_format',
                   'protection')
-
     __slots__ = __fields__
 
     def __init__(self):
-
-        HashableObject.__init__(self)
-
+        super(Style, self).__init__()
         self.font = Font()
         self.fill = Fill()
         self.borders = Borders()
         self.alignment = Alignment()
         self.number_format = NumberFormat()
         self.protection = Protection()
-

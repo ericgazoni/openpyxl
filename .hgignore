@@ -6,3 +6,4 @@ org.eclipse
 (build|dist|openpyxl.egg-info)
 \.(dot|svg|pf)
 \.noseids
+\.*\.swp
