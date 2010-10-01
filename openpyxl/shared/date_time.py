@@ -1,19 +1,25 @@
 # file openpyxl/shared/date_time.py
+
+"""Manage Excel date weirdness."""
+
+# Python stdlib imports
 from __future__ import division
 from math import floor
 import calendar
 import datetime
 import time
 
-
+# constants
 W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
 def datetime_to_W3CDTF(dt):
+    """Convert from a datetime to a timestamp string."""
     return datetime.datetime.strftime(dt, W3CDTF_FORMAT)
 
 
 def W3CDTF_to_datetime(formatted_string):
+    """Convert from a timestamp string to a datetime object."""
     return datetime.datetime.strptime(formatted_string, W3CDTF_FORMAT)
 
 
@@ -26,13 +32,21 @@ class SharedDate(object):
         self.excel_base_date = self.CALENDAR_WINDOWS_1900
 
     def datetime_to_julian(self, date):
+        """Convert from python datetime to excel julian date representation."""
         return self.to_julian(date.year, date.month, date.day, \
                 hours=date.hour, minutes=date.minute, seconds=date.second)
 
     def to_julian(self, year, month, day, hours=0, minutes=0, seconds=0):
+        """Convert from Python date to Excel JD."""
+        # explicitly disallow bad years
+        # Excel 2000 treats JD=0 as 1/0/1900 (buggy, disallow)
+        # Excel 2000 treats JD=2958466 as a bad date (Y10K bug!)
+        if year < 1900 or year > 10000:
+            msg = 'Year not supported by Excel: %s' % year
+            raise ValueError(msg)
         if self.excel_base_date == self.CALENDAR_WINDOWS_1900:
             # Fudge factor for the erroneous fact that the year 1900 is
-            # treated as a Leap Year in MS Excel This affects every date
+            # treated as a Leap Year in MS Excel.  This affects every date
             # following 28th February 1900
             if year == 1900 and month <= 2:
                 excel_1900_leap_year = False
@@ -51,22 +65,31 @@ class SharedDate(object):
             year -= 1
 
         # Calculate the Julian Date, then subtract the Excel base date
-        # (JD 2415020 = 31 - Dec - 1899 Giving Excel Date of 0)
+        # JD 2415020 = 31 - Dec - 1899 -> Excel Date of 0
         century, decade = int(str(year)[:2]), int(str(year)[2:])
         excel_date = floor(146097 * century / 4) + \
                 floor((1461 * decade) / 4) + floor((153 * month + 2) / 5) + \
                 day + 1721119 - excel_base_date
         if excel_1900_leap_year:
             excel_date += 1
+
+        # check to ensure that we exclude 2/29/1900 as a possible value
+        if self.excel_base_date == self.CALENDAR_WINDOWS_1900 \
+                and excel_date == 60:
+            msg = 'Error: Excel believes 1900 was a leap year'
+            raise ValueError(msg)
         excel_time = ((hours * 3600) + (minutes * 60) + seconds) / 86400
         return excel_date + excel_time
 
-
     def from_julian(self, value=0):
+        """Convert from the Excel JD back to a date"""
         if self.excel_base_date == self.CALENDAR_WINDOWS_1900:
             excel_base_date = 25569
             if value < 60:
                 excel_base_date -= 1
+            elif value == 60:
+                msg = 'Error: Excel believes 1900 was a leap year'
+                raise ValueError(msg)
         else:
             excel_base_date = 24107
 
@@ -82,6 +105,5 @@ class SharedDate(object):
                     floor(mins * 60)
             return datetime.time(int(hours), int(mins), int(secs))
         else:
-            msg = 'Negative dates (%s) are not supported' % \
-                    value
+            msg = 'Negative dates (%s) are not supported' % value
             raise ValueError(msg)
