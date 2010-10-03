@@ -1,5 +1,8 @@
 # file openpyxl/__init__.py
 
+""""""
+
+# constants
 __major__ = 1       # for major interface/format changes
 __minor__ = 1       # for minor interface/format changes
 __release__ = 8     # for tweaks, bug-fixes, or development

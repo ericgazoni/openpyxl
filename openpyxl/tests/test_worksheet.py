@@ -29,6 +29,15 @@ class TestWorksheet():
     def test_set_bad_title(self):
         Worksheet(self.wb, 'X' * 50)
 
+    def test_set_bad_title_character(self):
+        assert_raises(SheetTitleException, Worksheet, self.wb, '[')
+        assert_raises(SheetTitleException, Worksheet, self.wb, ']')
+        assert_raises(SheetTitleException, Worksheet, self.wb, '*')
+        assert_raises(SheetTitleException, Worksheet, self.wb, ':')
+        assert_raises(SheetTitleException, Worksheet, self.wb, '?')
+        assert_raises(SheetTitleException, Worksheet, self.wb, '/')
+        assert_raises(SheetTitleException, Worksheet, self.wb, '\\')
+
     def test_worksheet_dimension(self):
         ws = Worksheet(self.wb)
         eq_('A1:A1', ws.calculate_dimension())

@@ -24,6 +24,16 @@ def W3CDTF_to_datetime(formatted_string):
 
 
 class SharedDate(object):
+    """Date formatting utilities for Excel with shared state.
+
+    Excel has a two primary date tracking schemes:
+      Windows - Day 1 == 1900-01-01
+      Mac - Day 1 == 1904-01-01
+
+    SharedDate stores which system we are using and converts dates between
+    Python and Excel accordingly.
+
+    """
     CALENDAR_WINDOWS_1900 = 1900
     CALENDAR_MAC_1904 = 1904
     datetime_object_type = 'DateTime'
@@ -54,8 +64,9 @@ class SharedDate(object):
                 excel_1900_leap_year = True
             excel_base_date = 2415020
         else:
-            excel_base_date = 2416481
-            excel_1900_leap_year = False
+            raise NotImplementedError('Mac dates are not yet supported.')
+            #excel_base_date = 2416481
+            #excel_1900_leap_year = False
 
         # Julian base date adjustment
         if month > 2:
