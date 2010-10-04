@@ -20,10 +20,14 @@ DATADIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'test_data'))
 TMPDIR = os.path.join(gettempdir(), 'openpyxl_test_temp')
 
 
+def make_tmpdir():
+    os.makedirs(TMPDIR)
+
+
 def clean_tmpdir():
     if os.path.isdir(TMPDIR):
         shutil.rmtree(TMPDIR, ignore_errors=True)
-    os.makedirs(TMPDIR)
+
 
 def assert_equals_file_content(reference_file, fixture, filetype='xml'):
     if os.path.isfile(fixture):

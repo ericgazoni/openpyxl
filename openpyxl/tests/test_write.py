@@ -1,151 +1,123 @@
 # file openpyxl/tests/test_write.py
+
+# Python stdlib imports
 from __future__ import with_statement
-import os.path as osp
-from openpyxl.tests.helper import BaseTestCase, TMPDIR, DATADIR
+import os.path
+
+# 3rd party imports
+from nose.tools import eq_, with_setup
+
+# package imports
+from openpyxl.tests.helper import TMPDIR, DATADIR, \
+        assert_equals_file_content, clean_tmpdir
 from openpyxl.workbook import Workbook
-from openpyxl.writer.excel import ExcelWriter
+from openpyxl.writer.excel import ExcelWriter, save_workbook
 from openpyxl.writer.workbook import write_workbook, write_workbook_rels
 from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
 from openpyxl.writer.strings import write_string_table
 from openpyxl.writer.styles import create_style_table
 
-class TestWriter(BaseTestCase):
 
-    def test_write_empty_workbook(self):
-
-        wb = Workbook()
-
-        ew = ExcelWriter(workbook = wb)
-
-        dest_filename = osp.join(TMPDIR, 'empty_book.xlsx')
-
-        ew.save(filename = dest_filename)
-
-        self.assertTrue(osp.isfile(dest_filename))
-
-class TestWriteWorkbook(BaseTestCase):
-
-    def test_write_workbook_rels(self):
-
-        wb = Workbook()
-
-        content = write_workbook_rels(workbook = wb)
-
-        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'workbook.xml.rels'),
-                                     fixture = content)
-
-    def test_write_workbook(self):
-
-        wb = Workbook()
-
-        content = write_workbook(workbook = wb)
-
-        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'workbook.xml'),
-                                     fixture = content)
-
-class TestWriteStrings(BaseTestCase):
-
-    def test_write_string_table(self):
-
-        table = {'hello' : 1,
-                 'world' : 2,
-                 'nice' : 3}
-
-        content = write_string_table(string_table = table)
-
-        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sharedStrings.xml'),
-                                     fixture = content)
-
-class TestWriteWorksheet(BaseTestCase):
-
-    def test_write_worksheet(self):
-
-        wb = Workbook()
-
-        ws = wb.create_sheet()
-
-        ws.cell('F42').value = 'hello'
-
-        content = write_worksheet(worksheet = ws, string_table = {'hello' : 0}, style_table = {})
-
-        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1.xml'),
-                                     fixture = content)
+@with_setup(setup=make_tmpdir, teardown=clean_tmpdir)
+def test_write_empty_workbook():
+    wb = Workbook()
+    dest_filename = os.path.join(TMPDIR, 'empty_book.xlsx')
+    save_workbook(wb, dest_filename)
+    assert os.path.isfile(dest_filename)
 
 
-    def test_write_worksheet_with_formula(self):
+def test_write_workbook_rels():
+    wb = Workbook()
+    content = write_workbook_rels(wb)
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'workbook.xml.rels'), content)
 
-        wb = Workbook()
 
-        ws = wb.create_sheet()
+def test_write_workbook():
+    wb = Workbook()
+    content = write_workbook(wb)
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'workbook.xml'), content)
 
-        ws.cell('F1').value = 10
-        ws.cell('F2').value = 32
-        ws.cell('F3').value = '=F1+F2'
 
-        content = write_worksheet(worksheet = ws, string_table = { }, style_table = {})
+def test_write_string_table():
+    table = {'hello': 1, 'world': 2, 'nice': 3}
+    content = write_string_table(table)
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sharedStrings.xml'), content)
 
-        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1_formula.xml'),
-                                     fixture = content)
 
-    def test_write_worksheet_with_style(self):
+def test_write_worksheet():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('F42').value = 'hello'
+    content = write_worksheet(ws, {'hello': 0}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1.xml'), content)
 
-        wb = Workbook()
 
-        ws = wb.create_sheet()
+def test_write_formula():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('F1').value = 10
+    ws.cell('F2').value = 32
+    ws.cell('F3').value = '=F1+F2'
+    content = write_worksheet(ws, {}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1_formula.xml'), content)
 
-        ws.cell('F1').value = '13%'
 
-        shared_style_table = create_style_table(workbook = wb)
-        style_id_by_hash = dict([(style.__crc__(), id) for style, id in shared_style_table.iteritems()])
+def test_write_style():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('F1').value = '13%'
+    shared_style_table = create_style_table(wb)
+    style_id_by_hash = dict([(style.__crc__(), style_id) for style, style_id \
+            in shared_style_table.iteritems()])
+    content = write_worksheet(ws, {}, style_id_by_hash)
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1_style.xml'), content)
 
-        content = write_worksheet(worksheet = ws, string_table = { }, style_table = style_id_by_hash)
 
-        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1_style.xml'),
-                                     fixture = content)
+def test_write_height():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('F1').value = 10
+    ws.row_dimensions[ws.cell('F1').row].height = 30
+    content = write_worksheet(ws, {}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1_height.xml'), content)
 
-    def test_write_worksheet_with_height(self):
 
-        wb = Workbook()
+def test_write_hyperlink():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('A1').value = "test"
+    ws.cell('A1').hyperlink = "http://test.com"
+    content = write_worksheet(ws, {'test': 0}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+        'sheet1_hyperlink.xml'), content)
 
-        ws = wb.create_sheet()
 
-        ws.cell('F1').value = 10
-        ws.row_dimensions[ws.cell('F1').row].height = 30
+def test_write_hyperlink_rels():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    eq_(0, len(ws.relationships))
+    ws.cell('A1').value = "test"
+    ws.cell('A1').hyperlink = "http://test.com/"
+    eq_(1, len(ws.relationships))
+    ws.cell('A2').value = "test"
+    ws.cell('A2').hyperlink = "http://test2.com/"
+    eq_(2, len(ws.relationships))
+    content = write_worksheet_rels(ws)
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1_hyperlink.xml.rels'), content)
 
-        content = write_worksheet(worksheet = ws, string_table = { }, style_table = {})
 
-        self.assertEqualsFileContent(reference_file = osp.join(DATADIR, 'writer', 'expected', 'sheet1_height.xml'),
-                                     fixture = content)
-
-    def test_write_worksheet_with_hyperlink(self):
-        wb = Workbook()
-        ws = wb.create_sheet()
-        ws.cell('A1').value = "test"
-        ws.cell('A1').hyperlink = "http://test.com"
-        content = write_worksheet(worksheet = ws, string_table = {'test' : 0}, style_table = {})
-        self.assertEqualsFileContent(reference_file = osp.join(DATADIR,
-            'writer', 'expected', 'sheet1_hyperlink.xml'), fixture = content)
-
-    def test_write_worksheet_with_hyperlink_relationships(self):
-        wb = Workbook()
-        ws = wb.create_sheet()
-        self.assertEqual(0, len(ws.relationships))
-        ws.cell('A1').value = "test"
-        ws.cell('A1').hyperlink = "http://test.com/"
-        self.assertEqual(1, len(ws.relationships))
-        ws.cell('A2').value = "test"
-        ws.cell('A2').hyperlink = "http://test2.com/"
-        self.assertEqual(2, len(ws.relationships))
-
-        content = write_worksheet_rels(worksheet = ws)
-        self.assertEqualsFileContent(reference_file = osp.join(DATADIR,
-            'writer', 'expected', 'sheet1_hyperlink.xml.rels'), fixture = content)
-
-    def test_hyperlink_value(self):
-        wb = Workbook()
-        ws = wb.create_sheet()
-        ws.cell('A1').hyperlink = "http://test.com"
-        self.assertEqual("http://test.com", ws.cell('A1').value)
-        content = write_worksheet(worksheet = ws, string_table = {"http://test.com" : 0}, style_table = {})
-        ws.cell('A1').value = "test"
-        self.assertEqual("test", ws.cell('A1').value)
+def test_hyperlink_value():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('A1').hyperlink = "http://test.com"
+    eq_("http://test.com", ws.cell('A1').value)
+    ws.cell('A1').value = "test"
+    eq_("test", ws.cell('A1').value)
