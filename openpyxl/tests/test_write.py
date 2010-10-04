@@ -9,7 +9,7 @@ from nose.tools import eq_, with_setup
 
 # package imports
 from openpyxl.tests.helper import TMPDIR, DATADIR, \
-        assert_equals_file_content, clean_tmpdir
+        assert_equals_file_content, clean_tmpdir, make_tmpdir
 from openpyxl.workbook import Workbook
 from openpyxl.writer.excel import ExcelWriter, save_workbook
 from openpyxl.writer.workbook import write_workbook, write_workbook_rels

@@ -21,12 +21,16 @@ TMPDIR = os.path.join(gettempdir(), 'openpyxl_test_temp')
 
 
 def make_tmpdir():
-    os.makedirs(TMPDIR)
+    try:
+        os.makedirs(TMPDIR)
+    except OSError:
+        pass
 
 
 def clean_tmpdir():
     if os.path.isdir(TMPDIR):
         shutil.rmtree(TMPDIR, ignore_errors=True)
+    make_tmpdir()
 
 
 def assert_equals_file_content(reference_file, fixture, filetype='xml'):
