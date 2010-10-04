@@ -1,16 +1,14 @@
 # file openpyxl/tests/test_theme.py
-# coding=UTF-8
 
-import os.path as osp
-from openpyxl.tests.helper import BaseTestCase, DATADIR, TMPDIR
+# Python stdlib imports
+import os.path
 
+# package imports
+from openpyxl.tests.helper import DATADIR, assert_equals_file_content
 from openpyxl.writer.theme import write_theme
 
 
-class TestTheme(BaseTestCase):
-
-    def test_write_theme(self):
-
-        content = write_theme()
-
-        self.assertEqualsFileContent(osp.join(DATADIR, 'writer', 'expected', 'theme1.xml'), content)
+def test_write_theme():
+    content = write_theme()
+    assert_equals_file_content(
+            os.path.join(DATADIR, 'writer', 'expected', 'theme1.xml'), content)
