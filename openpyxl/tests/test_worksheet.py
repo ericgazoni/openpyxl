@@ -86,7 +86,7 @@ class TestWorksheet():
         eq_(c_range_coord, c_cell)
 
     def test_garbage_collect(self):
-        ws = Worksheet(parent_workbook = self.wb)
+        ws = Worksheet(self.wb)
         ws.cell('A1').value = ''
         ws.cell('B2').value = '0'
         ws.cell('C4').value = 0

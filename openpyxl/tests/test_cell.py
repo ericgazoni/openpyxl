@@ -80,13 +80,13 @@ class TestCellValueTypes():
 
     def test_numeric(self):
 
-        def check_numeric():
+        def check_numeric(value):
             self.cell.value = value
             eq_(self.cell.TYPE_NUMERIC, self.cell.data_type)
 
         values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', )
         for value in values:
-            yield check_numeric
+            yield check_numeric, value
 
     def test_string(self):
         self.cell.value = 'hello'
@@ -146,4 +146,4 @@ def test_repr():
     wb = Workbook()
     ws = Worksheet(wb)
     cell = Cell(ws, 'A', 1)
-    assert repr(cell) == '<Cell Sheet1.A1>', 'Got bad repr: %s' % repr(cell)
+    eq_(repr(cell), '<Cell Sheet1.A1>', 'Got bad repr: %s' % repr(cell))

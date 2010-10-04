@@ -2,80 +2,99 @@
 
 # Python stdlib imports
 from __future__ import with_statement
+from zipfile import ZipFile, ZIP_DEFLATED
+from datetime import datetime
 import os.path
-import datetime
+
+# 3rd party imports
+from nose.tools import eq_
 
 # package imports
-from openpyxl.tests.helper import BaseTestCase, DATADIR, TMPDIR
-from openpyxl.reader.workbook import read_properties_core, read_sheets_titles, get_number_of_parts
-from openpyxl.writer.workbook import write_properties_core, write_properties_app
+from openpyxl.tests.helper import DATADIR, TMPDIR, make_tmpdir, clean_tmpdir, \
+        assert_equals_file_content
+from openpyxl.reader.workbook import read_properties_core, \
+        read_sheets_titles, get_number_of_parts
+from openpyxl.writer.workbook import write_properties_core, \
+        write_properties_app
 from openpyxl.shared.ooxml import ARC_APP, ARC_CORE
-from openpyxl.shared.zip import ZipArchive
 from openpyxl.workbook import DocumentProperties, Workbook
 
 
-class TestReaderProps(BaseTestCase):
+class TestReaderProps(object):
 
-    def setUp(self):
-        self.gen_filename = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
+    @classmethod
+    def setup_class(cls):
+        cls.genuine_filename = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
+        cls.archive = ZipFile(cls.genuine_filename, 'r', ZIP_DEFLATED)
+
+    @classmethod
+    def teardown_class(cls):
+        cls.archive.close()
 
     def test_read_properties_core(self):
-        archive = ZipArchive(filename=self.gen_filename)
-        content = archive.get_from_name(arc_name=ARC_CORE)
-        prop = read_properties_core(xml_source=content)
-        self.assertEqual(prop.creator, '*.*')
-        self.assertEqual(prop.last_modified_by, '*.*')
-        self.assertEqual(prop.created,
-                datetime.datetime(2010, 4, 9, 20, 43, 12))
-        self.assertEqual(prop.modified,
-                datetime.datetime(2010, 4, 11, 16, 20, 29))
+        content = self.archive.read(ARC_CORE)
+        prop = read_properties_core(content)
+        eq_(prop.creator, '*.*')
+        eq_(prop.last_modified_by, '*.*')
+        eq_(prop.created, datetime(2010, 4, 9, 20, 43, 12))
+        eq_(prop.modified, datetime(2010, 4, 11, 16, 20, 29))
 
     def test_read_sheets_titles(self):
-        archive = ZipArchive(filename = self.gen_filename)
-        content = archive.get_from_name(arc_name = ARC_APP)
-        sheet_titles = read_sheets_titles(xml_source = content)
-        self.assertEqual(sheet_titles,
+        content = self.archive.read(ARC_APP)
+        sheet_titles = read_sheets_titles(content)
+        eq_(sheet_titles, \
                 ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas'])
 
 
-class TestReaderPropsMixed(BaseTestCase):
+class TestReaderPropsMixed(object):
 
-    def setUp(self):
-        self.reference_filename = os.path.join(DATADIR, 'reader', 'app-multi-titles.xml')
-        with open(self.reference_filename) as ref_file:
-            self.content = ref_file.read()
+    @classmethod
+    def setup_class(cls):
+        reference_filename = \
+                os.path.join(DATADIR, 'reader', 'app-multi-titles.xml')
+        with open(reference_filename) as handle:
+            cls.content = handle.read()
 
     def test_read_sheet_titles_mixed(self):
-        sheet_titles = read_sheets_titles(xml_source = self.content)
-        self.assertEqual(sheet_titles,
+        sheet_titles = read_sheets_titles(self.content)
+        eq_(sheet_titles,
                 ['ToC', 'ContractYear', 'ContractTier', 'Demand',
                 'LinearizedFunction', 'Market', 'Transmission'])
 
     def test_number_of_parts(self):
-        parts_number = get_number_of_parts(xml_source = self.content)
-        self.assertEqual(parts_number,
+        parts_number = get_number_of_parts(self.content)
+        eq_(parts_number,
                 ({'Worksheets': 7, 'Named Ranges': 7},
                 ['Worksheets', 'Named Ranges']))
 
 
-class TestWriteProps(BaseTestCase):
+class TestWriteProps(object):
 
-    def setUp(self):
-        self.tmp_filename = os.path.join(TMPDIR, 'test.xlsx')
-        self.prop = DocumentProperties()
+    @classmethod
+    def setup_class(cls):
+        make_tmpdir()
+        cls.tmp_filename = os.path.join(TMPDIR, 'test.xlsx')
+        cls.prop = DocumentProperties()
+
+    @classmethod
+    def teardown_class(cls):
+        clean_tmpdir()
 
     def test_write_properties_core(self):
         self.prop.creator = 'TEST_USER'
         self.prop.last_modified_by = 'SOMEBODY'
-        self.prop.created = datetime.datetime(2010, 4, 1, 20, 30, 00)
-        self.prop.modified = datetime.datetime(2010, 4, 5, 14, 5, 30)
+        self.prop.created = datetime(2010, 4, 1, 20, 30, 00)
+        self.prop.modified = datetime(2010, 4, 5, 14, 5, 30)
         content = write_properties_core(self.prop)
-        self.assertEqualsFileContent(os.path.join(DATADIR, 'writer', 'expected', 'core.xml'), content)
+        assert_equals_file_content(
+                os.path.join(DATADIR, 'writer', 'expected', 'core.xml'),
+                content)
 
     def test_write_properties_app(self):
         wb = Workbook()
         wb.create_sheet()
         wb.create_sheet()
         content = write_properties_app(wb)
-        self.assertEqualsFileContent(os.path.join(DATADIR, 'writer',
-                'expected', 'app.xml'), content)
+        assert_equals_file_content(
+                os.path.join(DATADIR, 'writer', 'expected', 'app.xml'),
+                content)
