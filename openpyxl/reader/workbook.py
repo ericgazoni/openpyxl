@@ -41,8 +41,8 @@ def get_number_of_parts(xml_source):
     parts_size = {}
     parts_names = []
     root = fromstring(xml_source)
-    heading_pairs = root.find(QName('http://schemas.openxmlformats.org/'
-            'officeDocument/2006/extended-properties', 'HeadingPairs').text)
+    heading_pairs = root.find(QName('http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
+            'HeadingPairs').text)
     vector = heading_pairs.find(QName(NAMESPACES['vt'], 'vector').text)
     children = vector.getchildren()
     for child_id in range(0, len(children), 2):
@@ -59,8 +59,8 @@ def get_number_of_parts(xml_source):
 def read_sheets_titles(xml_source):
     """Read titles for all sheets."""
     root = fromstring(xml_source)
-    titles_root = root.find(QName('http://schemas.openxmlformats.org/'
-            'officeDocument/2006/extended-properties', 'TitlesOfParts').text)
+    titles_root = root.find(QName('http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
+            'TitlesOfParts').text)
     vector = titles_root.find(QName(NAMESPACES['vt'], 'vector').text)
     parts, names = get_number_of_parts(xml_source)
 
@@ -75,8 +75,8 @@ def read_named_ranges(xml_source, workbook):
     """Read named ranges, excluding poorly defined ranges."""
     named_ranges = []
     root = fromstring(xml_source)
-    names_root = root.find(QName('http://schemas.openxmlformats.org/'
-            'spreadsheetml/2006/main', 'definedNames').text)
+    names_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+            'definedNames').text)
     if names_root:
         bad_ranges = BUGGY_NAMED_RANGES
         bad_ranges.extend(DISCARDED_RANGES)

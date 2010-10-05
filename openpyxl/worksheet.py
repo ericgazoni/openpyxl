@@ -20,21 +20,16 @@ class Relationship(object):
     # TODO: Use this object for workbook relationships as well as
     # worksheet relationships
     TYPES = {
-        'hyperlink': 'http://schemas.openxmlformats.org/'
-                'officeDocument/2006/relationships/hyperlink',
-        #'worksheet': 'http://schemas.openxmlformats.org/'
-        #        'officeDocument/2006/relationships/worksheet',
-        #'sharedStrings': 'http://schemas.openxmlformats.org/'
-        #        'officeDocument/2006/relationships/sharedStrings',
-        #'styles': 'http://schemas.openxmlformats.org/'
-        #        'officeDocument/2006/relationships/styles',
-        #'theme': 'http://schemas.openxmlformats.org/'
-        #        'officeDocument/2006/relationships/theme',
+        'hyperlink': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+        #'worksheet': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
+        #'sharedStrings': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
+        #'styles': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
+        #'theme': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
     }
 
     def __init__(self, rel_type):
         if rel_type not in self.TYPES:
-            raise Exception("Invalid relationship type %s" % rel_type)
+            raise ValueError("Invalid relationship type %s" % rel_type)
         self.type = self.TYPES[rel_type]
         self.target = ""
         self.target_mode = ""

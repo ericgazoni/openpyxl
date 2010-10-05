@@ -3,8 +3,7 @@
 """Shared xml tools.
 
 Shortcut functions taken from:
-    http://lethain.com/entry/2009/jan/22/\
-            handling-very-large-csv-and-xml-files-in-python/
+    http://lethain.com/entry/2009/jan/22/handling-very-large-csv-and-xml-files-in-python/
 
 """
 
@@ -12,8 +11,8 @@ Shortcut functions taken from:
 from __future__ import with_statement
 from os import close, remove
 from tempfile import mkstemp
-from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesNSImpl
+from xml.sax.saxutils import XMLGenerator
 import atexit
 try:
     from xml.etree.ElementTree import ElementTree, Element, SubElement, \
@@ -73,8 +72,10 @@ def pretty_indent(elem, level=0):
             elem.tail = i
 
 
-def start_tag(doc, name, attr={}, body=None, namespace=None):
+def start_tag(doc, name, attr=None, body=None, namespace=None):
     """Wrapper to start an xml tag."""
+    if attr is None:
+        attr = {}
     attr_vals = {}
     attr_keys = {}
     for key, val in attr.iteritems():
@@ -92,7 +93,9 @@ def end_tag(doc, name, namespace=None):
     doc.endElementNS((namespace, name), name)
 
 
-def tag(doc, name, attr={}, body=None, namespace=None):
+def tag(doc, name, attr=None, body=None, namespace=None):
     """Wrapper to print xml tags and comments."""
+    if attr is None:
+        attr = {}
     start_tag(doc, name, attr, body, namespace)
     end_tag(doc, name, namespace)

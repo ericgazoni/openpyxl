@@ -20,6 +20,9 @@ class WorksheetReader(ContentHandler):
         self.string_table = string_table
         self.style_table = style_table
         self.read_value = False
+        self.data_type = None
+        self.style_id = None
+        self.coordinate = None
 
     def startElement(self, name, attrs):
         """Start reading information for a cell defined in xml."""

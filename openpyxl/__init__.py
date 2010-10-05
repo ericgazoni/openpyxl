@@ -1,6 +1,6 @@
 # file openpyxl/__init__.py
 
-""""""
+"""Maybe these should go in setup?"""
 
 # constants
 __major__ = 1       # for major interface/format changes
@@ -17,5 +17,3 @@ __author_email__ = 'eric.gazoni@gmail.com'
 __maintainer_email__ = 'openpyxl-users@googlegroups.com'
 __url__ = 'http://bitbucket.org/ericgazoni/openpyxl/wiki/Home'
 __downloadUrl__ = "http://bitbucket.org/ericgazoni/openpyxl/downloads"
-
-

@@ -30,7 +30,7 @@ def write_properties_core(properties):
 
 def write_content_types(workbook):
     """Write the content-types xml."""
-    root = Element('Types', {'xmlns': "http://schemas.openxmlformats.org/package/2006/content-types"})
+    root = Element('Types', {'xmlns': 'http://schemas.openxmlformats.org/package/2006/content-types'})
     SubElement(root, 'Override', {'PartName': '/' + ARC_THEME, 'ContentType': 'application/vnd.openxmlformats-officedocument.theme+xml'})
     SubElement(root, 'Override', {'PartName': '/' + ARC_STYLE, 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml'})
     SubElement(root, 'Default', {'Extension': 'rels', 'ContentType': 'application/vnd.openxmlformats-package.relationships+xml'})
@@ -81,7 +81,7 @@ def write_properties_app(workbook):
 def write_root_rels(workbook):
     """Write the relationships xml."""
     root = Element('Relationships', {'xmlns':
-            "http://schemas.openxmlformats.org/package/2006/relationships"})
+            'http://schemas.openxmlformats.org/package/2006/relationships'})
     SubElement(root, 'Relationship', {'Id': 'rId1', 'Target': ARC_WORKBOOK,
             'Type': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument'})
     SubElement(root, 'Relationship', {'Id': 'rId2', 'Target': ARC_CORE,
