@@ -9,50 +9,23 @@ Shortcut functions taken from:
 
 # Python stdlib imports
 from __future__ import with_statement
-from os import close, remove
-from tempfile import mkstemp
 from xml.sax.xmlreader import AttributesNSImpl
 from xml.sax.saxutils import XMLGenerator
-import atexit
 try:
     from xml.etree.ElementTree import ElementTree, Element, SubElement, \
-            QName, fromstring
+            QName, fromstring, tostring
 except ImportError:
     from cElementTree import ElementTree, Element, SubElement, \
-            QName, fromstring
+            QName, fromstring, tostring
 
 # package imports
 from openpyxl import __name__ as prefix
 
-# constants
-XML_TEMP_FILES = []
-
-
-@atexit.register
-def cleanup_tempfiles():
-    """Delete any temporary files when the program finishes."""
-    for handle, filename in XML_TEMP_FILES:
-        try:
-            close(handle)
-            remove(filename)
-        except:
-            pass
-
-
-def get_tempfile():
-    """Create a temporary file."""
-    fd, filename = mkstemp(prefix=prefix, text=True)
-    XML_TEMP_FILES.append((fd, filename))
-    return filename
-
 
 def get_document_content(xml_node):
-    """Print nicely formatted xml to a temp file."""
+    """Print nicely formatted xml to a string."""
     pretty_indent(xml_node)
-    filename = get_tempfile()
-    with open(filename, 'w') as handle:
-        ElementTree(xml_node).write(handle, encoding='UTF-8')
-    return filename
+    return tostring(xml_node, 'utf-8')
 
 
 def pretty_indent(elem, level=0):

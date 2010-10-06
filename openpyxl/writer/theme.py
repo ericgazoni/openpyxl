@@ -3,16 +3,17 @@
 
 """Write the theme xml based on a fixed string."""
 
+# Python stdlib imports
+from StringIO import StringIO
+
 # package imports
-from openpyxl.shared.xmltools import get_tempfile
+from openpyxl.shared.xmltools import fromstring, get_document_content
 
 
 def write_theme():
     """Write the theme xml."""
-    filename = get_tempfile()
-    handle = open(filename, 'w')
-
-    handle.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+    xml_node = fromstring(
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
 
             '<a:theme xmlns:a="http://schemas.openxmlformats.org/'
                 'drawingml/2006/main" name="Office Theme">'
@@ -178,5 +179,4 @@ def write_theme():
             '</a:themeElements>'
             '<a:objectDefaults/><a:extraClrSchemeLst/>'
             '</a:theme>')
-    handle.close()
-    return filename
+    return get_document_content(xml_node)

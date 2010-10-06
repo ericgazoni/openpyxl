@@ -3,7 +3,8 @@
 """Write a .xlsx file."""
 
 # Python stdlib imports
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
+from StringIO import StringIO
 
 # package imports
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, \
@@ -30,31 +31,33 @@ class ExcelWriter(object):
         for ws in self.workbook.worksheets:
             ws.garbage_collect()
         shared_string_table = create_string_table(self.workbook)
+        archive.writestr(ARC_SHARED_STRINGS,
+                write_string_table(shared_string_table))
         shared_style_table = create_style_table(self.workbook)
-        archive.write(write_string_table(shared_string_table),
-                ARC_SHARED_STRINGS)
-        archive.write(write_content_types(self.workbook), ARC_CONTENT_TYPES)
-        archive.write(write_root_rels(self.workbook), ARC_ROOT_RELS)
-        archive.write(write_workbook_rels(self.workbook), ARC_WORKBOOK_RELS)
-        archive.write(write_properties_app(self.workbook), ARC_APP)
-        archive.write(write_properties_core(self.workbook.properties), ARC_CORE)
-        archive.write(write_theme(), ARC_THEME)
-        archive.write(write_style_table(shared_style_table), ARC_STYLE)
-        archive.write(write_workbook(self.workbook), ARC_WORKBOOK)
+        archive.writestr(ARC_CONTENT_TYPES, write_content_types(self.workbook))
+        archive.writestr(ARC_ROOT_RELS, write_root_rels(self.workbook))
+        archive.writestr(ARC_WORKBOOK_RELS, write_workbook_rels(self.workbook))
+        archive.writestr(ARC_APP, write_properties_app(self.workbook))
+        archive.writestr(ARC_CORE,
+                write_properties_core(self.workbook.properties))
+        archive.writestr(ARC_THEME, write_theme())
+        archive.writestr(ARC_STYLE, write_style_table(shared_style_table))
+        archive.writestr(ARC_WORKBOOK, write_workbook(self.workbook))
         style_id_by_hash = dict([(style.__crc__(), style_id) for
                 style, style_id in shared_style_table.iteritems()])
         for i, sheet in enumerate(self.workbook.worksheets):
-            archive.write(write_worksheet(sheet, shared_string_table,
-                    style_id_by_hash),
-                    PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1))
+            archive.writestr(PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1),
+                    write_worksheet(sheet, shared_string_table,
+                            style_id_by_hash))
             if sheet.relationships:
-                archive.write(write_worksheet_rels(sheet),
-                PACKAGE_WORKSHEETS + '/_rels/sheet%d.xml.rels' % (i + 1))
+                archive.writestr(PACKAGE_WORKSHEETS +
+                        '/_rels/sheet%d.xml.rels' % (i + 1),
+                        write_worksheet_rels(sheet))
 
     def save(self, filename):
         """Write data into the archive."""
         try:
-            archive = ZipFile(filename, 'w', ZIP_DEFLATED, False)
+            archive = ZipFile(filename, 'w', ZIP_DEFLATED)
             self.write_data(archive)
         finally:
             archive.close()
@@ -75,3 +78,17 @@ def save_workbook(workbook, filename):
     writer = ExcelWriter(workbook)
     writer.save(filename)
     return True
+
+
+def save_virtual_workbook(workbook):
+    """Return an in-memory workbook, suitable for a Django response."""
+    writer = ExcelWriter(workbook)
+    temp_buffer = StringIO()
+    try:
+        archive = ZipFile(temp_buffer, 'w', ZIP_DEFLATED)
+        writer.write_data(archive)
+    finally:
+        archive.close()
+    virtual_workbook = temp_buffer.getvalue()
+    temp_buffer.close()
+    return virtual_workbook

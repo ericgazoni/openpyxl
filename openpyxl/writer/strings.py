@@ -2,9 +2,11 @@
 
 """Write the shared string table."""
 
+# Python stdlib imports
+from StringIO import StringIO
+
 # package imports
-from openpyxl.shared.xmltools import get_tempfile, start_tag, end_tag, tag, \
-        XMLGenerator
+from openpyxl.shared.xmltools import start_tag, end_tag, tag, XMLGenerator
 
 
 def create_string_table(workbook):
@@ -19,9 +21,8 @@ def create_string_table(workbook):
 
 def write_string_table(string_table):
     """Write the string table xml."""
-    filename = get_tempfile()
-    xml_file = open(filename, 'w')
-    doc = XMLGenerator(xml_file, 'utf-8')
+    temp_buffer = StringIO()
+    doc = XMLGenerator(temp_buffer, 'utf-8')
     start_tag(doc, 'sst', {'xmlns':
             'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
             'uniqueCount': '%d' % len(string_table)})
@@ -36,5 +37,6 @@ def write_string_table(string_table):
         tag(doc, 't', attr, key)
         end_tag(doc, 'si')
     end_tag(doc, 'sst')
-    xml_file.close()
-    return filename
+    string_table_xml = temp_buffer.getvalue()
+    temp_buffer.close()
+    return string_table_xml

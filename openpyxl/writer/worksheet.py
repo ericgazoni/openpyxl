@@ -2,10 +2,13 @@
 
 """Write worksheets to xml representations."""
 
+# Python stdlib imports
+from StringIO import StringIO  # cStringIO doesn't handle unicode
+
 # package imports
 from openpyxl.cell import column_index_from_string
 from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, \
-        get_document_content, get_tempfile, start_tag, end_tag, tag
+        get_document_content, start_tag, end_tag, tag
 
 
 def row_sort(cell):
@@ -15,8 +18,7 @@ def row_sort(cell):
 
 def write_worksheet(worksheet, string_table, style_table):
     """Write a worksheet to an xml file."""
-    filename = get_tempfile()
-    xml_file = open(filename, 'w')
+    xml_file = StringIO()
     doc = XMLGenerator(xml_file, 'utf-8')
     start_tag(doc, 'worksheet',
             {'xml:space': 'preserve',
@@ -40,8 +42,9 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_hyperlinks(doc, worksheet)
     end_tag(doc, 'worksheet')
     doc.endDocument()
+    xml_string = xml_file.getvalue()
     xml_file.close()
-    return filename
+    return xml_string
 
 
 def write_worksheet_cols(doc, worksheet):
