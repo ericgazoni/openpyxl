@@ -3,7 +3,7 @@
 """Write a .xlsx file."""
 
 # Python stdlib imports
-from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
+from zipfile import ZipFile, ZIP_DEFLATED
 from StringIO import StringIO
 
 # package imports
@@ -60,7 +60,10 @@ class ExcelWriter(object):
             archive = ZipFile(filename, 'w', ZIP_DEFLATED)
             self.write_data(archive)
         finally:
-            archive.close()
+            try:
+                archive.close()
+            except UnboundLocalError:
+                pass
 
 
 def save_workbook(workbook, filename):

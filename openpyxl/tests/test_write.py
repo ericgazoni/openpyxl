@@ -32,6 +32,7 @@ def test_write_virtual_workbook():
     old_wb = Workbook()
     saved_wb = save_virtual_workbook(old_wb)
     new_wb = load_workbook(StringIO(saved_wb))
+    assert new_wb
 
 
 def test_write_workbook_rels():
