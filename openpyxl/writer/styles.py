@@ -3,8 +3,8 @@
 """Write the shared style table."""
 
 # package imports
-from openpyxl.shared.xmltools import Element, SubElement
-from openpyxl.shared.xmltools import get_document_content
+from ..shared.xmltools import Element, SubElement
+from ..shared.xmltools import get_document_content
 
 
 def create_style_table(workbook):

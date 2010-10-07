@@ -7,16 +7,16 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from StringIO import StringIO
 
 # package imports
-from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, \
+from ..shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, \
         ARC_ROOT_RELS, ARC_WORKBOOK_RELS, ARC_APP, ARC_CORE, ARC_THEME, \
         ARC_STYLE, ARC_WORKBOOK, PACKAGE_WORKSHEETS
-from openpyxl.writer.strings import create_string_table, write_string_table
-from openpyxl.writer.workbook import write_content_types, write_root_rels, \
+from .strings import create_string_table, write_string_table
+from .workbook import write_content_types, write_root_rels, \
         write_workbook_rels, write_properties_app, write_properties_core, \
         write_workbook
-from openpyxl.writer.theme import write_theme
-from openpyxl.writer.styles import create_style_table, write_style_table
-from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
+from .theme import write_theme
+from .styles import create_style_table, write_style_table
+from .worksheet import write_worksheet, write_worksheet_rels
 
 
 class ExcelWriter(object):

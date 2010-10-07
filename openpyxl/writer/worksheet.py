@@ -6,8 +6,8 @@
 from StringIO import StringIO  # cStringIO doesn't handle unicode
 
 # package imports
-from openpyxl.cell import column_index_from_string
-from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, \
+from ..cell import column_index_from_string
+from ..shared.xmltools import Element, SubElement, XMLGenerator, \
         get_document_content, start_tag, end_tag, tag
 
 

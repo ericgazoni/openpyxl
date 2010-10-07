@@ -7,8 +7,8 @@ from xml.sax import parseString
 from xml.sax.handler import ContentHandler
 
 # package imports
-from openpyxl.cell import Cell
-from openpyxl.worksheet import Worksheet
+from ..cell import Cell
+from ..worksheet import Worksheet
 
 
 class WorksheetReader(ContentHandler):

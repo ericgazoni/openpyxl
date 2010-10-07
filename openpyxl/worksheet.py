@@ -6,13 +6,13 @@
 import re
 
 # package imports
-from openpyxl.cell import Cell, coordinate_from_string, \
+from .cell import Cell, coordinate_from_string, \
     column_index_from_string, get_column_letter
-from openpyxl.shared.exc import SheetTitleException, \
+from .shared.exc import SheetTitleException, \
     InsufficientCoordinatesException, CellCoordinatesException, \
     NamedRangeException
-from openpyxl.shared.password_hasher import hash_password
-from openpyxl.style import Style
+from .shared.password_hasher import hash_password
+from .style import Style
 
 
 class Relationship(object):

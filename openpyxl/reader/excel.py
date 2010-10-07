@@ -6,14 +6,14 @@
 from zipfile import ZipFile, ZIP_DEFLATED
 
 # package imports
-from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, \
+from ..shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, \
         ARC_WORKBOOK, PACKAGE_WORKSHEETS, ARC_STYLE
-from openpyxl.workbook import Workbook
-from openpyxl.reader.strings import read_string_table
-from openpyxl.reader.style import read_style_table
-from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, \
+from ..workbook import Workbook
+from .strings import read_string_table
+from .style import read_style_table
+from .workbook import read_sheets_titles, read_named_ranges, \
         read_properties_core
-from openpyxl.reader.worksheet import read_worksheet
+from .worksheet import read_worksheet
 
 
 def load_workbook(filename):

@@ -3,8 +3,8 @@
 """Read shared style definitions"""
 
 # package imports
-from openpyxl.shared.xmltools import fromstring, QName
-from openpyxl.style import Style, NumberFormat
+from ..shared.xmltools import fromstring, QName
+from ..style import Style, NumberFormat
 
 
 def read_style_table(xml_source):
