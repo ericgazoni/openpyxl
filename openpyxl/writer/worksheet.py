@@ -1,13 +1,36 @@
 # file openpyxl/writer/worksheet.py
 
+# Copyright (c) 2010 openpyxl
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# @license: http://www.opensource.org/licenses/mit-license.php
+# @author: Eric Gazoni
+
 """Write worksheets to xml representations."""
 
 # Python stdlib imports
 from StringIO import StringIO  # cStringIO doesn't handle unicode
 
 # package imports
-from ..cell import column_index_from_string
-from ..shared.xmltools import Element, SubElement, XMLGenerator, \
+from openpyxl.cell import column_index_from_string
+from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, \
         get_document_content, start_tag, end_tag, tag
 
 
@@ -96,7 +119,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
         row_cells = cells_by_row[row_idx]
         sorted_cells = sorted(row_cells, key=row_sort)
         for cell in sorted_cells:
-            value = cell._value
+            value = cell.value
             coordinate = cell.get_coordinate()
             attributes = {'r': coordinate}
             attributes['t'] = cell.data_type

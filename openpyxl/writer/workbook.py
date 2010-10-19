@@ -1,14 +1,37 @@
 # file openpyxl/writer/workbook.py
 
+# Copyright (c) 2010 openpyxl
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# @license: http://www.opensource.org/licenses/mit-license.php
+# @author: Eric Gazoni
+
 """Write the workbook global settings to the archive."""
 
 # package imports
-from ..shared.xmltools import Element, SubElement
-from ..cell import absolute_coordinate
-from ..shared.xmltools import get_document_content
-from ..shared.ooxml import NAMESPACES, ARC_CORE, ARC_WORKBOOK, \
-        ARC_APP, ARC_THEME, ARC_STYLE, ARC_SHARED_STRINGS
-from ..shared.date_time import datetime_to_W3CDTF
+from openpyxl.shared.xmltools import Element, SubElement
+from openpyxl.cell import absolute_coordinate
+from openpyxl.shared.xmltools import get_document_content
+from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE, ARC_WORKBOOK, \
+       ARC_APP, ARC_THEME, ARC_STYLE, ARC_SHARED_STRINGS
+from openpyxl.shared.date_time import datetime_to_W3CDTF
 
 
 def write_properties_core(properties):
@@ -131,7 +154,7 @@ def write_workbook_rels(workbook):
     """Write the workbook relationships xml."""
     root = Element('Relationships', {'xmlns':
             'http://schemas.openxmlformats.org/package/2006/relationships'})
-    for i, sheet in enumerate(workbook.worksheets):
+    for i in range(len(workbook.worksheets)):
         SubElement(root, 'Relationship', {'Id': 'rId%d' % (i + 1),
                 'Type': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
                 'Target': 'worksheets/sheet%s.xml' % (i + 1)})

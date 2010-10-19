@@ -1,5 +1,28 @@
 # file openpyxl/tests/test_worksheet.py
 
+# Copyright (c) 2010 openpyxl
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# @license: http://www.opensource.org/licenses/mit-license.php
+# @author: Eric Gazoni
+
 # 3rd party imports
 from nose.tools import eq_, raises, assert_raises
 
@@ -8,7 +31,8 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet, Relationship
 from openpyxl.cell import Cell
 from openpyxl.shared.exc import CellCoordinatesException, \
-        SheetTitleException, InsufficientCoordinatesException
+        SheetTitleException, InsufficientCoordinatesException, \
+        NamedRangeException
 
 
 class TestWorksheet():
@@ -20,6 +44,11 @@ class TestWorksheet():
     def test_new_worksheet(self):
         ws = Worksheet(self.wb)
         eq_(self.wb, ws._parent)
+
+    def test_new_sheet_name(self):
+        self.wb.worksheets = []
+        ws = Worksheet(self.wb, title='')
+        eq_(repr(ws), '<Worksheet Sheet1>')
 
     def test_get_cell(self):
         ws = Worksheet(self.wb)
@@ -55,9 +84,21 @@ class TestWorksheet():
     def test_worksheet_named_range(self):
         ws = Worksheet(self.wb)
         self.wb.create_named_range('test_range', ws, 'C5')
-        xlrange = ws.range("test_range")
+        xlrange = ws.range('test_range')
         assert isinstance(xlrange, Cell)
         eq_(5, xlrange.row)
+
+    @raises(NamedRangeException)
+    def test_bad_named_range(self):
+        ws = Worksheet(self.wb)
+        ws.range('bad_range')
+
+    @raises(NamedRangeException)
+    def test_named_range_wrong_sheet(self):
+        ws1 = Worksheet(self.wb)
+        ws2 = Worksheet(self.wb)
+        self.wb.create_named_range('wrong_sheet_range', ws1, 'C5')
+        ws2.range('wrong_sheet_range')
 
     def test_cell_offset(self):
         ws = Worksheet(self.wb)

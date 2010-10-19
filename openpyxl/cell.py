@@ -1,5 +1,28 @@
 # file openpyxl/cell.py
 
+# Copyright (c) 2010 openpyxl
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# @license: http://www.opensource.org/licenses/mit-license.php
+# @author: Eric Gazoni
+
 """Manage individual cells in a spreadsheet.
 
 The Cell class is required to know its value and type, display options,
@@ -15,10 +38,10 @@ import datetime
 import re
 
 # package imports
-from .shared.date_time import SharedDate
-from .shared.exc import CellCoordinatesException, \
+from openpyxl.shared.date_time import SharedDate
+from openpyxl.shared.exc import CellCoordinatesException, \
         ColumnStringIndexException, DataTypeException
-from .style import NumberFormat
+from openpyxl.style import NumberFormat
 
 # constants
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
@@ -195,7 +218,7 @@ class Cell(object):
             data_type = self.TYPE_NUMERIC
         elif not value:
             data_type = self.TYPE_STRING
-        elif isinstance(value, datetime.datetime):
+        elif isinstance(value, (datetime.datetime, datetime.date)):
             data_type = self.TYPE_NUMERIC
         elif isinstance(value, basestring) and value[0] == '=':
             data_type = self.TYPE_FORMULA
@@ -221,7 +244,6 @@ class Cell(object):
                 self.set_value_explicit(value, self.TYPE_NUMERIC)
                 self._set_number_format(NumberFormat.FORMAT_PERCENTAGE)
                 return True
-
             # time detection
             time_search = self.RE_PATTERNS['time'].match(value)
             if time_search:
@@ -239,6 +261,11 @@ class Cell(object):
                 return True
         if self._data_type == self.TYPE_NUMERIC:
             # date detection
+            # if the value is a date, but not a date time, make it a
+            # datetime, and set the time part to 0
+            if isinstance(value, datetime.date) and not \
+                    isinstance(value, datetime.datetime):
+                value = datetime.datetime.combine(value, datetime.time())
             if isinstance(value, datetime.datetime):
                 value = SharedDate().datetime_to_julian(date=value)
                 self.set_value_explicit(value, self.TYPE_NUMERIC)

@@ -1,19 +1,43 @@
 # file openpyxl/tests/test_write.py
 
+# Copyright (c) 2010 openpyxl
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# @license: http://www.opensource.org/licenses/mit-license.php
+# @author: Eric Gazoni
+
 # Python stdlib imports
 from __future__ import with_statement
 from StringIO import StringIO
 import os.path
 
 # 3rd party imports
-from nose.tools import eq_, with_setup
+from nose.tools import eq_, with_setup, raises
 
 # package imports
 from openpyxl.tests.helper import TMPDIR, DATADIR, \
         assert_equals_file_content, clean_tmpdir, make_tmpdir
 from openpyxl.workbook import Workbook
 from openpyxl.reader.excel import load_workbook
-from openpyxl.writer.excel import save_workbook, save_virtual_workbook
+from openpyxl.writer.excel import save_workbook, save_virtual_workbook, \
+        ExcelWriter
 from openpyxl.writer.workbook import write_workbook, write_workbook_rels
 from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
 from openpyxl.writer.strings import write_string_table
@@ -59,6 +83,16 @@ def test_write_string_table():
 def test_write_worksheet():
     wb = Workbook()
     ws = wb.create_sheet()
+    ws.cell('F42').value = 'hello'
+    content = write_worksheet(ws, {'hello': 0}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1.xml'), content)
+
+
+def test_write_hidden_worksheet():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.sheet_state = ws.SHEETSTATE_HIDDEN
     ws.cell('F42').value = 'hello'
     content = write_worksheet(ws, {'hello': 0}, {})
     assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \

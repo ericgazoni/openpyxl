@@ -1,18 +1,41 @@
 # file openpyxl/worksheet.py
 
+# Copyright (c) 2010 openpyxl
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# @license: http://www.opensource.org/licenses/mit-license.php
+# @author: Eric Gazoni
+
 """Worksheet is the 2nd-level container in Excel."""
 
 # Python stdlib imports
 import re
 
 # package imports
-from .cell import Cell, coordinate_from_string, \
+from openpyxl.cell import Cell, coordinate_from_string, \
     column_index_from_string, get_column_letter
-from .shared.exc import SheetTitleException, \
+from openpyxl.shared.exc import SheetTitleException, \
     InsufficientCoordinatesException, CellCoordinatesException, \
     NamedRangeException
-from .shared.password_hasher import hash_password
-from .style import Style
+from openpyxl.shared.password_hasher import hash_password
+from openpyxl.style import Style
 
 
 class Relationship(object):
@@ -154,9 +177,6 @@ class Worksheet(object):
     SHEETSTATE_HIDDEN = 'hidden'
     SHEETSTATE_VERYHIDDEN = 'veryHidden'
 
-    def __repr__(self):
-        return u'<Worksheet %s>' % self.title
-
     def __init__(self, parent_workbook, title='Sheet'):
         self._parent = parent_workbook
         self._title = ''
@@ -183,6 +203,9 @@ class Worksheet(object):
         self.show_summary_right = True
         self.default_row_dimension = RowDimension()
         self.default_column_dimension = ColumnDimension()
+
+    def __repr__(self):
+        return u'<Worksheet %s>' % self.title
 
     def garbage_collect(self):
         """Delete cells that are not storing a value."""
@@ -226,7 +249,7 @@ class Worksheet(object):
     def cell(self, coordinate=None, row=None, column=None):
         """Returns a cell object based on the given coordinates.
 
-        Usage: cell(coodinate='A15') *or* cell(row=15, column=0)
+        Usage: cell(coodinate='A15') *or* cell(row=15, column=1)
 
         If `coordinates` are not given, then row *and* column must be given.
 
