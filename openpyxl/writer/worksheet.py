@@ -117,7 +117,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             attrs['customHeight'] = '1'
         start_tag(doc, 'row', attrs)
         row_cells = cells_by_row[row_idx]
-        sorted_cells = sorted(row_cells, key=row_sort)
+        sorted_cells = sorted(row_cells, key = row_sort)
         for cell in sorted_cells:
             value = cell.value
             coordinate = cell.get_coordinate()
@@ -125,17 +125,17 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             attributes['t'] = cell.data_type
             if coordinate in worksheet._styles:
                 attributes['s'] = '%d' % style_id_by_hash[
-                        worksheet._styles[coordinate].__crc__()]
+                        hash(worksheet._styles[coordinate])]
             start_tag(doc, 'c', attributes)
             if cell.data_type == cell.TYPE_STRING:
-                tag(doc, 'v', body='%s' % string_table[value])
+                tag(doc, 'v', body = '%s' % string_table[value])
             elif cell.data_type == cell.TYPE_FORMULA:
-                tag(doc, 'f', body='%s' % value[1:])
+                tag(doc, 'f', body = '%s' % value[1:])
                 tag(doc, 'v')
             elif cell.data_type == cell.TYPE_NUMERIC:
-                tag(doc, 'v', body='%s' % value)
+                tag(doc, 'v', body = '%s' % value)
             else:
-                tag(doc, 'v', body='%s' % value)
+                tag(doc, 'v', body = '%s' % value)
             end_tag(doc, 'c')
         end_tag(doc, 'row')
     end_tag(doc, 'sheetData')

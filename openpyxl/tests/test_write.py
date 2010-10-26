@@ -44,7 +44,7 @@ from openpyxl.writer.strings import write_string_table
 from openpyxl.writer.styles import create_style_table
 
 
-@with_setup(setup=make_tmpdir, teardown=clean_tmpdir)
+@with_setup(setup = make_tmpdir, teardown = clean_tmpdir)
 def test_write_empty_workbook():
     wb = Workbook()
     dest_filename = os.path.join(TMPDIR, 'empty_book.xlsx')
@@ -115,7 +115,7 @@ def test_write_style():
     ws = wb.create_sheet()
     ws.cell('F1').value = '13%'
     shared_style_table = create_style_table(wb)
-    style_id_by_hash = dict([(style.__crc__(), style_id) for style, style_id \
+    style_id_by_hash = dict([(hash(style), style_id) for style, style_id \
             in shared_style_table.iteritems()])
     content = write_worksheet(ws, {}, style_id_by_hash)
     assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \

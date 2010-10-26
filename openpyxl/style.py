@@ -38,33 +38,14 @@ class HashableObject(object):
     __fields__ = None
     __leaf__ = False
 
-    def __init__(self):
-        self.__dirty__ = True
-        self.__crc_cache__ = ''
+    def __repr__(self):
 
-    def __setattr__(self, key, value):
-        object.__setattr__(self, key, value)
-        object.__setattr__(self, '__dirty__', True)
+        return ':'.join([repr(getattr(self, x)) for x in self.__fields__])
 
-    def __crc__(self):
-        if self.__dirty__ or not self.__leaf__:
-            data = ''.join([unicode(getattr(self, attribute))
-                    for attribute in self.__fields__])
-            self.__crc_cache__ = md5(data).hexdigest()
-            self.__dirty__ = False
-        return self.__crc_cache__
+    def __hash__(self):
 
-    def __cmp__(self, other):
-        return cmp(self.__crc__(), other.__crc__())
-
-    def __eq__(self, other):
-        return self.__crc__() == other.__crc__()
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    __str__ = __crc__
-
+#        return int(md5(repr(self)).hexdigest(), 16)
+        return hash(repr(self))
 
 class Color(HashableObject):
     """Named colors for use in styles."""
@@ -307,7 +288,7 @@ class NumberFormat(HashableObject):
         re.compile(FORMAT_DATE_TIME6),
         re.compile(FORMAT_DATE_TIME7),
         re.compile(FORMAT_DATE_TIME8),
-        re.compile(FORMAT_DATE_YYYYMMDDSLASH), )
+        re.compile(FORMAT_DATE_YYYYMMDDSLASH),)
     FORMAT_CURRENCY_USD_SIMPLE = '"$"#,##0.00_-'
     FORMAT_CURRENCY_USD = '$#,##0_-'
     FORMAT_CURRENCY_EUR_SIMPLE = '[$EUR ]#,##0.00_-'
@@ -357,10 +338,10 @@ class NumberFormat(HashableObject):
         self._format_code = self.FORMAT_GENERAL
         self._format_index = 0
 
-    def _set_format_code(self, format_code=FORMAT_GENERAL):
+    def _set_format_code(self, format_code = FORMAT_GENERAL):
         """Setter for the format_code property."""
         self._format_code = format_code
-        self._format_index = self.builtin_format_id(format=format_code)
+        self._format_index = self.builtin_format_id(format = format_code)
 
     def _get_format_code(self):
         """Getter for the format_code property."""
@@ -372,7 +353,7 @@ class NumberFormat(HashableObject):
         """Return one of the standard format codes by index."""
         return self._BUILTIN_FORMATS[index]
 
-    def is_builtin(self, format=None):
+    def is_builtin(self, format = None):
         """Check if a format code is a standard format code."""
         if format is None:
             format = self._format_code
@@ -382,7 +363,7 @@ class NumberFormat(HashableObject):
         """Return the id of a standard style."""
         return self._BUILTIN_FORMATS_REVERSE.get(format, None)
 
-    def is_date_format(self, format=None):
+    def is_date_format(self, format = None):
         """Check if the number format is actually representing a date."""
         if format is None:
             format = self._format_code

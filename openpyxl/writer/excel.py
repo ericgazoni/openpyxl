@@ -66,7 +66,7 @@ class ExcelWriter(object):
         archive.writestr(ARC_THEME, write_theme())
         archive.writestr(ARC_STYLE, write_style_table(shared_style_table))
         archive.writestr(ARC_WORKBOOK, write_workbook(self.workbook))
-        style_id_by_hash = dict([(style.__crc__(), style_id) for
+        style_id_by_hash = dict([(hash(style), style_id) for
                 style, style_id in shared_style_table.iteritems()])
         for i, sheet in enumerate(self.workbook.worksheets):
             archive.writestr(PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1),

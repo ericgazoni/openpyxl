@@ -35,7 +35,7 @@ def create_style_table(workbook):
     styles_by_crc = {}
     for worksheet in workbook.worksheets:
         for style in worksheet._styles.values():
-            styles_by_crc[style.__crc__()] = style
+            styles_by_crc[hash(style)] = style
     return dict([(style, i + 1) for i, style in
             enumerate(styles_by_crc.values())])
 
@@ -128,7 +128,7 @@ def write_style_table(style_table):
     """Write the style table xml."""
     root_node = Element('styleSheet', {'xmlns':
             'http://schemas.openxmlformats.org/spreadsheetml/2006/main'})
-    sorted_styles = sorted(style_table.iteritems(), key=lambda pair: pair[1])
+    sorted_styles = sorted(style_table.iteritems(), key = lambda pair: pair[1])
     style_list = [s[0] for s in sorted_styles]
     number_format_table = write_number_formats(root_node, style_list)
     write_fonts(root_node, style_list)

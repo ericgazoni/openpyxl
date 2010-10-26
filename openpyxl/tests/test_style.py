@@ -47,12 +47,12 @@ class TestCreateStyle(object):
         now = datetime.datetime.now()
         cls.workbook = Workbook()
         cls.worksheet = cls.workbook.create_sheet()
-        cls.worksheet.cell(coordinate='A1').value = '12.34%'
-        cls.worksheet.cell(coordinate='B4').value = now
-        cls.worksheet.cell(coordinate='B5').value = now
-        cls.worksheet.cell(coordinate='C14').value = u'This is a test'
-        cls.worksheet.cell(coordinate='D9').value = '31.31415'
-        cls.worksheet.cell(coordinate='D9').style.number_format.format_code = \
+        cls.worksheet.cell(coordinate = 'A1').value = '12.34%'
+        cls.worksheet.cell(coordinate = 'B4').value = now
+        cls.worksheet.cell(coordinate = 'B5').value = now
+        cls.worksheet.cell(coordinate = 'C14').value = u'This is a test'
+        cls.worksheet.cell(coordinate = 'D9').value = '31.31415'
+        cls.worksheet.cell(coordinate = 'D9').style.number_format.format_code = \
                 NumberFormat.FORMAT_NUMBER_00
 
     def test_create_style_table(self):
@@ -67,17 +67,17 @@ class TestCreateStyle(object):
         assert_equals_file_content(reference_file, content)
 
 
-def test_format_comparisions():
-    format1 = NumberFormat()
-    format2 = NumberFormat()
-    format3 = NumberFormat()
-    format1.format_code = 'm/d/yyyy'
-    format2.format_code = 'm/d/yyyy'
-    format3.format_code = 'mm/dd/yyyy'
-    assert not format1 < format2
-    assert format1 < format3
-    assert format1 == format2
-    assert format1 != format3
+#def test_format_comparisions():
+#    format1 = NumberFormat()
+#    format2 = NumberFormat()
+#    format3 = NumberFormat()
+#    format1.format_code = 'm/d/yyyy'
+#    format2.format_code = 'm/d/yyyy'
+#    format3.format_code = 'mm/dd/yyyy'
+#    assert not format1 < format2
+#    assert format1 < format3
+#    assert format1 == format2
+#    assert format1 != format3
 
 
 def test_builtin_format():
