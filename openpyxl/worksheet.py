@@ -83,7 +83,7 @@ class RowDimension(object):
                  'collapsed',
                  'style_index',)
 
-    def __init__(self, index=0):
+    def __init__(self, index = 0):
         self.row_index = index
         self.height = -1
         self.visible = True
@@ -102,7 +102,7 @@ class ColumnDimension(object):
                  'collapsed',
                  'style_index',)
 
-    def __init__(self, index='A'):
+    def __init__(self, index = 'A'):
         self.column_index = index
         self.width = -1
         self.auto_size = False
@@ -143,7 +143,7 @@ class SheetProtection(object):
         self.select_unlocked_cells = False
         self._password = ''
 
-    def set_password(self, value='', already_hashed=False):
+    def set_password(self, value = '', already_hashed = False):
         """Set a password on this sheet."""
         if not already_hashed:
             value = hash_password(value)
@@ -151,7 +151,7 @@ class SheetProtection(object):
 
     def _set_raw_password(self, value):
         """Set a password directly, forcing a hash step."""
-        self.set_password(value, already_hashed=False)
+        self.set_password(value, already_hashed = False)
 
     def _get_raw_password(self):
         """Return the password value, regardless of hash."""
@@ -177,7 +177,7 @@ class Worksheet(object):
     SHEETSTATE_HIDDEN = 'hidden'
     SHEETSTATE_VERYHIDDEN = 'veryHidden'
 
-    def __init__(self, parent_workbook, title='Sheet'):
+    def __init__(self, parent_workbook, title = 'Sheet'):
         self._parent = parent_workbook
         self._title = ''
         if not title:
@@ -246,7 +246,7 @@ class Worksheet(object):
             'Get or set the title of the worksheet.  '
             'Limited to 31 characters, no special characters.')
 
-    def cell(self, coordinate=None, row=None, column=None):
+    def cell(self, coordinate = None, row = None, column = None):
         """Returns a cell object based on the given coordinates.
 
         Usage: cell(coodinate='A15') *or* cell(row=15, column=1)
@@ -273,7 +273,7 @@ class Worksheet(object):
 
         """
         if not coordinate:
-            if not (row and column):
+            if  (row is None or column is None):
                 msg = "You have to provide a value either for " \
                         "'coordinate' or for 'row' *and* 'column'"
                 raise InsufficientCoordinatesException(msg)
@@ -312,7 +312,7 @@ class Worksheet(object):
         return 'A1:%s%d' % (get_column_letter(self.get_highest_column()),
                             self.get_highest_row())
 
-    def range(self, range_string, row=0, column=0):
+    def range(self, range_string, row = 0, column = 0):
         """Returns a 2D array of cells, with optional row and column offsets.
 
         :param range_string: cell range string or `named range` name
@@ -353,8 +353,8 @@ class Worksheet(object):
             return tuple(result)
         else:
             try:
-                return self.cell(coordinate=range_string, row=row,
-                        column=column)
+                return self.cell(coordinate = range_string, row = row,
+                        column = column)
             except CellCoordinatesException:
                 pass
             # named range
