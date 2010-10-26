@@ -58,7 +58,6 @@ def load_workbook(filename):
         except KeyError:
             string_table = {}
         style_table = read_style_table(archive.read(ARC_STYLE))
-        wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
 
         # get worksheets
         wb.worksheets = []  # remove preset worksheet
@@ -68,7 +67,9 @@ def load_workbook(filename):
                     (PACKAGE_WORKSHEETS, 'sheet%d.xml' % (i + 1))
             new_ws = read_worksheet(archive.read(worksheet_path),
                     wb, sheet_name, string_table, style_table)
-            wb.add_sheet(new_ws, index=i)
+            wb.add_sheet(new_ws, index = i)
+
+        wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
     finally:
         archive.close()
     return wb
