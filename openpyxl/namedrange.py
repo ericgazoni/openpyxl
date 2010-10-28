@@ -32,8 +32,7 @@ import re
 from openpyxl.shared.exc import NamedRangeException
 
 # constants
-NAMED_RANGE_RE = re.compile("'?([^']*)'?!\$([A-Za-z]+)\$([0-9]+)")
-
+NAMED_RANGE_RE = re.compile("'?([^']*)'?!((\$([A-Za-z]+))?\$([0-9]+)(:(\$([A-Za-z]+))?(\$([0-9]+)))?)$")
 
 class NamedRange(object):
     """A named group of cells"""
@@ -48,12 +47,16 @@ class NamedRange(object):
     def __str__(self):
         return u'%s!%s' % (self.worksheet.title, self.range)
 
+    def __repr__(self):
+
+        return '<%s "%s">' % (self.__class__.__name__, str(self))
+
 
 def split_named_range(range_string):
     """Separate a named range into its component parts"""
     match = NAMED_RANGE_RE.match(range_string)
     if not match:
-        raise NamedRangeException('Invalid named range string: "%s"')
+        raise NamedRangeException('Invalid named range string: "%s"' % range_string)
     else:
-        sheet_name, column, row = match.groups()
-        return sheet_name, column, int(row)
+        sheet_name, xlrange = match.groups()[:2]
+        return sheet_name, xlrange

@@ -205,7 +205,7 @@ class Worksheet(object):
         self.default_column_dimension = ColumnDimension()
 
     def __repr__(self):
-        return u'<Worksheet %s>' % self.title
+        return u'<Worksheet "%s">' % self.title
 
     def garbage_collect(self):
         """Delete cells that are not storing a value."""

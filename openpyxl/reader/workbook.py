@@ -101,19 +101,33 @@ def read_named_ranges(xml_source, workbook):
     names_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
             'definedNames').text)
     if names_root:
-        bad_ranges = BUGGY_NAMED_RANGES
-        bad_ranges.extend(DISCARDED_RANGES)
+
         for name_node in names_root.getchildren():
             range_name = name_node.get('name')
-            for bad_range in bad_ranges:
-                if bad_range in name_node.text:
-                    # this is a bad range, skip it
+
+            good_range = True
+
+            for discarded_range in DISCARDED_RANGES:
+                if discarded_range in range_name:
+                    good_range = False
                     break
-            else:
-                # this is a good named range, read it
-                worksheet_name, column, row = split_named_range(name_node.text)
+
+            for bad_range in BUGGY_NAMED_RANGES:
+                if bad_range in name_node.text:
+                    good_range = False
+                    break
+
+            if good_range:
+                worksheet_name, xlrange = split_named_range(name_node.text)
                 worksheet = workbook.get_sheet_by_name(worksheet_name)
-                xlrange = '%s%s' % (column, row)
-                named_range = NamedRange(range_name, worksheet, xlrange)
-                named_ranges.append(named_range)
+
+                # it can happen that a valid named range references
+                # a missing worksheet, when Excel didn't properly maintain
+                # the named range list
+                #
+                # we just ignore them here
+                if worksheet:
+                    named_range = NamedRange(range_name, worksheet, xlrange)
+                    named_ranges.append(named_range)
+
     return named_ranges
