@@ -7,3 +7,5 @@ org.eclipse
 \.(dot|svg|pf)
 \.noseids
 \.*\.swp
+syntax: glob
+*~

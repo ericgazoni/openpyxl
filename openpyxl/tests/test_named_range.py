@@ -38,11 +38,11 @@ from openpyxl.shared.exc import NamedRangeException
 
 
 def test_split():
-    eq_(('My Sheet', 'D', 8), split_named_range("'My Sheet'!$D$8"))
+    eq_(('My Sheet', '$D$8'), split_named_range("'My Sheet'!$D$8"))
 
 
 def test_split_no_quotes():
-    eq_(('HYPOTHESES', 'B', 3), split_named_range('HYPOTHESES!$B$3:$L$3'))
+    eq_(('HYPOTHESES', '$B$3:$L$3'), split_named_range('HYPOTHESES!$B$3:$L$3'))
 
 
 def test_bad_range_name():
@@ -62,4 +62,4 @@ def test_read_named_ranges():
     with open(os.path.join(DATADIR, 'reader', 'workbook.xml')) as handle:
         content = handle.read()
     named_ranges = read_named_ranges(content, DummyWB())
-    eq_(["My Sheeet!D8"], [str(range) for range in named_ranges])
+    eq_(["My Sheeet!$D$8"], [str(range) for range in named_ranges])

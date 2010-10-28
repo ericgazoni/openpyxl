@@ -48,7 +48,7 @@ class TestWorksheet():
     def test_new_sheet_name(self):
         self.wb.worksheets = []
         ws = Worksheet(self.wb, title='')
-        eq_(repr(ws), '<Worksheet Sheet1>')
+        eq_(repr(ws), '<Worksheet "Sheet1">')
 
     def test_get_cell(self):
         ws = Worksheet(self.wb)
@@ -115,7 +115,7 @@ class TestWorksheet():
     def test_cell_alternate_coordinates(self):
         ws = Worksheet(self.wb)
         cell = ws.cell(row=8, column=4)
-        eq_('D8', cell.get_coordinate())
+        eq_('E9', cell.get_coordinate())
 
     @raises(InsufficientCoordinatesException)
     def test_cell_insufficient_coordinates(self):

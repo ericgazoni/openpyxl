@@ -278,7 +278,7 @@ class Worksheet(object):
                         "'coordinate' or for 'row' *and* 'column'"
                 raise InsufficientCoordinatesException(msg)
             else:
-                coordinate = '%s%s' % (get_column_letter(column), row)
+                coordinate = '%s%s' % (get_column_letter(column + 1), row + 1)
 
         if not coordinate in self._cells:
             column, row = coordinate_from_string(coordinate)
