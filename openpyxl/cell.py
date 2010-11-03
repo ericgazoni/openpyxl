@@ -46,6 +46,7 @@ from openpyxl.style import NumberFormat
 # constants
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
 
+ABSOLUTE_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)(:[$]?([A-Z]+)[$]?(\d+))?$')
 
 def coordinate_from_string(coord_string):
     """Convert a coordinate string like 'B12' to a tuple ('B', 12)"""
@@ -59,7 +60,12 @@ def coordinate_from_string(coord_string):
 
 def absolute_coordinate(coord_string):
     """Convert a coordinate to an absolute coordinate string (B12 -> $B$12)"""
-    return '$%s$%d' % coordinate_from_string(coord_string)
+    parts = ABSOLUTE_RE.match(coord_string).groups()
+
+    if all(parts[-2:]):
+        return '$%s$%s:$%s$%s' % (parts[0], parts[1], parts[3], parts[4])
+    else:
+        return '$%s$%s' % (parts[0], parts[1])
 
 
 def column_index_from_string(column):
@@ -156,7 +162,7 @@ class Cell(object):
         'time': re.compile('^(\d|[0-1]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'),
         'numeric': re.compile('^\-?([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$'), }
 
-    def __init__(self, worksheet, column, row, value=None):
+    def __init__(self, worksheet, column, row, value = None):
         self.column = column.upper()
         self.row = row
         # _value is the stored value, while value is the displayed value
@@ -192,7 +198,7 @@ class Cell(object):
                 value = float(value)
         return value
 
-    def set_value_explicit(self, value=None, data_type=TYPE_STRING):
+    def set_value_explicit(self, value = None, data_type = TYPE_STRING):
         """Coerce values according to their explicit type"""
         type_coercion_map = {
             self.TYPE_INLINE: self.check_string,
@@ -267,7 +273,7 @@ class Cell(object):
                     isinstance(value, datetime.datetime):
                 value = datetime.datetime.combine(value, datetime.time())
             if isinstance(value, datetime.datetime):
-                value = SharedDate().datetime_to_julian(date=value)
+                value = SharedDate().datetime_to_julian(date = value)
                 self.set_value_explicit(value, self.TYPE_NUMERIC)
                 self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
                 return True
@@ -286,7 +292,7 @@ class Cell(object):
         self.bind_value(value)
 
     value = property(_get_value, _set_value,
-            doc='Get or set the value held in the cell.\n\n'
+            doc = 'Get or set the value held in the cell.\n\n'
             ':rtype: depends on the value (string, float, int or '
             ':class:`datetime.datetime`)')
 
@@ -305,7 +311,7 @@ class Cell(object):
                 self._hyperlink_rel.target or ''
 
     hyperlink = property(_get_hyperlink, _set_hyperlink,
-            doc='Get or set the hyperlink held in the cell.  '
+            doc = 'Get or set the hyperlink held in the cell.  '
             'Automatically sets the `value` of the cell with link text, '
             'but you can modify it afterwards by setting the '
             '`value` property, and the hyperlink will remain.\n\n'
@@ -343,7 +349,7 @@ class Cell(object):
         """
         return '%s%s' % (self.column, self.row)
 
-    def offset(self, row=0, column=0):
+    def offset(self, row = 0, column = 0):
         """Returns a cell location relative to this cell.
 
         :param row: number of rows to offset
@@ -355,6 +361,6 @@ class Cell(object):
         :rtype: :class:`openpyxl.cell.Cell`
         """
         offset_column = get_column_letter(column_index_from_string(
-                column=self.column) + column)
+                column = self.column) + column)
         offset_row = self.row + row
         return self.parent.cell('%s%s' % (offset_column, offset_row))

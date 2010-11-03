@@ -52,6 +52,10 @@ def test_invalid_coordinate():
 def test_absolute():
     eq_('$ZF$51', absolute_coordinate('ZF51'))
 
+def test_absolute_multiple():
+
+    eq_('$ZF$51:$ZF$53', absolute_coordinate('ZF51:ZF$53'))
+
 
 def test_column_index():
     eq_(10, column_index_from_string('J'))
@@ -65,7 +69,7 @@ def test_bad_column_index():
     def _check(bad_string):
         column_index_from_string(bad_string)
 
-    bad_strings = ('JJJJ', '', '$', '1', )
+    bad_strings = ('JJJJ', '', '$', '1',)
     for bad_string in bad_strings:
         yield _check, bad_string
 
@@ -84,7 +88,7 @@ def test_column_letter():
 
 
 def test_initial_value():
-    cell = Cell(None, 'A', 1, value='17.5')
+    cell = Cell(None, 'A', 1, value = '17.5')
     eq_(cell.TYPE_NUMERIC, cell.data_type)
 
 
@@ -107,7 +111,7 @@ class TestCellValueTypes():
             self.cell.value = value
             eq_(self.cell.TYPE_NUMERIC, self.cell.data_type)
 
-        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', )
+        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999',)
         for value in values:
             yield check_numeric, value
 
@@ -151,7 +155,7 @@ def test_time():
     wb = Workbook()
     ws = Worksheet(wb)
     cell = Cell(ws, 'A', 1)
-    values = (('03:40:16', time(3, 40, 16)), ('03:40', time(3, 40)), )
+    values = (('03:40:16', time(3, 40, 16)), ('03:40', time(3, 40)),)
     for raw_value, coerced_value in values:
         yield check_time, raw_value, coerced_value
 
