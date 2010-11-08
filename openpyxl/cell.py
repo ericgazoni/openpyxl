@@ -80,21 +80,20 @@ def column_index_from_string(column):
     restrict our column names to 1-3 characters, each in the range A-Z.
 
     """
-    # check that the string is between length 1 and 3
-    if not 1 <= len(column) <= 3:
-        msg = 'Column string index out of bounds: %s' % column
-        raise ColumnStringIndexException(msg)
-    # convert to ASCII numeric, subtract off 64 so that A -> 1 and Z ->
-    # 26, then check that each character is between those values
-    ordinals = [ord(char) - 64 for char in column.upper()]
-    if any(not 1 <= ordinal <= 26 for ordinal in ordinals):
-        msg = 'Column string must contain only characters A-Z: got %s' % column
-        raise ColumnStringIndexException(msg)
-    # reverse the list to get the least significant bit first, then
-    # left shift by powers of 26 and sum the result to get the numeric
-    # index
-    ordinals.reverse()
-    return sum(ordinal * 26 ** index for index, ordinal in enumerate(ordinals))
+    column = column.upper()
+
+    clen = len(column)
+
+    if clen == 1:
+        return ord(column[0]) - 64
+    elif clen == 2:
+        return ((1 + (ord(column[0]) - 65)) * 26) + (ord(column[1]) - 64)
+    elif clen == 3:
+        return ((1 + (ord(column[0]) - 65)) * 676) + ((1 + (ord(column[1]) - 65)) * 26) + (ord(column[2]) - 64);
+    elif clen > 3:
+        raise ColumnStringIndexException('Column string index can not be longer than 3 characters')
+    else:
+        raise ColumnStringIndexException('Column string index can not be empty')
 
 
 def get_column_letter(col_idx):
