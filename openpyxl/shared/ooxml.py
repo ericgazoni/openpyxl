@@ -25,6 +25,11 @@
 
 """Constants for fixed paths in a file and xml namespace urls."""
 
+MIN_ROW = 0
+MIN_COLUMN = 0
+MAX_COLUMN = 16384
+MAX_ROW = 1048576
+
 # constants
 PACKAGE_PROPS = 'docProps'
 PACKAGE_XL = 'xl'
