@@ -210,7 +210,8 @@ class Worksheet(object):
     def garbage_collect(self):
         """Delete cells that are not storing a value."""
         delete_list = [coordinate for coordinate, cell in
-                self._cells.iteritems() if cell.value == '']
+                self._cells.iteritems() \
+                    if cell.value == '' or cell.value is None]
         for coordinate in delete_list:
             del self._cells[coordinate]
 
