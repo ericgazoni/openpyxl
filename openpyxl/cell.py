@@ -68,14 +68,9 @@ def absolute_coordinate(coord_string):
         return '$%s$%s' % (parts[0], parts[1])
 
 
-def column_index_from_string(column):
+def column_index_from_string(column, fast = False):
     """Convert a column letter into a column number (e.g. B -> 2)
-
-    A-Z in ASCII maps to ordinals 65-90.  By calculating the numeric
-    value of each letter in the column and left shifting by 26 (26
-    characters in the alphabet), we can find the 1-based numeric
-    representation of any Excel column name.
-
+    
     Excel only supports 1-3 letter column names from A -> ZZZ, so we
     restrict our column names to 1-3 characters, each in the range A-Z.
 
@@ -83,6 +78,10 @@ def column_index_from_string(column):
     column = column.upper()
 
     clen = len(column)
+
+    if not fast and not all('A' <= char <= 'Z' for char in column):
+        msg = 'Column string must contain only characters A-Z: got %s' % column
+        raise ColumnStringIndexException(msg)
 
     if clen == 1:
         return ord(column[0]) - 64
