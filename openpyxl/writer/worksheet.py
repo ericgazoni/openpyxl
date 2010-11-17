@@ -63,6 +63,8 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_cols(doc, worksheet)
     write_worksheet_data(doc, worksheet, string_table, style_table)
     write_worksheet_hyperlinks(doc, worksheet)
+    if worksheet._charts:
+        tag(doc, 'drawing', {'r:id':'rId1'})
     end_tag(doc, 'worksheet')
     doc.endDocument()
     xml_string = xml_file.getvalue()
@@ -127,7 +129,9 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
                 attributes['s'] = '%d' % style_id_by_hash[
                         hash(worksheet._styles[coordinate])]
             start_tag(doc, 'c', attributes)
-            if cell.data_type == cell.TYPE_STRING:
+            if value is None:
+                tag(doc, 'v', body='')
+            elif cell.data_type == cell.TYPE_STRING:
                 tag(doc, 'v', body = '%s' % string_table[value])
             elif cell.data_type == cell.TYPE_FORMULA:
                 tag(doc, 'f', body = '%s' % value[1:])
@@ -159,13 +163,17 @@ def write_worksheet_hyperlinks(doc, worksheet):
         end_tag(doc, 'hyperlinks')
 
 
-def write_worksheet_rels(worksheet):
+def write_worksheet_rels(worksheet, idx):
     """Write relationships for the worksheet to xml."""
     root = Element('Relationships', {'xmlns': 'http://schemas.openxmlformats.org/package/2006/relationships'})
-    if worksheet.relationships:
-        for rel in worksheet.relationships:
-            attrs = {'Id': rel.id, 'Type': rel.type, 'Target': rel.target}
-            if rel.target_mode:
-                attrs['TargetMode'] = rel.target_mode
-            SubElement(root, 'Relationship', attrs)
+    for rel in worksheet.relationships:
+        attrs = {'Id': rel.id, 'Type': rel.type, 'Target': rel.target}
+        if rel.target_mode:
+            attrs['TargetMode'] = rel.target_mode
+        SubElement(root, 'Relationship', attrs)
+    if worksheet._charts:
+        attrs = {'Id' : 'rId1',
+            'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
+            'Target' : '../drawings/drawing%s.xml' % idx }
+        SubElement(root, 'Relationship', attrs)
     return get_document_content(root)

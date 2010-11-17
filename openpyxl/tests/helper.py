@@ -85,3 +85,11 @@ def assert_equals_file_content(reference_file, fixture, filetype='xml'):
         temp = StringIO()
         pprint(differences, stream=temp)
         assert False, 'Differences found : %s' % temp.getvalue()
+
+def get_xml(xml_node):
+        
+    io = StringIO()
+    ElementTree(xml_node).write(file=io, encoding='UTF-8')
+    ret = io.getvalue()
+    io.close()
+    return ret.replace('\n','')

@@ -31,6 +31,8 @@ PACKAGE_XL = 'xl'
 PACKAGE_RELS = '_rels'
 PACKAGE_THEME = PACKAGE_XL + '/' + 'theme'
 PACKAGE_WORKSHEETS = PACKAGE_XL + '/' + 'worksheets'
+PACKAGE_DRAWINGS = PACKAGE_XL + '/' + 'drawings'
+PACKAGE_CHARTS = PACKAGE_XL + '/' + 'charts'
 
 ARC_CONTENT_TYPES = '[Content_Types].xml'
 ARC_ROOT_RELS = PACKAGE_RELS + '/.rels'

@@ -62,10 +62,31 @@ def write_content_types(workbook):
     SubElement(root, 'Override', {'PartName': '/' + ARC_APP, 'ContentType': 'application/vnd.openxmlformats-officedocument.extended-properties+xml'})
     SubElement(root, 'Override', {'PartName': '/' + ARC_CORE, 'ContentType': 'application/vnd.openxmlformats-package.core-properties+xml'})
     SubElement(root, 'Override', {'PartName': '/' + ARC_SHARED_STRINGS, 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml'})
-    for sheet_id in xrange(len(workbook.worksheets)):
+    
+    drawing_id = 1
+    chart_id = 1
+
+    for sheet_id, sheet in enumerate(workbook.worksheets):
         SubElement(root, 'Override',
                 {'PartName': '/xl/worksheets/sheet%d.xml' % (sheet_id + 1),
                 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'})
+        if sheet._charts:
+            SubElement(root, 'Override', 
+                {'PartName' : '/xl/drawings/drawing%d.xml' % (sheet_id + 1),
+                'ContentType' : 'application/vnd.openxmlformats-officedocument.drawing+xml'})
+            drawing_id += 1
+
+            for chart in sheet._charts:
+                SubElement(root, 'Override', 
+                    {'PartName' : '/xl/charts/chart%d.xml' % chart_id,
+                    'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml'})
+                chart_id += 1
+                if chart._shapes:
+                    SubElement(root, 'Override', 
+                        {'PartName' : '/xl/drawings/drawing%d.xml' % drawing_id,
+                        'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml'})
+                    drawing_id += 1
+
     return get_document_content(root)
 
 

@@ -41,7 +41,7 @@ from openpyxl.writer.excel import save_workbook, save_virtual_workbook, \
 from openpyxl.writer.workbook import write_workbook, write_workbook_rels
 from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
 from openpyxl.writer.strings import write_string_table
-from openpyxl.writer.styles import create_style_table
+from openpyxl.writer.styles import StyleWriter
 
 
 @with_setup(setup = make_tmpdir, teardown = clean_tmpdir)
@@ -114,9 +114,7 @@ def test_write_style():
     wb = Workbook()
     ws = wb.create_sheet()
     ws.cell('F1').value = '13%'
-    shared_style_table = create_style_table(wb)
-    style_id_by_hash = dict([(hash(style), style_id) for style, style_id \
-            in shared_style_table.iteritems()])
+    style_id_by_hash = StyleWriter(wb).get_style_by_hash()
     content = write_worksheet(ws, {}, style_id_by_hash)
     assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
             'sheet1_style.xml'), content)
@@ -152,7 +150,7 @@ def test_write_hyperlink_rels():
     ws.cell('A2').value = "test"
     ws.cell('A2').hyperlink = "http://test2.com/"
     eq_(2, len(ws.relationships))
-    content = write_worksheet_rels(ws)
+    content = write_worksheet_rels(ws, 1)
     assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
             'sheet1_hyperlink.xml.rels'), content)
 

@@ -35,7 +35,8 @@ from openpyxl.shared.exc import SheetTitleException, \
     InsufficientCoordinatesException, CellCoordinatesException, \
     NamedRangeException
 from openpyxl.shared.password_hasher import hash_password
-from openpyxl.style import Style
+from openpyxl.style import Style, DEFAULTS as DEFAULTS_STYLE
+from openpyxl.drawing import Drawing
 
 
 class Relationship(object):
@@ -44,6 +45,7 @@ class Relationship(object):
     # worksheet relationships
     TYPES = {
         'hyperlink': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+        'drawing':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
         #'worksheet': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
         #'sharedStrings': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
         #'styles': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
@@ -188,6 +190,7 @@ class Worksheet(object):
         self.column_dimensions = {}
         self._cells = {}
         self._styles = {}
+        self._charts = []
         self.relationships = []
         self.selected_cell = 'A1'
         self.active_cell = 'A1'
@@ -209,8 +212,9 @@ class Worksheet(object):
 
     def garbage_collect(self):
         """Delete cells that are not storing a value."""
-        delete_list = [coordinate for coordinate, cell in
-                self._cells.iteritems() if cell.value == '']
+        delete_list = [coordinate for coordinate, cell in \
+            self._cells.iteritems() if (cell.value in ('', None) and \
+            hash(cell.style) == hash(DEFAULTS_STYLE))]
         for coordinate in delete_list:
             del self._cells[coordinate]
 
@@ -381,3 +385,9 @@ class Worksheet(object):
         rel_id = self.relationships.index(rel)
         rel.id = 'rId' + str(rel_id + 1)
         return self.relationships[rel_id]
+
+    def add_chart(self, chart):
+        """ Add a chart to the sheet """
+        
+        chart._sheet = self
+        self._charts.append(chart)

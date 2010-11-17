@@ -29,15 +29,15 @@ import os.path
 import datetime
 
 # 3rd party imports
-from nose.tools import eq_, assert_false
+from nose.tools import eq_, assert_false, ok_
 
 # package imports
-from openpyxl.tests.helper import DATADIR, assert_equals_file_content
+from openpyxl.tests.helper import DATADIR, assert_equals_file_content, get_xml
 from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
 from openpyxl.style import NumberFormat
-from openpyxl.writer.styles import  create_style_table
-from openpyxl.writer.styles import write_style_table
+from openpyxl.writer.styles import StyleWriter
+from openpyxl.style import NumberFormat, Border, Color
 
 
 class TestCreateStyle(object):
@@ -54,18 +54,71 @@ class TestCreateStyle(object):
         cls.worksheet.cell(coordinate = 'D9').value = '31.31415'
         cls.worksheet.cell(coordinate = 'D9').style.number_format.format_code = \
                 NumberFormat.FORMAT_NUMBER_00
+        cls.writer = StyleWriter(cls.workbook)
 
     def test_create_style_table(self):
-        table = create_style_table(self.workbook)
-        eq_(3, len(table))
-
+        eq_(3, len(self.writer.style_table))
+        
     def test_write_style_table(self):
-        table = create_style_table(self.workbook)
-        content = write_style_table(table)
-        reference_file = os.path.join(
-                DATADIR, 'writer', 'expected', 'simple-styles.xml')
-        assert_equals_file_content(reference_file, content)
+        reference_file = os.path.join(DATADIR, 'writer', 'expected', 'simple-styles.xml')
+        assert_equals_file_content(reference_file, self.writer.write_table())
+        
+class TestStyleWriter(object):
+    
+    def setUp(self):
 
+        self.workbook = Workbook()
+        self.worksheet = self.workbook.create_sheet()
+        
+    def test_no_style(self):
+        
+        w = StyleWriter(self.workbook)
+        eq_(0, len(w.style_table))
+        
+    def test_nb_style(self):
+        
+        for i in range(1, 6):
+            self.worksheet.cell(row=1, column=i).style.font.size += i
+        w = StyleWriter(self.workbook)
+        eq_(5, len(w.style_table))
+        
+        self.worksheet.cell('A10').style.borders.top = Border.BORDER_THIN
+        w = StyleWriter(self.workbook)
+        eq_(6, len(w.style_table))
+        
+    def test_style_unicity(self):
+        
+        for i in range(1, 6):
+            self.worksheet.cell(row=1, column=i).style.font.bold = True
+        w = StyleWriter(self.workbook)
+        eq_(1, len(w.style_table))
+        
+    def test_fonts(self):
+        
+        self.worksheet.cell('A1').style.font.size = 12
+        self.worksheet.cell('A1').style.font.bold = True
+        w = StyleWriter(self.workbook)
+        w._write_fonts()
+        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><scheme val="minor" /><b /></font></fonts></styleSheet>')
+        
+    def test_borders(self):
+        
+        self.worksheet.cell('A1').style.borders.top.border_style = Border.BORDER_THIN
+        self.worksheet.cell('A1').style.borders.top.color.index = Color.DARKYELLOW
+        w = StyleWriter(self.workbook)
+        w._write_borders()
+        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><borders count="2"><border><left /><right /><top /><bottom /><diagonal /></border><border><left style="none"><color rgb="FF000000" /></left><right style="none"><color rgb="FF000000" /></right><top style="thin"><color rgb="FF808000" /></top><bottom style="none"><color rgb="FF000000" /></bottom><diagonal style="none"><color rgb="FF000000" /></diagonal></border></borders></styleSheet>')
+        
+    def test_write_cell_xfs_1(self):
+        
+        self.worksheet.cell('A1').style.font.size = 12
+        w = StyleWriter(self.workbook)
+        ft = w._write_fonts()
+        nft = w._write_number_formats()
+        w._write_cell_xfs(nft, ft, {})
+        xml = get_xml(w._root)
+        ok_('applyFont="1"' in xml)
+        ok_('applyBorder="1"' not in xml)
 
 #def test_format_comparisions():
 #    format1 = NumberFormat()

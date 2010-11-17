@@ -408,3 +408,5 @@ class Style(HashableObject):
         self.alignment = Alignment()
         self.number_format = NumberFormat()
         self.protection = Protection()
+
+DEFAULTS = Style()
