@@ -34,7 +34,7 @@ from openpyxl.namedrange import NamedRange, split_named_range
 
 # constants
 BUGGY_NAMED_RANGES = ['NA()', '#REF!']
-DISCARDED_RANGES = ['Excel_BuiltIn', ]
+DISCARDED_RANGES = ['Excel_BuiltIn', 'Print_Area']
 
 
 def read_properties_core(xml_source):
@@ -104,6 +104,9 @@ def read_named_ranges(xml_source, workbook):
 
         for name_node in names_root.getchildren():
             range_name = name_node.get('name')
+
+            if name_node.get("hidden", '0') == '1':
+                continue
 
             good_range = True
 

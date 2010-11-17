@@ -69,11 +69,11 @@ class ExcelWriter(object):
         archive.writestr(ARC_THEME, write_theme())
         archive.writestr(ARC_STYLE, style_writer.write_table())
         archive.writestr(ARC_WORKBOOK, write_workbook(self.workbook))
-        
+
         drawing_id = 1
         chart_id = 1
         shape_id = 1
-        
+
         for i, sheet in enumerate(self.workbook.worksheets):
             archive.writestr(PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1),
                     write_worksheet(sheet, shared_string_table,
@@ -109,11 +109,9 @@ class ExcelWriter(object):
 
     def save(self, filename):
         """Write data into the archive."""
-        try:
-            archive = ZipFile(filename, 'w', ZIP_DEFLATED)
-            self.write_data(archive)
-        finally:
-            archive.close()
+        archive = ZipFile(filename, 'w', ZIP_DEFLATED)
+        self.write_data(archive)
+        archive.close()
 
 
 def save_workbook(workbook, filename):

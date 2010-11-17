@@ -38,6 +38,7 @@ from openpyxl.shared.password_hasher import hash_password
 from openpyxl.style import Style, DEFAULTS as DEFAULTS_STYLE
 from openpyxl.drawing import Drawing
 
+_DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
 class Relationship(object):
     """Represents many kinds of relationships."""
@@ -214,7 +215,7 @@ class Worksheet(object):
         """Delete cells that are not storing a value."""
         delete_list = [coordinate for coordinate, cell in \
             self._cells.iteritems() if (cell.value in ('', None) and \
-            hash(cell.style) == hash(DEFAULTS_STYLE))]
+            hash(cell.style) == _DEFAULTS_STYLE_HASH)]
         for coordinate in delete_list:
             del self._cells[coordinate]
 
@@ -388,6 +389,6 @@ class Worksheet(object):
 
     def add_chart(self, chart):
         """ Add a chart to the sheet """
-        
+
         chart._sheet = self
         self._charts.append(chart)

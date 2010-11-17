@@ -68,33 +68,31 @@ def absolute_coordinate(coord_string):
         return '$%s$%s' % (parts[0], parts[1])
 
 
-def column_index_from_string(column):
+def column_index_from_string(column, fast = False):
     """Convert a column letter into a column number (e.g. B -> 2)
-
-    A-Z in ASCII maps to ordinals 65-90.  By calculating the numeric
-    value of each letter in the column and left shifting by 26 (26
-    characters in the alphabet), we can find the 1-based numeric
-    representation of any Excel column name.
-
+    
     Excel only supports 1-3 letter column names from A -> ZZZ, so we
     restrict our column names to 1-3 characters, each in the range A-Z.
 
     """
-    # check that the string is between length 1 and 3
-    if not 1 <= len(column) <= 3:
-        msg = 'Column string index out of bounds: %s' % column
-        raise ColumnStringIndexException(msg)
-    # convert to ASCII numeric, subtract off 64 so that A -> 1 and Z ->
-    # 26, then check that each character is between those values
-    ordinals = [ord(char) - 64 for char in column.upper()]
-    if any(not 1 <= ordinal <= 26 for ordinal in ordinals):
+    column = column.upper()
+
+    clen = len(column)
+
+    if not fast and not all('A' <= char <= 'Z' for char in column):
         msg = 'Column string must contain only characters A-Z: got %s' % column
         raise ColumnStringIndexException(msg)
-    # reverse the list to get the least significant bit first, then
-    # left shift by powers of 26 and sum the result to get the numeric
-    # index
-    ordinals.reverse()
-    return sum(ordinal * 26 ** index for index, ordinal in enumerate(ordinals))
+
+    if clen == 1:
+        return ord(column[0]) - 64
+    elif clen == 2:
+        return ((1 + (ord(column[0]) - 65)) * 26) + (ord(column[1]) - 64)
+    elif clen == 3:
+        return ((1 + (ord(column[0]) - 65)) * 676) + ((1 + (ord(column[1]) - 65)) * 26) + (ord(column[2]) - 64);
+    elif clen > 3:
+        raise ColumnStringIndexException('Column string index can not be longer than 3 characters')
+    else:
+        raise ColumnStringIndexException('Column string index can not be empty')
 
 
 def get_column_letter(col_idx):
