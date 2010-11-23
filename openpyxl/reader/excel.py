@@ -39,6 +39,13 @@ from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, \
 from openpyxl.reader.worksheet import read_worksheet
 
 
+def get_sheet_ids(xml_source):
+
+    sheet_names = read_sheets_titles(xml_source)
+
+    return dict((sheet, 'sheet%d.xml' % (i + 1)) for i, sheet in enumerate(sheet_names))
+
+
 def load_workbook(filename):
     """Open the given filename and return the workbook
 

@@ -34,8 +34,30 @@ from itertools import ifilter
 from StringIO import StringIO
 
 # package imports
-from openpyxl.cell import Cell
+from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet
+
+def read_dimension(xml_source):
+
+    source = StringIO(xml_source)
+
+    it = iterparse(source)
+
+    for event, element in it:
+
+        if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}dimension':
+            ref = element.get('ref')
+
+            min_range, max_range = ref.split(':')
+            min_col, min_row = coordinate_from_string(min_range)
+            max_col, max_row = coordinate_from_string(max_range)
+
+            return min_col, min_row, max_col, max_row
+
+        else:
+            element.clear()
+
+    return None
 
 def filter_cells((event, element)):
 
