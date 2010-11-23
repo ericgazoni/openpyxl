@@ -100,7 +100,7 @@ def read_named_ranges(xml_source, workbook):
     root = fromstring(xml_source)
     names_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
             'definedNames').text)
-    if names_root:
+    if names_root is not None:
 
         for name_node in names_root.getchildren():
             range_name = name_node.get('name')
