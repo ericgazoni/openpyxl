@@ -35,22 +35,17 @@ from openpyxl.workbook import Workbook
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
 from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, \
-        read_properties_core
+        read_properties_core, get_sheet_ids
 from openpyxl.reader.worksheet import read_worksheet
 
-
-def get_sheet_ids(xml_source):
-
-    sheet_names = read_sheets_titles(xml_source)
-
-    return dict((sheet, 'sheet%d.xml' % (i + 1)) for i, sheet in enumerate(sheet_names))
-
-
-def load_workbook(filename):
+def load_workbook(filename, use_iterators = False):
     """Open the given filename and return the workbook
 
     :param filename: the path to open
     :type filename: string
+    
+    :param: use_iterators: use lazy load for cells
+    :type use_iterators: bool
 
     :rtype: :class:`openpyxl.workbook.Workbook`
 
@@ -70,10 +65,13 @@ def load_workbook(filename):
         wb.worksheets = []  # remove preset worksheet
         sheet_names = read_sheets_titles(archive.read(ARC_APP))
         for i, sheet_name in enumerate(sheet_names):
-            worksheet_path = '%s/%s' % \
-                    (PACKAGE_WORKSHEETS, 'sheet%d.xml' % (i + 1))
-            new_ws = read_worksheet(archive.read(worksheet_path),
-                    wb, sheet_name, string_table, style_table)
+            sheet_codename = 'sheet%d.xml' % (i + 1)
+            worksheet_path = '%s/%s' % (PACKAGE_WORKSHEETS, sheet_codename)
+
+            if not use_iterators:
+                new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table)
+            else:
+                new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table, filename, sheet_codename)
             wb.add_sheet(new_ws, index = i)
 
         wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)

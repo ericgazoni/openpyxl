@@ -27,19 +27,31 @@ from nose.tools import eq_, raises, assert_raises
 import os.path as osp
 from openpyxl.tests.helper import DATADIR
 from openpyxl.reader.iter_worksheet import read_worksheet
+from openpyxl.reader.excel import load_workbook
+
+workbook_name = osp.join(DATADIR, 'genuine', 'empty.xlsx')
+sheet_name = 'Sheet1 - Text'
+
+expected = [['This is cell A1 in Sheet 1', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', 'This is cell G5'], ]
 
 def test_read_fast():
 
-    workbook_name = osp.join(DATADIR, 'genuine', 'empty.xlsx')
-    sheet_name = 'Sheet1 - Text'
-
-    expected = [['This is cell A1 in Sheet 1', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', 'This is cell G5'], ]
-
     for row, expected_row in zip(read_worksheet(workbook_name, sheet_name), expected):
+
+        row_values = [x.internal_value for x in row]
+
+        eq_(row_values, expected_row)
+
+def test_read_fast_integrated():
+
+    wb = load_workbook(filename = workbook_name, use_iterators = True)
+    ws = wb.get_sheet_by_name(name = sheet_name)
+
+    for row, expected_row in zip(ws.iter_rows(), expected):
 
         row_values = [x.internal_value for x in row]
 

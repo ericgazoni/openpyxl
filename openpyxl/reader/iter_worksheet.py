@@ -31,6 +31,7 @@ from StringIO import StringIO
 from collections import namedtuple
 from functools import partial
 from itertools import ifilter, groupby
+from openpyxl.worksheet import Worksheet
 from openpyxl.cell import coordinate_from_string, get_column_letter, Cell
 from openpyxl.reader.excel import get_sheet_ids
 from openpyxl.reader.strings import read_string_table
@@ -56,6 +57,12 @@ def read_worksheet(workbook_name, sheet_name, range_string = '', row_offset = 0,
     sheet_ids = get_sheet_ids(archive.read(ARC_APP))
     sheet_name = sheet_ids[sheet_name]
 
+    return iter_rows(workbook_name, sheet_name, range_string, row_offset, column_offset)
+
+def iter_rows(workbook_name, sheet_name, range_string = '', row_offset = 0, column_offset = 0):
+
+    archive = get_archive_file(workbook_name)
+
     source = get_xml_source(archive, sheet_name)
 
     if range_string:
@@ -75,10 +82,7 @@ def read_worksheet(workbook_name, sheet_name, range_string = '', row_offset = 0,
 
     p = iterparse(StringIO(source))
 
-    for row in get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table):
-
-        yield row
-
+    return get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table)
 
 def filter_cells(min_row, min_col, max_row, max_col, (event, element)): #pylint: disable-msg=W0613
 
@@ -98,9 +102,7 @@ def filter_cells(min_row, min_col, max_row, max_col, (event, element)): #pylint:
 
 def get_rows(p, min_column = MIN_COLUMN, min_row = MIN_ROW, max_column = MAX_COLUMN, max_row = MAX_ROW):
 
-    for row, cells in groupby(get_cells(p, min_row, min_column, max_row, max_column), lambda x: x.row):
-
-        yield row, cells
+    return groupby(get_cells(p, min_row, min_column, max_row, max_column), lambda x: x.row)
 
 def get_cells(p, min_row, min_col, max_row, max_col):
 
@@ -202,3 +204,30 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
         current_row = row + 1
 
         yield tuple(full_row)
+
+#------------------------------------------------------------------------------ 
+
+class IterableWorksheet(Worksheet):
+
+    def __init__(self, parent_workbook, title, workbook_name, sheet_codename):
+
+        Worksheet.__init__(self, parent_workbook, title)
+        self._workbook_name = workbook_name
+        self._sheet_codename = sheet_codename
+
+    def iter_rows(self, range_string = '', row_offset = 0, column_offset = 0):
+
+        for row in iter_rows(workbook_name = self._workbook_name,
+                             sheet_name = self._sheet_codename,
+                             range_string = range_string,
+                             row_offset = row_offset,
+                             column_offset = column_offset):
+            yield row
+
+    def cell(self, *args, **kwargs):
+
+        raise NotImplementedError("use 'iter_rows()' instead")
+
+    def range(self, *args, **kwargs):
+
+        raise NotImplementedError("use 'iter_rows()' instead")

@@ -89,9 +89,14 @@ def fast_parse(ws, xml_source, string_table, style_table):
         # to avoid memory exhaustion, clear the item after use
         element.clear()
 
-def read_worksheet(xml_source, parent, preset_title,
-        string_table, style_table):
+from openpyxl.reader.iter_worksheet import IterableWorksheet
+
+def read_worksheet(xml_source, parent, preset_title, string_table,
+                   style_table, workbook_name = None, sheet_codename = None):
     """Read an xml worksheet"""
-    ws = Worksheet(parent, preset_title)
-    fast_parse(ws, xml_source, string_table, style_table)
+    if workbook_name and sheet_codename:
+        ws = IterableWorksheet(parent, preset_title, workbook_name, sheet_codename)
+    else:
+        ws = Worksheet(parent, preset_title)
+        fast_parse(ws, xml_source, string_table, style_table)
     return ws
