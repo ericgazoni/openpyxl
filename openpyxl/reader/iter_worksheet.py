@@ -217,12 +217,11 @@ class IterableWorksheet(Worksheet):
 
     def iter_rows(self, range_string = '', row_offset = 0, column_offset = 0):
 
-        for row in iter_rows(workbook_name = self._workbook_name,
-                             sheet_name = self._sheet_codename,
-                             range_string = range_string,
-                             row_offset = row_offset,
-                             column_offset = column_offset):
-            yield row
+        return iter_rows(workbook_name = self._workbook_name,
+                         sheet_name = self._sheet_codename,
+                         range_string = range_string,
+                         row_offset = row_offset,
+                         column_offset = column_offset)
 
     def cell(self, *args, **kwargs):
 
