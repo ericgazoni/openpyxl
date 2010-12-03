@@ -53,6 +53,11 @@ def test_read_string_table():
     string_table = read_string_table(content)
     eq_({0: 'This is cell A1 in Sheet 1', 1: 'This is cell G5'}, string_table)
 
+def test_empty_string():
+     with open(os.path.join(DATADIR, 'reader', 'sharedStrings-emptystring.xml')) as handle:
+        content = handle.read()   
+     string_table = read_string_table(content)
+     eq_({0: 'Testing empty cell', 1:''}, string_table)
 
 def test_formatted_string_table():
     with open(os.path.join(DATADIR, 'reader', 'shared-strings-rich.xml')) \

@@ -57,7 +57,8 @@ def get_string(xmlns, string_index_node):
 def get_text(xmlns, rich_node):
     """Read rich text, discarding formatting if not disallowed"""
     text_node = rich_node.find(QName(xmlns, 't').text)
-    partial_text = text_node.text
+    partial_text = text_node.text  or ''
+
     if text_node.get(QName(NAMESPACES['xml'], 'space').text) != 'preserve':
         partial_text = partial_text.strip()
     return partial_text
