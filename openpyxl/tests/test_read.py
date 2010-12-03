@@ -61,6 +61,11 @@ def test_read_standard_workbook():
     wb = load_workbook(path)
     assert isinstance(wb, Workbook)
 
+def test_read_standard_workbook_from_fileobj():
+    path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
+    fo = open(path, mode = 'rb')
+    wb = load_workbook(fo)
+    assert isinstance(wb, Workbook)
 
 def test_read_worksheet():
     path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
