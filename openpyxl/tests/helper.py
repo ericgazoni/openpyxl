@@ -51,10 +51,10 @@ def make_tmpdir():
 
 def clean_tmpdir():
     if os.path.isdir(TMPDIR):
-        shutil.rmtree(TMPDIR, ignore_errors=True)
+        shutil.rmtree(TMPDIR, ignore_errors = True)
 
 
-def assert_equals_file_content(reference_file, fixture, filetype='xml'):
+def assert_equals_file_content(reference_file, fixture, filetype = 'xml'):
     if os.path.isfile(fixture):
         with open(fixture) as fixture_file:
             fixture_content = fixture_file.read()
@@ -83,13 +83,13 @@ def assert_equals_file_content(reference_file, fixture, filetype='xml'):
     differences = list(difflib.unified_diff(expected_lines, fixture_lines))
     if differences:
         temp = StringIO()
-        pprint(differences, stream=temp)
+        pprint(differences, stream = temp)
         assert False, 'Differences found : %s' % temp.getvalue()
 
 def get_xml(xml_node):
-        
+
     io = StringIO()
-    ElementTree(xml_node).write(file=io, encoding='UTF-8')
+    ElementTree(xml_node).write(io, encoding = 'UTF-8')
     ret = io.getvalue()
     io.close()
-    return ret.replace('\n','')
+    return ret.replace('\n', '')
