@@ -220,7 +220,7 @@ class Worksheet(object):
             del self._cells[coordinate]
 
     def get_cell_collection(self):
-        """Return a list of values in cells in this worksheet."""
+        """Return an unordered list of the cells in this worksheet."""
         return self._cells.values()
 
     def _set_title(self, value):
@@ -247,14 +247,14 @@ class Worksheet(object):
         """Return the title for this sheet."""
         return self._title
 
-    title = property(_get_title, _set_title,
-            'Get or set the title of the worksheet.  '
-            'Limited to 31 characters, no special characters.')
+    title = property(_get_title, _set_title, doc =
+                     'Get or set the title of the worksheet. '
+                     'Limited to 31 characters, no special characters.')
 
     def cell(self, coordinate = None, row = None, column = None):
         """Returns a cell object based on the given coordinates.
 
-        Usage: cell(coodinate='A15') *or* cell(row=15, column=1)
+        Usage: cell(coodinate='A15') **or** cell(row=15, column=1)
 
         If `coordinates` are not given, then row *and* column must be given.
 
@@ -271,8 +271,7 @@ class Worksheet(object):
         :param column: column index of the cell (e.g. 3)
         :type column: int
 
-        :raise: InsufficientCoordinatesException when coordinate or
-        (row and column) are not given
+        :raise: InsufficientCoordinatesException when coordinate or (row and column) are not given
 
         :rtype: :class:`openpyxl.cell.Cell`
 
@@ -392,3 +391,44 @@ class Worksheet(object):
 
         chart._sheet = self
         self._charts.append(chart)
+
+    def append(self, list_or_dict):
+        """Appends a group of values at the bottom of the current sheet.
+        
+        * If it's a list: all values are added in order, starting from the first column
+        * If it's a dict: values are assigned to the columns indicated by the keys (numbers or letters)
+        
+        :param list_or_dict: list or dict containing values to append
+        :type list_or_dict: list/tuple or dict
+        
+        Usage:
+        
+        * append(['This is A1', 'This is B1', 'This is C1'])
+        * **or** append({'A' : 'This is A1', 'C' : 'This is C1'})
+        * **or** append({0 : 'This is A1', 2 : 'This is C1'})
+        
+        :raise: TypeError when list_or_dict is neither a list/tuple nor a dict
+        
+        """
+
+        row_idx = self.get_highest_row() - 1
+
+        if isinstance(list_or_dict, (list, tuple)):
+
+            for col_idx, content in enumerate(list_or_dict):
+
+                self.cell(row = row_idx, column = col_idx).value = content
+
+        elif isinstance(list_or_dict, dict):
+
+            for col_idx, content in list_or_dict.iteritems():
+
+                if isinstance(col_idx, basestring):
+                    col_idx = column_index_from_string(col_idx) - 1
+
+                self.cell(row = row_idx, column = col_idx).value = content
+
+        else:
+            raise TypeError('list_or_dict must be a list or a dict')
+
+

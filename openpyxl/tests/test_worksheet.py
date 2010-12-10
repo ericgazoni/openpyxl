@@ -47,7 +47,7 @@ class TestWorksheet():
 
     def test_new_sheet_name(self):
         self.wb.worksheets = []
-        ws = Worksheet(self.wb, title='')
+        ws = Worksheet(self.wb, title = '')
         eq_(repr(ws), '<Worksheet "Sheet1">')
 
     def test_get_cell(self):
@@ -114,13 +114,13 @@ class TestWorksheet():
 
     def test_cell_alternate_coordinates(self):
         ws = Worksheet(self.wb)
-        cell = ws.cell(row=8, column=4)
+        cell = ws.cell(row = 8, column = 4)
         eq_('E9', cell.get_coordinate())
 
     @raises(InsufficientCoordinatesException)
     def test_cell_insufficient_coordinates(self):
         ws = Worksheet(self.wb)
-        cell = ws.cell(row=8)
+        cell = ws.cell(row = 8)
 
     def test_cell_range_name(self):
         ws = Worksheet(self.wb)
@@ -161,3 +161,33 @@ class TestWorksheet():
     @raises(ValueError)
     def test_bad_relationship_type(self):
         rel = Relationship('bad_type')
+
+    def test_append_list(self):
+        ws = Worksheet(self.wb)
+
+        ws.append(['This is A1', 'This is B1'])
+
+        eq_('This is A1', ws.cell('A1').value)
+        eq_('This is B1', ws.cell('B1').value)
+
+    def test_append_dict_letter(self):
+        ws = Worksheet(self.wb)
+
+        ws.append({'A' : 'This is A1', 'C' : 'This is C1'})
+
+        eq_('This is A1', ws.cell('A1').value)
+        eq_('This is C1', ws.cell('C1').value)
+
+    def test_append_dict_index(self):
+        ws = Worksheet(self.wb)
+
+        ws.append({0 : 'This is A1', 2 : 'This is C1'})
+
+        eq_('This is A1', ws.cell('A1').value)
+        eq_('This is C1', ws.cell('C1').value)
+
+    @raises(TypeError)
+    def test_bad_append(self):
+        ws = Worksheet(self.wb)
+        ws.append("test")
+
