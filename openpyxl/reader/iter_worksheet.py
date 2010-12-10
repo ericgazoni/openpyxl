@@ -216,6 +216,21 @@ class IterableWorksheet(Worksheet):
         self._sheet_codename = sheet_codename
 
     def iter_rows(self, range_string = '', row_offset = 0, column_offset = 0):
+        """ Returns a squared range based on the `range_string` parameter, 
+        using generators.
+        
+        :param range_string: range of cells (e.g. 'A1:C4')
+        :type range_string: string
+        
+        :param row: row index of the cell (e.g. 4)
+        :type row: int
+
+        :param column: column index of the cell (e.g. 3)
+        :type column: int
+        
+        :rtype: generator
+        
+        """
 
         return iter_rows(workbook_name = self._workbook_name,
                          sheet_name = self._sheet_codename,

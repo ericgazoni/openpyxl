@@ -45,10 +45,14 @@ def load_workbook(filename, use_iterators = False):
     :param filename: the path to open
     :type filename: string
     
-    :param: use_iterators: use lazy load for cells
+    :param use_iterators: use lazy load for cells
     :type use_iterators: bool
 
     :rtype: :class:`openpyxl.workbook.Workbook`
+    
+    .. note::
+        
+        Lazy load is currently experimental and only returns values as strings
 
     """
 
