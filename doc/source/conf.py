@@ -21,7 +21,7 @@ import os.path as osp
 #sys.path.insert(0, os.path.abspath('.'))
 
 up = osp.dirname
-sys.path.insert(0, osp.abspath(osp.join(up(up(os.getcwd())), 'src')))
+sys.path.insert(0, osp.abspath(osp.join(up(up(os.getcwd())), '.')))
 
 import openpyxl
 

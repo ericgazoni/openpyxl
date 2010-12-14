@@ -295,7 +295,10 @@ class Worksheet(object):
         return self._cells[coordinate]
 
     def get_highest_row(self):
-        """Returns the maximum row index containing data"""
+        """Returns the maximum row index containing data
+        
+        :rtype: int
+        """
         max_row = 1
         for row_dim in self.row_dimensions.values():
             if row_dim.row_index > max_row:
@@ -303,7 +306,10 @@ class Worksheet(object):
         return max_row
 
     def get_highest_column(self):
-        """Get the largest value for column currently stored."""
+        """Get the largest value for column currently stored.
+        
+        :rtype: int
+        """
         max_col = 1
         for col_dim in self.column_dimensions.values():
             col_index = column_index_from_string(col_dim.column_index)

@@ -11,7 +11,7 @@ Module :mod:`openpyxl.worksheet` -- Worksheet
    	:members:
    	
 Module :mod:`openpyxl.reader.iter_worksheet` -- Iterable Worksheet
-=============================================================
+==================================================================
 
 .. autoclass:: openpyxl.reader.iter_worksheet.IterableWorksheet
     :members:
