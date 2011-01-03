@@ -46,3 +46,6 @@ class InsufficientCoordinatesException(Exception):
 
 class OpenModeError(Exception):
     """Error for fileobj opened in non-binary mode."""
+
+class InvalidFileException(Exception):
+    """Error for trying to open a non-ooxml file."""

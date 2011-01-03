@@ -28,7 +28,7 @@ from __future__ import with_statement
 import os.path
 
 # 3rd party imports
-from nose.tools import eq_
+from nose.tools import eq_, raises
 
 # package imports
 from openpyxl.tests.helper import DATADIR
@@ -37,6 +37,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.style import NumberFormat, Style
 from openpyxl.reader.worksheet import read_worksheet, read_dimension
 from openpyxl.reader.excel import load_workbook
+from openpyxl.shared.exc import InvalidFileException
 
 
 def test_read_standalone_worksheet():
@@ -80,6 +81,18 @@ def test_read_nostring_workbook():
     genuine_wb = os.path.join(DATADIR, 'genuine', 'empty-no-string.xlsx')
     wb = load_workbook(genuine_wb)
     assert isinstance(wb, Workbook)
+
+@raises(InvalidFileException)
+def test_read_empty_file():
+
+    null_file = os.path.join(DATADIR, 'reader', 'null_file.xlsx')
+    wb = load_workbook(null_file)
+
+@raises(InvalidFileException)
+def test_read_empty_archive():
+
+    null_file = os.path.join(DATADIR, 'reader', 'null_archive.xlsx')
+    wb = load_workbook(null_file)
 
 def test_read_dimension():
 

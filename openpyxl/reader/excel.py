@@ -26,10 +26,10 @@
 """Read an xlsx file into Python"""
 
 # Python stdlib imports
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 
 # package imports
-from openpyxl.shared.exc import OpenModeError
+from openpyxl.shared.exc import OpenModeError, InvalidFileException
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, \
         ARC_WORKBOOK, PACKAGE_WORKSHEETS, ARC_STYLE
 from openpyxl.workbook import Workbook
@@ -62,7 +62,10 @@ def load_workbook(filename, use_iterators = False):
         if filename.mode != 'rb':
             raise OpenModeError("File-object must be opened with 'rb' flag")
 
-    archive = ZipFile(filename, 'r', ZIP_DEFLATED)
+    try:
+        archive = ZipFile(filename, 'r', ZIP_DEFLATED)
+    except (BadZipfile, RuntimeError, IOError), e:
+        raise InvalidFileException(unicode(e))
     wb = Workbook()
     try:
         # get workbook-level information
@@ -87,6 +90,8 @@ def load_workbook(filename, use_iterators = False):
             wb.add_sheet(new_ws, index = i)
 
         wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
+    except Exception, e:
+        raise InvalidFileException(unicode(e))
     finally:
         archive.close()
     return wb
