@@ -65,7 +65,6 @@ def assert_equals_file_content(reference_file, fixture, filetype = 'xml'):
         expected_content = expected_file.read()
 
     if filetype == 'xml':
-        print fixture_content
         fixture_content = fromstring(fixture_content)
         pretty_indent(fixture_content)
         temp = StringIO()
