@@ -59,8 +59,8 @@ def load_workbook(filename, use_iterators = False):
     if isinstance(filename, file):
         # fileobject must have been opened with 'rb' flag
         # it is required by zipfile
-        if filename.mode != 'rb':
-            raise OpenModeError("File-object must be opened with 'rb' flag")
+        if 'b' not in filename.mode:
+            raise OpenModeError("File-object must be opened in binary mode")
 
     try:
         archive = ZipFile(filename, 'r', ZIP_DEFLATED)
