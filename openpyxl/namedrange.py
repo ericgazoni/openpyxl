@@ -36,16 +36,15 @@ NAMED_RANGE_RE = re.compile("'?([^']*)'?!((\$([A-Za-z]+))?\$([0-9]+)(:(\$([A-Za-
 
 class NamedRange(object):
     """A named group of cells"""
-    __slots__ = ('name', 'worksheet', 'range', 'local_only')
+    __slots__ = ('name', 'destinations', 'local_only')
 
-    def __init__(self, name, worksheet, range):
+    def __init__(self, name, destinations):
         self.name = name
-        self.worksheet = worksheet
-        self.range = range
+        self.destinations = destinations
         self.local_only = False
 
     def __str__(self):
-        return u'%s!%s' % (self.worksheet.title, self.range)
+        return  ','.join([u'%s!%s' % (sheet, name) for sheet, name in self.destinations])
 
     def __repr__(self):
 
@@ -54,9 +53,16 @@ class NamedRange(object):
 
 def split_named_range(range_string):
     """Separate a named range into its component parts"""
-    match = NAMED_RANGE_RE.match(range_string)
-    if not match:
-        raise NamedRangeException('Invalid named range string: "%s"' % range_string)
-    else:
-        sheet_name, xlrange = match.groups()[:2]
-        return sheet_name, xlrange
+
+    destinations = []
+
+    for range_string in range_string.split(','):
+
+        match = NAMED_RANGE_RE.match(range_string)
+        if not match:
+            raise NamedRangeException('Invalid named range string: "%s"' % range_string)
+        else:
+            sheet_name, xlrange = match.groups()[:2]
+            destinations.append((sheet_name, xlrange))
+
+    return destinations

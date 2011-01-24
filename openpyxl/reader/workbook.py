@@ -111,6 +111,8 @@ def read_named_ranges(xml_source, workbook):
         for name_node in names_root.getchildren():
             range_name = name_node.get('name')
 
+            destinations = split_named_range(name_node.text)
+
             if name_node.get("hidden", '0') == '1':
                 continue
 
@@ -122,16 +124,19 @@ def read_named_ranges(xml_source, workbook):
                 if bad_range in name_node.text:
                     continue
 
-            worksheet_name, xlrange = split_named_range(name_node.text)
-            worksheet = workbook.get_sheet_by_name(worksheet_name)
+            new_destinations = []
+            for worksheet, cells_range in destinations:
 
-            # it can happen that a valid named range references
-            # a missing worksheet, when Excel didn't properly maintain
-            # the named range list
-            #
-            # we just ignore them here
-            if worksheet:
-                named_range = NamedRange(range_name, worksheet, xlrange)
-                named_ranges.append(named_range)
+                # it can happen that a valid named range references
+                # a missing worksheet, when Excel didn't properly maintain
+                # the named range list
+                #
+                # we just ignore them here
+                worksheet = workbook.get_sheet_by_name(worksheet)
+                if worksheet:
+                    new_destinations.append((worksheet, cells_range))
+
+            named_range = NamedRange(range_name, new_destinations)
+            named_ranges.append(named_range)
 
     return named_ranges

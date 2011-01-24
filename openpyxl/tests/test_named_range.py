@@ -35,14 +35,15 @@ from openpyxl.tests.helper import DATADIR
 from openpyxl.namedrange import split_named_range
 from openpyxl.reader.workbook import read_named_ranges
 from openpyxl.shared.exc import NamedRangeException
+from openpyxl.reader.excel import load_workbook
 
 
 def test_split():
-    eq_(('My Sheet', '$D$8'), split_named_range("'My Sheet'!$D$8"))
+    eq_([('My Sheet', '$D$8'), ], split_named_range("'My Sheet'!$D$8"))
 
 
 def test_split_no_quotes():
-    eq_(('HYPOTHESES', '$B$3:$L$3'), split_named_range('HYPOTHESES!$B$3:$L$3'))
+    eq_([('HYPOTHESES', '$B$3:$L$3'), ], split_named_range('HYPOTHESES!$B$3:$L$3'))
 
 
 def test_bad_range_name():
@@ -54,6 +55,9 @@ def test_read_named_ranges():
     class DummyWs(object):
         title = 'My Sheeet'
 
+        def __str__(self):
+            return self.title
+
     class DummyWB(object):
 
         def get_sheet_by_name(self, name):
@@ -63,3 +67,32 @@ def test_read_named_ranges():
         content = handle.read()
     named_ranges = read_named_ranges(content, DummyWB())
     eq_(["My Sheeet!$D$8"], [str(range) for range in named_ranges])
+
+def test_oddly_shaped_named_ranges():
+
+    ranges_counts = ((4, 'TEST_RANGE'),
+                     (3, 'TRAP_1'),
+                     (13, 'TRAP_2'))
+
+    def check_ranges(ws, count, range_name):
+
+        eq_(count, len(ws.range(range_name)))
+
+    wb = load_workbook(os.path.join(DATADIR, 'genuine', 'merge_range.xlsx'),
+                       use_iterators = False)
+
+    ws = wb.worksheets[0]
+
+    for count, range_name in ranges_counts:
+
+        yield check_ranges, ws, count, range_name
+
+
+def test_merged_cells_named_range():
+
+    wb = load_workbook(os.path.join(DATADIR, 'genuine', 'merge_range.xlsx'),
+                       use_iterators = False)
+
+    ws = wb.worksheets[0]
+
+    eq_('B15', ws.range('TRAP_3').get_coordinate())

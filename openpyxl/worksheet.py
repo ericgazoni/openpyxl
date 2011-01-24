@@ -367,16 +367,35 @@ class Worksheet(object):
                         column = column)
             except CellCoordinatesException:
                 pass
+
             # named range
             named_range = self._parent.get_named_range(range_string)
             if named_range is None:
                 msg = '%s is not a valid range name' % range_string
                 raise NamedRangeException(msg)
-            if named_range.worksheet is not self:
-                msg = 'Range %s is not defined on worksheet %s' % \
-                        (range_string, self.title)
-                raise NamedRangeException(msg)
-            return self.cell(named_range.range)
+
+            result = []
+            for destination in named_range.destinations:
+
+                worksheet, cells_range = destination
+
+                if worksheet is not self:
+                    msg = 'Range %s is not defined on worksheet %s' % \
+                            (cells_range, self.title)
+                    raise NamedRangeException(msg)
+
+                content = self.range(cells_range)
+
+                if isinstance(content, tuple):
+                    for cells in content:
+                        result.extend(cells)
+                else:
+                    result.append(content)
+
+            if len(result) == 1:
+                return result[0]
+            else:
+                return result
 
     def get_style(self, coordinate):
         """Return the style object for the specified cell."""

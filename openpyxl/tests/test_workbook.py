@@ -83,7 +83,7 @@ def test_get_named_ranges():
 def test_add_named_range():
     wb = Workbook()
     new_sheet = wb.create_sheet()
-    named_range = NamedRange('test_nr', new_sheet, 'A1')
+    named_range = NamedRange('test_nr', [(new_sheet, 'A1')])
     wb.add_named_range(named_range)
     named_ranges_list = wb.get_named_ranges()
     assert named_range in named_ranges_list
@@ -92,7 +92,7 @@ def test_add_named_range():
 def test_get_named_range():
     wb = Workbook()
     new_sheet = wb.create_sheet()
-    named_range = NamedRange('test_nr', new_sheet, 'A1')
+    named_range = NamedRange('test_nr', [(new_sheet, 'A1')])
     wb.add_named_range(named_range)
     found_named_range = wb.get_named_range('test_nr')
     eq_(named_range, found_named_range)
@@ -101,7 +101,7 @@ def test_get_named_range():
 def test_remove_named_range():
     wb = Workbook()
     new_sheet = wb.create_sheet()
-    named_range = NamedRange('test_nr', new_sheet, 'A1')
+    named_range = NamedRange('test_nr', [(new_sheet, 'A1')])
     wb.add_named_range(named_range)
     wb.remove_named_range(named_range)
     named_ranges_list = wb.get_named_ranges()

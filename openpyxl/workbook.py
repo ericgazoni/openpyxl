@@ -80,18 +80,18 @@ class Workbook(object):
         """Returns the current active sheet."""
         return self.worksheets[self._active_sheet_index]
 
-    def create_sheet(self, index=None):
+    def create_sheet(self, index = None):
         """Create a worksheet (at an optional index).
 
         :param index: optional position at which the sheet will be inserted
         :type index: int
 
         """
-        new_ws = Worksheet(parent_workbook=self)
-        self.add_sheet(worksheet=new_ws, index=index)
+        new_ws = Worksheet(parent_workbook = self)
+        self.add_sheet(worksheet = new_ws, index = index)
         return new_ws
 
-    def add_sheet(self, worksheet, index=None):
+    def add_sheet(self, worksheet, index = None):
         """Add an existing worksheet (at an optional index)."""
         if index is None:
             index = len(self.worksheets)
@@ -133,7 +133,8 @@ class Workbook(object):
 
     def create_named_range(self, name, worksheet, range):
         """Create a new named_range on a worksheet"""
-        named_range = NamedRange(name, worksheet, range)
+        assert isinstance(worksheet, Worksheet)
+        named_range = NamedRange(name, [(worksheet, range)])
         self.add_named_range(named_range)
 
     def get_named_ranges(self):
