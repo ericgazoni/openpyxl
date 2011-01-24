@@ -395,7 +395,7 @@ class Worksheet(object):
             if len(result) == 1:
                 return result[0]
             else:
-                return result
+                return tuple(result)
 
     def get_style(self, coordinate):
         """Return the style object for the specified cell."""
