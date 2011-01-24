@@ -28,7 +28,7 @@ from nose.tools import eq_, raises, assert_raises
 
 # package imports
 from openpyxl.workbook import Workbook
-from openpyxl.worksheet import Worksheet, Relationship
+from openpyxl.worksheet import Worksheet, Relationship, flatten
 from openpyxl.cell import Cell
 from openpyxl.shared.exc import CellCoordinatesException, \
         SheetTitleException, InsufficientCoordinatesException, \
@@ -191,3 +191,12 @@ class TestWorksheet():
         ws = Worksheet(self.wb)
         ws.append("test")
 
+
+    def test_append_list(self):
+        ws = Worksheet(self.wb)
+
+        ws.append(['This is A1', 'This is B1'])
+
+        vals = ws.range('A1:B1')
+
+        eq_((('This is A1', 'This is B1'),), flatten(vals))

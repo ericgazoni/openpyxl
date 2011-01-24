@@ -40,6 +40,23 @@ from openpyxl.drawing import Drawing
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
+def flatten(results):
+
+    rows = []
+
+    for row in results:
+
+        cells = []
+
+        for cell in row:
+
+            cells.append(cell.value)
+
+        rows.append(tuple(cells))
+
+    return tuple(rows)
+
+
 class Relationship(object):
     """Represents many kinds of relationships."""
     # TODO: Use this object for workbook relationships as well as
