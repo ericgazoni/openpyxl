@@ -114,29 +114,24 @@ def read_named_ranges(xml_source, workbook):
             if name_node.get("hidden", '0') == '1':
                 continue
 
-            good_range = True
-
             for discarded_range in DISCARDED_RANGES:
                 if discarded_range in range_name:
-                    good_range = False
-                    break
+                    continue
 
             for bad_range in BUGGY_NAMED_RANGES:
                 if bad_range in name_node.text:
-                    good_range = False
-                    break
+                    continue
 
-            if good_range:
-                worksheet_name, xlrange = split_named_range(name_node.text)
-                worksheet = workbook.get_sheet_by_name(worksheet_name)
+            worksheet_name, xlrange = split_named_range(name_node.text)
+            worksheet = workbook.get_sheet_by_name(worksheet_name)
 
-                # it can happen that a valid named range references
-                # a missing worksheet, when Excel didn't properly maintain
-                # the named range list
-                #
-                # we just ignore them here
-                if worksheet:
-                    named_range = NamedRange(range_name, worksheet, xlrange)
-                    named_ranges.append(named_range)
+            # it can happen that a valid named range references
+            # a missing worksheet, when Excel didn't properly maintain
+            # the named range list
+            #
+            # we just ignore them here
+            if worksheet:
+                named_range = NamedRange(range_name, worksheet, xlrange)
+                named_ranges.append(named_range)
 
     return named_ranges
