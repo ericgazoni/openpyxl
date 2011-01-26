@@ -24,11 +24,13 @@
 # @author: Eric Gazoni
 
 # 3rd party imports
-from nose.tools import eq_
+from nose.tools import eq_, with_setup, raises
+import os.path as osp
 
 # package imports
 from openpyxl.workbook import Workbook
 from openpyxl.namedrange import NamedRange
+from openpyxl.tests.helper import TMPDIR, clean_tmpdir, make_tmpdir
 
 
 def test_get_active_sheet():
@@ -106,3 +108,13 @@ def test_remove_named_range():
     wb.remove_named_range(named_range)
     named_ranges_list = wb.get_named_ranges()
     assert named_range not in named_ranges_list
+
+@with_setup(setup = make_tmpdir, teardown = clean_tmpdir)
+def test_add_local_named_range():
+    wb = Workbook()
+    new_sheet = wb.create_sheet()
+    named_range = NamedRange('test_nr', [(new_sheet, 'A1')])
+    named_range.local_only = True
+    wb.add_named_range(named_range)
+    dest_filename = osp.join(TMPDIR, 'local_named_range_book.xlsx')
+    wb.save(dest_filename)
