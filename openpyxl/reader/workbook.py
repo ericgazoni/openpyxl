@@ -111,8 +111,6 @@ def read_named_ranges(xml_source, workbook):
         for name_node in names_root.getchildren():
             range_name = name_node.get('name')
 
-            destinations = split_named_range(name_node.text)
-
             if name_node.get("hidden", '0') == '1':
                 continue
 
@@ -123,6 +121,8 @@ def read_named_ranges(xml_source, workbook):
             for bad_range in BUGGY_NAMED_RANGES:
                 if bad_range in name_node.text:
                     continue
+
+            destinations = split_named_range(name_node.text)
 
             new_destinations = []
             for worksheet, cells_range in destinations:
