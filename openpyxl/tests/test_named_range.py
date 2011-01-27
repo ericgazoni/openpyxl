@@ -95,4 +95,8 @@ def test_merged_cells_named_range():
 
     ws = wb.worksheets[0]
 
-    eq_('B15', ws.range('TRAP_3').get_coordinate())
+    cell = ws.range('TRAP_3')
+
+    eq_('B15', cell.get_coordinate())
+
+    eq_(10, cell.value)

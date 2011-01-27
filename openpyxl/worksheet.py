@@ -300,6 +300,8 @@ class Worksheet(object):
                 raise InsufficientCoordinatesException(msg)
             else:
                 coordinate = '%s%s' % (get_column_letter(column + 1), row + 1)
+        else:
+            coordinate = coordinate.replace('$', '')
 
         if not coordinate in self._cells:
             column, row = coordinate_from_string(coordinate)
