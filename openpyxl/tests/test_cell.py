@@ -174,3 +174,13 @@ def test_repr():
     ws = Worksheet(wb)
     cell = Cell(ws, 'A', 1)
     eq_(repr(cell), '<Cell Sheet1.A1>', 'Got bad repr: %s' % repr(cell))
+
+def test_is_date():
+    wb = Workbook()
+    ws = Worksheet(wb)
+    cell = Cell(ws, 'A', 1)
+    cell.value = datetime.now()
+    eq_(cell.is_date(), True)
+    cell.value = 'testme'
+    eq_('testme', cell.value)
+    eq_(cell.is_date(), False)

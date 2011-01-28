@@ -280,8 +280,7 @@ class Cell(object):
     def _get_value(self):
         """Return the value, formatted as a date if needed"""
         value = self._value
-        if (self.has_style and self.style.number_format.is_date_format()
-                and isinstance(value, (int, float))):
+        if self.is_date():
             value = SharedDate().from_julian(value)
         return value
 
@@ -362,3 +361,12 @@ class Cell(object):
                 column = self.column) + column)
         offset_row = self.row + row
         return self.parent.cell('%s%s' % (offset_column, offset_row))
+
+    def is_date(self):
+        """Returns whether the value is *probably* a date or not
+        
+        :rtype: bool
+        """
+        return (self.has_style
+                and self.style.number_format.is_date_format()
+                and isinstance(self._value, (int, float)))
