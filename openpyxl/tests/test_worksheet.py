@@ -191,12 +191,14 @@ class TestWorksheet():
         ws = Worksheet(self.wb)
         ws.append("test")
 
-
     def test_append_list(self):
+
         ws = Worksheet(self.wb)
 
         ws.append(['This is A1', 'This is B1'])
+        ws.append(['This is A2', 'This is B2'])
 
-        vals = ws.range('A1:B1')
+        vals = ws.range('A1:B2')
 
-        eq_((('This is A1', 'This is B1'),), flatten(vals))
+        eq_((('This is A1', 'This is B1'),
+             ('This is A2', 'This is B2'),), flatten(vals))

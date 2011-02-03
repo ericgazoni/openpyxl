@@ -318,23 +318,21 @@ class Worksheet(object):
         
         :rtype: int
         """
-        max_row = 1
-        for row_dim in self.row_dimensions.values():
-            if row_dim.row_index > max_row:
-                max_row = row_dim.row_index
-        return max_row
+        if self.row_dimensions:
+            return max(self.row_dimensions.keys())
+        else:
+            return 1
 
     def get_highest_column(self):
         """Get the largest value for column currently stored.
         
         :rtype: int
         """
-        max_col = 1
-        for col_dim in self.column_dimensions.values():
-            col_index = column_index_from_string(col_dim.column_index)
-            if col_index > max_col:
-                max_col = col_index
-        return max_col
+        if self.column_dimensions:
+            return max([column_index_from_string(column_index)
+                            for column_index in self.column_dimensions])
+        else:
+            return 1
 
     def calculate_dimension(self):
         """Return the minimum bounding range for all cells containing data."""
@@ -455,7 +453,7 @@ class Worksheet(object):
         
         """
 
-        row_idx = self.get_highest_row() - 1
+        row_idx = len(self.row_dimensions)
 
         if isinstance(list_or_dict, (list, tuple)):
 

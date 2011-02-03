@@ -73,6 +73,10 @@ def column_index_from_string(column, fast = False):
     
     Excel only supports 1-3 letter column names from A -> ZZZ, so we
     restrict our column names to 1-3 characters, each in the range A-Z.
+    
+    .. note::
+    
+        Fast mode is faster but does not check that all letters are capitals between A and Z
 
     """
     column = column.upper()
@@ -88,7 +92,7 @@ def column_index_from_string(column, fast = False):
     elif clen == 2:
         return ((1 + (ord(column[0]) - 65)) * 26) + (ord(column[1]) - 64)
     elif clen == 3:
-        return ((1 + (ord(column[0]) - 65)) * 676) + ((1 + (ord(column[1]) - 65)) * 26) + (ord(column[2]) - 64);
+        return ((1 + (ord(column[0]) - 65)) * 676) + ((1 + (ord(column[1]) - 65)) * 26) + (ord(column[2]) - 64)
     elif clen > 3:
         raise ColumnStringIndexException('Column string index can not be longer than 3 characters')
     else:
@@ -251,13 +255,13 @@ class Cell(object):
             # time detection
             time_search = self.RE_PATTERNS['time'].match(value)
             if time_search:
-                sep_count = value.count(':')
+                sep_count = value.count(':') #pylint: disable-msg=E1103
                 if sep_count == 1:
-                    hours, minutes = [int(bit) for bit in value.split(':')]
+                    hours, minutes = [int(bit) for bit in value.split(':')] #pylint: disable-msg=E1103
                     seconds = 0
                 elif sep_count == 2:
                     hours, minutes, seconds = \
-                            [int(bit) for bit in value.split(':')]
+                            [int(bit) for bit in value.split(':')] #pylint: disable-msg=E1103
                 days = (hours / 24.0) + (minutes / 1440.0) + \
                         (seconds / 86400.0)
                 self.set_value_explicit(days, self.TYPE_NUMERIC)
@@ -327,7 +331,7 @@ class Cell(object):
     @property
     def has_style(self):
         """Check if the parent worksheet has a style for this cell"""
-        return self.get_coordinate() in self.parent._styles
+        return self.get_coordinate() in self.parent._styles #pylint: disable-msg=W0212
 
     @property
     def style(self):
