@@ -303,6 +303,10 @@ class Worksheet(object):
         else:
             coordinate = coordinate.replace('$', '')
 
+        return self._get_cell(coordinate)
+
+    def _get_cell(self, coordinate):
+
         if not coordinate in self._cells:
             column, row = coordinate_from_string(coordinate)
             new_cell = Cell(self, column, row)

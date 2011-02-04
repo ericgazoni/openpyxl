@@ -29,9 +29,11 @@ __docformat__ = "restructuredtext en"
 
 # Python stdlib imports
 import datetime
+import os
 
 # package imports
 from openpyxl.worksheet import Worksheet
+from openpyxl.writer.paged_worksheet import PagedWorksheet
 from openpyxl.namedrange import NamedRange
 from openpyxl.style import Style
 from openpyxl.writer.excel import save_workbook
@@ -67,7 +69,7 @@ class DocumentSecurity(object):
 class Workbook(object):
     """Workbook is the container for all other parts of the document."""
 
-    def __init__(self):
+    def __init__(self, optimized_write = False):
         self.worksheets = []
         self.worksheets.append(Worksheet(self))
         self._active_sheet_index = 0
@@ -75,6 +77,16 @@ class Workbook(object):
         self.properties = DocumentProperties()
         self.style = Style()
         self.security = DocumentSecurity()
+        self.__optimized_write = optimized_write
+
+    def __del__(self):
+
+        if self.__optimized_write:
+            print "cleaning temporary pages",
+            for sheet in self.worksheets:
+                for page_filename in sheet._all_page_files:
+                    os.remove(page_filename)
+            print "done"
 
     def get_active_sheet(self):
         """Returns the current active sheet."""
@@ -87,7 +99,11 @@ class Workbook(object):
         :type index: int
 
         """
-        new_ws = Worksheet(parent_workbook = self)
+        if self.__optimized_write :
+            new_ws = PagedWorksheet(parent_workbook = self)
+        else:
+            new_ws = Worksheet(parent_workbook = self)
+
         self.add_sheet(worksheet = new_ws, index = index)
         return new_ws
 
