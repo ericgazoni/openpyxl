@@ -135,10 +135,10 @@ def get_range_boundaries(range_string, row = 0, column = 0):
         max_row += row
 
     else:
-        row = column = 1
         min_col, min_row = coordinate_from_string(range_string)
-        max_col = get_column_letter(column_index_from_string(range_string) + column)
-        max_row = min_row + row
+        min_col = column_index_from_string(min_col)
+        max_col = min_col + 1
+        max_row = min_row 
 
     return (min_col, min_row, max_col, max_row)
 

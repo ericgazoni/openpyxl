@@ -26,7 +26,7 @@
 from nose.tools import eq_, raises, assert_raises
 import os.path as osp
 from openpyxl.tests.helper import DATADIR
-from openpyxl.reader.iter_worksheet import read_worksheet
+from openpyxl.reader.iter_worksheet import read_worksheet, get_range_boundaries
 from openpyxl.reader.excel import load_workbook
 
 workbook_name = osp.join(DATADIR, 'genuine', 'empty.xlsx')
@@ -56,3 +56,20 @@ def test_read_fast_integrated():
         row_values = [x.internal_value for x in row]
 
         eq_(row_values, expected_row)
+
+
+def test_get_boundaries_range():
+    
+    eq_(get_range_boundaries('C1:C4'), (3,1,3,4))
+
+def test_get_boundaries_one():
+
+
+    eq_(get_range_boundaries('C1'), (3,1,4,1))
+
+def test_read_single_cell_range():
+
+    wb = load_workbook(filename = workbook_name, use_iterators = True)
+    ws = wb.get_sheet_by_name(name = sheet_name)
+
+    eq_('This is cell A1 in Sheet 1', list(ws.iter_rows('A1'))[0][0].internal_value)
