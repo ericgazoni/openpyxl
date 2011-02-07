@@ -90,7 +90,7 @@ def load_workbook(filename, use_iterators = False):
             wb.add_sheet(new_ws, index = i)
 
         wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
-    except Exception, e:
+    except KeyError, e:
         raise InvalidFileException(unicode(e))
     finally:
         archive.close()
