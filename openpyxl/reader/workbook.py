@@ -32,6 +32,8 @@ from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import W3CDTF_to_datetime
 from openpyxl.namedrange import NamedRange, split_named_range
 
+import datetime
+
 # constants
 BUGGY_NAMED_RANGES = ['NA()', '#REF!']
 DISCARDED_RANGES = ['Excel_BuiltIn', 'Print_Area']
@@ -58,10 +60,19 @@ def read_properties_core(xml_source):
         properties.last_modified_by = last_modified_by_node.text
     else:
         properties.last_modified_by = ''
-    properties.created = W3CDTF_to_datetime(
-            root.find(QName(NAMESPACES['dcterms'], 'created').text).text)
-    properties.modified = W3CDTF_to_datetime(
-            root.find(QName(NAMESPACES['dcterms'], 'modified').text).text)
+
+    created_node = root.find(QName(NAMESPACES['dcterms'], 'created').text)
+    if created_node is not None:
+        properties.created = W3CDTF_to_datetime(created_node.text)
+    else:
+        properties.created = datetime.datetime.now()
+
+    modified_node = root.find(QName(NAMESPACES['dcterms'], 'modified').text)
+    if modified_node is not None:
+        properties.modified = W3CDTF_to_datetime(modified_node.text)
+    else:
+        properties.modified = properties.created
+
     return properties
 
 
