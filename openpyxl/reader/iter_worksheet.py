@@ -188,8 +188,13 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
 
                 cell = retrieved_columns[column]
 
-                if cell.data_type == Cell.TYPE_STRING:
-                    cell = cell._replace(internal_value = string_table[int(cell.internal_value)]) #pylint: disable-msg=W0212
+                if cell.internal_value is not None:
+                    if cell.data_type == Cell.TYPE_STRING:
+                        cell = cell._replace(internal_value = string_table[int(cell.internal_value)]) #pylint: disable-msg=W0212
+                    elif cell.data_type == Cell.TYPE_BOOL:
+                        cell = cell._replace(internal_value = cell.internal_value == 'True')
+                    elif cell.data_type == Cell.TYPE_NUMERIC:
+                        cell = cell._replace(internal_value = float(cell.internal_value))
 
                 if cell.style_id is not None:
                     style = style_table[int(cell.style_id)]

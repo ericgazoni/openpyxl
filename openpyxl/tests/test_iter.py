@@ -29,47 +29,74 @@ from openpyxl.tests.helper import DATADIR
 from openpyxl.reader.iter_worksheet import read_worksheet, get_range_boundaries
 from openpyxl.reader.excel import load_workbook
 
-workbook_name = osp.join(DATADIR, 'genuine', 'empty.xlsx')
-sheet_name = 'Sheet1 - Text'
 
-expected = [['This is cell A1 in Sheet 1', '', '', '', '', '', ''],
-            ['', '', '', '', '', '', ''],
-            ['', '', '', '', '', '', ''],
-            ['', '', '', '', '', '', ''],
-            ['', '', '', '', '', '', 'This is cell G5'], ]
+class TestText(object):
+    workbook_name = osp.join(DATADIR, 'genuine', 'empty.xlsx')
+    sheet_name = 'Sheet1 - Text'
 
-def test_read_fast():
+    expected = [['This is cell A1 in Sheet 1', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', 'This is cell G5'], ]
 
-    for row, expected_row in zip(read_worksheet(workbook_name, sheet_name), expected):
+    def test_read_fast(self):
 
-        row_values = [x.internal_value for x in row]
+        for row, expected_row in zip(read_worksheet(self.workbook_name, self.sheet_name), self.expected):
 
-        eq_(row_values, expected_row)
+            row_values = [x.internal_value for x in row]
 
-def test_read_fast_integrated():
+            eq_(row_values, expected_row)
 
-    wb = load_workbook(filename = workbook_name, use_iterators = True)
-    ws = wb.get_sheet_by_name(name = sheet_name)
+    def test_read_fast_integrated(self):
 
-    for row, expected_row in zip(ws.iter_rows(), expected):
+        wb = load_workbook(filename = self.workbook_name, use_iterators = True)
+        ws = wb.get_sheet_by_name(name = self.sheet_name)
 
-        row_values = [x.internal_value for x in row]
+        for row, expected_row in zip(ws.iter_rows(), self.expected):
 
-        eq_(row_values, expected_row)
+            row_values = [x.internal_value for x in row]
 
-
-def test_get_boundaries_range():
-    
-    eq_(get_range_boundaries('C1:C4'), (3,1,3,4))
-
-def test_get_boundaries_one():
+            eq_(row_values, expected_row)
 
 
-    eq_(get_range_boundaries('C1'), (3,1,4,1))
+    def test_get_boundaries_range(self):
 
-def test_read_single_cell_range():
+        eq_(get_range_boundaries('C1:C4'), (3, 1, 3, 4))
 
-    wb = load_workbook(filename = workbook_name, use_iterators = True)
-    ws = wb.get_sheet_by_name(name = sheet_name)
+    def test_get_boundaries_one(self):
 
-    eq_('This is cell A1 in Sheet 1', list(ws.iter_rows('A1'))[0][0].internal_value)
+
+        eq_(get_range_boundaries('C1'), (3, 1, 4, 1))
+
+    def test_read_single_cell_range(self):
+
+        wb = load_workbook(filename = self.workbook_name, use_iterators = True)
+        ws = wb.get_sheet_by_name(name = self.sheet_name)
+
+        eq_('This is cell A1 in Sheet 1', list(ws.iter_rows('A1'))[0][0].internal_value)
+
+class TestIntegers(object):
+
+    workbook_name = osp.join(DATADIR, 'genuine', 'empty.xlsx')
+    sheet_name = 'Sheet2 - Numbers'
+
+    expected = [[x + 1] for x in xrange(30)]
+
+    query_range = 'D1:E30'
+
+    def test_read_fast_integrated(self):
+
+        wb = load_workbook(filename = self.workbook_name, use_iterators = True)
+        ws = wb.get_sheet_by_name(name = self.sheet_name)
+
+        for row, expected_row in zip(ws.iter_rows(self.query_range), self.expected):
+
+            row_values = [x.internal_value for x in row]
+
+            eq_(row_values, expected_row)
+
+class TestFloats(TestIntegers):
+
+    query_range = 'K1:L30'
+    expected = expected = [[(x + 1) / 100.0] for x in xrange(30)]
