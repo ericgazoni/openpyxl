@@ -48,7 +48,14 @@ TYPE_NULL = Cell.TYPE_NULL
 column_index_from_string = partial(openpyxl.cell.column_index_from_string, fast = True)
 RE_COORDINATE = re.compile('^([A-Z]+)([0-9]+)$')
 
-RawCell = namedtuple('RawCell', ['row', 'column', 'coordinate', 'internal_value', 'data_type', 'style_id', 'number_format'])
+BaseRawCell = namedtuple('RawCell', ['row', 'column', 'coordinate', 'internal_value', 'data_type', 'style_id', 'number_format'])
+
+class RawCell(BaseRawCell):
+
+    def is_date(self):
+        # FIXME: this is a dirty attempt to get this working
+        return (14 <= self.style_id <= 22
+                and isinstance(self.internal_value, (float, int)))
 
 def read_worksheet(workbook_name, sheet_name, range_string = '', row_offset = 0, column_offset = 0):
 
