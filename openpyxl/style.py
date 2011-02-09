@@ -266,6 +266,32 @@ class NumberFormat(HashableObject):
     FORMAT_DATE_TIME7 = 'i:s.S'
     FORMAT_DATE_TIME8 = 'h:mm:ss@'
     FORMAT_DATE_YYYYMMDDSLASH = 'yy/mm/dd@'
+
+    _DATE_FORMATS = (
+        FORMAT_DATE_YYYYMMDD2, 
+        FORMAT_DATE_YYYYMMDD, 
+        FORMAT_DATE_DDMMYYYY, 
+        FORMAT_DATE_DMYSLASH, 
+        FORMAT_DATE_DMYMINUS, 
+        FORMAT_DATE_DMMINUS, 
+        FORMAT_DATE_MYMINUS, 
+        FORMAT_DATE_XLSX14, 
+        FORMAT_DATE_XLSX15, 
+        FORMAT_DATE_XLSX16, 
+        FORMAT_DATE_XLSX17, 
+        FORMAT_DATE_XLSX22, 
+        FORMAT_DATE_DATETIME, 
+        FORMAT_DATE_TIME1, 
+        FORMAT_DATE_TIME2, 
+        FORMAT_DATE_TIME3, 
+        FORMAT_DATE_TIME4, 
+        FORMAT_DATE_TIME5, 
+        FORMAT_DATE_TIME6, 
+        FORMAT_DATE_TIME7, 
+        FORMAT_DATE_TIME8, 
+        FORMAT_DATE_YYYYMMDDSLASH 
+    )
+
     _DATE_PATTERNS = (
         re.compile(FORMAT_DATE_YYYYMMDD2),
         re.compile(FORMAT_DATE_YYYYMMDD),

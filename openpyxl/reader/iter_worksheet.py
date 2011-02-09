@@ -35,7 +35,8 @@ from openpyxl.worksheet import Worksheet
 from openpyxl.cell import coordinate_from_string, get_column_letter, Cell
 from openpyxl.reader.excel import get_sheet_ids
 from openpyxl.reader.strings import read_string_table
-from openpyxl.reader.style import read_style_table
+from openpyxl.reader.style import read_style_table, NumberFormat
+from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.shared.ooxml import (MIN_COLUMN, MAX_COLUMN, PACKAGE_WORKSHEETS,
     MAX_ROW, MIN_ROW, ARC_SHARED_STRINGS, ARC_APP, ARC_STYLE)
@@ -48,6 +49,10 @@ TYPE_NULL = Cell.TYPE_NULL
 column_index_from_string = partial(openpyxl.cell.column_index_from_string, fast = True)
 RE_COORDINATE = re.compile('^([A-Z]+)([0-9]+)$')
 
+DATE_FORMATS = NumberFormat._DATE_FORMATS
+
+SHARED_DATE = SharedDate()
+
 BaseRawCell = namedtuple('RawCell', ['row', 'column', 'coordinate', 'internal_value', 'data_type', 'style_id', 'number_format'])
 
 class RawCell(BaseRawCell):
@@ -55,8 +60,12 @@ class RawCell(BaseRawCell):
     @property
     def is_date(self):
         # FIXME: this is a dirty attempt to get this working
-        return (14 <= self.style_id <= 22
-                and isinstance(self.internal_value, (float, int)))
+        res = (self.data_type == Cell.TYPE_NUMERIC
+                and self.number_format in DATE_FORMATS)
+
+        print 'is_date(%s) : %s (%s)' % (self, res,  DATE_FORMATS)
+
+        return res
 
 def read_worksheet(workbook_name, sheet_name, range_string = '', row_offset = 0, column_offset = 0):
 
@@ -196,17 +205,20 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
 
                 cell = retrieved_columns[column]
 
+                if cell.style_id is not None:
+                    style = style_table[int(cell.style_id)]
+                    cell = cell._replace(number_format = style.number_format.format_code) #pylint: disable-msg=W0212
+
                 if cell.internal_value is not None:
                     if cell.data_type == Cell.TYPE_STRING:
                         cell = cell._replace(internal_value = string_table[int(cell.internal_value)]) #pylint: disable-msg=W0212
                     elif cell.data_type == Cell.TYPE_BOOL:
                         cell = cell._replace(internal_value = cell.internal_value == 'True')
+                    elif cell.is_date:
+                        cell = cell._replace(internal_value = SHARED_DATE.from_julian(float(cell.internal_value)))
                     elif cell.data_type == Cell.TYPE_NUMERIC:
                         cell = cell._replace(internal_value = float(cell.internal_value))
 
-                if cell.style_id is not None:
-                    style = style_table[int(cell.style_id)]
-                    cell = cell._replace(number_format = style.number_format.format_code) #pylint: disable-msg=W0212
 
                 full_row.append(cell)
 

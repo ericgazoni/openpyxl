@@ -1,3 +1,4 @@
+# coding=utf-8
 # file openpyxl/tests/test_props.py
 
 # Copyright (c) 2010 openpyxl
@@ -58,15 +59,15 @@ class TestReaderProps(object):
         content = self.archive.read(ARC_CORE)
         prop = read_properties_core(content)
         eq_(prop.creator, '*.*')
-        eq_(prop.last_modified_by, '*.*')
+        eq_(prop.last_modified_by, u'Aurélien Campéas')
         eq_(prop.created, datetime(2010, 4, 9, 20, 43, 12))
-        eq_(prop.modified, datetime(2010, 4, 11, 16, 20, 29))
+        eq_(prop.modified, datetime(2011, 2, 9, 13, 49, 32))
 
     def test_read_sheets_titles(self):
         content = self.archive.read(ARC_APP)
         sheet_titles = read_sheets_titles(content)
         eq_(sheet_titles, \
-                ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas'])
+                ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas', 'Sheet4 - Dates'])
 
 
 class TestReaderPropsMixed(object):

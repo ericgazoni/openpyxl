@@ -28,6 +28,7 @@ import os.path as osp
 from openpyxl.tests.helper import DATADIR
 from openpyxl.reader.iter_worksheet import read_worksheet, get_range_boundaries
 from openpyxl.reader.excel import load_workbook
+import datetime
 
 class TestWorksheet(object):
 
@@ -112,7 +113,8 @@ class TestDates(TestWorksheet):
         wb = load_workbook(filename = self.workbook_name, use_iterators = True)
         ws = wb.get_sheet_by_name(name = self.sheet_name)
 
-        eq_(datetime.datetime(2010, 12, 18), list(ws.iter_rows('A1'))[0][0].internal_value)
+        eq_(datetime.datetime(1973, 5, 20), list(ws.iter_rows('A1'))[0][0].internal_value)
+        eq_(datetime.datetime(1973, 5, 20, 9, 15, 2), list(ws.iter_rows('C1'))[0][0].internal_value)
 
 
 
