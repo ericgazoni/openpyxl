@@ -59,9 +59,16 @@ class RawCell(BaseRawCell):
 
     @property
     def is_date(self):
-        # XXX: this is a dirty attempt to get this working
+        # XXX: this is an increasingly dirty attempt to get
+        # date detection working
         res = (self.data_type == Cell.TYPE_NUMERIC
-                and self.number_format in DATE_FORMATS)
+               and self.number_format is not None
+               and ('d' in self.number_format 
+                    or 'm' in self.number_format
+                    or 'y' in self.number_format
+                    or 'h' in self.number_format
+                    or 's' in self.number_format 
+                   ))
 
         return res
 
