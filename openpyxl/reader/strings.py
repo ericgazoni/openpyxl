@@ -61,4 +61,4 @@ def get_text(xmlns, rich_node):
 
     if text_node.get(QName(NAMESPACES['xml'], 'space').text) != 'preserve':
         partial_text = partial_text.strip()
-    return partial_text
+    return unicode(partial_text)
