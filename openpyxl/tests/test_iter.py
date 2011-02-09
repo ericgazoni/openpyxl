@@ -29,9 +29,11 @@ from openpyxl.tests.helper import DATADIR
 from openpyxl.reader.iter_worksheet import read_worksheet, get_range_boundaries
 from openpyxl.reader.excel import load_workbook
 
+class TestWorksheet(object):
 
-class TestText(object):
     workbook_name = osp.join(DATADIR, 'genuine', 'empty.xlsx')
+
+class TestText(TestWorksheet):
     sheet_name = 'Sheet1 - Text'
 
     expected = [['This is cell A1 in Sheet 1', '', '', '', '', '', ''],
@@ -76,9 +78,8 @@ class TestText(object):
 
         eq_('This is cell A1 in Sheet 1', list(ws.iter_rows('A1'))[0][0].internal_value)
 
-class TestIntegers(object):
+class TestIntegers(TestWorksheet):
 
-    workbook_name = osp.join(DATADIR, 'genuine', 'empty.xlsx')
     sheet_name = 'Sheet2 - Numbers'
 
     expected = [[x + 1] for x in xrange(30)]
@@ -96,7 +97,22 @@ class TestIntegers(object):
 
             eq_(row_values, expected_row)
 
-class TestFloats(TestIntegers):
+class TestFloats(TestWorksheet):
 
+    sheet_name = 'Sheet2 - Numbers'
     query_range = 'K1:L30'
     expected = expected = [[(x + 1) / 100.0] for x in xrange(30)]
+
+class TestDates(TestWorksheet):
+
+    sheet_name = 'Sheet4 - Dates'
+
+    def test_read_single_cell_date(self):
+
+        wb = load_workbook(filename = self.workbook_name, use_iterators = True)
+        ws = wb.get_sheet_by_name(name = self.sheet_name)
+
+        eq_(datetime.datetime(2010, 12, 18), list(ws.iter_rows('A1'))[0][0].internal_value)
+
+
+

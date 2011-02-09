@@ -31,9 +31,12 @@ from math import floor
 import calendar
 import datetime
 import time
+import re
 
 # constants
 W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+
+RE_W3CDTF = '(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{2}))?Z'
 
 
 def datetime_to_W3CDTF(dt):
@@ -43,7 +46,9 @@ def datetime_to_W3CDTF(dt):
 
 def W3CDTF_to_datetime(formatted_string):
     """Convert from a timestamp string to a datetime object."""
-    return datetime.datetime.strptime(formatted_string, W3CDTF_FORMAT)
+    match = re.match(RE_W3CDTF,formatted_string)
+    digits = map(int, match.groups()[:6])
+    return datetime.datetime(*digits)
 
 
 class SharedDate(object):

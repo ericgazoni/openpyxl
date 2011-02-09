@@ -52,6 +52,7 @@ BaseRawCell = namedtuple('RawCell', ['row', 'column', 'coordinate', 'internal_va
 
 class RawCell(BaseRawCell):
 
+    @property
     def is_date(self):
         # FIXME: this is a dirty attempt to get this working
         return (14 <= self.style_id <= 22
