@@ -64,7 +64,7 @@ def load_workbook(filename, use_iterators = False):
 
     try:
         archive = ZipFile(filename, 'r', ZIP_DEFLATED)
-    except (BadZipfile, RuntimeError, IOError), e:
+    except (BadZipfile, RuntimeError, IOError, ValueError), e:
         raise InvalidFileException(unicode(e))
     wb = Workbook()
     try:
