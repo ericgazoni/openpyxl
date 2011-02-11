@@ -11,3 +11,4 @@ org.eclipse
 \.*\.~.*
 syntax: glob
 *~
+*.orig
