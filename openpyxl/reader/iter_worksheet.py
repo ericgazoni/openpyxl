@@ -46,6 +46,7 @@ import openpyxl.cell
 import re
 
 TYPE_NULL = Cell.TYPE_NULL
+MISSING_VALUE = u''
 column_index_from_string = partial(openpyxl.cell.column_index_from_string, fast = True)
 RE_COORDINATE = re.compile('^([A-Z]+)([0-9]+)$')
 
@@ -174,7 +175,7 @@ def get_xml_source(archive_file, sheet_name):
 
 def get_missing_cells(row, columns):
 
-    return dict([(column, RawCell(row, column, '%s%s' % (column, row), '', TYPE_NULL, None, None)) for column in columns])
+    return dict([(column, RawCell(row, column, '%s%s' % (column, row), MISSING_VALUE, TYPE_NULL, None, None)) for column in columns])
 
 def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table):
 
