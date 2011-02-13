@@ -33,7 +33,7 @@ import os
 
 # package imports
 from openpyxl.worksheet import Worksheet
-from openpyxl.writer.paged_worksheet import PagedWorksheet
+from openpyxl.writer.dump_worksheet import DumpWorksheet, save_dump
 from openpyxl.namedrange import NamedRange
 from openpyxl.style import Style
 from openpyxl.writer.excel import save_workbook
@@ -79,15 +79,6 @@ class Workbook(object):
         self.security = DocumentSecurity()
         self.__optimized_write = optimized_write
 
-    def __del__(self):
-
-        if self.__optimized_write:
-            print "cleaning temporary pages",
-            for sheet in self.worksheets:
-                for page_filename in sheet._all_page_files:
-                    os.remove(page_filename)
-            print "done"
-
     def get_active_sheet(self):
         """Returns the current active sheet."""
         return self.worksheets[self._active_sheet_index]
@@ -100,7 +91,7 @@ class Workbook(object):
 
         """
         if self.__optimized_write :
-            new_ws = PagedWorksheet(parent_workbook = self)
+            new_ws = DumpWorksheet(parent_workbook = self)
         else:
             new_ws = Worksheet(parent_workbook = self)
 
@@ -176,4 +167,7 @@ class Workbook(object):
 
     def save(self, filename):
         """ shortcut """
-        save_workbook(self, filename)
+        if self.__optimized_write:
+            save_dump(self, filename)
+        else:
+            save_workbook(self, filename)
