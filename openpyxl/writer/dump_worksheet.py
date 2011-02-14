@@ -26,14 +26,21 @@
 """Write worksheets to xml representations in an optimized way"""
 
 import datetime
+import os
 
-from openpyxl.cell import column_index_from_string, get_column_letter
+from openpyxl.cell import column_index_from_string, get_column_letter, Cell
+from openpyxl.worksheet import Worksheet
 from openpyxl.shared.xmltools import XMLGenerator, get_document_content, \
         start_tag, end_tag, tag
 from openpyxl.shared.date_time import SharedDate
-from openpyxl.cell import Cell
 from openpyxl.shared.ooxml import MAX_COLUMN, MAX_ROW
 from tempfile import NamedTemporaryFile
+from openpyxl.writer.excel import ExcelWriter
+
+from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, \
+        ARC_ROOT_RELS, ARC_WORKBOOK_RELS, ARC_APP, ARC_CORE, ARC_THEME, \
+        ARC_STYLE, ARC_WORKBOOK, \
+        PACKAGE_WORKSHEETS, PACKAGE_DRAWINGS, PACKAGE_CHARTS
 
 STYLES = {'datetime' : {'type':Cell.TYPE_NUMERIC,
                         'style':'1'},
@@ -45,16 +52,26 @@ STYLES = {'datetime' : {'type':Cell.TYPE_NUMERIC,
 
 BOUNDING_BOX_PLACEHOLDER = 'A1:%s%d' % (get_column_letter(MAX_COLUMN), MAX_ROW)
 
-class DumpWorksheet(object):
+class DumpWorksheet(Worksheet):
 
     def __init__(self, parent_workbook):
 
+        Worksheet.__init__(self, parent_workbook)
+
         self._max_col = 0
         self._max_row = 0
-        self._fileobj = NamedTemporaryFile(mode='w', prefix='openpyxl.')
+        self._parent = parent_workbook
+        self._fileobj = NamedTemporaryFile(mode='w', prefix='openpyxl.', delete=False)
         self.doc = XMLGenerator(self._fileobj, 'utf-8')
+        self.title = 'Sheet'
 
         self._shared_date = SharedDate()
+
+        self.write_header()
+
+    @property
+    def filename(self):
+        return self._fileobj.name
 
     def write_header(self):
 
@@ -80,7 +97,9 @@ class DumpWorksheet(object):
 
     def close(self):
 
+        end_tag(self.doc, 'worksheet')
         self.doc.endDocument()
+        self._fileobj.close()
             
     def append(self, row):
 
@@ -129,4 +148,20 @@ class DumpWorksheet(object):
 
 def save_dump(workbook, filename):
 
-    pass
+    writer = ExcelDumpWriter(workbook)
+    writer.save(filename)
+    return True
+
+
+class ExcelDumpWriter(ExcelWriter):
+
+    def _write_string_table(self, archive):
+
+        return {}
+
+    def _write_worksheets(self, archive, shared_string_table, style_writer):
+
+        for i, sheet in enumerate(self.workbook.worksheets):
+            sheet.close()
+            archive.write(sheet.filename, PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1))
+            os.remove(sheet.filename)

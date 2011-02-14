@@ -54,11 +54,8 @@ class ExcelWriter(object):
     def write_data(self, archive):
         """Write the various xml files into the zip archive."""
         # cleanup all worksheets
-        for ws in self.workbook.worksheets:
-            ws.garbage_collect()
-        shared_string_table = create_string_table(self.workbook)
-        archive.writestr(ARC_SHARED_STRINGS,
-                write_string_table(shared_string_table))
+        shared_string_table = self._write_string_table(archive)
+        
         style_writer = StyleWriter(self.workbook)
         archive.writestr(ARC_CONTENT_TYPES, write_content_types(self.workbook))
         archive.writestr(ARC_ROOT_RELS, write_root_rels(self.workbook))
@@ -69,6 +66,20 @@ class ExcelWriter(object):
         archive.writestr(ARC_THEME, write_theme())
         archive.writestr(ARC_STYLE, style_writer.write_table())
         archive.writestr(ARC_WORKBOOK, write_workbook(self.workbook))
+
+        self._write_worksheets(archive, shared_string_table, style_writer)
+
+    def _write_string_table(self, archive):
+
+        for ws in self.workbook.worksheets:
+            ws.garbage_collect()
+        shared_string_table = create_string_table(self.workbook)
+        archive.writestr(ARC_SHARED_STRINGS,
+                write_string_table(shared_string_table))
+
+        return shared_string_table
+
+    def _write_worksheets(self, archive, shared_string_table, style_writer):
 
         drawing_id = 1
         chart_id = 1

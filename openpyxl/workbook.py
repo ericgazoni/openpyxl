@@ -71,13 +71,15 @@ class Workbook(object):
 
     def __init__(self, optimized_write = False):
         self.worksheets = []
-        self.worksheets.append(Worksheet(self))
         self._active_sheet_index = 0
         self._named_ranges = []
         self.properties = DocumentProperties()
         self.style = Style()
         self.security = DocumentSecurity()
         self.__optimized_write = optimized_write
+
+        if not optimized_write:
+            self.worksheets.append(Worksheet(self))
 
     def get_active_sheet(self):
         """Returns the current active sheet."""
