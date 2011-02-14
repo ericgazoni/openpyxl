@@ -50,7 +50,18 @@ class TestNumberFormat(object):
         eq_(40167, self.sd.to_julian(2009, 12, 20))
 
     def test_convert_date_from_julian(self):
-        eq_(datetime(2009, 12, 20), self.sd.from_julian(40167))
+
+        def test_date_equal(julian, datetime):
+
+            eq_(self.sd.from_julian(julian), datetime)
+
+        date_pairs= (
+                        (40167, datetime(2009, 12, 20)), 
+                        (21980, datetime(1960, 03, 05)), 
+                    )
+
+        for count, dt in date_pairs:
+            yield test_date_equal, count, dt
 
     def test_convert_datetime_to_julian(self):
         eq_(40167, self.sd.datetime_to_julian(datetime(2009, 12, 20)))

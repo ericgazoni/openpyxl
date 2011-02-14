@@ -38,6 +38,7 @@ W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 RE_W3CDTF = '(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{2}))?Z'
 
+EPOCH = datetime.datetime.utcfromtimestamp(0)
 
 def datetime_to_W3CDTF(dt):
     """Convert from a datetime to a timestamp string."""
@@ -135,9 +136,9 @@ class SharedDate(object):
 
         if value >= 1:
             utc_days = value - excel_base_date
-            seconds = round(utc_days * 24 * 60 * 60)
-            return datetime.datetime.utcfromtimestamp(
-                    calendar.timegm(time.gmtime(seconds)))
+
+            return EPOCH + datetime.timedelta(days=utc_days)
+
         elif value >= 0:
             hours = floor(value * 24)
             mins = floor(value * 24 * 60) - floor(hours * 60)
