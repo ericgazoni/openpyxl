@@ -216,7 +216,7 @@ class Alignment(HashableObject):
     VERTICAL_JUSTIFY = 'justify'
 
     __fields__ = ('horizontal',
-                  'vetical',
+                  'vertical',
                   'text_rotation',
                   'wrap_text',
                   'shrink_to_fit',
@@ -227,7 +227,7 @@ class Alignment(HashableObject):
     def __init__(self):
         super(Alignment, self).__init__()
         self.horizontal = self.HORIZONTAL_GENERAL
-        self.vetical = self.VERTICAL_BOTTOM
+        self.vertical = self.VERTICAL_BOTTOM
         self.text_rotation = 0
         self.wrap_text = False
         self.shrink_to_fit = False
