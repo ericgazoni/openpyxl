@@ -51,6 +51,14 @@ def test_dump_sheet():
 
         ws.append(['%s%d' % (letter, row+1) for letter in letters])
 
+    for row in xrange(20):
+
+        ws.append([(row+1) for letter in letters])
+
+    for row in xrange(10):
+
+        ws.append([datetime(2010, ((x % 12)+1), row+1) for x in range(len(letters))])
+
     wb.save(test_filename)
 
     wb2 = load_workbook(test_filename, True)
