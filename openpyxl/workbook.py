@@ -34,6 +34,7 @@ import os
 # package imports
 from openpyxl.worksheet import Worksheet
 from openpyxl.writer.dump_worksheet import DumpWorksheet, save_dump
+from openpyxl.writer.strings import StringTableBuilder
 from openpyxl.namedrange import NamedRange
 from openpyxl.style import Style
 from openpyxl.writer.excel import save_workbook
@@ -77,6 +78,7 @@ class Workbook(object):
         self.style = Style()
         self.security = DocumentSecurity()
         self.__optimized_write = optimized_write
+        self.strings_table_builder = StringTableBuilder()
 
         if not optimized_write:
             self.worksheets.append(Worksheet(self))

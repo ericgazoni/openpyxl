@@ -33,7 +33,13 @@ from nose.tools import eq_, raises, assert_raises
 from openpyxl.workbook import Workbook
 from openpyxl.cell import get_column_letter
 
+from openpyxl.reader.excel import load_workbook
+
+from openpyxl.writer.strings import StringTableBuilder
+
 def test_dump_sheet():
+
+    test_filename = 'test.xlsx'
 
     wb = Workbook(optimized_write = True)
 
@@ -45,4 +51,26 @@ def test_dump_sheet():
 
         ws.append(['%s%d' % (letter, row+1) for letter in letters])
 
-    wb.save('test.xlsx')
+    wb.save(test_filename)
+
+    wb2 = load_workbook(test_filename, True)
+
+    ws = wb2.worksheets[0]
+
+
+def test_table_builder():
+
+    sb = StringTableBuilder()
+
+    result = {'a':0, 'b':1, 'c':2, 'd':3}
+
+    for letter in sorted(result.keys()):
+
+        for x in range(5):
+
+            sb.add(letter)
+
+    table = dict(sb.get_table())
+
+    for key,idx in result.iteritems():
+        eq_(idx, table[key])
