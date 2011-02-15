@@ -52,10 +52,10 @@ class StyleWriter(object):
     def write_table(self):
         number_format_table = self._write_number_formats()
         fonts_table = self._write_fonts()
-        self._write_fills()
+        fills_table = self._write_fills()
         borders_table = self._write_borders()
         self._write_cell_style_xfs()
-        self._write_cell_xfs(number_format_table, fonts_table, borders_table)
+        self._write_cell_xfs(number_format_table, fonts_table, fills_table, borders_table)
         self._write_cell_style()
         self._write_dxfs()
         self._write_table_styles()
@@ -105,6 +105,24 @@ class StyleWriter(object):
         fill = SubElement(fills, 'fill')
         SubElement(fill, 'patternFill', {'patternType':'gray125'})
 
+        table = {}
+        index = 2
+        for st in self._style_list:
+            if hash(st.fill) != hash(style.DEFAULTS.fill) and hash(st.fill) not in table:
+                table[hash(st.fill)] = str(index)
+                fill = SubElement(fills, 'fill')
+                if hash(st.fill.fill_type) != hash(style.DEFAULTS.fill.fill_type):
+                    node = SubElement(fill,'patternFill', {'patternType':st.fill.fill_type})
+                    if hash(st.fill.start_color) != hash(style.DEFAULTS.fill.start_color):
+
+                        SubElement(node, 'fgColor', {'rgb':str(st.fill.start_color.index)})
+                    if hash(st.fill.end_color) != hash(style.DEFAULTS.fill.end_color):
+                        SubElement(node, 'bgColor', {'rgb':str(st.fill.start_color.index)})
+                index += 1
+        
+        fills.attrib["count"] = str(index)
+        return table
+
     def _write_borders(self):
         borders = SubElement(self._root, 'borders')
 
@@ -138,7 +156,7 @@ class StyleWriter(object):
         xf = SubElement(cell_style_xfs, 'xf', 
             {'numFmtId':"0", 'fontId':"0", 'fillId':"0", 'borderId':"0"})
     
-    def _write_cell_xfs(self, number_format_table, fonts_table, borders_table):
+    def _write_cell_xfs(self, number_format_table, fonts_table, fills_table, borders_table):
         """ write styles combinations based on ids found in tables """
         
         # writing the cellXfs
@@ -163,11 +181,28 @@ class StyleWriter(object):
                 vals['borderId'] = borders_table[hash(st.borders)]
                 vals['applyBorder'] = '1'
                 
+            if hash(st.fill) != hash(style.DEFAULTS.fill):
+                vals['fillId'] = fills_table[hash(st.fill)]
+                vals['applyFillId'] = '1'
+
             if st.number_format != style.DEFAULTS.number_format:
                 vals['numFmtId'] = '%d' % number_format_table[st.number_format]
                 vals['applyNumberFormat'] = '1'
                 
-            SubElement(cell_xfs, 'xf', vals)
+            if hash(st.alignment) != hash(style.DEFAULTS.alignment):
+                vals['applyAlignment'] = '1'
+
+            node = SubElement(cell_xfs, 'xf', vals)
+
+            if hash(st.alignment) != hash(style.DEFAULTS.alignment):
+                alignments = {}
+
+                for align_attr in ['horizontal','vertical']:
+                    if hash(getattr(st.alignment, align_attr)) != hash(getattr(style.DEFAULTS.alignment, align_attr)):
+                        alignments[align_attr] = getattr(st.alignment, align_attr)
+
+                SubElement(node, 'alignment', alignments)
+
 
     def _write_cell_style(self):
         cell_styles = SubElement(self._root, 'cellStyles', {'count':'1'})
