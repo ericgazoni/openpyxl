@@ -50,13 +50,13 @@ class ExcelWriter(object):
 
     def __init__(self, workbook):
         self.workbook = workbook
+        self.style_writer = StyleWriter(self.workbook)
 
     def write_data(self, archive):
         """Write the various xml files into the zip archive."""
         # cleanup all worksheets
         shared_string_table = self._write_string_table(archive)
         
-        style_writer = StyleWriter(self.workbook)
         archive.writestr(ARC_CONTENT_TYPES, write_content_types(self.workbook))
         archive.writestr(ARC_ROOT_RELS, write_root_rels(self.workbook))
         archive.writestr(ARC_WORKBOOK_RELS, write_workbook_rels(self.workbook))
@@ -64,10 +64,10 @@ class ExcelWriter(object):
         archive.writestr(ARC_CORE,
                 write_properties_core(self.workbook.properties))
         archive.writestr(ARC_THEME, write_theme())
-        archive.writestr(ARC_STYLE, style_writer.write_table())
+        archive.writestr(ARC_STYLE, self.style_writer.write_table())
         archive.writestr(ARC_WORKBOOK, write_workbook(self.workbook))
 
-        self._write_worksheets(archive, shared_string_table, style_writer)
+        self._write_worksheets(archive, shared_string_table, self.style_writer)
 
     def _write_string_table(self, archive):
 

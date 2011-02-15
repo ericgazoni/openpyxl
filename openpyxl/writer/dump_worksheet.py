@@ -37,6 +37,8 @@ from openpyxl.shared.ooxml import MAX_COLUMN, MAX_ROW
 from tempfile import NamedTemporaryFile
 from openpyxl.writer.excel import ExcelWriter
 from openpyxl.writer.strings import write_string_table
+from openpyxl.writer.styles import StyleWriter
+from openpyxl.style import Style, NumberFormat
 
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, \
         ARC_ROOT_RELS, ARC_WORKBOOK_RELS, ARC_APP, ARC_CORE, ARC_THEME, \
@@ -51,6 +53,8 @@ STYLES = {'datetime' : {'type':Cell.TYPE_NUMERIC,
                      'style':'0'}
         }
 
+DATETIME_STYLE = Style()
+DATETIME_STYLE.number_format.format_code = NumberFormat.FORMAT_DATE_YYYYMMDD2 
 BOUNDING_BOX_PLACEHOLDER = 'A1:%s%d' % (get_column_letter(MAX_COLUMN), MAX_ROW)
 
 class DumpWorksheet(Worksheet):
@@ -129,10 +133,10 @@ class DumpWorksheet(Worksheet):
 
             if isinstance(cell, (int, float)):
                 dtype = 'numeric'
-                attributes['s'] = STYLES[dtype]['style']
             elif isinstance(cell, (datetime.datetime, datetime.date)):
                 dtype = 'datetime'
                 cell = self._shared_date.datetime_to_julian(cell)
+                attributes['s'] = STYLES[dtype]['style']
             else:
                 dtype = 'string'
                 cell = self._string_builder.add(cell)
@@ -160,6 +164,12 @@ def save_dump(workbook, filename):
 
 class ExcelDumpWriter(ExcelWriter):
 
+    def __init__(self, workbook):
+
+        self.workbook = workbook
+        self.style_writer = StyleDumpWriter(workbook)
+        self.style_writer._style_list.append(DATETIME_STYLE)
+
     def _write_string_table(self, archive):
 
         shared_string_table = self.workbook.strings_table_builder.get_table()
@@ -174,3 +184,10 @@ class ExcelDumpWriter(ExcelWriter):
             sheet.close()
             archive.write(sheet.filename, PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1))
             os.remove(sheet.filename)
+
+
+class StyleDumpWriter(StyleWriter):
+
+    def _get_style_list(self, workbook):
+        return []
+        

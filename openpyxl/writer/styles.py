@@ -33,6 +33,11 @@ from openpyxl import style
 class StyleWriter(object):
     
     def __init__(self, workbook):
+        self._style_list = self._get_style_list(workbook)
+        self._root = Element('styleSheet', 
+            {'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'})
+    
+    def _get_style_list(self, workbook):
         crc = {}
         for worksheet in workbook.worksheets:
             for style in worksheet._styles.values():
@@ -41,10 +46,8 @@ class StyleWriter(object):
             for i, style in enumerate(crc.values())])
         sorted_styles = sorted(self.style_table.iteritems(), \
             key = lambda pair:pair[1])
-        self._style_list = [s[0] for s in sorted_styles]
-        self._root = Element('styleSheet', 
-            {'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'})
-        
+        return [s[0] for s in sorted_styles]
+
     def get_style_by_hash(self):
         return dict([(hash(style), id) \
             for style, id in self.style_table.iteritems()])
@@ -214,5 +217,5 @@ class StyleWriter(object):
             SubElement(num_fmts, 'numFmt', 
                 {'numFmtId':'%d' % number_format_table[number_format],
                 'formatCode':'%s' % number_format.format_code}) 
-                
+        
         return number_format_table
