@@ -139,6 +139,20 @@ class TestCellValueTypes():
             yield check_error
 
 
+def test_data_type_check():
+    cell = Cell(None, 'A', 1)
+    cell.bind_value(None)
+    eq_(Cell.TYPE_NULL, cell._data_type)
+
+    cell.bind_value('.0e000')
+    eq_(Cell.TYPE_NUMERIC, cell._data_type)
+
+    cell.bind_value('-0.e-0')
+    eq_(Cell.TYPE_NUMERIC, cell._data_type)
+
+    cell.bind_value('1E')
+    eq_(Cell.TYPE_STRING, cell._data_type)
+
 @raises(DataTypeException)
 def test_set_bad_type():
     cell = Cell(None, 'A', 1)
