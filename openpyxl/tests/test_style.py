@@ -101,6 +101,14 @@ class TestStyleWriter(object):
         w._write_fonts()
         eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><scheme val="minor" /><b /></font></fonts></styleSheet>')
         
+    def test_fills(self):
+        
+        self.worksheet.cell('A1').style.fill.fill_type = 'solid'
+        self.worksheet.cell('A1').style.fill.start_color.index = Color.DARKYELLOW
+        w = StyleWriter(self.workbook)
+        w._write_fills()
+        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fills count="3"><fill><patternFill patternType="none" /></fill><fill><patternFill patternType="gray125" /></fill><fill><patternFill patternType="solid"><fgColor rgb="FF808000" /></patternFill></fill></fills></styleSheet>')
+        
     def test_borders(self):
         
         self.worksheet.cell('A1').style.borders.top.border_style = Border.BORDER_THIN
@@ -115,10 +123,24 @@ class TestStyleWriter(object):
         w = StyleWriter(self.workbook)
         ft = w._write_fonts()
         nft = w._write_number_formats()
-        w._write_cell_xfs(nft, ft, {})
+        w._write_cell_xfs(nft, ft, {}, {})
         xml = get_xml(w._root)
         ok_('applyFont="1"' in xml)
+        ok_('applyFillId="1"' not in xml)
         ok_('applyBorder="1"' not in xml)
+        ok_('applyAlignment="1"' not in xml)
+
+    def test_alignment(self):
+        self.worksheet.cell('A1').style.alignment.horizontal = 'center'
+        self.worksheet.cell('A1').style.alignment.vertical = 'center'
+        w = StyleWriter(self.workbook)
+        nft = w._write_number_formats()
+        w._write_cell_xfs(nft,{},{},{})
+        xml = get_xml(w._root)
+        ok_('applyAlignment="1"' in xml)
+        ok_('horizontal="center"' in xml)
+        ok_('vertical="center"' in xml)
+        
 
 #def test_format_comparisions():
 #    format1 = NumberFormat()
