@@ -37,9 +37,14 @@ from openpyxl.reader.excel import load_workbook
 
 from openpyxl.writer.strings import StringTableBuilder
 
+from tempfile import NamedTemporaryFile
+import os
+
 def test_dump_sheet():
 
-    test_filename = 'test.xlsx'
+    test_file = NamedTemporaryFile(delete=False) 
+    test_file.close()
+    test_filename = test_file.name
 
     wb = Workbook(optimized_write = True)
 
@@ -47,23 +52,39 @@ def test_dump_sheet():
 
     letters = [get_column_letter(x+1) for x in xrange(20)]
 
-    for row in xrange(20):
-
-        ws.append(['%s%d' % (letter, row+1) for letter in letters])
+    expected_rows = []
 
     for row in xrange(20):
 
-        ws.append([(row+1) for letter in letters])
+        expected_rows.append(['%s%d' % (letter, row+1) for letter in letters])
+
+    for row in xrange(20):
+
+        expected_rows.append([(row+1) for letter in letters])
 
     for row in xrange(10):
 
-        ws.append([datetime(2010, ((x % 12)+1), row+1) for x in range(len(letters))])
+        expected_rows.append([datetime(2010, ((x % 12)+1), row+1) for x in range(len(letters))])
+
+    for row in expected_rows:
+
+        ws.append(row)
 
     wb.save(test_filename)
 
     wb2 = load_workbook(test_filename, True)
 
     ws = wb2.worksheets[0]
+
+
+    for ex_row, ws_row in zip(expected_rows, ws.iter_rows()):
+
+        for ex_cell, ws_cell in zip(ex_row, ws_row):
+
+            eq_(ex_cell, ws_cell.internal_value)
+
+
+    os.remove(test_filename)
 
 
 def test_table_builder():
