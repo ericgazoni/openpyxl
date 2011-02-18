@@ -94,7 +94,6 @@ class DumpWorksheet(Worksheet):
                 {'summaryBelow': '1', 
                 'summaryRight': '1'})
         end_tag(doc, 'sheetPr')
-        tag(doc, 'dimension', {'ref': '%s' % BOUNDING_BOX_PLACEHOLDER})
         start_tag(doc, 'sheetViews')
         start_tag(doc, 'sheetView', {'workbookViewId': '0'})
         tag(doc, 'selection', {'activeCell': 'A1',
@@ -108,9 +107,19 @@ class DumpWorksheet(Worksheet):
 
         doc = self.doc
         end_tag(doc, 'sheetData')
+
+        tag(doc, 'dimension', {'ref': 'A1:%s' % (self.get_dimensions())})
+
         end_tag(doc, 'worksheet')
         doc.endDocument()
         self._fileobj.close()
+
+    def get_dimensions(self):
+
+        if not self._max_col or not self._max_row:
+            return 'A1'
+        else:
+            return '%s%d' % (get_column_letter(self._max_col), (self._max_row))
             
     def append(self, row):
 
@@ -139,7 +148,7 @@ class DumpWorksheet(Worksheet):
                 dtype = 'datetime'
                 cell = self._shared_date.datetime_to_julian(cell)
                 attributes['s'] = STYLES[dtype]['style']
-            elif cell[0] == '=':
+            elif cell and cell[0] == '=':
                 dtype = 'formula'
             else:
                 dtype = 'string'
