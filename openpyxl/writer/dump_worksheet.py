@@ -52,7 +52,9 @@ STYLES = {'datetime' : {'type':Cell.TYPE_NUMERIC,
           'numeric':{'type':Cell.TYPE_NUMERIC,
                      'style':'0'},
           'formula':{'type':Cell.TYPE_FORMULA,
-                    'style':'0'}
+                    'style':'0'},
+          'boolean':{'type':Cell.TYPE_BOOL,
+                    'style':'0'},
         }
 
 DATETIME_STYLE = Style()
@@ -142,7 +144,9 @@ class DumpWorksheet(Worksheet):
             attributes = {'r': coordinate}
 
 
-            if isinstance(cell, (int, float)):
+            if isinstance(cell, bool):
+                dtype = 'boolean'
+            elif isinstance(cell, (int, float)):
                 dtype = 'numeric'
             elif isinstance(cell, (datetime.datetime, datetime.date)):
                 dtype = 'datetime'
