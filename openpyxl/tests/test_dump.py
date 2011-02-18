@@ -42,7 +42,7 @@ import os
 
 def test_dump_sheet():
 
-    test_file = NamedTemporaryFile(delete=False) 
+    test_file = NamedTemporaryFile(prefix='openpyxl.', suffix='.xlsx', delete=False) 
     test_file.close()
     test_filename = test_file.name
 
@@ -66,6 +66,10 @@ def test_dump_sheet():
 
         expected_rows.append([datetime(2010, ((x % 12)+1), row+1) for x in range(len(letters))])
 
+    for row in xrange(20):
+
+        expected_rows.append(['=%s%d' % (letter, row+1) for letter in letters])
+
     for row in expected_rows:
 
         ws.append(row)
@@ -77,7 +81,7 @@ def test_dump_sheet():
     ws = wb2.worksheets[0]
 
 
-    for ex_row, ws_row in zip(expected_rows, ws.iter_rows()):
+    for ex_row, ws_row in zip(expected_rows[:-20], ws.iter_rows()):
 
         for ex_cell, ws_cell in zip(ex_row, ws_row):
 

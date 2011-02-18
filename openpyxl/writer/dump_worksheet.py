@@ -50,7 +50,9 @@ STYLES = {'datetime' : {'type':Cell.TYPE_NUMERIC,
           'string':{'type':Cell.TYPE_STRING,
                     'style':'0'},
           'numeric':{'type':Cell.TYPE_NUMERIC,
-                     'style':'0'}
+                     'style':'0'},
+          'formula':{'type':Cell.TYPE_FORMULA,
+                    'style':'0'}
         }
 
 DATETIME_STYLE = Style()
@@ -137,6 +139,8 @@ class DumpWorksheet(Worksheet):
                 dtype = 'datetime'
                 cell = self._shared_date.datetime_to_julian(cell)
                 attributes['s'] = STYLES[dtype]['style']
+            elif cell[0] == '=':
+                dtype = 'formula'
             else:
                 dtype = 'string'
                 cell = self._string_builder.add(cell)
@@ -147,6 +151,9 @@ class DumpWorksheet(Worksheet):
 
             if cell is None:
                 tag(doc, 'v', body='')
+            elif dtype == 'formula':
+                tag(doc, 'f', body = '%s' % cell[1:])
+                tag(doc, 'v')
             else:
                 tag(doc, 'v', body = '%s' % cell)
             
