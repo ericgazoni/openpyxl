@@ -88,10 +88,15 @@ class TestNumberFormat(object):
         self.worksheet.cell('A3').value = dt
         eq_(40372.27616898148, self.worksheet.cell('A3')._value)
 
-    def test_date_interpretation(self):
+    def test_datetime_interpretation(self):
         dt = datetime(2010, 7, 13, 6, 37, 41)
         self.worksheet.cell('A3').value = dt
         eq_(dt, self.worksheet.cell('A3').value)
+
+    def test_date_interpretation(self):
+        dt = date(2010, 7, 13)
+        self.worksheet.cell('A3').value = dt
+        eq_(datetime(2010, 7, 13, 0, 0), self.worksheet.cell('A3').value)
 
     def test_number_format_style(self):
         self.worksheet.cell('A1').value = '12.6%'

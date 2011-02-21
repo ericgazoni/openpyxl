@@ -72,8 +72,12 @@ class SharedDate(object):
 
     def datetime_to_julian(self, date):
         """Convert from python datetime to excel julian date representation."""
-        return self.to_julian(date.year, date.month, date.day, \
+
+        if isinstance(date, datetime.datetime):
+            return self.to_julian(date.year, date.month, date.day, \
                 hours=date.hour, minutes=date.minute, seconds=date.second)
+        elif isinstance(date, datetime.date):
+            return self.to_julian(date.year, date.month, date.day)
 
     def to_julian(self, year, month, day, hours=0, minutes=0, seconds=0):
         """Convert from Python date to Excel JD."""

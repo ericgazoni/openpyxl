@@ -146,7 +146,6 @@ class DumpWorksheet(Worksheet):
             coordinate = '%s%d' % (get_column_letter(col_idx+1), row_idx) 
             attributes = {'r': coordinate}
 
-
             if isinstance(cell, bool):
                 dtype = 'boolean'
             elif isinstance(cell, (int, float)):
@@ -165,9 +164,7 @@ class DumpWorksheet(Worksheet):
 
             start_tag(doc, 'c', attributes)
 
-            if cell is None:
-                tag(doc, 'v', body='')
-            elif dtype == 'formula':
+            if dtype == 'formula':
                 tag(doc, 'f', body = '%s' % cell[1:])
                 tag(doc, 'v')
             else:
