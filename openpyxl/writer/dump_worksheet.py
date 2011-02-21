@@ -140,6 +140,9 @@ class DumpWorksheet(Worksheet):
 
         for col_idx, cell in enumerate(row):
 
+            if cell is None:
+                continue
+
             coordinate = '%s%d' % (get_column_letter(col_idx+1), row_idx) 
             attributes = {'r': coordinate}
 
