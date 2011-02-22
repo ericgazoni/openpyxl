@@ -266,55 +266,6 @@ class NumberFormat(HashableObject):
     FORMAT_DATE_TIME7 = 'i:s.S'
     FORMAT_DATE_TIME8 = 'h:mm:ss@'
     FORMAT_DATE_YYYYMMDDSLASH = 'yy/mm/dd@'
-
-    _DATE_FORMATS = (
-        FORMAT_DATE_YYYYMMDD2, 
-        FORMAT_DATE_YYYYMMDD, 
-        FORMAT_DATE_DDMMYYYY, 
-        FORMAT_DATE_DMYSLASH, 
-        FORMAT_DATE_DMYMINUS, 
-        FORMAT_DATE_DMMINUS, 
-        FORMAT_DATE_MYMINUS, 
-        FORMAT_DATE_XLSX14, 
-        FORMAT_DATE_XLSX15, 
-        FORMAT_DATE_XLSX16, 
-        FORMAT_DATE_XLSX17, 
-        FORMAT_DATE_XLSX22, 
-        FORMAT_DATE_DATETIME, 
-        FORMAT_DATE_TIME1, 
-        FORMAT_DATE_TIME2, 
-        FORMAT_DATE_TIME3, 
-        FORMAT_DATE_TIME4, 
-        FORMAT_DATE_TIME5, 
-        FORMAT_DATE_TIME6, 
-        FORMAT_DATE_TIME7, 
-        FORMAT_DATE_TIME8, 
-        FORMAT_DATE_YYYYMMDDSLASH 
-    )
-
-    _DATE_PATTERNS = (
-        re.compile(FORMAT_DATE_YYYYMMDD2),
-        re.compile(FORMAT_DATE_YYYYMMDD),
-        re.compile(FORMAT_DATE_DDMMYYYY),
-        re.compile(FORMAT_DATE_DMYSLASH),
-        re.compile(FORMAT_DATE_DMYMINUS),
-        re.compile(FORMAT_DATE_DMMINUS),
-        re.compile(FORMAT_DATE_MYMINUS),
-        re.compile(FORMAT_DATE_XLSX14),
-        re.compile(FORMAT_DATE_XLSX15),
-        re.compile(FORMAT_DATE_XLSX16),
-        re.compile(FORMAT_DATE_XLSX17),
-        re.compile(FORMAT_DATE_XLSX22),
-        re.compile(FORMAT_DATE_DATETIME),
-        re.compile(FORMAT_DATE_TIME1),
-        re.compile(FORMAT_DATE_TIME2),
-        re.compile(FORMAT_DATE_TIME3),
-        re.compile(FORMAT_DATE_TIME4),
-        re.compile(FORMAT_DATE_TIME5),
-        re.compile(FORMAT_DATE_TIME6),
-        re.compile(FORMAT_DATE_TIME7),
-        re.compile(FORMAT_DATE_TIME8),
-        re.compile(FORMAT_DATE_YYYYMMDDSLASH),)
     FORMAT_CURRENCY_USD_SIMPLE = '"$"#,##0.00_-'
     FORMAT_CURRENCY_USD = '$#,##0_-'
     FORMAT_CURRENCY_EUR_SIMPLE = '[$EUR ]#,##0.00_-'
@@ -363,6 +314,8 @@ class NumberFormat(HashableObject):
     __slots__ = __fields__
     __leaf__ = True
 
+    DATE_INDICATORS = 'dmyhs'
+
     def __init__(self):
         super(NumberFormat, self).__init__()
         self._format_code = self.FORMAT_GENERAL
@@ -397,11 +350,8 @@ class NumberFormat(HashableObject):
         """Check if the number format is actually representing a date."""
         if format is None:
             format = self._format_code
-        for pattern in self._DATE_PATTERNS:
-            if pattern.search(format):
-                return True
-        return False
 
+        return any([x in format for x in self.DATE_INDICATORS])
 
 class Protection(HashableObject):
     """Protection options for use in styles."""
