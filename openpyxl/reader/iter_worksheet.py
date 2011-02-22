@@ -50,8 +50,6 @@ MISSING_VALUE = u''
 column_index_from_string = partial(openpyxl.cell.column_index_from_string, fast = True)
 RE_COORDINATE = re.compile('^([A-Z]+)([0-9]+)$')
 
-DATE_FORMATS = NumberFormat._DATE_FORMATS
-
 SHARED_DATE = SharedDate()
 
 BaseRawCell = namedtuple('RawCell', ['row', 'column', 'coordinate', 'internal_value', 'data_type', 'style_id', 'number_format'])
