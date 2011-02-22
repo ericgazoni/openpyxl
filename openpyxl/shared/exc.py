@@ -49,3 +49,6 @@ class OpenModeError(Exception):
 
 class InvalidFileException(Exception):
     """Error for trying to open a non-ooxml file."""
+
+class ReadOnlyWorkbookException(Exception):
+    """Error for trying to modify a read-only workbook"""

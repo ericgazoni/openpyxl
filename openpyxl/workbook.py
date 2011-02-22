@@ -38,6 +38,7 @@ from openpyxl.writer.strings import StringTableBuilder
 from openpyxl.namedrange import NamedRange
 from openpyxl.style import Style
 from openpyxl.writer.excel import save_workbook
+from openpyxl.shared.exc import ReadOnlyWorkbookException
 
 
 class DocumentProperties(object):
@@ -78,10 +79,14 @@ class Workbook(object):
         self.style = Style()
         self.security = DocumentSecurity()
         self.__optimized_write = optimized_write
+        self.__optimized_read = False
         self.strings_table_builder = StringTableBuilder()
 
         if not optimized_write:
             self.worksheets.append(Worksheet(self))
+
+    def _set_optimized_read(self):
+        self.__optimized_read = True
 
     def get_active_sheet(self):
         """Returns the current active sheet."""
@@ -94,6 +99,10 @@ class Workbook(object):
         :type index: int
 
         """
+
+        if self.__optimized_read:
+            raise ReadOnlyWorkbookException('Cannot create new sheet in a read-only workbook')
+
         if self.__optimized_write :
             new_ws = DumpWorksheet(parent_workbook = self)
         else:

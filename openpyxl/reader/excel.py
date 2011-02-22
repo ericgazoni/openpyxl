@@ -67,6 +67,7 @@ def load_workbook(filename, use_iterators = False):
     except (BadZipfile, RuntimeError, IOError, ValueError), e:
         raise InvalidFileException(unicode(e))
     wb = Workbook()
+    wb._set_optimized_read()
     try:
         # get workbook-level information
         wb.properties = read_properties_core(archive.read(ARC_CORE))
