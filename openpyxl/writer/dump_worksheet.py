@@ -70,14 +70,15 @@ class DumpWorksheet(Worksheet):
         self._max_col = 0
         self._max_row = 0
         self._parent = parent_workbook
+        self._fileobj_header = NamedTemporaryFile(mode='r+', prefix='openpyxl.', suffix='.header', delete=False)
+        self._fileobj_content = NamedTemporaryFile(mode='r+', prefix='openpyxl.', suffix='.content', delete=False)
         self._fileobj = NamedTemporaryFile(mode='w', prefix='openpyxl.', delete=False)
-        self.doc = XMLGenerator(self._fileobj, 'utf-8')
+        self.doc = XMLGenerator(self._fileobj_content, 'utf-8')
+        self.header = XMLGenerator(self._fileobj_header, 'utf-8')
         self.title = 'Sheet'
 
         self._shared_date = SharedDate()
         self._string_builder = self._parent.strings_table_builder
-
-        self.write_header()
 
     @property
     def filename(self):
@@ -85,7 +86,7 @@ class DumpWorksheet(Worksheet):
 
     def write_header(self):
 
-        doc = self.doc
+        doc = self.header
 
         start_tag(doc, 'worksheet',
                 {'xml:space': 'preserve',
@@ -96,6 +97,7 @@ class DumpWorksheet(Worksheet):
                 {'summaryBelow': '1', 
                 'summaryRight': '1'})
         end_tag(doc, 'sheetPr')
+        tag(doc, 'dimension', {'ref': 'A1:%s' % (self.get_dimensions())})
         start_tag(doc, 'sheetViews')
         start_tag(doc, 'sheetView', {'workbookViewId': '0'})
         tag(doc, 'selection', {'activeCell': 'A1',
@@ -107,14 +109,42 @@ class DumpWorksheet(Worksheet):
 
     def close(self):
 
+        self._close_content()
+        self._close_header()
+
+        self._write_fileobj(self._fileobj_header)
+        self._write_fileobj(self._fileobj_content)
+
+        self._fileobj.close()
+
+    def _write_fileobj(self, fobj):
+
+        fobj.flush()
+        fobj.seek(0)
+
+        while True:
+            chunk = fobj.read(4096)
+            if not chunk:
+                break
+            self._fileobj.write(chunk)
+
+        fobj.close()
+        os.remove(fobj.name)
+
+        self._fileobj.flush()
+
+    def _close_header(self):
+        
+        doc = self.header
+        #doc.endDocument()
+
+    def _close_content(self):
+
         doc = self.doc
         end_tag(doc, 'sheetData')
 
-        tag(doc, 'dimension', {'ref': 'A1:%s' % (self.get_dimensions())})
-
         end_tag(doc, 'worksheet')
-        doc.endDocument()
-        self._fileobj.close()
+        #doc.endDocument()
 
     def get_dimensions(self):
 
@@ -201,6 +231,7 @@ class ExcelDumpWriter(ExcelWriter):
     def _write_worksheets(self, archive, shared_string_table, style_writer):
 
         for i, sheet in enumerate(self.workbook.worksheets):
+            sheet.write_header()
             sheet.close()
             archive.write(sheet.filename, PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1))
             os.remove(sheet.filename)

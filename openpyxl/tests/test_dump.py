@@ -39,6 +39,7 @@ from openpyxl.writer.strings import StringTableBuilder
 
 from tempfile import NamedTemporaryFile
 import os
+import shutil
 
 def test_dump_sheet():
 
@@ -86,7 +87,6 @@ def test_dump_sheet():
         for ex_cell, ws_cell in zip(ex_row, ws_row):
 
             eq_(ex_cell, ws_cell.internal_value)
-
 
     os.remove(test_filename)
 
