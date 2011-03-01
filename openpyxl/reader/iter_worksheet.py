@@ -84,11 +84,11 @@ def read_worksheet(workbook_name, sheet_name, range_string = '', row_offset = 0,
 
     return iter_rows(workbook_name, sheet_name, range_string, row_offset, column_offset)
 
-def iter_rows(workbook_name, sheet_name, range_string = '', row_offset = 0, column_offset = 0):
+def iter_rows(workbook_name, sheet_name, xml_source, range_string = '', row_offset = 0, column_offset = 0):
 
     archive = get_archive_file(workbook_name)
 
-    source = get_xml_source(archive, sheet_name)
+    source = xml_source 
 
     if range_string:
         min_col, min_row, max_col, max_row = get_range_boundaries(range_string, row_offset, column_offset)
@@ -105,7 +105,8 @@ def iter_rows(workbook_name, sheet_name, range_string = '', row_offset = 0, colu
 
     style_table = read_style_table(archive.read(ARC_STYLE))
 
-    p = iterparse(StringIO(source))
+    source.seek(0)
+    p = iterparse(source)
 
     return get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table)
 
@@ -242,11 +243,13 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
 
 class IterableWorksheet(Worksheet):
 
-    def __init__(self, parent_workbook, title, workbook_name, sheet_codename):
+    def __init__(self, parent_workbook, title, workbook_name, 
+            sheet_codename, xml_source):
 
         Worksheet.__init__(self, parent_workbook, title)
         self._workbook_name = workbook_name
         self._sheet_codename = sheet_codename
+        self._xml_source = xml_source
 
     def iter_rows(self, range_string = '', row_offset = 0, column_offset = 0):
         """ Returns a squared range based on the `range_string` parameter, 
@@ -267,6 +270,7 @@ class IterableWorksheet(Worksheet):
 
         return iter_rows(workbook_name = self._workbook_name,
                          sheet_name = self._sheet_codename,
+                         xml_source = self._xml_source,
                          range_string = range_string,
                          row_offset = row_offset,
                          column_offset = column_offset)

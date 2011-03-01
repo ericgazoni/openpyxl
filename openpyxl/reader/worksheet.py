@@ -37,9 +37,17 @@ from StringIO import StringIO
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet
 
+def _get_xml_iter(xml_source):
+
+    if not hasattr(xml_source, 'name'): 
+        return StringIO(xml_source)
+    else:
+        xml_source.seek(0)
+        return xml_source
+
 def read_dimension(xml_source):
 
-    source = StringIO(xml_source)
+    source = _get_xml_iter(xml_source) 
 
     it = iterparse(source)
 
@@ -65,10 +73,7 @@ def filter_cells((event, element)):
 
 def fast_parse(ws, xml_source, string_table, style_table):
 
-    if not isinstance(xml_source, file):
-        source = StringIO(xml_source)
-    else:
-        source = xml_source
+    source = _get_xml_iter(xml_source) 
 
     it = iterparse(source)
 
@@ -98,7 +103,8 @@ def read_worksheet(xml_source, parent, preset_title, string_table,
                    style_table, workbook_name = None, sheet_codename = None):
     """Read an xml worksheet"""
     if workbook_name and sheet_codename:
-        ws = IterableWorksheet(parent, preset_title, workbook_name, sheet_codename)
+        ws = IterableWorksheet(parent, preset_title, workbook_name, 
+                sheet_codename, xml_source)
     else:
         ws = Worksheet(parent, preset_title)
         fast_parse(ws, xml_source, string_table, style_table)
