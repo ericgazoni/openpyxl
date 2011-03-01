@@ -88,7 +88,6 @@ def test_dump_sheet():
 
             eq_(ex_cell, ws_cell.internal_value)
 
-    shutil.copy(test_filename, r'c:\data\temp\test_dump.xlsx')
     os.remove(test_filename)
 
 

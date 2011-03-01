@@ -75,15 +75,6 @@ class RawCell(BaseRawCell):
 
         return res
 
-def read_worksheet(workbook_name, sheet_name, range_string = '', row_offset = 0, column_offset = 0):
-
-    archive = get_archive_file(workbook_name)
-
-    sheet_ids = get_sheet_ids(archive.read(ARC_APP))
-    sheet_name = sheet_ids[sheet_name]
-
-    return iter_rows(workbook_name, sheet_name, range_string, row_offset, column_offset)
-
 def iter_rows(workbook_name, sheet_name, xml_source, range_string = '', row_offset = 0, column_offset = 0):
 
     archive = get_archive_file(workbook_name)

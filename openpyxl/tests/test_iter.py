@@ -26,7 +26,7 @@
 from nose.tools import eq_, raises, assert_raises
 import os.path as osp
 from openpyxl.tests.helper import DATADIR
-from openpyxl.reader.iter_worksheet import read_worksheet, get_range_boundaries
+from openpyxl.reader.iter_worksheet import get_range_boundaries
 from openpyxl.reader.excel import load_workbook
 import datetime
 
@@ -42,14 +42,6 @@ class TestText(TestWorksheet):
                 ['', '', '', '', '', '', ''],
                 ['', '', '', '', '', '', ''],
                 ['', '', '', '', '', '', 'This is cell G5'], ]
-
-    def test_read_fast(self):
-
-        for row, expected_row in zip(read_worksheet(self.workbook_name, self.sheet_name), self.expected):
-
-            row_values = [x.internal_value for x in row]
-
-            eq_(row_values, expected_row)
 
     def test_read_fast_integrated(self):
 
