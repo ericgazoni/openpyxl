@@ -38,6 +38,7 @@ from openpyxl.reader.style import read_style_table
 from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, \
         read_properties_core, get_sheet_ids
 from openpyxl.reader.worksheet import read_worksheet
+from openpyxl.reader.iter_worksheet import unpack_worksheet
 
 def load_workbook(filename, use_iterators = False):
     """Open the given filename and return the workbook
@@ -87,7 +88,9 @@ def load_workbook(filename, use_iterators = False):
             if not use_iterators:
                 new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table)
             else:
-                new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table, filename, sheet_codename)
+                xml_source = unpack_worksheet(archive, worksheet_path)
+                new_ws = read_worksheet(xml_source, wb, sheet_name, string_table, style_table, filename, sheet_codename)
+                #new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table, filename, sheet_codename)
             wb.add_sheet(new_ws, index = i)
 
         wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)

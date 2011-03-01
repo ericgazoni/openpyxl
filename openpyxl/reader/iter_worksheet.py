@@ -44,6 +44,10 @@ from xml.etree.cElementTree import iterparse
 from zipfile import ZipFile
 import openpyxl.cell
 import re
+import tempfile
+import zlib
+import zipfile
+import struct
 
 TYPE_NULL = Cell.TYPE_NULL
 MISSING_VALUE = u''
@@ -274,3 +278,47 @@ class IterableWorksheet(Worksheet):
     def range(self, *args, **kwargs):
 
         raise NotImplementedError("use 'iter_rows()' instead")
+
+def unpack_worksheet(archive, filename):
+
+    temp_file = tempfile.TemporaryFile(mode='r+', prefix='openpyxl.', suffix='.unpack.temp')
+
+    zinfo = archive.getinfo(filename)
+
+    if zinfo.compress_type == zipfile.ZIP_STORED:
+        decoder = None
+    elif zinfo.compress_type == zipfile.ZIP_DEFLATED:
+        decoder = zlib.decompressobj(-zlib.MAX_WBITS)
+    else:
+        raise zipfile.BadZipFile("Unrecognized compression method")
+
+    archive.fp.seek(_get_file_offset(archive, zinfo))
+    bytes_to_read = zinfo.compress_size
+
+    while True:
+        buff = archive.fp.read(min(bytes_to_read, 102400))
+        if not buff:
+            break
+        bytes_to_read -= len(buff)
+        if decoder:
+            buff = decoder.decompress(buff)
+        temp_file.write(buff)
+
+    if decoder:
+        temp_file.write(decoder.decompress('Z'))
+
+    return temp_file
+
+def _get_file_offset(archive, zinfo):
+
+    try:
+        return zinfo.file_offset
+    except AttributeError:
+        # From http://stackoverflow.com/questions/3781261/how-to-simulate-zipfile-open-in-python-2-5
+
+        # Seek over the fixed size fields to the "file name length" field in
+        # the file header (26 bytes). Unpack this and the "extra field length"
+        # field ourselves as info.extra doesn't seem to be the correct length.
+        archive.fp.seek(zinfo.header_offset + 26)
+        file_name_len, extra_len = struct.unpack("<HH", archive.fp.read(4))
+        return zinfo.header_offset + 30 + file_name_len + extra_len

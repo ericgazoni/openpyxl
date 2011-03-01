@@ -65,7 +65,10 @@ def filter_cells((event, element)):
 
 def fast_parse(ws, xml_source, string_table, style_table):
 
-    source = StringIO(xml_source)
+    if not isinstance(xml_source, file):
+        source = StringIO(xml_source)
+    else:
+        source = xml_source
 
     it = iterparse(source)
 
