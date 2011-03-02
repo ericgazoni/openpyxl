@@ -79,12 +79,13 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
     for event, element in ifilter(filter_cells, it):
 
-        coordinate = element.get('r')
-        data_type = element.get('t', 'n')
-        style_id = element.get('s')
         value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
 
         if value is not None:
+
+            coordinate = element.get('r')
+            data_type = element.get('t', 'n')
+            style_id = element.get('s')
 
             if data_type == Cell.TYPE_STRING:
                 value = string_table.get(int(value))
