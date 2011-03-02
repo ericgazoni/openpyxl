@@ -29,6 +29,7 @@
 
 from StringIO import StringIO
 from collections import namedtuple
+import operator
 from functools import partial
 from itertools import ifilter, groupby
 from openpyxl.worksheet import Worksheet
@@ -51,10 +52,16 @@ import struct
 
 TYPE_NULL = Cell.TYPE_NULL
 MISSING_VALUE = u''
-column_index_from_string = partial(openpyxl.cell.column_index_from_string, fast = True)
+
 RE_COORDINATE = re.compile('^([A-Z]+)([0-9]+)$')
 
 SHARED_DATE = SharedDate()
+
+_COL_CONVERSION_CACHE = dict((get_column_letter(i), i) for i in xrange(1, 18279))
+def column_index_from_string(str_col, _col_conversion_cache=_COL_CONVERSION_CACHE):
+    # we use a function argument to get indexed name lookup
+    return _col_conversion_cache[str_col]
+del _COL_CONVERSION_CACHE
 
 BaseRawCell = namedtuple('RawCell', ['row', 'column', 'coordinate', 'internal_value', 'data_type', 'style_id', 'number_format'])
 
@@ -101,43 +108,33 @@ def iter_rows(workbook_name, sheet_name, xml_source, range_string = '', row_offs
 
     return get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table)
 
-def filter_cells(min_row, min_col, max_row, max_col, (event, element)): #pylint: disable-msg=W0613
-
-    if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c':
-
-        coord = element.get('r')
-        column, row = RE_COORDINATE.match(coord).groups()
-
-        row = int(row)
-        column = column_index_from_string(column)
-
-        if min_col <= column <= max_col and min_row <= row <= max_row:
-            return True
-    if not element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v':
-        element.clear()
-    return False
 
 def get_rows(p, min_column = MIN_COLUMN, min_row = MIN_ROW, max_column = MAX_COLUMN, max_row = MAX_ROW):
 
-    return groupby(get_cells(p, min_row, min_column, max_row, max_column), lambda x: x.row)
+    return groupby(get_cells(p, min_row, min_column, max_row, max_column), operator.attrgetter('row'))
 
-def get_cells(p, min_row, min_col, max_row, max_col):
+def get_cells(p, min_row, min_col, max_row, max_col, _re_coordinate=RE_COORDINATE):
 
-    filter_func = partial(filter_cells, min_row, min_col, max_row, max_col)
+    for _event, element in p:
 
-    for event, element in ifilter(filter_func, p): #pylint: disable-msg=W0612
+        if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c':
+            coord = element.get('r')
+            column_str, row = _re_coordinate.match(coord).groups()
 
-        coordinate = element.get('r')
-        column, row = RE_COORDINATE.match(coordinate).groups()
-        row = int(row)
+            row = int(row)
+            column = column_index_from_string(column_str)
 
-        data_type = element.get('t', 'n')
-        style_id = element.get('s')
-        value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
+            if min_col <= column <= max_col and min_row <= row <= max_row:
+                data_type = element.get('t', 'n')
+                style_id = element.get('s')
+                value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
+                yield RawCell(row, column_str, coord, value, data_type, style_id, None)
 
+        if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v':
+            continue
         element.clear()
 
-        yield RawCell(row, column, coordinate, value, data_type, style_id, None)
+
 
 def get_range_boundaries(range_string, row = 0, column = 0):
 
@@ -176,17 +173,14 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
     expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
 
     current_row = min_row
-
     for row, cells in get_rows(p, min_row = min_row, max_row = max_row, min_column = min_col, max_column = max_col):
-
         full_row = []
-
         if current_row < row:
 
             for gap_row in xrange(current_row, row):
 
                 dummy_cells = get_missing_cells(gap_row, expected_columns)
-
+                
                 yield tuple([dummy_cells[column] for column in expected_columns])
 
                 current_row = row
@@ -202,13 +196,11 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
         for column in expected_columns:
 
             if column in retrieved_columns:
-
                 cell = retrieved_columns[column]
 
                 if cell.style_id is not None:
                     style = style_table[int(cell.style_id)]
                     cell = cell._replace(number_format = style.number_format.format_code) #pylint: disable-msg=W0212
-
                 if cell.internal_value is not None:
                     if cell.data_type == Cell.TYPE_STRING:
                         cell = cell._replace(internal_value = string_table[int(cell.internal_value)]) #pylint: disable-msg=W0212
@@ -218,12 +210,9 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
                         cell = cell._replace(internal_value = SHARED_DATE.from_julian(float(cell.internal_value)))
                     elif cell.data_type == Cell.TYPE_NUMERIC:
                         cell = cell._replace(internal_value = float(cell.internal_value))
-
-
                 full_row.append(cell)
 
             else:
-
                 full_row.append(replacement_columns[column])
 
         current_row = row + 1
