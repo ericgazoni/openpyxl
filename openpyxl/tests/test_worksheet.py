@@ -191,7 +191,7 @@ class TestWorksheet():
         ws = Worksheet(self.wb)
         ws.append("test")
 
-    def test_append_list(self):
+    def test_append_2d_list(self):
 
         ws = Worksheet(self.wb)
 
@@ -202,3 +202,21 @@ class TestWorksheet():
 
         eq_((('This is A1', 'This is B1'),
              ('This is A2', 'This is B2'),), flatten(vals))
+
+    def test_rows(self):
+    
+        ws = Worksheet(self.wb)
+
+        ws.cell('A1').value = 'first'
+        ws.cell('C9').value = 'last'
+
+        eq_(len(ws.rows), 9)
+
+    def test_cols(self):
+
+        ws = Worksheet(self.wb)
+
+        ws.cell('A1').value = 'first'
+        ws.cell('C9').value = 'last'
+
+        eq_(len(list(ws.columns)), 3)

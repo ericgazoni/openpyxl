@@ -477,4 +477,18 @@ class Worksheet(object):
         else:
             raise TypeError('list_or_dict must be a list or a dict')
 
+    @property
+    def rows(self):
+
+        return self.range(self.calculate_dimension())
+
+    @property
+    def columns(self):
+
+        max_row = self.get_highest_row()
+
+        for col_idx in range(self.get_highest_column()):
+            col = get_column_letter(col_idx+1)
+            
+            yield self.range('%s1:%s%d' % (col, col, max_row))
 
