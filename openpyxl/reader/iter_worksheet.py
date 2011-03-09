@@ -51,7 +51,7 @@ import zipfile
 import struct
 
 TYPE_NULL = Cell.TYPE_NULL
-MISSING_VALUE = u''
+MISSING_VALUE = None 
 
 RE_COORDINATE = re.compile('^([A-Z]+)([0-9]+)$')
 

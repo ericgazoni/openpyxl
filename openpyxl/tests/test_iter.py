@@ -37,11 +37,11 @@ class TestWorksheet(object):
 class TestText(TestWorksheet):
     sheet_name = 'Sheet1 - Text'
 
-    expected = [['This is cell A1 in Sheet 1', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', 'This is cell G5'], ]
+    expected = [['This is cell A1 in Sheet 1', None, None, None, None, None, None],
+                [None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, 'This is cell G5'], ]
 
     def test_read_fast_integrated(self):
 
