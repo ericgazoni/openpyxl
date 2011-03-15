@@ -210,7 +210,12 @@ class TestWorksheet():
         ws.cell('A1').value = 'first'
         ws.cell('C9').value = 'last'
 
-        eq_(len(ws.rows), 9)
+        rows = ws.rows
+
+        eq_(len(rows), 9)
+
+        eq_(rows[0][0].value, 'first')
+        eq_(rows[-1][-1].value, 'last')
 
     def test_cols(self):
 
@@ -219,4 +224,9 @@ class TestWorksheet():
         ws.cell('A1').value = 'first'
         ws.cell('C9').value = 'last'
 
-        eq_(len(list(ws.columns)), 3)
+        cols = ws.columns
+
+        eq_(len(cols), 3)
+
+        eq_(cols[0][0].value, 'first')
+        eq_(cols[-1][-1].value, 'last')

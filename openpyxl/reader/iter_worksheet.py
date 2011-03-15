@@ -66,11 +66,24 @@ del _COL_CONVERSION_CACHE
 BaseRawCell = namedtuple('RawCell', ['row', 'column', 'coordinate', 'internal_value', 'data_type', 'style_id', 'number_format'])
 
 class RawCell(BaseRawCell):
+    """Optimized version of the :class:`openpyxl.cell.Cell`, using named tuples.
+
+    Useful attributes are:
+
+    * row
+    * column
+    * coordinate
+    * internal_value
+
+    You can also access if needed:
+
+    * data_type
+    * number_format
+
+    """
 
     @property
     def is_date(self):
-        # XXX: this is an increasingly dirty attempt to get
-        # date detection working
         res = (self.data_type == Cell.TYPE_NUMERIC
                and self.number_format is not None
                and ('d' in self.number_format 

@@ -487,8 +487,13 @@ class Worksheet(object):
 
         max_row = self.get_highest_row()
 
+        cols = []
+
         for col_idx in range(self.get_highest_column()):
             col = get_column_letter(col_idx+1)
-            
-            yield self.range('%s1:%s%d' % (col, col, max_row))
+            res = self.range('%s1:%s%d' % (col, col, max_row))
+            cols.append(tuple([x[0] for x in res]))
+
+
+        return tuple(cols)
 

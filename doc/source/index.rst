@@ -28,6 +28,13 @@ Cookbook
 
    	usage
 
+Read/write large files
+++++++++++++++++++++++
+
+.. toctree::
+
+    optimized
+
 API Documentation
 ------------------ 
 

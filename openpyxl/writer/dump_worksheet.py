@@ -63,6 +63,13 @@ BOUNDING_BOX_PLACEHOLDER = 'A1:%s%d' % (get_column_letter(MAX_COLUMN), MAX_ROW)
 
 class DumpWorksheet(Worksheet):
 
+    """
+    .. warning::
+
+        You shouldn't initialize this yourself, use :class:`openpyxl.workbook.Workbook` constructor instead, 
+        with `optimized_write = True`.
+    """
+
     def __init__(self, parent_workbook):
 
         Worksheet.__init__(self, parent_workbook)
@@ -154,6 +161,11 @@ class DumpWorksheet(Worksheet):
             return '%s%d' % (get_column_letter(self._max_col), (self._max_row))
             
     def append(self, row):
+
+        """
+        :param row: iterable containing values to append
+        :type row: iterable
+        """
 
         doc = self.doc
 

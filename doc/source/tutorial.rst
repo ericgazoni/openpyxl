@@ -1,5 +1,5 @@
 Manipulating a workbook in memory
-==================================
+=================================
  
 Create a workbook
 -----------------
@@ -104,7 +104,47 @@ If you want to access a `range`, wich is a two-dimension array of cells, you can
 	<Cell Sheet1.A2>
 	<Cell Sheet1.B2>
 	<Cell Sheet1.C2>
-	
+
+If you need to iterate through all the rows or columns of a file, you can instead use the 
+:func:`openpyxl.worksheet.Worksheet.rows` property::
+
+    >>> ws = wb.get_active_sheet()
+    >>> ws.cell('C9').value = 'hello world'
+    >>> ws.rows
+    ((<Cell Sheet.A1>, <Cell Sheet.B1>, <Cell Sheet.C1>),
+    (<Cell Sheet.A2>, <Cell Sheet.B2>, <Cell Sheet.C2>),
+    (<Cell Sheet.A3>, <Cell Sheet.B3>, <Cell Sheet.C3>),
+    (<Cell Sheet.A4>, <Cell Sheet.B4>, <Cell Sheet.C4>),
+    (<Cell Sheet.A5>, <Cell Sheet.B5>, <Cell Sheet.C5>),
+    (<Cell Sheet.A6>, <Cell Sheet.B6>, <Cell Sheet.C6>),
+    (<Cell Sheet.A7>, <Cell Sheet.B7>, <Cell Sheet.C7>),
+    (<Cell Sheet.A8>, <Cell Sheet.B8>, <Cell Sheet.C8>),
+    (<Cell Sheet.A9>, <Cell Sheet.B9>, <Cell Sheet.C9>))
+
+or the :func:`openpyxl.worksheet.Worksheet.columns` property::
+
+    >>> ws.columns
+    ((<Cell Sheet.A1>,
+    <Cell Sheet.A2>,
+    <Cell Sheet.A3>,
+    <Cell Sheet.A4>,
+    <Cell Sheet.A5>,
+    <Cell Sheet.A6>,
+    ...
+    <Cell Sheet.B7>,
+    <Cell Sheet.B8>,
+    <Cell Sheet.B9>),
+    (<Cell Sheet.C1>,
+    <Cell Sheet.C2>,
+    <Cell Sheet.C3>,
+    <Cell Sheet.C4>,
+    <Cell Sheet.C5>,
+    <Cell Sheet.C6>,
+    <Cell Sheet.C7>,
+    <Cell Sheet.C8>,
+    <Cell Sheet.C9>))
+
+    
 Data storage
 ++++++++++++
 	
@@ -136,11 +176,16 @@ There is also a neat format detection feature that converts data on the fly::
 Saving to a file
 ================
 
-To save a workbook, just import the :func:`openpyxl.writer.excel.save_workbook` function::
+The simplest and safest way to save a workbook is by using the 
+:func:`openpyxl.workbook.Workbook.save()` method of the 
+:class:`openpyxl.workbook.Workbook` object::
 
-	>>> from openpyxl.writer.excel import save_workbook
-	>>> save_workbook(wb, 'test.xlsx')
-	True
+    >>> wb = Workbook()
+    >>> wb.save('balances.xlsx')
+
+.. warning:: 
+
+   This operation will overwrite existing files without warning. 
 	
 .. note::
 
