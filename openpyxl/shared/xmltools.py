@@ -31,7 +31,6 @@ Shortcut functions taken from:
 """
 
 # Python stdlib imports
-from __future__ import with_statement
 from xml.sax.xmlreader import AttributesNSImpl
 from xml.sax.saxutils import XMLGenerator
 try:

@@ -28,7 +28,7 @@
 """
 
 from StringIO import StringIO
-from collections import namedtuple
+import warnings
 import operator
 from functools import partial
 from itertools import ifilter, groupby
@@ -63,7 +63,29 @@ def column_index_from_string(str_col, _col_conversion_cache=_COL_CONVERSION_CACH
     return _col_conversion_cache[str_col]
 del _COL_CONVERSION_CACHE
 
-BaseRawCell = namedtuple('RawCell', ['row', 'column', 'coordinate', 'internal_value', 'data_type', 'style_id', 'number_format'])
+RAW_ATTRIBUTES = ['row', 'column', 'coordinate', 'internal_value', 'data_type', 'style_id', 'number_format']
+
+try:
+    from collections import namedtuple
+    BaseRawCell = namedtuple('RawCell', RAW_ATTRIBUTES)
+except ImportError:
+
+    warnings.warn("""Unable to import 'namedtuple' module, this may cause  memory issues when using optimized reader. Please upgrade your Python installation to 2.6+""")
+
+    class BaseRawCell(object):
+
+        def __init__(self, *args):
+            assert len(args)==len(RAW_ATTRIBUTES)
+
+            for attr, val in zip(RAW_ATTRIBUTES, args):
+                setattr(self, attr, val)
+
+        def _replace(self, **kwargs):
+
+            self.__dict__.update(kwargs)
+
+            return self
+
 
 class RawCell(BaseRawCell):
     """Optimized version of the :class:`openpyxl.cell.Cell`, using named tuples.
