@@ -29,22 +29,34 @@ def pixels_to_EMU(value):
     return int(round(value * 9525))
 
 def EMU_to_pixels(value):
-    return round(value / 9525.) if value else 0
+    if not value:
+        return 0
+    else:
+        return round(value / 9525.) 
 
 def EMU_to_cm(value):
-    return (EMU_to_pixels(value) * 2.57 / 96) if value else 0
+    if not value:
+        return 0
+    else:
+        return (EMU_to_pixels(value) * 2.57 / 96) 
 
 def pixels_to_points(value):
     return value * 0.67777777
 
 def points_to_pixels(value):
-    return int(math.ceil(value * 1.333333333)) if value else 0
+    if not value:
+        return 0
+    else:
+        return int(math.ceil(value * 1.333333333)) 
 
 def degrees_to_angle(value):
     return int(round(value * 60000))
 
 def angle_to_degrees(value):
-    return round(value / 60000.) if value else 0
+    if not value:
+        return 0
+    else:
+        return round(value / 60000.) 
 
 def short_color(color):
     """ format a color to its short size """
