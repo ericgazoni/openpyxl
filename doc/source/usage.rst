@@ -6,13 +6,10 @@ Write a workbook
 ::
 
     from openpyxl.workbook import Workbook
-    from openpyxl.writer.excel import ExcelWriter
     
     from openpyxl.cell import get_column_letter
     
     wb = Workbook()
-    
-    ew = ExcelWriter(workbook = wb)
     
     dest_filename = r'empty_book.xlsx'
     
@@ -31,7 +28,7 @@ Write a workbook
     
     ws.cell('F5').value = 3.14
     
-    ew.save(filename = dest_filename)
+    wb.save(filename = dest_filename)
     
 Read an existing workbook 
 -----------------------------
