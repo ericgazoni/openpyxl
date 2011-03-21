@@ -349,6 +349,14 @@ class Cell(object):
         :rtype: string
         """
         return '%s%s' % (self.column, self.row)
+    
+    @property
+    def address(self):
+        """Return the coordinate string for this cell (e.g. 'B12')
+
+        :rtype: string
+        """
+        return self.get_coordinate()
 
     def offset(self, row = 0, column = 0):
         """Returns a cell location relative to this cell.
