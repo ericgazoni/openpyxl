@@ -29,7 +29,8 @@
 import re
 
 # package imports
-from openpyxl.cell import Cell, coordinate_from_string, \
+import openpyxl.cell
+from openpyxl.cell import coordinate_from_string, \
     column_index_from_string, get_column_letter
 from openpyxl.shared.exc import SheetTitleException, \
     InsufficientCoordinatesException, CellCoordinatesException, \
@@ -309,7 +310,7 @@ class Worksheet(object):
 
         if not coordinate in self._cells:
             column, row = coordinate_from_string(coordinate)
-            new_cell = Cell(self, column, row)
+            new_cell = openpyxl.cell.Cell(self, column, row)
             self._cells[coordinate] = new_cell
             if column not in self.column_dimensions:
                 self.column_dimensions[column] = ColumnDimension(column)
