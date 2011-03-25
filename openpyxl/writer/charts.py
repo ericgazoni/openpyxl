@@ -135,6 +135,11 @@ class ChartWriter(object):
             
             if serie.color:
                 sppr = SubElement(ser, 'c:spPr')
+                if self.chart.type == Chart.BAR_CHART:
+                    # fill color
+                    fillc = SubElement(sppr, 'a:solidFill')
+                    SubElement(fillc, 'a:srgbClr', {'val':serie.color})
+                # edge color
                 ln = SubElement(sppr, 'a:ln')
                 fill = SubElement(ln, 'a:solidFill')
                 SubElement(fill, 'a:srgbClr', {'val':serie.color})
