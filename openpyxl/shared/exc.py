@@ -52,3 +52,8 @@ class InvalidFileException(Exception):
 
 class ReadOnlyWorkbookException(Exception):
     """Error for trying to modify a read-only workbook"""
+
+class MissingNumberFormat(Exception):
+    """Error when a referenced number format is not in the stylesheet"""
+
+
