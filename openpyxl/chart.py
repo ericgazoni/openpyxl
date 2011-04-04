@@ -196,6 +196,7 @@ class Chart(object):
         self.y_axis = Axis.default_value()
         self.legend = Legend()
         self.lang = 'fr-FR'
+        self.title = ''
         self.print_margins = dict(b=.75, l=.7, r=.7, t=.75, header=0.3, footer=.3)
         
         # the containing drawing

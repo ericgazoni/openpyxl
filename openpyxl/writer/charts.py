@@ -52,6 +52,7 @@ class ChartWriter(object):
         chart = self.chart
         
         ch = SubElement(root, 'c:chart')
+        self._write_title(ch)
         plot_area = SubElement(ch, 'c:plotArea')
         layout = SubElement(plot_area, 'c:layout')
         mlayout = SubElement(layout, 'c:manualLayout')
@@ -90,7 +91,22 @@ class ChartWriter(object):
         self._write_legend(ch)
         
         SubElement(ch, 'c:plotVisOnly', {'val':'1'})
-        
+
+    def _write_title(self, chart):
+        if self.chart.title != '':
+            title = SubElement(chart, 'c:title')
+            tx = SubElement(title, 'c:tx')
+            rich = SubElement(tx, 'c:rich')
+            SubElement(rich, 'a:bodyPr')
+            SubElement(rich, 'a:lstStyle')
+            p = SubElement(rich, 'a:p')
+            pPr = SubElement(p, 'a:pPr')
+            SubElement(pPr, 'a:defRPr')
+            r = SubElement(p, 'a:r')
+            SubElement(r, 'a:rPr', {'lang':self.chart.lang})
+            t = SubElement(r, 'a:t').text = self.chart.title
+            SubElement(title, 'c:layout')
+
     def _write_axis(self, plot_area, axis, label):
         
         ax = SubElement(plot_area, label)
