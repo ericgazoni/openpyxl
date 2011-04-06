@@ -230,3 +230,14 @@ class TestWorksheet():
 
         eq_(cols[0][0].value, 'first')
         eq_(cols[-1][-1].value, 'last')
+
+    def test_auto_filter(self):
+        ws = Worksheet(self.wb)
+        ws.auto_filter = ws.range('a1:f1')
+        assert ws.auto_filter == 'A1:F1'
+
+        ws.auto_filter = ''
+        assert ws.auto_filter is None
+
+        ws.auto_filter = 'c1:g9'
+        assert ws.auto_filter == 'C1:G9'
