@@ -138,7 +138,7 @@ def test_write_regular_date():
     book = Workbook()
     sheet = book.get_active_sheet()
     sheet.cell("A1").value = today
-    dest_filename = osp.join(TMPDIR, 'local_named_range_book.xlsx')
+    dest_filename = osp.join(TMPDIR, 'date_read_write_issue.xlsx')
     book.save(dest_filename)
 
     test_book = load_workbook(dest_filename)
