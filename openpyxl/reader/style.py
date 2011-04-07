@@ -27,6 +27,7 @@
 
 # package imports
 from openpyxl.shared.xmltools import fromstring, QName
+from openpyxl.shared.exc import MissingNumberFormat
 from openpyxl.style import Style, NumberFormat
 
 
@@ -44,10 +45,14 @@ def read_style_table(xml_source):
         number_format_id = int(cell_xfs_node.get('numFmtId'))
         if number_format_id < 164:
             new_style.number_format.format_code = \
-                    builtin_formats[number_format_id]
+                    builtin_formats.get(number_format_id, 'General')
         else:
-            new_style.number_format.format_code = \
-                    custom_num_formats[number_format_id]
+
+            if number_format_id in custom_num_formats:
+                new_style.number_format.format_code = \
+                        custom_num_formats[number_format_id]
+            else:
+                raise MissingNumberFormat('%s' % number_format_id)
         table[index] = new_style
     return table
 
