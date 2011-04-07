@@ -171,3 +171,33 @@ def test_write_auto_filter():
     content = write_worksheet(ws, {'hello': 0}, {})
     assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
             'sheet1_auto_filter.xml'), content)
+
+def test_freeze_panes_horiz():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('F42').value = 'hello'
+    ws.freeze_panes = 'A4'
+    content = write_worksheet(ws, {'hello': 0}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1_freeze_panes_horiz.xml'), content)
+
+def test_freeze_panes_vert():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('F42').value = 'hello'
+    ws.freeze_panes = 'D1'
+    content = write_worksheet(ws, {'hello': 0}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1_freeze_panes_vert.xml'), content)
+    pass
+
+def test_freeze_panes_both():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('F42').value = 'hello'
+    ws.freeze_panes = 'D4'
+    content = write_worksheet(ws, {'hello': 0}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1_freeze_panes_both.xml'), content)
+
+

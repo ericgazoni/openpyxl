@@ -226,6 +226,7 @@ class Worksheet(object):
         self.default_row_dimension = RowDimension()
         self.default_column_dimension = ColumnDimension()
         self._auto_filter = None
+        self._freeze_panes = None
 
     def __repr__(self):
         return u'<Worksheet "%s">' % self.title
@@ -285,6 +286,22 @@ class Worksheet(object):
 
     auto_filter = property(_get_auto_filter, _set_auto_filter, doc =
                            'get or set auto filtering on columns')
+    def _set_freeze_panes(self, topLeftCell):
+        if not topLeftCell:
+            topLeftCell = None
+        elif isinstance(topLeftCell, str):
+            topLeftCell = topLeftCell.upper()
+        else: # Assume a cell
+            topLeftCell = topLeftCell.address
+        if topLeftCell == 'A1':
+            topLeftCell = None
+        self._freeze_panes = topLeftCell
+
+    def _get_freeze_panes(self):
+        return self._freeze_panes
+
+    freeze_panes = property(_get_freeze_panes,_set_freeze_panes, doc =
+                           "Get or set frozen panes")
 
     def cell(self, coordinate = None, row = None, column = None):
         """Returns a cell object based on the given coordinates.

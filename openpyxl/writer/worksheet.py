@@ -29,7 +29,7 @@
 from StringIO import StringIO  # cStringIO doesn't handle unicode
 
 # package imports
-from openpyxl.cell import column_index_from_string
+from openpyxl.cell import coordinate_from_string, column_index_from_string
 from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, \
         get_document_content, start_tag, end_tag, tag
 
@@ -53,12 +53,7 @@ def write_worksheet(worksheet, string_table, style_table):
             'summaryRight': '%d' % (worksheet.show_summary_right)})
     end_tag(doc, 'sheetPr')
     tag(doc, 'dimension', {'ref': '%s' % worksheet.calculate_dimension()})
-    start_tag(doc, 'sheetViews')
-    start_tag(doc, 'sheetView', {'workbookViewId': '0'})
-    tag(doc, 'selection', {'activeCell': worksheet.active_cell,
-            'sqref': worksheet.selected_cell})
-    end_tag(doc, 'sheetView')
-    end_tag(doc, 'sheetViews')
+    write_worksheet_sheetviews(doc, worksheet)
     tag(doc, 'sheetFormatPr', {'defaultRowHeight': '15'})
     write_worksheet_cols(doc, worksheet)
     write_worksheet_data(doc, worksheet, string_table, style_table)
@@ -73,6 +68,39 @@ def write_worksheet(worksheet, string_table, style_table):
     xml_file.close()
     return xml_string
 
+def write_worksheet_sheetviews(doc, worksheet):
+    start_tag(doc, 'sheetViews')
+    start_tag(doc, 'sheetView', {'workbookViewId': '0'})
+    selectionAttrs = {}
+    topLeftCell = worksheet.freeze_panes
+    if topLeftCell:
+        colName, row = coordinate_from_string(topLeftCell)
+        column = column_index_from_string(colName)
+        pane = 'topRight'
+        paneAttrs = {}
+        if column > 1:
+            paneAttrs['xSplit'] = str(column - 1)
+        if row > 1:
+            paneAttrs['ySplit'] = str(row - 1)
+            pane = 'bottomLeft'
+            if column > 1:
+                pane = 'bottomRight'
+        paneAttrs.update(dict(topLeftCell=topLeftCell,
+                              activePane=pane,
+                              state='frozen'))
+        tag(doc, 'pane', paneAttrs)
+        selectionAttrs['pane'] = pane
+        if row > 1 and column > 1:
+            tag(doc, 'selection', {'pane': 'topRight'})
+            tag(doc, 'selection', {'pane': 'bottomLeft'})
+
+    selectionAttrs.update({'activeCell': worksheet.active_cell,
+                           'sqref': worksheet.selected_cell})
+
+    tag(doc, 'selection', selectionAttrs)
+    end_tag(doc, 'sheetView')
+    end_tag(doc, 'sheetViews')
+    
 
 def write_worksheet_cols(doc, worksheet):
     """Write worksheet columns to xml."""

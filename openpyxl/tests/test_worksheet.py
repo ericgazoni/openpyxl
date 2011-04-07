@@ -241,3 +241,18 @@ class TestWorksheet():
 
         ws.auto_filter = 'c1:g9'
         assert ws.auto_filter == 'C1:G9'
+
+    def test_freeze(self):
+        ws = Worksheet(self.wb)
+        ws.freeze_panes = ws.cell('b2')
+        assert ws.freeze_panes == 'B2'
+
+        ws.freeze_panes = ''
+        assert ws.freeze_panes is None
+
+        ws.freeze_panes = 'c5'
+        assert ws.freeze_panes == 'C5'
+
+        ws.freeze_panes = ws.cell('A1')
+        assert ws.freeze_panes is None
+
