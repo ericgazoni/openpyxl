@@ -225,6 +225,7 @@ class Worksheet(object):
         self.show_summary_right = True
         self.default_row_dimension = RowDimension()
         self.default_column_dimension = ColumnDimension()
+        self._auto_filter = None
 
     def __repr__(self):
         return u'<Worksheet "%s">' % self.title
@@ -268,6 +269,22 @@ class Worksheet(object):
     title = property(_get_title, _set_title, doc =
                      'Get or set the title of the worksheet. '
                      'Limited to 31 characters, no special characters.')
+
+    def _set_auto_filter(self, range):
+        # Normalize range to a str or None
+        if not range:
+            range = None
+        elif isinstance(range, str):
+            range = range.upper()
+        else: # Assume a range
+            range = range[0][0].address + ':' + range[-1][-1].address
+        self._auto_filter = range
+
+    def _get_auto_filter(self):
+        return self._auto_filter
+
+    auto_filter = property(_get_auto_filter, _set_auto_filter, doc =
+                           'get or set auto filtering on columns')
 
     def cell(self, coordinate = None, row = None, column = None):
         """Returns a cell object based on the given coordinates.

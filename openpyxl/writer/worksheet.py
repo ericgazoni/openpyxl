@@ -62,6 +62,8 @@ def write_worksheet(worksheet, string_table, style_table):
     tag(doc, 'sheetFormatPr', {'defaultRowHeight': '15'})
     write_worksheet_cols(doc, worksheet)
     write_worksheet_data(doc, worksheet, string_table, style_table)
+    if worksheet.auto_filter:
+        tag(doc, 'autoFilter', {'ref': worksheet.auto_filter})
     write_worksheet_hyperlinks(doc, worksheet)
     if worksheet._charts:
         tag(doc, 'drawing', {'r:id':'rId1'})

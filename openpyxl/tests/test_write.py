@@ -162,3 +162,12 @@ def test_hyperlink_value():
     eq_("http://test.com", ws.cell('A1').value)
     ws.cell('A1').value = "test"
     eq_("test", ws.cell('A1').value)
+
+def test_write_auto_filter():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('F42').value = 'hello'
+    ws.auto_filter = 'A1:F1'
+    content = write_worksheet(ws, {'hello': 0}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1_auto_filter.xml'), content)
