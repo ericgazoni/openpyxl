@@ -125,10 +125,11 @@ class Serie(object):
     
     MARKER_NONE = 'none'
     
-    def __init__(self, values, labels=None, legend=None, color=None):
+    def __init__(self, values, labels=None, legend=None, color=None, xvalues=None):
         
         self.marker = Serie.MARKER_NONE
         self.values = values
+        self.xvalues = xvalues
         self.labels = labels
         self.legend = legend
         self.error_bar = None
@@ -182,6 +183,7 @@ class Chart(object):
     
     BAR_CHART = 1
     LINE_CHART = 2
+    SCATTER_CHART = 3
     
     def __init__(self, _type, grouping):
         
@@ -194,6 +196,7 @@ class Chart(object):
         self.y_axis = Axis.default_value()
         self.legend = Legend()
         self.lang = 'fr-FR'
+        self.title = ''
         self.print_margins = dict(b=.75, l=.7, r=.7, t=.75, header=0.3, footer=.3)
         
         # the containing drawing
@@ -213,6 +216,8 @@ class Chart(object):
         serie.id = len(self._series)
         self._series.append(serie)
         self._compute_min_max()
+        if not None in [s.xvalues for s in self._series]:
+            self._compute_xmin_xmax()
         
     def add_shape(self, shape):
         
@@ -268,6 +273,38 @@ class Chart(object):
         self.y_axis.max = maxi
         self.y_axis.unit = unit
         
+    def _compute_xmin_xmax(self):
+        """ compute x axis limits and units """
+
+        maxi = max([max(s.xvalues._get_cache()) for s in self._series])
+
+        mul = None
+        if maxi < 1:
+            s = str(maxi).split('.')[1]
+            mul = 10
+            for x in s:
+                if x == '0':
+                    mul *= 10
+                else:
+                    break
+            maxi = maxi * mul
+
+        maxi = math.ceil(maxi * 1.1)
+        sz =  len(str(int(maxi))) - 1
+        unit = math.ceil(math.ceil(maxi / pow(10, sz)) * pow(10, sz-1))
+        maxi = math.ceil(maxi/unit) * unit
+
+        if mul is not None:
+            maxi = maxi/mul
+            unit = unit/mul
+        
+        if maxi / unit > 9:
+            # no more that 10 ticks
+            unit *= 2
+            
+        self.x_axis.max = maxi
+        self.x_axis.unit = unit
+        
     def _get_max_margin_top(self):
         
         mb = Shape.FONT_HEIGHT + Shape.MARGIN_BOTTOM
@@ -296,5 +333,8 @@ class LineChart(Chart):
     def __init__(self):
         super(LineChart, self).__init__(Chart.LINE_CHART, Chart.GROUPING_STANDARD)
         
+class ScatterChart(Chart):
+    def __init__(self):
+        super(ScatterChart, self).__init__(Chart.SCATTER_CHART, Chart.GROUPING_STANDARD)
         
         

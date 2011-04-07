@@ -52,6 +52,7 @@ class ChartWriter(object):
         chart = self.chart
         
         ch = SubElement(root, 'c:chart')
+        self._write_title(ch)
         plot_area = SubElement(ch, 'c:plotArea')
         layout = SubElement(plot_area, 'c:layout')
         mlayout = SubElement(layout, 'c:manualLayout')
@@ -63,13 +64,17 @@ class ChartWriter(object):
         SubElement(mlayout, 'c:w', {'val':str(chart.width)})
         SubElement(mlayout, 'c:h', {'val':str(chart.height)})
         
-        if chart.type == Chart.BAR_CHART:
-            subchart = SubElement(plot_area, 'c:barChart')
-            SubElement(subchart, 'c:barDir', {'val':'col'})
+        if chart.type == Chart.SCATTER_CHART:
+            subchart = SubElement(plot_area, 'c:scatterChart')
+            SubElement(subchart, 'c:scatterStyle', {'val':str('lineMarker')})
         else:
-            subchart = SubElement(plot_area, 'c:lineChart')
-            
-        SubElement(subchart, 'c:grouping', {'val':chart.grouping})
+            if chart.type == Chart.BAR_CHART:
+                subchart = SubElement(plot_area, 'c:barChart')
+                SubElement(subchart, 'c:barDir', {'val':'col'})
+            else:
+                subchart = SubElement(plot_area, 'c:lineChart')
+                
+            SubElement(subchart, 'c:grouping', {'val':chart.grouping})
         
         self._write_series(subchart)
         
@@ -77,13 +82,31 @@ class ChartWriter(object):
         SubElement(subchart, 'c:axId', {'val':str(chart.x_axis.id)})
         SubElement(subchart, 'c:axId', {'val':str(chart.y_axis.id)})
         
-        self._write_axis(plot_area, chart.x_axis, 'c:catAx')
+        if chart.type == Chart.SCATTER_CHART:
+            self._write_axis(plot_area, chart.x_axis, 'c:valAx')
+        else:
+            self._write_axis(plot_area, chart.x_axis, 'c:catAx')
         self._write_axis(plot_area, chart.y_axis, 'c:valAx')
         
         self._write_legend(ch)
         
         SubElement(ch, 'c:plotVisOnly', {'val':'1'})
-        
+
+    def _write_title(self, chart):
+        if self.chart.title != '':
+            title = SubElement(chart, 'c:title')
+            tx = SubElement(title, 'c:tx')
+            rich = SubElement(tx, 'c:rich')
+            SubElement(rich, 'a:bodyPr')
+            SubElement(rich, 'a:lstStyle')
+            p = SubElement(rich, 'a:p')
+            pPr = SubElement(p, 'a:pPr')
+            SubElement(pPr, 'a:defRPr')
+            r = SubElement(p, 'a:r')
+            SubElement(r, 'a:rPr', {'lang':self.chart.lang})
+            t = SubElement(r, 'a:t').text = self.chart.title
+            SubElement(title, 'c:layout')
+
     def _write_axis(self, plot_area, axis, label):
         
         ax = SubElement(plot_area, label)
@@ -109,7 +132,10 @@ class ChartWriter(object):
         if axis.label_offset:
             SubElement(ax, 'c:lblOffset', {'val':str(axis.label_offset)})
         if label == 'c:valAx':
-            SubElement(ax, 'c:crossBetween', {'val':'between'})
+            if self.chart.type == Chart.SCATTER_CHART:
+                SubElement(ax, 'c:crossBetween', {'val':'midCat'})
+            else:
+                SubElement(ax, 'c:crossBetween', {'val':'between'})
             SubElement(ax, 'c:majorUnit', {'val':str(axis.unit)})
         
     def _write_series(self, subchart):
@@ -125,6 +151,11 @@ class ChartWriter(object):
             
             if serie.color:
                 sppr = SubElement(ser, 'c:spPr')
+                if self.chart.type == Chart.BAR_CHART:
+                    # fill color
+                    fillc = SubElement(sppr, 'a:solidFill')
+                    SubElement(fillc, 'a:srgbClr', {'val':serie.color})
+                # edge color
                 ln = SubElement(sppr, 'a:ln')
                 fill = SubElement(ln, 'a:solidFill')
                 SubElement(fill, 'a:srgbClr', {'val':serie.color})
@@ -139,8 +170,16 @@ class ChartWriter(object):
                 cat = SubElement(ser, 'c:cat')
                 self._write_serial(cat, serie.labels)
             
-            val = SubElement(ser, 'c:val')
-            self._write_serial(val, serie.values)
+            if self.chart.type == Chart.SCATTER_CHART:
+                if serie.xvalues:
+                    xval = SubElement(ser, 'c:xVal')
+                    self._write_serial(xval, serie.xvalues)
+
+                yval = SubElement(ser, 'c:yVal')
+                self._write_serial(yval, serie.values)
+            else:
+                val = SubElement(ser, 'c:val')
+                self._write_serial(val, serie.values)
                 
     def _write_serial(self, node, serie, literal=False):
 
