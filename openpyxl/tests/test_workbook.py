@@ -29,10 +29,12 @@ import os.path as osp
 
 # package imports
 from openpyxl.workbook import Workbook
+from openpyxl.reader.excel import load_workbook
 from openpyxl.namedrange import NamedRange
 from openpyxl.shared.exc import ReadOnlyWorkbookException
 from openpyxl.tests.helper import TMPDIR, clean_tmpdir, make_tmpdir
 
+import datetime
 
 def test_get_active_sheet():
     wb = Workbook()
@@ -126,3 +128,21 @@ def test_add_local_named_range():
     wb.add_named_range(named_range)
     dest_filename = osp.join(TMPDIR, 'local_named_range_book.xlsx')
     wb.save(dest_filename)
+
+
+@with_setup(setup = make_tmpdir, teardown = clean_tmpdir)
+def test_write_regular_date():
+
+    today = datetime.datetime(2010, 1, 18, 14, 15, 20, 1600)
+
+    book = Workbook()
+    sheet = book.get_active_sheet()
+    sheet.cell("A1").value = today
+    dest_filename = osp.join(TMPDIR, 'local_named_range_book.xlsx')
+    book.save(dest_filename)
+
+    test_book = load_workbook(dest_filename)
+    test_sheet = test_book.get_active_sheet()
+
+    eq_(test_sheet.cell("A1").value, today)
+        
