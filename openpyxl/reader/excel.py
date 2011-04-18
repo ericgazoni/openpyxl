@@ -85,6 +85,8 @@ def load_workbook(filename, use_iterators = False):
 
 def _load_workbook(wb, archive, filename, use_iterators):
 
+    valid_files = archive.namelist()
+
     # get workbook-level information
     wb.properties = read_properties_core(archive.read(ARC_CORE))
     try:
@@ -97,8 +99,12 @@ def _load_workbook(wb, archive, filename, use_iterators):
     wb.worksheets = []  # remove preset worksheet
     sheet_names = read_sheets_titles(archive.read(ARC_APP))
     for i, sheet_name in enumerate(sheet_names):
+
         sheet_codename = 'sheet%d.xml' % (i + 1)
         worksheet_path = '%s/%s' % (PACKAGE_WORKSHEETS, sheet_codename)
+
+        if not worksheet_path in valid_files:
+            continue
 
         if not use_iterators:
             new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table)
