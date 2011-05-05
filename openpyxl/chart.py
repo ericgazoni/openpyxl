@@ -47,6 +47,7 @@ class Axis(object):
         self.min = 0
         self.max = None
         self.unit = None
+        self.title = ''
         
     @classmethod
     def default_category(cls):
