@@ -122,6 +122,19 @@ class ChartWriter(object):
         if label == 'c:valAx':
             SubElement(ax, 'c:majorGridlines')
             SubElement(ax, 'c:numFmt', {'formatCode':"General", 'sourceLinked':'1'})
+        if axis.title != '':
+            title = SubElement(ax, 'c:title')
+            tx = SubElement(title, 'c:tx')
+            rich = SubElement(tx, 'c:rich')
+            SubElement(rich, 'a:bodyPr')
+            SubElement(rich, 'a:lstStyle')
+            p = SubElement(rich, 'a:p')
+            pPr = SubElement(p, 'a:pPr')
+            SubElement(pPr, 'a:defRPr')
+            r = SubElement(p, 'a:r')
+            SubElement(r, 'a:rPr', {'lang':self.chart.lang})
+            t = SubElement(r, 'a:t').text = axis.title
+            SubElement(title, 'c:layout')
         SubElement(ax, 'c:tickLblPos', {'val':axis.tick_label_position})
         SubElement(ax, 'c:crossAx', {'val':str(axis.cross)})
         SubElement(ax, 'c:crosses', {'val':axis.crosses})

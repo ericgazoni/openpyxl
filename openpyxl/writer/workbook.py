@@ -72,7 +72,7 @@ def write_content_types(workbook):
                 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'})
         if sheet._charts:
             SubElement(root, 'Override',
-                {'PartName' : '/xl/drawings/drawing%d.xml' % (sheet_id + 1),
+                {'PartName' : '/xl/drawings/drawing%d.xml' % drawing_id,
                 'ContentType' : 'application/vnd.openxmlformats-officedocument.drawing+xml'})
             drawing_id += 1
 
