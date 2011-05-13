@@ -156,8 +156,10 @@ def write_workbook(workbook):
                 'sheetId': '%d' % (i + 1), 'r:id': 'rId%d' % (i + 1)})
         if not sheet.sheet_state == sheet.SHEETSTATE_VISIBLE:
             sheet_node.set('state', sheet.sheet_state)
-    # named ranges
+
+    # Defined names
     defined_names = SubElement(root, 'definedNames')
+    # named ranges
     for named_range in workbook.get_named_ranges():
         name = SubElement(defined_names, 'definedName',
                 {'name': named_range.name})
@@ -177,6 +179,19 @@ def write_workbook(workbook):
 
         # finally write the cells list
         name.text = ','.join(dest_cells)
+
+    # autoFilter
+    for i, sheet in enumerate(workbook.worksheets):
+        #continue
+        auto_filter = sheet.auto_filter
+        if not auto_filter:
+            continue
+        name = SubElement(defined_names, 'definedName',
+                dict(name='_xlnm._FilterDatabase',
+                     localSheetId=str(i),
+                     hidden='1'))
+        name.text = "'%s'!%s" % (sheet.title.replace("'", "''"),
+                                  absolute_coordinate(auto_filter))
 
     SubElement(root, 'calcPr', {'calcId': '124519', 'calcMode': 'auto',
             'fullCalcOnLoad': '1'})
