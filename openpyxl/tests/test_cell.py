@@ -201,3 +201,14 @@ def test_is_date():
     cell.value = 'testme'
     eq_('testme', cell.value)
     eq_(cell.is_date(), False)
+
+def test_is_not_date_color_format():
+
+    wb = Workbook()
+    ws = Worksheet(wb)
+    cell = Cell(ws, 'A', 1)
+
+    cell.value = -13.5
+    cell.style.number_format.format_code = '0.00_);[Red]\(0.00\)'
+
+    eq_(cell.is_date(), False)
