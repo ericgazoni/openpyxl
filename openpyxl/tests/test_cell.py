@@ -27,7 +27,7 @@
 from datetime import time, datetime
 
 # 3rd party imports
-from nose.tools import eq_, raises, assert_raises
+from nose.tools import eq_, raises, assert_raises #pylint: disable=E0611
 
 # package imports
 from openpyxl.worksheet import Worksheet
@@ -48,6 +48,9 @@ def test_coordinates():
 def test_invalid_coordinate():
     coordinate_from_string('AAA')
 
+@raises(CellCoordinatesException)
+def test_zero_row():
+    coordinate_from_string('AQ0')
 
 def test_absolute():
     eq_('$ZF$51', absolute_coordinate('ZF51'))

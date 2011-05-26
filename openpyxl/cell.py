@@ -56,7 +56,11 @@ def coordinate_from_string(coord_string):
         msg = 'Invalid cell coordinates (%s)' % coord_string
         raise CellCoordinatesException(msg)
     column, row = match.groups()
-    return (column, int(row))
+    row = int(row)
+    if not row:
+        msg = "There is no row 0 (%s)" % coord_string
+        raise CellCoordinatesException(msg)
+    return (column, row)
 
 
 def absolute_coordinate(coord_string):
