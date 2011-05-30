@@ -165,12 +165,17 @@ def test_hyperlink_value():
 
 def test_write_auto_filter():
     wb = Workbook()
-    ws = wb.create_sheet()
+    ws = wb.worksheets[0]
     ws.cell('F42').value = 'hello'
     ws.auto_filter = 'A1:F1'
     content = write_worksheet(ws, {'hello': 0}, {})
     assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
             'sheet1_auto_filter.xml'), content)
+
+    content = write_workbook(wb)
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'workbook_auto_filter.xml'), content)
+
 
 def test_freeze_panes_horiz():
     wb = Workbook()

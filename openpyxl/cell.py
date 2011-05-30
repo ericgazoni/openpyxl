@@ -42,6 +42,7 @@ from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.exc import CellCoordinatesException, \
         ColumnStringIndexException, DataTypeException
 from openpyxl.style import NumberFormat
+from openpyxl.shared import NUMERIC_TYPES
 
 # constants
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
@@ -55,7 +56,11 @@ def coordinate_from_string(coord_string):
         msg = 'Invalid cell coordinates (%s)' % coord_string
         raise CellCoordinatesException(msg)
     column, row = match.groups()
-    return (column, int(row))
+    row = int(row)
+    if not row:
+        msg = "There is no row 0 (%s)" % coord_string
+        raise CellCoordinatesException(msg)
+    return (column, row)
 
 
 def absolute_coordinate(coord_string):
@@ -193,7 +198,7 @@ class Cell(object):
 
     def check_numeric(self, value):
         """Cast value to int or float if necessary"""
-        if not isinstance(value, (int, float)):
+        if not isinstance(value, NUMERIC_TYPES):
             try:
                 value = int(value)
             except ValueError:
@@ -222,7 +227,7 @@ class Cell(object):
             data_type = self.TYPE_NULL
         elif value is True or value is False:
             data_type = self.TYPE_BOOL
-        elif isinstance(value, (int, float)):
+        elif isinstance(value, NUMERIC_TYPES):
             data_type = self.TYPE_NUMERIC
         elif not value:
             data_type = self.TYPE_STRING
@@ -255,13 +260,13 @@ class Cell(object):
             # time detection
             time_search = self.RE_PATTERNS['time'].match(value)
             if time_search:
-                sep_count = value.count(':') #pylint: disable-msg=E1103
+                sep_count = value.count(':') #pylint: disable=E1103
                 if sep_count == 1:
-                    hours, minutes = [int(bit) for bit in value.split(':')] #pylint: disable-msg=E1103
+                    hours, minutes = [int(bit) for bit in value.split(':')] #pylint: disable=E1103
                     seconds = 0
                 elif sep_count == 2:
                     hours, minutes, seconds = \
-                            [int(bit) for bit in value.split(':')] #pylint: disable-msg=E1103
+                            [int(bit) for bit in value.split(':')] #pylint: disable=E1103
                 days = (hours / 24.0) + (minutes / 1440.0) + \
                         (seconds / 86400.0)
                 self.set_value_explicit(days, self.TYPE_NUMERIC)
@@ -331,7 +336,7 @@ class Cell(object):
     @property
     def has_style(self):
         """Check if the parent worksheet has a style for this cell"""
-        return self.get_coordinate() in self.parent._styles #pylint: disable-msg=W0212
+        return self.get_coordinate() in self.parent._styles #pylint: disable=W0212
 
     @property
     def style(self):
@@ -381,4 +386,4 @@ class Cell(object):
         """
         return (self.has_style
                 and self.style.number_format.is_date_format()
-                and isinstance(self._value, (int, float)))
+                and isinstance(self._value, NUMERIC_TYPES))

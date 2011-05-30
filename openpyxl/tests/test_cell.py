@@ -27,7 +27,7 @@
 from datetime import time, datetime
 
 # 3rd party imports
-from nose.tools import eq_, raises, assert_raises
+from nose.tools import eq_, raises, assert_raises #pylint: disable=E0611
 
 # package imports
 from openpyxl.worksheet import Worksheet
@@ -48,6 +48,9 @@ def test_coordinates():
 def test_invalid_coordinate():
     coordinate_from_string('AAA')
 
+@raises(CellCoordinatesException)
+def test_zero_row():
+    coordinate_from_string('AQ0')
 
 def test_absolute():
     eq_('$ZF$51', absolute_coordinate('ZF51'))
@@ -197,4 +200,15 @@ def test_is_date():
     eq_(cell.is_date(), True)
     cell.value = 'testme'
     eq_('testme', cell.value)
+    eq_(cell.is_date(), False)
+
+def test_is_not_date_color_format():
+
+    wb = Workbook()
+    ws = Worksheet(wb)
+    cell = Cell(ws, 'A', 1)
+
+    cell.value = -13.5
+    cell.style.number_format.format_code = '0.00_);[Red]\(0.00\)'
+
     eq_(cell.is_date(), False)
