@@ -37,7 +37,14 @@ def read_string_table(xml_source):
     root = fromstring(text=xml_source)
     string_index_nodes = root.findall(QName(xmlns, 'si').text)
     for index, string_index_node in enumerate(string_index_nodes):
-        table[index] = get_string(xmlns, string_index_node)
+
+        string = get_string(xmlns, string_index_node)
+
+        # fix XML escaping sequence for '_x'
+        string = string.replace('x005F_', '')
+
+        table[index] = string
+
     return table
 
 
