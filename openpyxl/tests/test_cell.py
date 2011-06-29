@@ -185,6 +185,13 @@ def test_date_format_on_non_date():
     cell.value = 'testme'
     eq_('testme', cell.value)
 
+def test_set_get_date():
+    today = datetime(2010, 1, 18, 14, 15, 20, 1600)
+    wb = Workbook()
+    ws = Worksheet(wb)
+    cell = Cell(ws, 'A', 1)
+    cell.value = today
+    eq_(today, cell.value)
 
 def test_repr():
     wb = Workbook()
