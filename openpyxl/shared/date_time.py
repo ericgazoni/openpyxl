@@ -75,7 +75,8 @@ class SharedDate(object):
 
         if isinstance(date, datetime.datetime):
             return self.to_julian(date.year, date.month, date.day, \
-                hours=date.hour, minutes=date.minute, seconds=date.second)
+                hours=date.hour, minutes=date.minute,
+                                  seconds=date.second + date.microsecond * 1.0e-6)
         elif isinstance(date, datetime.date):
             return self.to_julian(date.year, date.month, date.day)
 

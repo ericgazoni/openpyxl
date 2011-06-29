@@ -146,3 +146,18 @@ def test_write_regular_date():
 
     eq_(test_sheet.cell("A1").value, today)
         
+@with_setup(setup = make_tmpdir, teardown = clean_tmpdir)
+def test_write_regular_float():
+
+    float_value = 1.0 / 3.0
+    book = Workbook()
+    sheet = book.get_active_sheet()
+    sheet.cell("A1").value = float_value
+    dest_filename = osp.join(TMPDIR, 'float_read_write_issue.xlsx')
+    book.save(dest_filename)
+
+    test_book = load_workbook(dest_filename)
+    test_sheet = test_book.get_active_sheet()
+
+    eq_(test_sheet.cell("A1").value, float_value)
+
