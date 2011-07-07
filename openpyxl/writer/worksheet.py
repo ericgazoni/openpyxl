@@ -168,6 +168,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
                 tag(doc, 'v')
             elif cell.data_type == cell.TYPE_NUMERIC:
                 tag(doc, 'v', body = repr(value))
+            elif cell.data_type == cell.TYPE_BOOL:
+                tag(doc, 'v', body = '%d' % value)
             else:
                 tag(doc, 'v', body = '%s' % value)
             end_tag(doc, 'c')

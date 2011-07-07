@@ -210,6 +210,8 @@ class DumpWorksheet(Worksheet):
             if dtype == 'formula':
                 tag(doc, 'f', body = '%s' % cell[1:])
                 tag(doc, 'v')
+            elif dtype == 'boolean':
+                tag(doc, 'v', body = '%d' % cell)
             else:
                 tag(doc, 'v', body = '%s' % cell)
             

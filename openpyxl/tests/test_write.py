@@ -99,6 +99,16 @@ def test_write_hidden_worksheet():
             'sheet1.xml'), content)
 
 
+def test_write_bool():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('F42').value = False
+    ws.cell('F43').value = True
+    content = write_worksheet(ws, {}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'sheet1_bool.xml'), content)
+
+
 def test_write_formula():
     wb = Workbook()
     ws = wb.create_sheet()
