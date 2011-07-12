@@ -297,6 +297,10 @@ class IterableWorksheet(Worksheet):
     def range(self, *args, **kwargs):
 
         raise NotImplementedError("use 'iter_rows()' instead")
+    
+    def calculate_dimension(self):
+        
+        raise NotImplementedError("'calculate_dimension' not implemented for IterableWorksheet")
 
 def unpack_worksheet(archive, filename):
 
