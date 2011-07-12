@@ -300,7 +300,7 @@ class IterableWorksheet(Worksheet):
     
     def calculate_dimension(self):
         
-        raise NotImplementedError("'calculate_dimension' not implemented for IterableWorksheet")
+        raise NotImplementedError("'calculate_dimension()' not implemented for IterableWorksheet Class")
 
 def unpack_worksheet(archive, filename):
 
