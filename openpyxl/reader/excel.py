@@ -95,7 +95,7 @@ def _load_workbook(wb, archive, filename, use_iterators):
 
     # get worksheets
     wb.worksheets = []  # remove preset worksheet
-    sheet_names = read_sheets_titles(archive.read(ARC_APP))
+    sheet_names = read_sheets_titles(archive.read(ARC_WORKBOOK))
     for i, sheet_name in enumerate(sheet_names):
 
         sheet_codename = 'sheet%d.xml' % (i + 1)

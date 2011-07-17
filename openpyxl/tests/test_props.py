@@ -37,10 +37,10 @@ from nose.tools import eq_
 from openpyxl.tests.helper import DATADIR, TMPDIR, make_tmpdir, clean_tmpdir, \
         assert_equals_file_content
 from openpyxl.reader.workbook import read_properties_core, \
-        read_sheets_titles, get_number_of_parts
+        read_sheets_titles
 from openpyxl.writer.workbook import write_properties_core, \
         write_properties_app
-from openpyxl.shared.ooxml import ARC_APP, ARC_CORE
+from openpyxl.shared.ooxml import ARC_APP, ARC_CORE, ARC_WORKBOOK
 from openpyxl.workbook import DocumentProperties, Workbook
 
 
@@ -64,32 +64,10 @@ class TestReaderProps(object):
         eq_(prop.modified, datetime(2011, 2, 9, 13, 49, 32))
 
     def test_read_sheets_titles(self):
-        content = self.archive.read(ARC_APP)
+        content = self.archive.read(ARC_WORKBOOK)
         sheet_titles = read_sheets_titles(content)
         eq_(sheet_titles, \
                 ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas', 'Sheet4 - Dates'])
-
-
-class TestReaderPropsMixed(object):
-
-    @classmethod
-    def setup_class(cls):
-        reference_filename = \
-                os.path.join(DATADIR, 'reader', 'app-multi-titles.xml')
-        with open(reference_filename) as handle:
-            cls.content = handle.read()
-
-    def test_read_sheet_titles_mixed(self):
-        sheet_titles = read_sheets_titles(self.content)
-        eq_(sheet_titles,
-                ['ToC', 'ContractYear', 'ContractTier', 'Demand',
-                'LinearizedFunction', 'Market', 'Transmission'])
-
-    def test_number_of_parts(self):
-        parts_number = get_number_of_parts(self.content)
-        eq_(parts_number,
-                ({'Worksheets': 7, 'Named Ranges': 7},
-                ['Worksheets', 'Named Ranges']))
 
 
 class TestWriteProps(object):

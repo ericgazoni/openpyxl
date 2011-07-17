@@ -76,40 +76,13 @@ def read_properties_core(xml_source):
     return properties
 
 
-def get_number_of_parts(xml_source):
-    """Get a list of contents of the workbook."""
-    parts_size = {}
-    parts_names = []
-    root = fromstring(xml_source)
-    heading_pairs = root.find(QName('http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
-            'HeadingPairs').text)
-    vector = heading_pairs.find(QName(NAMESPACES['vt'], 'vector').text)
-    children = vector.getchildren()
-    for child_id in range(0, len(children), 2):
-        part_name = children[child_id].find(QName(NAMESPACES['vt'],
-                'lpstr').text).text
-        if not part_name in parts_names:
-            parts_names.append(part_name)
-        part_size = int(children[child_id + 1].find(QName(
-                NAMESPACES['vt'], 'i4').text).text)
-        parts_size[part_name] = part_size
-    return parts_size, parts_names
-
-
 def read_sheets_titles(xml_source):
     """Read titles for all sheets."""
     root = fromstring(xml_source)
-    titles_root = root.find(QName('http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
-            'TitlesOfParts').text)
-    vector = titles_root.find(QName(NAMESPACES['vt'], 'vector').text)
-    parts, names = get_number_of_parts(xml_source)
+    titles_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+            'sheets').text)
 
-    # we can't assume 'Worksheets' to be written in english,
-    # but it's always the first item of the parts list (see bug #22)
-    size = parts[names[0]]
-    children = [c.text for c in vector.getchildren()]
-    return children[:size]
-
+    return [sheet.get('name') for sheet in titles_root.getchildren()]
 
 def read_named_ranges(xml_source, workbook):
     """Read named ranges, excluding poorly defined ranges."""
