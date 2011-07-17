@@ -77,8 +77,6 @@ def load_workbook(filename, use_iterators = False):
         _load_workbook(wb, archive, filename, use_iterators)
     except KeyError, e:
         raise InvalidFileException(unicode(e))
-    except Exception, e:
-        raise e
     finally:
         archive.close()
     return wb
