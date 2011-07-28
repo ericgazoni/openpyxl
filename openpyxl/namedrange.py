@@ -35,13 +35,16 @@ from openpyxl.shared.exc import NamedRangeException
 NAMED_RANGE_RE = re.compile("'?([^']*)'?!((\$([A-Za-z]+))?\$([0-9]+)(:(\$([A-Za-z]+))?(\$([0-9]+)))?)$")
 
 class NamedRange(object):
-    """A named group of cells"""
-    __slots__ = ('name', 'destinations', 'local_only')
+    """A named group of cells
+    
+    Scope is a worksheet object or None for workbook scope names (the default)
+    """
+    __slots__ = ('name', 'destinations', 'scope')
 
     def __init__(self, name, destinations):
         self.name = name
         self.destinations = destinations
-        self.local_only = False
+        self.scope = None
 
     def __str__(self):
         return  ','.join([u'%s!%s' % (sheet, name) for sheet, name in self.destinations])
@@ -49,6 +52,15 @@ class NamedRange(object):
     def __repr__(self):
 
         return '<%s "%s">' % (self.__class__.__name__, str(self))
+
+class NamedRangeContainingValue(object):
+    """A named value"""
+    __slots__ = ('name', 'value', 'scope')
+
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+        self.scope = None
 
 
 def split_named_range(range_string):
@@ -66,3 +78,6 @@ def split_named_range(range_string):
             destinations.append((sheet_name, xlrange))
 
     return destinations
+
+def refers_to_range(range_string):
+    return bool(NAMED_RANGE_RE.match(range_string))

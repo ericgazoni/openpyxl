@@ -38,6 +38,7 @@ from openpyxl.shared.exc import SheetTitleException, \
 from openpyxl.shared.password_hasher import hash_password
 from openpyxl.style import Style, DEFAULTS as DEFAULTS_STYLE
 from openpyxl.drawing import Drawing
+from openpyxl.namedrange import NamedRangeContainingValue
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
@@ -428,6 +429,9 @@ class Worksheet(object):
             named_range = self._parent.get_named_range(range_string)
             if named_range is None:
                 msg = '%s is not a valid range name' % range_string
+                raise NamedRangeException(msg)
+            if isinstance(named_range, NamedRangeContainingValue):
+                msg = '%s refers to a value, not a range' % range_string
                 raise NamedRangeException(msg)
 
             result = []

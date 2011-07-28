@@ -124,7 +124,7 @@ def test_add_local_named_range():
     wb = Workbook()
     new_sheet = wb.create_sheet()
     named_range = NamedRange('test_nr', [(new_sheet, 'A1')])
-    named_range.local_only = True
+    named_range.scope = new_sheet
     wb.add_named_range(named_range)
     dest_filename = osp.join(TMPDIR, 'local_named_range_book.xlsx')
     wb.save(dest_filename)

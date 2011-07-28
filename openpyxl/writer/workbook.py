@@ -32,6 +32,7 @@ from openpyxl.shared.xmltools import get_document_content
 from openpyxl.shared.ooxml import NAMESPACES, ARC_CORE, ARC_WORKBOOK, \
        ARC_APP, ARC_THEME, ARC_STYLE, ARC_SHARED_STRINGS
 from openpyxl.shared.date_time import datetime_to_W3CDTF
+from openpyxl.namedrange import NamedRange, NamedRangeContainingValue
 
 
 def write_properties_core(properties):
@@ -163,22 +164,21 @@ def write_workbook(workbook):
     for named_range in workbook.get_named_ranges():
         name = SubElement(defined_names, 'definedName',
                 {'name': named_range.name})
+        if named_range.scope:
+            name.set('localSheetId', '%s' % workbook.get_index(named_range.scope))
 
-        # as there can be many cells in one range, generate the list of ranges
-        dest_cells = []
-        cell_ids = []
-        for worksheet, range_name in named_range.destinations:
-            cell_ids.append(workbook.get_index(worksheet))
-            dest_cells.append("'%s'!%s" % (worksheet.title.replace("'", "''"),
-                                           absolute_coordinate(range_name)))
+        if isinstance(named_range, NamedRange):
+            # as there can be many cells in one range, generate the list of ranges
+            dest_cells = []
+            for worksheet, range_name in named_range.destinations:
+                dest_cells.append("'%s'!%s" % (worksheet.title.replace("'", "''"),
+                absolute_coordinate(range_name)))
 
-        # for local ranges, we must check all the cells belong to the same sheet
-        base_id = cell_ids[0]
-        if named_range.local_only and all([x == base_id for x in cell_ids]):
-            name.set('localSheetId', '%s' % base_id)
-
-        # finally write the cells list
-        name.text = ','.join(dest_cells)
+            # finally write the cells list
+            name.text = ','.join(dest_cells)
+        else:
+            assert isinstance(named_range, NamedRangeContainingValue)
+            name.text = named_range.value
 
     # autoFilter
     for i, sheet in enumerate(workbook.worksheets):
