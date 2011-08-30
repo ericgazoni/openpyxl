@@ -240,7 +240,7 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
                     if cell.data_type == Cell.TYPE_STRING:
                         cell = cell._replace(internal_value = string_table[int(cell.internal_value)]) #pylint: disable-msg=W0212
                     elif cell.data_type == Cell.TYPE_BOOL:
-                        cell = cell._replace(internal_value = cell.internal_value == 'True')
+                        cell = cell._replace(internal_value = cell.internal_value == '1')
                     elif cell.is_date:
                         cell = cell._replace(internal_value = SHARED_DATE.from_julian(float(cell.internal_value)))
                     elif cell.data_type == Cell.TYPE_NUMERIC:
