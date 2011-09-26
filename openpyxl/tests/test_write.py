@@ -215,4 +215,18 @@ def test_freeze_panes_both():
     assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
             'sheet1_freeze_panes_both.xml'), content)
 
+def test_long_number():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('A1').value = 9781231231230
+    content = write_worksheet(ws, {}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'long_number.xml'), content)
 
+def test_short_number():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('A1').value = 1234567890
+    content = write_worksheet(ws, {}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'short_number.xml'), content)

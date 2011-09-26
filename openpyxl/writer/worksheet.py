@@ -167,7 +167,11 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
                 tag(doc, 'f', body = '%s' % value[1:])
                 tag(doc, 'v')
             elif cell.data_type == cell.TYPE_NUMERIC:
-                tag(doc, 'v', body = repr(value))
+                if isinstance(value, long):
+                    func=str
+                else:
+                    func=repr
+                tag(doc, 'v', body = func(value))
             elif cell.data_type == cell.TYPE_BOOL:
                 tag(doc, 'v', body = '%d' % value)
             else:
