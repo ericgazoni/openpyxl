@@ -32,7 +32,7 @@ from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 from openpyxl.shared.exc import OpenModeError, InvalidFileException
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, \
         ARC_WORKBOOK, PACKAGE_WORKSHEETS, ARC_STYLE
-from openpyxl.workbook import Workbook
+from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
 from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, \
@@ -86,7 +86,11 @@ def _load_workbook(wb, archive, filename, use_iterators):
     valid_files = archive.namelist()
 
     # get workbook-level information
-    wb.properties = read_properties_core(archive.read(ARC_CORE))
+    try:
+        wb.properties = read_properties_core(archive.read(ARC_CORE))
+    except KeyError:
+        wb.properties = DocumentProperties()
+    
     try:
         string_table = read_string_table(archive.read(ARC_SHARED_STRINGS))
     except KeyError:

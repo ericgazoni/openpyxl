@@ -103,6 +103,11 @@ def test_read_dimension():
         dimension = read_dimension(xml_source = handle.read())
 
     eq_(('D', 1, 'K', 30), dimension)
+    
+def test_read_workbook_with_no_properties():
+    genuine_wb = os.path.join(DATADIR, 'genuine', \
+                'empty_with_no_properties.xlsx')
+    wb = load_workbook(filename = genuine_wb)
 
 class TestReadWorkbookWithStyles(object):
 
