@@ -36,7 +36,7 @@ import re
 # constants
 W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
-RE_W3CDTF = '(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{2}))?Z'
+RE_W3CDTF = '(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{2}))?Z?'
 
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 
