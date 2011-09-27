@@ -165,9 +165,9 @@ class Cell(object):
                    TYPE_NULL, TYPE_INLINE, TYPE_ERROR]
 
     RE_PATTERNS = {
-        'percentage': re.compile('^\-?[0-9]*\.?[0-9]*\s?\%$'),
-        'time': re.compile('^(\d|[0-1]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'),
-        'numeric': re.compile('^\-?([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)((E|e)\-?[0-9]+)?$'), }
+        'percentage': re.compile(r'^\-?[0-9]*\.?[0-9]*\s?\%$'),
+        'time': re.compile(r'^(\d|[0-1]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'),
+        'numeric': re.compile(r'^\-?(0|[0-9]?\.[0-9]*|[0-9]?\.[0-9]+|[1-9][0-9]+\.?[0-9]*|[1-9][0-9]*\.?[0-9]+)((E|e)\-?[0-9]+)?$'), }
 
     def __init__(self, worksheet, column, row, value = None):
         self.column = column.upper()

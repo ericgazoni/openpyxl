@@ -131,7 +131,11 @@ class TestCellValueTypes():
         eq_(self.cell.TYPE_BOOL, self.cell.data_type)
         self.cell.value = False
         eq_(self.cell.TYPE_BOOL, self.cell.data_type)
-
+        
+    def test_leading_zero(self):
+        self.cell.value = '0800'
+        eq_(self.cell.TYPE_STRING, self.cell.data_type)
+        
     def test_error_codes(self):
 
         def check_error():
