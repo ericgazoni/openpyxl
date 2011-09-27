@@ -114,7 +114,7 @@ class TestCellValueTypes():
             self.cell.value = value
             eq_(self.cell.TYPE_NUMERIC, self.cell.data_type)
 
-        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', '99E-02')
+        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', '99E-02', 1e1)
         for value in values:
             yield check_numeric, value
 

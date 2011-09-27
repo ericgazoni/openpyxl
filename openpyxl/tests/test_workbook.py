@@ -47,6 +47,16 @@ def test_create_sheet():
     new_sheet = wb.create_sheet(0)
     eq_(new_sheet, wb.worksheets[0])
 
+def test_add_correct_sheet():
+    wb = Workbook()
+    new_sheet = wb.create_sheet(0)
+    wb.add_sheet(new_sheet)
+    eq_(new_sheet, wb.worksheets[2])
+    
+@raises(AssertionError)    
+def test_add_incorrect_sheet():
+    wb = Workbook()
+    wb.add_sheet("Test")  
 
 @raises(ReadOnlyWorkbookException)
 def test_create_sheet_readonly():

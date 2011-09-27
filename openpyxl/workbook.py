@@ -113,6 +113,9 @@ class Workbook(object):
 
     def add_sheet(self, worksheet, index = None):
         """Add an existing worksheet (at an optional index)."""
+        
+        assert isinstance(worksheet, Worksheet), "The parameter you have given is not of the type 'Worksheet'"
+        
         if index is None:
             index = len(self.worksheets)
         self.worksheets.insert(index, worksheet)
