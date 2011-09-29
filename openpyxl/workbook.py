@@ -71,7 +71,7 @@ class DocumentSecurity(object):
 class Workbook(object):
     """Workbook is the container for all other parts of the document."""
 
-    def __init__(self, optimized_write = False):
+    def __init__(self, optimized_write=False, encoding='utf-8'):
         self.worksheets = []
         self._active_sheet_index = 0
         self._named_ranges = []
@@ -81,6 +81,8 @@ class Workbook(object):
         self.__optimized_write = optimized_write
         self.__optimized_read = False
         self.strings_table_builder = StringTableBuilder()
+
+        self.encoding = encoding
 
         if not optimized_write:
             self.worksheets.append(Worksheet(self))
@@ -92,7 +94,7 @@ class Workbook(object):
         """Returns the current active sheet."""
         return self.worksheets[self._active_sheet_index]
 
-    def create_sheet(self, index = None):
+    def create_sheet(self, index=None):
         """Create a worksheet (at an optional index).
 
         :param index: optional position at which the sheet will be inserted
@@ -104,18 +106,18 @@ class Workbook(object):
             raise ReadOnlyWorkbookException('Cannot create new sheet in a read-only workbook')
 
         if self.__optimized_write :
-            new_ws = DumpWorksheet(parent_workbook = self)
+            new_ws = DumpWorksheet(parent_workbook=self)
         else:
-            new_ws = Worksheet(parent_workbook = self)
+            new_ws = Worksheet(parent_workbook=self)
 
-        self.add_sheet(worksheet = new_ws, index = index)
+        self.add_sheet(worksheet=new_ws, index=index)
         return new_ws
 
-    def add_sheet(self, worksheet, index = None):
+    def add_sheet(self, worksheet, index=None):
         """Add an existing worksheet (at an optional index)."""
-        
+
         assert isinstance(worksheet, Worksheet), "The parameter you have given is not of the type 'Worksheet'"
-        
+
         if index is None:
             index = len(self.worksheets)
         self.worksheets.insert(index, worksheet)

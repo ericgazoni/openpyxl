@@ -105,7 +105,7 @@ class RowDimension(object):
                  'collapsed',
                  'style_index',)
 
-    def __init__(self, index = 0):
+    def __init__(self, index=0):
         self.row_index = index
         self.height = -1
         self.visible = True
@@ -124,7 +124,7 @@ class ColumnDimension(object):
                  'collapsed',
                  'style_index',)
 
-    def __init__(self, index = 'A'):
+    def __init__(self, index='A'):
         self.column_index = index
         self.width = -1
         self.auto_size = False
@@ -165,7 +165,7 @@ class SheetProtection(object):
         self.select_unlocked_cells = False
         self._password = ''
 
-    def set_password(self, value = '', already_hashed = False):
+    def set_password(self, value='', already_hashed=False):
         """Set a password on this sheet."""
         if not already_hashed:
             value = hash_password(value)
@@ -173,7 +173,7 @@ class SheetProtection(object):
 
     def _set_raw_password(self, value):
         """Set a password directly, forcing a hash step."""
-        self.set_password(value, already_hashed = False)
+        self.set_password(value, already_hashed=False)
 
     def _get_raw_password(self):
         """Return the password value, regardless of hash."""
@@ -199,7 +199,7 @@ class Worksheet(object):
     SHEETSTATE_HIDDEN = 'hidden'
     SHEETSTATE_VERYHIDDEN = 'veryHidden'
 
-    def __init__(self, parent_workbook, title = 'Sheet'):
+    def __init__(self, parent_workbook, title='Sheet'):
         self._parent = parent_workbook
         self._title = ''
         if not title:
@@ -231,6 +231,10 @@ class Worksheet(object):
 
     def __repr__(self):
         return u'<Worksheet "%s">' % self.title
+
+    @property
+    def encoding(self):
+        return self._parent.encoding
 
     def garbage_collect(self):
         """Delete cells that are not storing a value."""
@@ -268,7 +272,7 @@ class Worksheet(object):
         """Return the title for this sheet."""
         return self._title
 
-    title = property(_get_title, _set_title, doc =
+    title = property(_get_title, _set_title, doc=
                      'Get or set the title of the worksheet. '
                      'Limited to 31 characters, no special characters.')
 
@@ -285,7 +289,7 @@ class Worksheet(object):
     def _get_auto_filter(self):
         return self._auto_filter
 
-    auto_filter = property(_get_auto_filter, _set_auto_filter, doc =
+    auto_filter = property(_get_auto_filter, _set_auto_filter, doc=
                            'get or set auto filtering on columns')
     def _set_freeze_panes(self, topLeftCell):
         if not topLeftCell:
@@ -301,10 +305,10 @@ class Worksheet(object):
     def _get_freeze_panes(self):
         return self._freeze_panes
 
-    freeze_panes = property(_get_freeze_panes,_set_freeze_panes, doc =
+    freeze_panes = property(_get_freeze_panes, _set_freeze_panes, doc=
                            "Get or set frozen panes")
 
-    def cell(self, coordinate = None, row = None, column = None):
+    def cell(self, coordinate=None, row=None, column=None):
         """Returns a cell object based on the given coordinates.
 
         Usage: cell(coodinate='A15') **or** cell(row=15, column=1)
@@ -379,7 +383,7 @@ class Worksheet(object):
         return 'A1:%s%d' % (get_column_letter(self.get_highest_column()),
                             self.get_highest_row())
 
-    def range(self, range_string, row = 0, column = 0):
+    def range(self, range_string, row=0, column=0):
         """Returns a 2D array of cells, with optional row and column offsets.
 
         :param range_string: cell range string or `named range` name
@@ -420,8 +424,8 @@ class Worksheet(object):
             return tuple(result)
         else:
             try:
-                return self.cell(coordinate = range_string, row = row,
-                        column = column)
+                return self.cell(coordinate=range_string, row=row,
+                        column=column)
             except CellCoordinatesException:
                 pass
 
@@ -502,7 +506,7 @@ class Worksheet(object):
 
             for col_idx, content in enumerate(list_or_dict):
 
-                self.cell(row = row_idx, column = col_idx).value = content
+                self.cell(row=row_idx, column=col_idx).value = content
 
         elif isinstance(list_or_dict, dict):
 
@@ -511,7 +515,7 @@ class Worksheet(object):
                 if isinstance(col_idx, basestring):
                     col_idx = column_index_from_string(col_idx) - 1
 
-                self.cell(row = row_idx, column = col_idx).value = content
+                self.cell(row=row_idx, column=col_idx).value = content
 
         else:
             raise TypeError('list_or_dict must be a list or a dict')
@@ -529,7 +533,7 @@ class Worksheet(object):
         cols = []
 
         for col_idx in range(self.get_highest_column()):
-            col = get_column_letter(col_idx+1)
+            col = get_column_letter(col_idx + 1)
             res = self.range('%s1:%s%d' % (col, col, max_row))
             cols.append(tuple([x[0] for x in res]))
 

@@ -1,3 +1,4 @@
+# coding: utf-8
 # file openpyxl/tests/test_workbook.py
 
 # Copyright (c) 2010 openpyxl
@@ -52,11 +53,11 @@ def test_add_correct_sheet():
     new_sheet = wb.create_sheet(0)
     wb.add_sheet(new_sheet)
     eq_(new_sheet, wb.worksheets[2])
-    
-@raises(AssertionError)    
+
+@raises(AssertionError)
 def test_add_incorrect_sheet():
     wb = Workbook()
-    wb.add_sheet("Test")  
+    wb.add_sheet("Test")
 
 @raises(ReadOnlyWorkbookException)
 def test_create_sheet_readonly():
@@ -129,7 +130,7 @@ def test_remove_named_range():
     named_ranges_list = wb.get_named_ranges()
     assert named_range not in named_ranges_list
 
-@with_setup(setup = make_tmpdir, teardown = clean_tmpdir)
+@with_setup(setup=make_tmpdir, teardown=clean_tmpdir)
 def test_add_local_named_range():
     wb = Workbook()
     new_sheet = wb.create_sheet()
@@ -140,7 +141,7 @@ def test_add_local_named_range():
     wb.save(dest_filename)
 
 
-@with_setup(setup = make_tmpdir, teardown = clean_tmpdir)
+@with_setup(setup=make_tmpdir, teardown=clean_tmpdir)
 def test_write_regular_date():
 
     today = datetime.datetime(2010, 1, 18, 14, 15, 20, 1600)
@@ -155,8 +156,8 @@ def test_write_regular_date():
     test_sheet = test_book.get_active_sheet()
 
     eq_(test_sheet.cell("A1").value, today)
-        
-@with_setup(setup = make_tmpdir, teardown = clean_tmpdir)
+
+@with_setup(setup=make_tmpdir, teardown=clean_tmpdir)
 def test_write_regular_float():
 
     float_value = 1.0 / 3.0
@@ -170,4 +171,22 @@ def test_write_regular_float():
     test_sheet = test_book.get_active_sheet()
 
     eq_(test_sheet.cell("A1").value, float_value)
+
+@raises(UnicodeDecodeError)
+def test_bad_encoding():
+
+    test_string = u'Compound Value (£)'.encode('latin1')
+
+    utf_book = Workbook()
+    utf_sheet = utf_book.get_active_sheet()
+    utf_sheet.cell('A1').value = test_string
+
+def test_good_encoding():
+
+    test_string = u'Compound Value (£)'.encode('latin1')
+
+    lat_book = Workbook(encoding='latin1')
+    lat_sheet = lat_book.get_active_sheet()
+    lat_sheet.cell('A1').value = test_string
+
 

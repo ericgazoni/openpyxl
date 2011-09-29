@@ -91,7 +91,7 @@ def test_column_letter():
 
 
 def test_initial_value():
-    cell = Cell(None, 'A', 1, value = '17.5')
+    cell = Cell(None, 'A', 1, value='17.5')
     eq_(cell.TYPE_NUMERIC, cell.data_type)
 
 
@@ -99,7 +99,11 @@ class TestCellValueTypes():
 
     @classmethod
     def setup_class(cls):
-        cls.cell = Cell(None, 'A', 1)
+
+        class Ws(object):
+            encoding = 'utf-8'
+
+        cls.cell = Cell(Ws(), 'A', 1)
 
     def test_1st(self):
         eq_(self.cell.TYPE_NULL, self.cell.data_type)
@@ -131,11 +135,11 @@ class TestCellValueTypes():
         eq_(self.cell.TYPE_BOOL, self.cell.data_type)
         self.cell.value = False
         eq_(self.cell.TYPE_BOOL, self.cell.data_type)
-        
+
     def test_leading_zero(self):
         self.cell.value = '0800'
         eq_(self.cell.TYPE_STRING, self.cell.data_type)
-        
+
     def test_error_codes(self):
 
         def check_error():
@@ -147,7 +151,9 @@ class TestCellValueTypes():
 
 
 def test_data_type_check():
-    cell = Cell(None, 'A', 1)
+    class Ws(object):
+            encoding = 'utf-8'
+    cell = Cell(Ws(), 'A', 1)
     cell.bind_value(None)
     eq_(Cell.TYPE_NULL, cell._data_type)
 

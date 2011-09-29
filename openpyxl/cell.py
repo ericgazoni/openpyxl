@@ -73,7 +73,7 @@ def absolute_coordinate(coord_string):
         return '$%s$%s' % (parts[0], parts[1])
 
 
-def column_index_from_string(column, fast = False):
+def column_index_from_string(column, fast=False):
     """Convert a column letter into a column number (e.g. B -> 2)
     
     Excel only supports 1-3 letter column names from A -> ZZZ, so we
@@ -169,7 +169,7 @@ class Cell(object):
         'time': re.compile(r'^(\d|[0-1]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'),
         'numeric': re.compile(r'^\-?(0|[0-9]?\.[0-9]*|[0-9]?\.[0-9]+|[1-9][0-9]+\.?[0-9]*|[1-9][0-9]*\.?[0-9]+)((E|e)\-?[0-9]+)?$'), }
 
-    def __init__(self, worksheet, column, row, value = None):
+    def __init__(self, worksheet, column, row, value=None):
         self.column = column.upper()
         self.row = row
         # _value is the stored value, while value is the displayed value
@@ -181,13 +181,18 @@ class Cell(object):
         self.parent = worksheet
         self.xf_index = 0
 
+    @property
+    def encoding(self):
+        return self.parent.encoding
+
     def __repr__(self):
         return u"<Cell %s.%s>" % (self.parent.title, self.get_coordinate())
 
     def check_string(self, value):
         """Check string coding, length, and line break character"""
         # convert to unicode string
-        value = unicode(value)
+        if not isinstance(value, unicode):
+            value = unicode(value, self.encoding)
         # string must never be longer than 32,767 characters
         # truncate if necessary
         value = value[:32767]
@@ -205,12 +210,12 @@ class Cell(object):
                 value = float(value)
         return value
 
-    def set_value_explicit(self, value = None, data_type = TYPE_STRING):
+    def set_value_explicit(self, value=None, data_type=TYPE_STRING):
         """Coerce values according to their explicit type"""
         type_coercion_map = {
             self.TYPE_INLINE: self.check_string,
             self.TYPE_STRING: self.check_string,
-            self.TYPE_FORMULA: unicode,
+            self.TYPE_FORMULA: self.check_string,
             self.TYPE_NUMERIC: self.check_numeric,
             self.TYPE_BOOL: bool, }
         try:
@@ -280,7 +285,7 @@ class Cell(object):
                     isinstance(value, datetime.datetime):
                 value = datetime.datetime.combine(value, datetime.time())
             if isinstance(value, datetime.datetime):
-                value = SharedDate().datetime_to_julian(date = value)
+                value = SharedDate().datetime_to_julian(date=value)
                 self.set_value_explicit(value, self.TYPE_NUMERIC)
                 self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
                 return True
@@ -298,7 +303,7 @@ class Cell(object):
         self.bind_value(value)
 
     value = property(_get_value, _set_value,
-            doc = 'Get or set the value held in the cell.\n\n'
+            doc='Get or set the value held in the cell.\n\n'
             ':rtype: depends on the value (string, float, int or '
             ':class:`datetime.datetime`)')
 
@@ -317,7 +322,7 @@ class Cell(object):
                 self._hyperlink_rel.target or ''
 
     hyperlink = property(_get_hyperlink, _set_hyperlink,
-            doc = 'Get or set the hyperlink held in the cell.  '
+            doc='Get or set the hyperlink held in the cell.  '
             'Automatically sets the `value` of the cell with link text, '
             'but you can modify it afterwards by setting the '
             '`value` property, and the hyperlink will remain.\n\n'
@@ -354,7 +359,7 @@ class Cell(object):
         :rtype: string
         """
         return '%s%s' % (self.column, self.row)
-    
+
     @property
     def address(self):
         """Return the coordinate string for this cell (e.g. 'B12')
@@ -363,7 +368,7 @@ class Cell(object):
         """
         return self.get_coordinate()
 
-    def offset(self, row = 0, column = 0):
+    def offset(self, row=0, column=0):
         """Returns a cell location relative to this cell.
 
         :param row: number of rows to offset
@@ -375,7 +380,7 @@ class Cell(object):
         :rtype: :class:`openpyxl.cell.Cell`
         """
         offset_column = get_column_letter(column_index_from_string(
-                column = self.column) + column)
+                column=self.column) + column)
         offset_row = self.row + row
         return self.parent.cell('%s%s' % (offset_column, offset_row))
 

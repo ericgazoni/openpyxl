@@ -44,6 +44,8 @@ def test_read_standalone_worksheet():
 
     class DummyWb(object):
 
+        encoding = 'utf-8'
+
         def get_sheet_by_name(self, value):
             return None
 
@@ -64,7 +66,7 @@ def test_read_standard_workbook():
 
 def test_read_standard_workbook_from_fileobj():
     path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
-    fo = open(path, mode = 'rb')
+    fo = open(path, mode='rb')
     wb = load_workbook(fo)
     assert isinstance(wb, Workbook)
 
@@ -100,14 +102,14 @@ def test_read_dimension():
 
     with open(path) as handle:
 
-        dimension = read_dimension(xml_source = handle.read())
+        dimension = read_dimension(xml_source=handle.read())
 
     eq_(('D', 1, 'K', 30), dimension)
-    
+
 def test_read_workbook_with_no_properties():
     genuine_wb = os.path.join(DATADIR, 'genuine', \
                 'empty_with_no_properties.xlsx')
-    wb = load_workbook(filename = genuine_wb)
+    wb = load_workbook(filename=genuine_wb)
 
 class TestReadWorkbookWithStyles(object):
 
