@@ -16,7 +16,6 @@ Any help will be greatly appreciated, there are just a few requirements to get y
 == Easy Install ==
 Releases are also packaged on PyPi, so all you have to type to get the latest version is:
 
-    #!sh
     $ easy_install openpyxl
 
 == Features ==
@@ -57,8 +56,6 @@ With tutorial, examples, API documentation: http://packages.python.org/openpyxl/
 
     wb = Workbook()
 
-    ew = ExcelWriter(workbook = wb)
-
     dest_filename = r'empty_book.xlsx'
 
     ws = wb.worksheets[0]
@@ -76,7 +73,7 @@ With tutorial, examples, API documentation: http://packages.python.org/openpyxl/
 
     ws.cell('F5').value = 3.14
 
-    ew.save(filename = dest_filename)
+    wb.save(filename = dest_filename)
 
 === Read an existing workbook ===
 
