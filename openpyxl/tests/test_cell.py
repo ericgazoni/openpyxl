@@ -118,12 +118,16 @@ class TestCellValueTypes():
             self.cell.value = value
             eq_(self.cell.TYPE_NUMERIC, self.cell.data_type)
 
-        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', '99E-02', 1e1)
+        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', '99E-02', 1e1, '4', '-1E3', 4)
         for value in values:
             yield check_numeric, value
 
     def test_string(self):
         self.cell.value = 'hello'
+        eq_(self.cell.TYPE_STRING, self.cell.data_type)
+
+    def test_single_dot(self):
+        self.cell.value = '.'
         eq_(self.cell.TYPE_STRING, self.cell.data_type)
 
     def test_formula(self):

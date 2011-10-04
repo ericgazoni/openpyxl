@@ -167,7 +167,8 @@ class Cell(object):
     RE_PATTERNS = {
         'percentage': re.compile(r'^\-?[0-9]*\.?[0-9]*\s?\%$'),
         'time': re.compile(r'^(\d|[0-1]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'),
-        'numeric': re.compile(r'^\-?(0|[0-9]?\.[0-9]*|[0-9]?\.[0-9]+|[1-9][0-9]+\.?[0-9]*|[1-9][0-9]*\.?[0-9]+)((E|e)\-?[0-9]+)?$'), }
+        'numeric': re.compile(r'^-?([\d]|[\d]+\.[\d]*|\.[\d]+|[1-9][\d]+\.?[\d]*)((E|e)-?[\d]+)?$'),
+        }
 
     def __init__(self, worksheet, column, row, value=None):
         self.column = column.upper()
