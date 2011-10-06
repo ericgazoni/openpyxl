@@ -37,6 +37,8 @@ from openpyxl.shared.exc import ColumnStringIndexException, \
 from openpyxl.cell import column_index_from_string, \
         coordinate_from_string, get_column_letter, Cell, absolute_coordinate
 
+import decimal
+
 
 def test_coordinates():
     column, row = coordinate_from_string('ZF46')
@@ -118,7 +120,7 @@ class TestCellValueTypes():
             self.cell.value = value
             eq_(self.cell.TYPE_NUMERIC, self.cell.data_type)
 
-        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', '99E-02', 1e1, '4', '-1E3', 4)
+        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', '99E-02', 1e1, '4', '-1E3', 4, decimal.Decimal('3.14'))
         for value in values:
             yield check_numeric, value
 
