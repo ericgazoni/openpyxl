@@ -91,7 +91,9 @@ class StyleWriter(object):
                 SubElement(font_node, 'color', {'rgb':str(st.font.color.index)})
                 SubElement(font_node, 'name', {'val':st.font.name})
                 SubElement(font_node, 'family', {'val':'2'})
-                SubElement(font_node, 'scheme', {'val':'minor'})
+                # Don't write the 'scheme' element because it appears to prevent
+                # the font name from being applied in Excel.
+                #SubElement(font_node, 'scheme', {'val':'minor'})
                 if st.font.bold:
                     SubElement(font_node, 'b')
                 if st.font.italic:
