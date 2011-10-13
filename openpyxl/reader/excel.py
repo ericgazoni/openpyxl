@@ -40,7 +40,7 @@ from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, \
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
 
-def load_workbook(filename, use_iterators = False):
+def load_workbook(filename, use_iterators=False):
     """Open the given filename and return the workbook
 
     :param filename: the path to open
@@ -90,7 +90,7 @@ def _load_workbook(wb, archive, filename, use_iterators):
         wb.properties = read_properties_core(archive.read(ARC_CORE))
     except KeyError:
         wb.properties = DocumentProperties()
-    
+
     try:
         string_table = read_string_table(archive.read(ARC_SHARED_STRINGS))
     except KeyError:
@@ -113,7 +113,6 @@ def _load_workbook(wb, archive, filename, use_iterators):
         else:
             xml_source = unpack_worksheet(archive, worksheet_path)
             new_ws = read_worksheet(xml_source, wb, sheet_name, string_table, style_table, filename, sheet_codename)
-            #new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table, filename, sheet_codename)
-        wb.add_sheet(new_ws, index = i)
+        wb.add_sheet(new_ws, index=i)
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
