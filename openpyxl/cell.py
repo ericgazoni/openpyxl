@@ -160,9 +160,10 @@ class Cell(object):
     TYPE_NULL = 's'
     TYPE_INLINE = 'inlineStr'
     TYPE_ERROR = 'e'
+    TYPE_FORMULA_CACHE_STRING = 'str'
 
     VALID_TYPES = [TYPE_STRING, TYPE_FORMULA, TYPE_NUMERIC, TYPE_BOOL,
-                   TYPE_NULL, TYPE_INLINE, TYPE_ERROR]
+                   TYPE_NULL, TYPE_INLINE, TYPE_ERROR, TYPE_FORMULA_CACHE_STRING]
 
     RE_PATTERNS = {
         'percentage': re.compile(r'^\-?[0-9]*\.?[0-9]*\s?\%$'),

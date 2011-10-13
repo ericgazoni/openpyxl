@@ -51,7 +51,7 @@ import zipfile
 import struct
 
 TYPE_NULL = Cell.TYPE_NULL
-MISSING_VALUE = None 
+MISSING_VALUE = None
 
 RE_COORDINATE = re.compile('^([A-Z]+)([0-9]+)$')
 
@@ -75,7 +75,7 @@ except ImportError:
     class BaseRawCell(object):
 
         def __init__(self, *args):
-            assert len(args)==len(RAW_ATTRIBUTES)
+            assert len(args) == len(RAW_ATTRIBUTES)
 
             for attr, val in zip(RAW_ATTRIBUTES, args):
                 setattr(self, attr, val)
@@ -108,25 +108,25 @@ class RawCell(BaseRawCell):
     def is_date(self):
         res = (self.data_type == Cell.TYPE_NUMERIC
                and self.number_format is not None
-               and ('d' in self.number_format 
+               and ('d' in self.number_format
                     or 'm' in self.number_format
                     or 'y' in self.number_format
                     or 'h' in self.number_format
-                    or 's' in self.number_format 
+                    or 's' in self.number_format
                    ))
 
         return res
 
-def iter_rows(workbook_name, sheet_name, xml_source, range_string = '', row_offset = 0, column_offset = 0):
+def iter_rows(workbook_name, sheet_name, xml_source, range_string='', row_offset=0, column_offset=0):
 
     archive = get_archive_file(workbook_name)
 
-    source = xml_source 
+    source = xml_source
 
     if range_string:
         min_col, min_row, max_col, max_row = get_range_boundaries(range_string, row_offset, column_offset)
     else:
-        min_col, min_row, max_col, max_row = read_dimension(xml_source = source)
+        min_col, min_row, max_col, max_row = read_dimension(xml_source=source)
         min_col = column_index_from_string(min_col)
         max_col = column_index_from_string(max_col) + 1
         max_row += 6
@@ -144,7 +144,7 @@ def iter_rows(workbook_name, sheet_name, xml_source, range_string = '', row_offs
     return get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table)
 
 
-def get_rows(p, min_column = MIN_COLUMN, min_row = MIN_ROW, max_column = MAX_COLUMN, max_row = MAX_ROW):
+def get_rows(p, min_column=MIN_COLUMN, min_row=MIN_ROW, max_column=MAX_COLUMN, max_row=MAX_ROW):
 
     return groupby(get_cells(p, min_row, min_column, max_row, max_column), operator.attrgetter('row'))
 
@@ -171,7 +171,7 @@ def get_cells(p, min_row, min_col, max_row, max_col, _re_coordinate=RE_COORDINAT
 
 
 
-def get_range_boundaries(range_string, row = 0, column = 0):
+def get_range_boundaries(range_string, row=0, column=0):
 
     if ':' in range_string:
         min_range, max_range = range_string.split(':')
@@ -187,7 +187,7 @@ def get_range_boundaries(range_string, row = 0, column = 0):
         min_col, min_row = coordinate_from_string(range_string)
         min_col = column_index_from_string(min_col)
         max_col = min_col + 1
-        max_row = min_row 
+        max_row = min_row
 
     return (min_col, min_row, max_col, max_row)
 
@@ -208,14 +208,14 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
     expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
 
     current_row = min_row
-    for row, cells in get_rows(p, min_row = min_row, max_row = max_row, min_column = min_col, max_column = max_col):
+    for row, cells in get_rows(p, min_row=min_row, max_row=max_row, min_column=min_col, max_column=max_col):
         full_row = []
         if current_row < row:
 
             for gap_row in xrange(current_row, row):
 
                 dummy_cells = get_missing_cells(gap_row, expected_columns)
-                
+
                 yield tuple([dummy_cells[column] for column in expected_columns])
 
                 current_row = row
@@ -235,16 +235,18 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
 
                 if cell.style_id is not None:
                     style = style_table[int(cell.style_id)]
-                    cell = cell._replace(number_format = style.number_format.format_code) #pylint: disable-msg=W0212
+                    cell = cell._replace(number_format=style.number_format.format_code) #pylint: disable-msg=W0212
                 if cell.internal_value is not None:
-                    if cell.data_type == Cell.TYPE_STRING:
-                        cell = cell._replace(internal_value = string_table[int(cell.internal_value)]) #pylint: disable-msg=W0212
+                    if cell.data_type in Cell.TYPE_STRING:
+                        cell = cell._replace(internal_value=unicode(string_table[int(cell.internal_value)])) #pylint: disable-msg=W0212
                     elif cell.data_type == Cell.TYPE_BOOL:
-                        cell = cell._replace(internal_value = cell.internal_value == '1')
+                        cell = cell._replace(internal_value=cell.internal_value == '1')
                     elif cell.is_date:
-                        cell = cell._replace(internal_value = SHARED_DATE.from_julian(float(cell.internal_value)))
+                        cell = cell._replace(internal_value=SHARED_DATE.from_julian(float(cell.internal_value)))
                     elif cell.data_type == Cell.TYPE_NUMERIC:
-                        cell = cell._replace(internal_value = float(cell.internal_value))
+                        cell = cell._replace(internal_value=float(cell.internal_value))
+                    elif cell.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
+                        cell = cell._replace(internal_value=unicode(cell.internal_value))
                 full_row.append(cell)
 
             else:
@@ -258,7 +260,7 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
 
 class IterableWorksheet(Worksheet):
 
-    def __init__(self, parent_workbook, title, workbook_name, 
+    def __init__(self, parent_workbook, title, workbook_name,
             sheet_codename, xml_source):
 
         Worksheet.__init__(self, parent_workbook, title)
@@ -266,7 +268,7 @@ class IterableWorksheet(Worksheet):
         self._sheet_codename = sheet_codename
         self._xml_source = xml_source
 
-    def iter_rows(self, range_string = '', row_offset = 0, column_offset = 0):
+    def iter_rows(self, range_string='', row_offset=0, column_offset=0):
         """ Returns a squared range based on the `range_string` parameter, 
         using generators.
         
@@ -283,12 +285,12 @@ class IterableWorksheet(Worksheet):
         
         """
 
-        return iter_rows(workbook_name = self._workbook_name,
-                         sheet_name = self._sheet_codename,
-                         xml_source = self._xml_source,
-                         range_string = range_string,
-                         row_offset = row_offset,
-                         column_offset = column_offset)
+        return iter_rows(workbook_name=self._workbook_name,
+                         sheet_name=self._sheet_codename,
+                         xml_source=self._xml_source,
+                         range_string=range_string,
+                         row_offset=row_offset,
+                         column_offset=column_offset)
 
     def cell(self, *args, **kwargs):
 
@@ -297,9 +299,9 @@ class IterableWorksheet(Worksheet):
     def range(self, *args, **kwargs):
 
         raise NotImplementedError("use 'iter_rows()' instead")
-    
+
     def calculate_dimension(self):
-        
+
         raise NotImplementedError("'calculate_dimension()' not implemented for IterableWorksheet Class")
 
 def unpack_worksheet(archive, filename):
