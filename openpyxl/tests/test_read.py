@@ -106,6 +106,20 @@ def test_read_dimension():
 
     eq_(('D', 1, 'K', 30), dimension)
 
+def test_calculate_dimension_iter():
+    path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
+    wb = load_workbook(filename=path, use_iterators=True)
+    sheet2 = wb.get_sheet_by_name('Sheet2 - Numbers')
+    dimensions = sheet2.calculate_dimension()
+    eq_('%s%s:%s%s' % ('D', 1, 'K', 30), dimensions)
+
+def test_get_highest_row_iter():
+    path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
+    wb = load_workbook(filename=path, use_iterators=True)
+    sheet2 = wb.get_sheet_by_name('Sheet2 - Numbers')
+    max_row = sheet2.get_highest_row()
+    eq_(30, max_row)
+
 def test_read_workbook_with_no_properties():
     genuine_wb = os.path.join(DATADIR, 'genuine', \
                 'empty_with_no_properties.xlsx')

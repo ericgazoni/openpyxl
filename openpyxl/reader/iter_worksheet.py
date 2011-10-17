@@ -268,6 +268,13 @@ class IterableWorksheet(Worksheet):
         self._sheet_codename = sheet_codename
         self._xml_source = xml_source
 
+        min_col, min_row, max_col, max_row = read_dimension(xml_source=xml_source)
+
+        self._max_row = max_row
+        self._max_column = max_col
+        self._dimensions = '%s%s:%s%s' % (min_col, min_row, max_col, max_row)
+
+
     def iter_rows(self, range_string='', row_offset=0, column_offset=0):
         """ Returns a squared range based on the `range_string` parameter, 
         using generators.
@@ -293,16 +300,19 @@ class IterableWorksheet(Worksheet):
                          column_offset=column_offset)
 
     def cell(self, *args, **kwargs):
-
         raise NotImplementedError("use 'iter_rows()' instead")
 
     def range(self, *args, **kwargs):
-
         raise NotImplementedError("use 'iter_rows()' instead")
 
     def calculate_dimension(self):
+        return self._dimensions
 
-        raise NotImplementedError("'calculate_dimension()' not implemented for IterableWorksheet Class")
+    def get_highest_column(self):
+        return self._max_column
+
+    def get_highest_row(self):
+        return self._max_row
 
 def unpack_worksheet(archive, filename):
 
