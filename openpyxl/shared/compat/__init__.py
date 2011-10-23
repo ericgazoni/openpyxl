@@ -22,3 +22,4 @@
 # @author: Eric Gazoni
 
 from openpyxl.shared.compat.elementtree import iterparse
+from openpyxl.shared.compat.tempnamedfile import NamedTemporaryFile

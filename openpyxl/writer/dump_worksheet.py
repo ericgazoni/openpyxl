@@ -40,7 +40,7 @@ from openpyxl.shared.xmltools import (XMLGenerator, get_document_content,
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.ooxml import MAX_COLUMN, MAX_ROW
 from openpyxl.shared import NUMERIC_TYPES
-from tempfile import NamedTemporaryFile
+from openpyxl.shared.compat import NamedTemporaryFile
 from openpyxl.writer.excel import ExcelWriter
 from openpyxl.writer.strings import write_string_table
 from openpyxl.writer.styles import StyleWriter

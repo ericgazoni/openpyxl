@@ -38,14 +38,14 @@ from openpyxl.reader.excel import load_workbook
 
 from openpyxl.writer.strings import StringTableBuilder
 
-from tempfile import NamedTemporaryFile
+from openpyxl.shared.compat import NamedTemporaryFile
 import os
 import os.path as osp
 import shutil
 
 def _get_test_filename():
 
-    test_file = NamedTemporaryFile(prefix='openpyxl.', suffix='.xlsx', delete=False)
+    test_file = NamedTemporaryFile(mode='w', prefix='openpyxl.', suffix='.xlsx', delete=False)
     test_file.close()
     return test_file.name
 
