@@ -27,7 +27,7 @@
 
 # Python stdlib imports
 try:
-    from xml.etree.cElementTree import iterparse
+    from openpyxl.shared.compat import iterparse
 except ImportError:
     from xml.etree.ElementTree import iterparse
 from itertools import ifilter

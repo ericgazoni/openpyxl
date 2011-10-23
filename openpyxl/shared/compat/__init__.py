@@ -1,5 +1,3 @@
-# file openpyxl/shared/__init__.py
-
 # Copyright (c) 2010 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,15 +21,4 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: Eric Gazoni
 
-"""Imports for the openpyxl.shared namespace."""
-
-# package imports
-from openpyxl.shared import date_time
-from openpyxl.shared import exc
-from openpyxl.shared import ooxml
-from openpyxl.shared import password_hasher
-from openpyxl.shared import xmltools
-import decimal
-
-NUMERIC_TYPES = (int, float, long, decimal.Decimal)
-
+from openpyxl.shared.compat.elementtree import iterparse
