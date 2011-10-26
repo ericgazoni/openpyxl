@@ -65,5 +65,5 @@ def parse_custom_num_formats(root, xmlns):
         num_fmt_nodes = num_fmts.findall(QName(xmlns, 'numFmt').text)
         for num_fmt_node in num_fmt_nodes:
             custom_formats[int(num_fmt_node.get('numFmtId'))] = \
-                    num_fmt_node.get('formatCode')
+                    num_fmt_node.get('formatCode').lower()
     return custom_formats
