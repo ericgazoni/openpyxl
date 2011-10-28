@@ -38,6 +38,7 @@ import datetime
 import re
 
 # package imports
+from openpyxl.shared.compat import all
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.exc import CellCoordinatesException, \
         ColumnStringIndexException, DataTypeException

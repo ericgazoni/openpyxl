@@ -20,6 +20,23 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: Eric Gazoni
+import sys
 
 from openpyxl.shared.compat.elementtree import iterparse
 from openpyxl.shared.compat.tempnamedfile import NamedTemporaryFile
+
+if sys.version_info < (2, 5):
+    def all(iterable):
+        for element in iterable:
+            if not element:
+                return False
+        return True
+
+    def any(iterable):
+        for element in iterable:
+            if element:
+                return True
+        return False
+else:
+    all = all
+    any = any
