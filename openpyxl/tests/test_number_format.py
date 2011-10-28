@@ -24,7 +24,6 @@
 # @author: Eric Gazoni
 
 # Python stdlib imports
-from __future__ import with_statement
 from datetime import datetime, date
 
 # 3rd party imports

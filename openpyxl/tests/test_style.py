@@ -24,7 +24,6 @@
 # @author: Eric Gazoni
 
 # Python stdlib imports
-from __future__ import with_statement
 import os.path
 import datetime
 
@@ -163,8 +162,12 @@ def test_builtin_format():
 
 def test_read_style():
     reference_file = os.path.join(DATADIR, 'reader', 'simple-styles.xml')
-    with open(reference_file, 'r') as handle:
+
+    handle = open(reference_file, 'r')
+    try:
         content = handle.read()
+    finally:
+        handle.close()
     style_table = read_style_table(content)
     eq_(4, len(style_table))
     eq_(NumberFormat._BUILTIN_FORMATS[9],
@@ -175,7 +178,10 @@ def test_read_style():
 def test_read_cell_style():
     reference_file = os.path.join(
             DATADIR, 'reader', 'empty-workbook-styles.xml')
-    with open(reference_file, 'r') as handle:
+    handle = open(reference_file, 'r')
+    try:
         content = handle.read()
+    finally:
+        handle.close()
     style_table = read_style_table(content)
     eq_(2, len(style_table))

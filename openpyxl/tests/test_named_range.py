@@ -24,7 +24,6 @@
 # @author: Eric Gazoni
 
 # Python stdlib imports
-from __future__ import with_statement
 import os.path
 
 # 3rd-party imports
@@ -63,10 +62,13 @@ def test_read_named_ranges():
         def get_sheet_by_name(self, name):
             return DummyWs()
 
-    with open(os.path.join(DATADIR, 'reader', 'workbook.xml')) as handle:
+    handle = open(os.path.join(DATADIR, 'reader', 'workbook.xml'))
+    try:
         content = handle.read()
-    named_ranges = read_named_ranges(content, DummyWB())
-    eq_(["My Sheeet!$D$8"], [str(range) for range in named_ranges])
+        named_ranges = read_named_ranges(content, DummyWB())
+        eq_(["My Sheeet!$D$8"], [str(range) for range in named_ranges])
+    finally:
+        handle.close()
 
 def test_oddly_shaped_named_ranges():
 
@@ -133,7 +135,10 @@ class TestNameRefersToValue(object):
 
     def range_as_string(self, range, include_value=False):
         def scope_as_string(range):
-            return "Workbook" if not range.scope else range.scope.title
+            if range.scope:
+                return range.scope.title
+            else:
+                return "Workbook"
         retval = "%s: %s" % (range.name, scope_as_string(range))
         if include_value:
             if isinstance(range, NamedRange):

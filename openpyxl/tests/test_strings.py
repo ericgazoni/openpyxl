@@ -24,7 +24,6 @@
 # @author: Eric Gazoni
 
 # Python stdlib imports
-from __future__ import with_statement
 import os.path
 
 # 3rd party imports
@@ -48,21 +47,29 @@ def test_create_string_table():
 
 
 def test_read_string_table():
-    with open(os.path.join(DATADIR, 'reader', 'sharedStrings.xml')) as handle:
+    handle = open(os.path.join(DATADIR, 'reader', 'sharedStrings.xml'))
+    try:
         content = handle.read()
-    string_table = read_string_table(content)
-    eq_({0: 'This is cell A1 in Sheet 1', 1: 'This is cell G5'}, string_table)
+        string_table = read_string_table(content)
+        eq_({0: 'This is cell A1 in Sheet 1', 1: 'This is cell G5'}, string_table)
+    finally:
+        handle.close()
 
 def test_empty_string():
-     with open(os.path.join(DATADIR, 'reader', 'sharedStrings-emptystring.xml')) as handle:
+     handle = open(os.path.join(DATADIR, 'reader', 'sharedStrings-emptystring.xml'))
+     try:
         content = handle.read()   
-     string_table = read_string_table(content)
-     eq_({0: 'Testing empty cell', 1:''}, string_table)
+        string_table = read_string_table(content)
+        eq_({0: 'Testing empty cell', 1:''}, string_table)
+     finally:
+         handle.close()
 
 def test_formatted_string_table():
-    with open(os.path.join(DATADIR, 'reader', 'shared-strings-rich.xml')) \
-            as handle:
+    handle = open(os.path.join(DATADIR, 'reader', 'shared-strings-rich.xml'))
+    try:
         content = handle.read()
-    string_table = read_string_table(content)
-    eq_({0: 'Welcome', 1: 'to the best shop in town',
-            2: "     let's play "}, string_table)
+        string_table = read_string_table(content)
+        eq_({0: 'Welcome', 1: 'to the best shop in town',
+                2: "     let's play "}, string_table)
+    finally:
+        handle.close()

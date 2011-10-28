@@ -25,7 +25,6 @@
 # @author: Eric Gazoni
 
 # Python stdlib imports
-from __future__ import with_statement
 from zipfile import ZipFile, ZIP_DEFLATED
 from datetime import datetime
 import os.path

@@ -97,7 +97,7 @@ def test_initial_value():
     eq_(cell.TYPE_NUMERIC, cell.data_type)
 
 
-class TestCellValueTypes():
+class TestCellValueTypes(object):
 
     @classmethod
     def setup_class(cls):

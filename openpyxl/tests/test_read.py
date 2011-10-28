@@ -24,7 +24,6 @@
 # @author: Eric Gazoni
 
 # Python stdlib imports
-from __future__ import with_statement
 import os.path
 
 # 3rd party imports
@@ -50,9 +49,13 @@ def test_read_standalone_worksheet():
             return None
 
     path = os.path.join(DATADIR, 'reader', 'sheet2.xml')
-    with open(path) as handle:
+    ws = None
+    handle = open(path)
+    try:
         ws = read_worksheet(handle.read(), DummyWb(),
                 'Sheet 2', {1: 'hello'}, {1: Style()})
+    finally:
+        handle.close()
     assert isinstance(ws, Worksheet)
     eq_(ws.cell('G5').value, 'hello')
     eq_(ws.cell('D30').value, 30)
@@ -100,9 +103,12 @@ def test_read_dimension():
 
     path = os.path.join(DATADIR, 'reader', 'sheet2.xml')
 
-    with open(path) as handle:
-
+    dimension = None
+    handle = open(path)
+    try:
         dimension = read_dimension(xml_source=handle.read())
+    finally:
+        handle.close()
 
     eq_(('D', 1, 'K', 30), dimension)
 

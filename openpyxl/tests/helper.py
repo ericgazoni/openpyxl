@@ -24,7 +24,6 @@
 # @author: Eric Gazoni
 
 # Python stdlib imports
-from __future__ import with_statement
 import os
 import os.path
 import shutil
@@ -56,13 +55,19 @@ def clean_tmpdir():
 
 def assert_equals_file_content(reference_file, fixture, filetype = 'xml'):
     if os.path.isfile(fixture):
-        with open(fixture) as fixture_file:
+        fixture_file = open(fixture)
+        try:
             fixture_content = fixture_file.read()
+        finally:
+            fixture_file.close()
     else:
         fixture_content = fixture
 
-    with open(reference_file) as expected_file:
+    expected_file = open(reference_file)
+    try:
         expected_content = expected_file.read()
+    finally:
+        expected_file.close()
 
     if filetype == 'xml':
         fixture_content = fromstring(fixture_content)
