@@ -1,4 +1,6 @@
-This software is *heavily* inspired by the PHPExcel library that can be
+This project is developped by Eric Gazoni.
+
+It is *heavily* inspired by the PHPExcel library that can be
 found here: http://www.phpexcel.net/
 
 Kudos goes to the PHPExcel team, I'm only standing on their shoulders.
@@ -11,6 +13,7 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Anders Chrigström
 * Maarten De Paepe
 * Alexandre Fayolle
+* Eric Gazoni
 * Yaroslav Halchenko
 * Jeff Holman
 * JarekPS
@@ -25,5 +28,5 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Laurent Vasseur
 * Kay Webber
 
-Project logo designed by myself, font by claudeserieux
+Project logo designed by Eric Gazoni, font by claudeserieux
 (http://www.dafont.com/profile.php?user=337503)
