@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
-# @author: Eric Gazoni
+# @author: see AUTHORS file
 import sys
 
 from openpyxl.shared.compat.elementtree import iterparse
