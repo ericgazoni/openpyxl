@@ -36,6 +36,18 @@ from openpyxl.cell import Cell
 from openpyxl.style import NumberFormat
 from openpyxl.shared.date_time import SharedDate
 
+from datetime import datetime
+import time
+
+# strptime fallback, thanks to coderfi
+# http://stackoverflow.com/questions/5585706/datetime-datetime-strptime-not-present-in-python-2-4-1/7226819#7226819
+if hasattr(datetime, 'strptime'):
+    #python 2.6
+    strptime = datetime.strptime
+else:
+    #python 2.4 equivalent
+    strptime = lambda date_string, format: datetime(*(time.strptime(date_string, format)[0:6]))
+
 
 class TestNumberFormat(object):
 
@@ -107,7 +119,7 @@ class TestNumberFormat(object):
         cell = self.worksheet.cell('A1')
 
         def check_date_pair(count, date_string):
-            cell.value = datetime.strptime(date_string, '%Y-%m-%d')
+            cell.value = strptime(date_string, '%Y-%m-%d')
             eq_(count, cell._value)
 
         date_pairs = (
