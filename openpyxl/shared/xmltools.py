@@ -32,7 +32,7 @@ Shortcut functions taken from:
 
 # Python stdlib imports
 from xml.sax.xmlreader import AttributesNSImpl
-from xml.sax.saxutils import XMLGenerator
+from openpyxl.shared.compat.sax import XMLGenerator
 try:
     from xml.etree.ElementTree import ElementTree, Element, SubElement, \
             QName, fromstring, tostring
@@ -71,6 +71,7 @@ def start_tag(doc, name, attr=None, body=None, namespace=None):
     """Wrapper to start an xml tag."""
     if attr is None:
         attr = {}
+
     attr_vals = {}
     attr_keys = {}
     for key, val in attr.iteritems():
