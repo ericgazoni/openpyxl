@@ -12,3 +12,4 @@ org.eclipse
 syntax: glob
 *~
 *.orig
+.idea

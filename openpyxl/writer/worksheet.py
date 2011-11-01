@@ -29,6 +29,7 @@
 from StringIO import StringIO  # cStringIO doesn't handle unicode
 
 # package imports
+import decimal
 from openpyxl.cell import coordinate_from_string, column_index_from_string
 from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, \
         get_document_content, start_tag, end_tag, tag
@@ -167,7 +168,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
                 tag(doc, 'f', body = '%s' % value[1:])
                 tag(doc, 'v')
             elif cell.data_type == cell.TYPE_NUMERIC:
-                if isinstance(value, long):
+                if isinstance(value, long) or isinstance(value, decimal.Decimal):
                     func=str
                 else:
                     func=repr

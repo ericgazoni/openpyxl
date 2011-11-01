@@ -25,6 +25,7 @@
 
 # Python stdlib imports
 from StringIO import StringIO
+import decimal
 import os.path
 
 # 3rd party imports
@@ -221,6 +222,14 @@ def test_long_number():
     content = write_worksheet(ws, {}, {})
     assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
             'long_number.xml'), content)
+
+def test_decimal():
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('A1').value = decimal.Decimal('3.14')
+    content = write_worksheet(ws, {}, {})
+    assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \
+            'decimal.xml'), content)
 
 def test_short_number():
     wb = Workbook()
