@@ -168,7 +168,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
                 tag(doc, 'f', body = '%s' % value[1:])
                 tag(doc, 'v')
             elif cell.data_type == cell.TYPE_NUMERIC:
-                if isinstance(value, long) or isinstance(value, decimal.Decimal):
+                if isinstance(value, (long, decimal.Decimal)):
                     func=str
                 else:
                     func=repr
