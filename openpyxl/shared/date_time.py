@@ -85,6 +85,12 @@ class SharedDate(object):
                                   seconds=date.second + date.microsecond * 1.0e-6)
         elif isinstance(date, datetime.date):
             return self.to_julian(date.year, date.month, date.day)
+        elif isinstance(date, datetime.time):
+            return self.time_to_julian(hours=date.hour, minutes=date.minute,
+                                    seconds=date.second + date.microsecond * 1.0e-6)
+    
+    def time_to_julian(self, hours, minutes, seconds):
+        return ((hours * 3600) + (minutes * 60) + seconds) / 86400
 
     def to_julian(self, year, month, day, hours=0, minutes=0, seconds=0):
         """Convert from Python date to Excel JD."""
@@ -131,7 +137,7 @@ class SharedDate(object):
                 and excel_date == 60:
             msg = 'Error: Excel believes 1900 was a leap year'
             raise ValueError(msg)
-        excel_time = ((hours * 3600) + (minutes * 60) + seconds) / 86400
+        excel_time = self.time_to_julian(hours, minutes, seconds)
         return excel_date + excel_time
 
     def from_julian(self, value=0):

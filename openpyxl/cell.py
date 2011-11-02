@@ -239,10 +239,10 @@ class Cell(object):
             data_type = self.TYPE_BOOL
         elif isinstance(value, NUMERIC_TYPES):
             data_type = self.TYPE_NUMERIC
+        elif isinstance(value, (datetime.datetime, datetime.date, datetime.time)):
+            data_type = self.TYPE_NUMERIC
         elif not value:
             data_type = self.TYPE_STRING
-        elif isinstance(value, (datetime.datetime, datetime.date)):
-            data_type = self.TYPE_NUMERIC
         elif isinstance(value, basestring) and value[0] == '=':
             data_type = self.TYPE_FORMULA
         elif self.RE_PATTERNS['numeric'].match(value):
@@ -289,10 +289,13 @@ class Cell(object):
             if isinstance(value, datetime.date) and not \
                     isinstance(value, datetime.datetime):
                 value = datetime.datetime.combine(value, datetime.time())
-            if isinstance(value, datetime.datetime):
-                value = self._shared_date.datetime_to_julian(date=value)
+            if isinstance(value, (datetime.datetime, datetime.time)):
+                if isinstance(value, datetime.datetime):
+                    self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
+                elif isinstance(value, datetime.time):
+                    self._set_number_format(NumberFormat.FORMAT_DATE_TIME6)
+                value = SharedDate().datetime_to_julian(date=value)
                 self.set_value_explicit(value, self.TYPE_NUMERIC)
-                self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
                 return True
         self.set_value_explicit(value, self._data_type)
 
