@@ -116,7 +116,7 @@ class RawCell(BaseRawCell):
 
         return res
 
-def iter_rows(workbook_name, sheet_name, xml_source, range_string='', row_offset=0, column_offset=0):
+def iter_rows(workbook_name, sheet_name, xml_source, shared_date, range_string='', row_offset=0, column_offset=0):
 
     archive = get_archive_file(workbook_name)
 
@@ -140,7 +140,7 @@ def iter_rows(workbook_name, sheet_name, xml_source, range_string='', row_offset
     source.seek(0)
     p = iterparse(source)
 
-    return get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table)
+    return get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table, shared_date)
 
 
 def get_rows(p, min_column=MIN_COLUMN, min_row=MIN_ROW, max_column=MAX_COLUMN, max_row=MAX_ROW):
@@ -202,7 +202,7 @@ def get_missing_cells(row, columns):
 
     return dict([(column, RawCell(row, column, '%s%s' % (column, row), MISSING_VALUE, TYPE_NULL, None, None)) for column in columns])
 
-def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table):
+def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table, shared_date):
 
     expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
 
@@ -241,7 +241,7 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
                     elif cell.data_type == Cell.TYPE_BOOL:
                         cell = cell._replace(internal_value=cell.internal_value == '1')
                     elif cell.is_date:
-                        cell = cell._replace(internal_value=SHARED_DATE.from_julian(float(cell.internal_value)))
+                        cell = cell._replace(internal_value=shared_date.from_julian(float(cell.internal_value)))
                     elif cell.data_type == Cell.TYPE_NUMERIC:
                         cell = cell._replace(internal_value=float(cell.internal_value))
                     elif cell.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
@@ -273,6 +273,8 @@ class IterableWorksheet(Worksheet):
         self._max_column = max_col
         self._dimensions = '%s%s:%s%s' % (min_col, min_row, max_col, max_row)
 
+        self._shared_date = SharedDate(base_date=parent_workbook.excel_base_date)
+
 
     def iter_rows(self, range_string='', row_offset=0, column_offset=0):
         """ Returns a squared range based on the `range_string` parameter, 
@@ -296,7 +298,8 @@ class IterableWorksheet(Worksheet):
                          xml_source=self._xml_source,
                          range_string=range_string,
                          row_offset=row_offset,
-                         column_offset=column_offset)
+                         column_offset=column_offset,
+                         shared_date=self._shared_date)
 
     def cell(self, *args, **kwargs):
         raise NotImplementedError("use 'iter_rows()' instead")
