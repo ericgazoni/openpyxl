@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_number_format.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -34,7 +34,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import Cell
 from openpyxl.style import NumberFormat
-from openpyxl.shared.date_time import SharedDate
+from openpyxl.shared.date_time import SharedDate, CALENDAR_MAC_1904, CALENDAR_WINDOWS_1900
 
 from datetime import datetime
 import time
@@ -67,8 +67,8 @@ class TestNumberFormat(object):
             eq_(self.sd.from_julian(julian), datetime)
 
         date_pairs= (
-                        (40167, datetime(2009, 12, 20)), 
-                        (21980, datetime(1960, 03, 05)), 
+                        (40167, datetime(2009, 12, 20)),
+                        (21980, datetime(1960, 03, 05)),
                     )
 
         for count, dt in date_pairs:
@@ -148,7 +148,12 @@ class TestNumberFormat(object):
         assert_raises(ValueError, self.sd.from_julian, -1)
 
     def test_mac_date(self):
-        self.sd.excel_base_date = self.sd.CALENDAR_MAC_1904
-        assert_raises(NotImplementedError, self.sd.to_julian, 2000, 1, 1)
-        assert_raises(NotImplementedError, self.sd.from_julian, 1)
-        self.sd.excel_base_date = self.sd.CALENDAR_WINDOWS_1900
+        self.sd.excel_base_date = CALENDAR_MAC_1904
+
+        datetuple = (2011, 10, 31)
+
+        dt = date(datetuple[0],datetuple[1],datetuple[2])
+        julian = self.sd.to_julian(datetuple[0],datetuple[1],datetuple[2])
+        reverse = self.sd.from_julian(julian).date()
+        eq_(dt,reverse)
+        self.sd.excel_base_date = CALENDAR_WINDOWS_1900

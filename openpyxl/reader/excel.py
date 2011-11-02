@@ -36,7 +36,7 @@ from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
 from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, \
-        read_properties_core, get_sheet_ids
+        read_properties_core, get_sheet_ids, read_excel_base_date
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
 
@@ -45,16 +45,16 @@ def load_workbook(filename, use_iterators=False):
 
     :param filename: the path to open
     :type filename: string
-    
+
     :param use_iterators: use lazy load for cells
     :type use_iterators: bool
 
     :rtype: :class:`openpyxl.workbook.Workbook`
-    
+
     .. note::
-        
+
         When using lazy load, all worksheets will be :class:`openpyxl.reader.iter_worksheet.IterableWorksheet`
-        and the returned workbook will be read-only. 
+        and the returned workbook will be read-only.
 
     """
 
@@ -96,6 +96,8 @@ def _load_workbook(wb, archive, filename, use_iterators):
     except KeyError:
         string_table = {}
     style_table = read_style_table(archive.read(ARC_STYLE))
+
+    wb.properties.excel_base_date = read_excel_base_date(xml_source = archive.read(ARC_WORKBOOK))
 
     # get worksheets
     wb.worksheets = []  # remove preset worksheet

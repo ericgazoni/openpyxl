@@ -185,6 +185,10 @@ class Cell(object):
         self.xf_index = 0
 
     @property
+    def excel_base_date(self):
+        return self.parent.parent.excel_base_date #the cell's parent is a worksheet, its parent is a workbook
+        
+    @property
     def encoding(self):
         return self.parent.encoding
 
@@ -288,7 +292,7 @@ class Cell(object):
                     isinstance(value, datetime.datetime):
                 value = datetime.datetime.combine(value, datetime.time())
             if isinstance(value, datetime.datetime):
-                value = SharedDate().datetime_to_julian(date=value)
+                value = SharedDate(self.excel_base_date).datetime_to_julian(date=value)
                 self.set_value_explicit(value, self.TYPE_NUMERIC)
                 self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
                 return True
@@ -298,7 +302,7 @@ class Cell(object):
         """Return the value, formatted as a date if needed"""
         value = self._value
         if self.is_date():
-            value = SharedDate().from_julian(value)
+            value = SharedDate(self.excel_base_date).from_julian(value)
         return value
 
     def _set_value(self, value):

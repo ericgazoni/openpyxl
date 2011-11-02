@@ -29,7 +29,7 @@
 from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.shared.ooxml import NAMESPACES
 from openpyxl.workbook import DocumentProperties
-from openpyxl.shared.date_time import W3CDTF_to_datetime
+from openpyxl.shared.date_time import W3CDTF_to_datetime,CALENDAR_WINDOWS_1900,CALENDAR_MAC_1904
 from openpyxl.namedrange import NamedRange, NamedRangeContainingValue, split_named_range, refers_to_range
 
 import datetime
@@ -74,6 +74,15 @@ def read_properties_core(xml_source):
         properties.modified = properties.created
 
     return properties
+
+
+def read_excel_base_date(xml_source):
+    root = fromstring(text = xml_source)
+    wbPr = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'workbookPr').text)
+    if ('date1904' in wbPr.keys() and int(wbPr.attrib['date1904']) == 1):
+        return CALENDAR_MAC_1904
+
+    return CALENDAR_WINDOWS_1900
 
 
 def read_sheets_titles(xml_source):

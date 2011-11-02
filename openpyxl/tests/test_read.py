@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_read.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -25,6 +25,7 @@
 
 # Python stdlib imports
 import os.path
+from datetime import datetime, date
 
 # 3rd party imports
 from nose.tools import eq_, raises
@@ -37,6 +38,7 @@ from openpyxl.style import NumberFormat, Style
 from openpyxl.reader.worksheet import read_worksheet, read_dimension
 from openpyxl.reader.excel import load_workbook
 from openpyxl.shared.exc import InvalidFileException
+from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900, CALENDAR_MAC_1904
 
 
 def test_read_standalone_worksheet():
@@ -159,3 +161,37 @@ class TestReadWorkbookWithStyles(object):
     def test_read_percentage_style(self):
         eq_(self.ws.cell('A5').style.number_format.format_code,
                 NumberFormat.FORMAT_PERCENTAGE_00)
+
+
+class TestReadBaseDateFormat(object):
+
+    @classmethod
+    def setup_class(cls):
+        mac_wb_path = os.path.join(DATADIR, 'reader','date_1904.xlsx')
+        cls.mac_wb = load_workbook(mac_wb_path)
+        cls.mac_ws = cls.mac_wb.get_sheet_by_name('Sheet1')
+
+        win_wb_path = os.path.join(DATADIR, 'reader','date_1900.xlsx')
+        cls.win_wb = load_workbook(win_wb_path)
+        cls.win_ws = cls.win_wb.get_sheet_by_name('Sheet1')
+
+    def test_read_win_base_date(self):
+        eq_(self.win_wb.properties.excel_base_date,CALENDAR_WINDOWS_1900)
+
+    def test_read_mac_base_date(self):
+        eq_(self.mac_wb.properties.excel_base_date,CALENDAR_MAC_1904)
+
+    def test_read_date_style_mac(self):
+        eq_(self.mac_ws.cell('A1').style.number_format.format_code,
+                NumberFormat.FORMAT_DATE_XLSX14)
+
+    def test_read_date_style_win(self):
+        eq_(self.win_ws.cell('A1').style.number_format.format_code,
+                NumberFormat.FORMAT_DATE_XLSX14)
+
+    def test_read_date_value(self):
+        datetuple = (2011, 10, 31)
+        dt = datetime(datetuple[0],datetuple[1],datetuple[2])
+        eq_(self.mac_ws.cell('A1').value,dt)
+        eq_(self.win_ws.cell('A1').value,dt)
+        eq_(self.mac_ws.cell('A1').value,self.win_ws.cell('A1').value)

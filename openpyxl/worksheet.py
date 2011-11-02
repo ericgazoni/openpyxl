@@ -233,6 +233,10 @@ class Worksheet(object):
         return u'<Worksheet "%s">' % self.title
 
     @property
+    def parent(self):
+        return self._parent
+
+    @property
     def encoding(self):
         return self._parent.encoding
 

@@ -34,6 +34,9 @@ import time
 import re
 
 # constants
+CALENDAR_WINDOWS_1900 = 1900
+CALENDAR_MAC_1904 = 1904
+
 W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 RE_W3CDTF = '(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{2}))?Z?'
@@ -63,12 +66,15 @@ class SharedDate(object):
     Python and Excel accordingly.
 
     """
-    CALENDAR_WINDOWS_1900 = 1900
-    CALENDAR_MAC_1904 = 1904
     datetime_object_type = 'DateTime'
 
-    def __init__(self):
-        self.excel_base_date = self.CALENDAR_WINDOWS_1900
+    def __init__(self,base_date=CALENDAR_WINDOWS_1900):
+        if int(base_date)==CALENDAR_MAC_1904:
+            self.excel_base_date = CALENDAR_MAC_1904
+        elif int(base_date)==CALENDAR_WINDOWS_1900:
+            self.excel_base_date = CALENDAR_WINDOWS_1900
+        else:
+            raise ValueError("base_date:%s invalid"%base_date)
 
     def datetime_to_julian(self, date):
         """Convert from python datetime to excel julian date representation."""
@@ -88,7 +94,7 @@ class SharedDate(object):
         if year < 1900 or year > 10000:
             msg = 'Year not supported by Excel: %s' % year
             raise ValueError(msg)
-        if self.excel_base_date == self.CALENDAR_WINDOWS_1900:
+        if self.excel_base_date == CALENDAR_WINDOWS_1900:
             # Fudge factor for the erroneous fact that the year 1900 is
             # treated as a Leap Year in MS Excel.  This affects every date
             # following 28th February 1900
@@ -97,10 +103,12 @@ class SharedDate(object):
             else:
                 excel_1900_leap_year = True
             excel_base_date = 2415020
+        elif self.excel_base_date == CALENDAR_MAC_1904:
+            excel_base_date = 2416481
+            excel_1900_leap_year = False
         else:
-            raise NotImplementedError('Mac dates are not yet supported.')
-            #excel_base_date = 2416481
-            #excel_1900_leap_year = False
+            raise NotImplementedError('base date supported.')
+
 
         # Julian base date adjustment
         if month > 2:
@@ -119,7 +127,7 @@ class SharedDate(object):
             excel_date += 1
 
         # check to ensure that we exclude 2/29/1900 as a possible value
-        if self.excel_base_date == self.CALENDAR_WINDOWS_1900 \
+        if self.excel_base_date == CALENDAR_WINDOWS_1900 \
                 and excel_date == 60:
             msg = 'Error: Excel believes 1900 was a leap year'
             raise ValueError(msg)
@@ -128,16 +136,19 @@ class SharedDate(object):
 
     def from_julian(self, value=0):
         """Convert from the Excel JD back to a date"""
-        if self.excel_base_date == self.CALENDAR_WINDOWS_1900:
+        if self.excel_base_date == CALENDAR_WINDOWS_1900:
             excel_base_date = 25569
             if value < 60:
                 excel_base_date -= 1
             elif value == 60:
                 msg = 'Error: Excel believes 1900 was a leap year'
                 raise ValueError(msg)
+
+        elif self.excel_base_date == CALENDAR_MAC_1904:
+            excel_base_date = 24107
+
         else:
-            raise NotImplementedError('Mac dates are not yet supported.')
-            #excel_base_date = 24107
+            raise NotImplementedError('base date supported.')
 
         if value >= 1:
             utc_days = value - excel_base_date
