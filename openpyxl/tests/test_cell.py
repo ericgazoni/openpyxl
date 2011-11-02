@@ -34,10 +34,21 @@ from openpyxl.worksheet import Worksheet
 from openpyxl.workbook import Workbook
 from openpyxl.shared.exc import ColumnStringIndexException, \
         CellCoordinatesException, DataTypeException
+from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
 from openpyxl.cell import column_index_from_string, \
         coordinate_from_string, get_column_letter, Cell, absolute_coordinate
 
 import decimal
+
+def build_dummy_worksheet():
+
+    class Ws(object):
+        class Wb(object):
+            excel_base_date = CALENDAR_WINDOWS_1900
+        encoding = 'utf-8'
+        parent = Wb()
+
+    return Ws()
 
 
 def test_coordinates():
@@ -93,7 +104,8 @@ def test_column_letter():
 
 
 def test_initial_value():
-    cell = Cell(None, 'A', 1, value='17.5')
+    ws = build_dummy_worksheet()
+    cell = Cell(ws, 'A', 1, value='17.5')
     eq_(cell.TYPE_NUMERIC, cell.data_type)
 
 
@@ -102,10 +114,8 @@ class TestCellValueTypes(object):
     @classmethod
     def setup_class(cls):
 
-        class Ws(object):
-            encoding = 'utf-8'
-
-        cls.cell = Cell(Ws(), 'A', 1)
+        ws = build_dummy_worksheet()
+        cls.cell = Cell(ws, 'A', 1)
 
     def test_1st(self):
         eq_(self.cell.TYPE_NULL, self.cell.data_type)
@@ -157,9 +167,8 @@ class TestCellValueTypes(object):
 
 
 def test_data_type_check():
-    class Ws(object):
-            encoding = 'utf-8'
-    cell = Cell(Ws(), 'A', 1)
+    ws = build_dummy_worksheet()
+    cell = Cell(ws, 'A', 1)
     cell.bind_value(None)
     eq_(Cell.TYPE_NULL, cell._data_type)
 
@@ -174,7 +183,8 @@ def test_data_type_check():
 
 @raises(DataTypeException)
 def test_set_bad_type():
-    cell = Cell(None, 'A', 1)
+    ws = build_dummy_worksheet()
+    cell = Cell(ws, 'A', 1)
     cell.set_value_explicit(1, 'q')
 
 

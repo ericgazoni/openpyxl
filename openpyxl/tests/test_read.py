@@ -47,6 +47,8 @@ def test_read_standalone_worksheet():
 
         encoding = 'utf-8'
 
+        excel_base_date = CALENDAR_WINDOWS_1900
+
         def get_sheet_by_name(self, value):
             return None
 
@@ -167,19 +169,19 @@ class TestReadBaseDateFormat(object):
 
     @classmethod
     def setup_class(cls):
-        mac_wb_path = os.path.join(DATADIR, 'reader','date_1904.xlsx')
+        mac_wb_path = os.path.join(DATADIR, 'reader', 'date_1904.xlsx')
         cls.mac_wb = load_workbook(mac_wb_path)
         cls.mac_ws = cls.mac_wb.get_sheet_by_name('Sheet1')
 
-        win_wb_path = os.path.join(DATADIR, 'reader','date_1900.xlsx')
+        win_wb_path = os.path.join(DATADIR, 'reader', 'date_1900.xlsx')
         cls.win_wb = load_workbook(win_wb_path)
         cls.win_ws = cls.win_wb.get_sheet_by_name('Sheet1')
 
     def test_read_win_base_date(self):
-        eq_(self.win_wb.properties.excel_base_date,CALENDAR_WINDOWS_1900)
+        eq_(self.win_wb.properties.excel_base_date, CALENDAR_WINDOWS_1900)
 
     def test_read_mac_base_date(self):
-        eq_(self.mac_wb.properties.excel_base_date,CALENDAR_MAC_1904)
+        eq_(self.mac_wb.properties.excel_base_date, CALENDAR_MAC_1904)
 
     def test_read_date_style_mac(self):
         eq_(self.mac_ws.cell('A1').style.number_format.format_code,
@@ -191,7 +193,7 @@ class TestReadBaseDateFormat(object):
 
     def test_read_date_value(self):
         datetuple = (2011, 10, 31)
-        dt = datetime(datetuple[0],datetuple[1],datetuple[2])
-        eq_(self.mac_ws.cell('A1').value,dt)
-        eq_(self.win_ws.cell('A1').value,dt)
-        eq_(self.mac_ws.cell('A1').value,self.win_ws.cell('A1').value)
+        dt = datetime(datetuple[0], datetuple[1], datetuple[2])
+        eq_(self.mac_ws.cell('A1').value, dt)
+        eq_(self.win_ws.cell('A1').value, dt)
+        eq_(self.mac_ws.cell('A1').value, self.win_ws.cell('A1').value)
