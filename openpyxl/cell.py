@@ -288,12 +288,12 @@ class Cell(object):
                     isinstance(value, datetime.datetime):
                 value = datetime.datetime.combine(value, datetime.time())
             if isinstance(value, (datetime.datetime, datetime.time)):
-                value = SharedDate().datetime_to_julian(date=value)
-                self.set_value_explicit(value, self.TYPE_NUMERIC)
                 if isinstance(value, datetime.datetime):
                     self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
                 elif isinstance(value, datetime.time):
                     self._set_number_format(NumberFormat.FORMAT_DATE_TIME6)
+                value = SharedDate().datetime_to_julian(date=value)
+                self.set_value_explicit(value, self.TYPE_NUMERIC)
                 return True
         self.set_value_explicit(value, self._data_type)
 
