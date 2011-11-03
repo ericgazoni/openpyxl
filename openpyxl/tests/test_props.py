@@ -40,6 +40,7 @@ from openpyxl.reader.workbook import read_properties_core, \
 from openpyxl.writer.workbook import write_properties_core, \
         write_properties_app
 from openpyxl.shared.ooxml import ARC_APP, ARC_CORE, ARC_WORKBOOK
+from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
 from openpyxl.workbook import DocumentProperties, Workbook
 
 
@@ -61,6 +62,32 @@ class TestReaderProps(object):
         eq_(prop.last_modified_by, u'Aurélien Campéas')
         eq_(prop.created, datetime(2010, 4, 9, 20, 43, 12))
         eq_(prop.modified, datetime(2011, 2, 9, 13, 49, 32))
+
+    def test_read_sheets_titles(self):
+        content = self.archive.read(ARC_WORKBOOK)
+        sheet_titles = read_sheets_titles(content)
+        eq_(sheet_titles, \
+                ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas', 'Sheet4 - Dates'])
+
+
+class TestLibreOfficeCompat(object):
+    """
+    Just tests that the correct date/time format is returned from LibreOffice saved version
+    """
+
+    @classmethod
+    def setup_class(cls):
+        cls.genuine_filename = os.path.join(DATADIR, 'genuine', 'empty_libre.xlsx')
+        cls.archive = ZipFile(cls.genuine_filename, 'r', ZIP_DEFLATED)
+
+    @classmethod
+    def teardown_class(cls):
+        cls.archive.close()
+
+    def test_read_properties_core(self):
+        content = self.archive.read(ARC_CORE)
+        prop = read_properties_core(content)
+        eq_(prop.excel_base_date, CALENDAR_WINDOWS_1900)
 
     def test_read_sheets_titles(self):
         content = self.archive.read(ARC_WORKBOOK)
