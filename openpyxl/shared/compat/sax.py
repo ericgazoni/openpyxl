@@ -8,6 +8,13 @@ from xml.sax.saxutils import XMLGenerator as _XMLGenerator, quoteattr
 
 if sys.version_info < (2, 5):
 
+    try:
+        from codecs import xmlcharrefreplace_errors
+        _error_handling = "xmlcharrefreplace"
+        del xmlcharrefreplace_errors
+    except ImportError:
+        _error_handling = "strict"
+
     class XMLGenerator(_XMLGenerator):
 
         def _qname(self, name):
@@ -38,5 +45,10 @@ if sys.version_info < (2, 5):
         def endElementNS(self, name, qname):
             self._write('</%s>' % self._qname(name))
 
+        def _write(self, text):
+            if isinstance(text, str):
+                self._out.write(text)
+            else:
+                self._out.write(text.encode(self._encoding, _error_handling))
 else:
     XMLGenerator = _XMLGenerator
