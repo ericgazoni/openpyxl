@@ -116,7 +116,7 @@ class RawCell(BaseRawCell):
 
         return res
 
-def iter_rows(workbook_name, sheet_name, xml_source, shared_date, range_string='', row_offset=0, column_offset=0):
+def iter_rows(workbook_name, sheet_name, xml_source, shared_date, string_table, range_string='', row_offset=0, column_offset=0):
 
     archive = get_archive_file(workbook_name)
 
@@ -129,11 +129,6 @@ def iter_rows(workbook_name, sheet_name, xml_source, shared_date, range_string='
         min_col = column_index_from_string(min_col)
         max_col = column_index_from_string(max_col) + 1
         max_row += 6
-
-    try:
-        string_table = read_string_table(archive.read(ARC_SHARED_STRINGS))
-    except KeyError:
-        string_table = {}
 
     style_table = read_style_table(archive.read(ARC_STYLE))
 
@@ -260,12 +255,13 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
 class IterableWorksheet(Worksheet):
 
     def __init__(self, parent_workbook, title, workbook_name,
-            sheet_codename, xml_source):
+            sheet_codename, xml_source, string_table):
 
         Worksheet.__init__(self, parent_workbook, title)
         self._workbook_name = workbook_name
         self._sheet_codename = sheet_codename
         self._xml_source = xml_source
+        self._string_table = string_table
 
         min_col, min_row, max_col, max_row = read_dimension(xml_source=xml_source)
 
@@ -299,7 +295,8 @@ class IterableWorksheet(Worksheet):
                          range_string=range_string,
                          row_offset=row_offset,
                          column_offset=column_offset,
-                         shared_date=self._shared_date)
+                         shared_date=self._shared_date,
+                         string_table=self._string_table)
 
     def cell(self, *args, **kwargs):
         raise NotImplementedError("use 'iter_rows()' instead")

@@ -39,7 +39,7 @@ from openpyxl.worksheet import Worksheet
 
 def _get_xml_iter(xml_source):
 
-    if not hasattr(xml_source, 'name'): 
+    if not hasattr(xml_source, 'name'):
         return StringIO(xml_source)
     else:
         xml_source.seek(0)
@@ -47,7 +47,7 @@ def _get_xml_iter(xml_source):
 
 def read_dimension(xml_source):
 
-    source = _get_xml_iter(xml_source) 
+    source = _get_xml_iter(xml_source)
 
     it = iterparse(source)
 
@@ -55,7 +55,7 @@ def read_dimension(xml_source):
 
         if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}dimension':
             ref = element.get('ref')
-            
+
             if ':' in ref:
                 min_range, max_range = ref.split(':')
             else:
@@ -77,7 +77,7 @@ def filter_cells((event, element)):
 
 def fast_parse(ws, xml_source, string_table, style_table):
 
-    source = _get_xml_iter(xml_source) 
+    source = _get_xml_iter(xml_source)
 
     it = iterparse(source)
 
@@ -105,11 +105,11 @@ def fast_parse(ws, xml_source, string_table, style_table):
 from openpyxl.reader.iter_worksheet import IterableWorksheet
 
 def read_worksheet(xml_source, parent, preset_title, string_table,
-                   style_table, workbook_name = None, sheet_codename = None):
+                   style_table, workbook_name=None, sheet_codename=None):
     """Read an xml worksheet"""
     if workbook_name and sheet_codename:
-        ws = IterableWorksheet(parent, preset_title, workbook_name, 
-                sheet_codename, xml_source)
+        ws = IterableWorksheet(parent, preset_title, workbook_name,
+                sheet_codename, xml_source, string_table)
     else:
         ws = Worksheet(parent, preset_title)
         fast_parse(ws, xml_source, string_table, style_table)
