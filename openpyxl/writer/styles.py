@@ -98,6 +98,7 @@ class StyleWriter(object):
                     SubElement(font_node, 'b')
                 if st.font.italic:
                     SubElement(font_node, 'i')
+                SubElement(font_node, 'u', {'val':st.font.underline})
                 index += 1
 
         fonts.attrib["count"] = str(index)
