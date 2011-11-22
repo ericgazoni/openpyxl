@@ -61,6 +61,13 @@ def write_worksheet(worksheet, string_table, style_table):
     if worksheet.auto_filter:
         tag(doc, 'autoFilter', {'ref': worksheet.auto_filter})
     write_worksheet_hyperlinks(doc, worksheet)
+    
+    # all margins should be set or not set in setter function, so if one is no longer none, assume none is none
+    if worksheet.margins_left is not None:
+        tag(doc, 'pageMargins', {'left':"%0.2f" % worksheet.margins_left, 'right':"%0.2f" % worksheet.margins_right,
+                                'top':"%0.2f" % worksheet.margins_top, 'bottom':"%0.2f" % worksheet.margins_bottom,
+                                'header':"%0.2f" % worksheet.margins_header, 'footer':"%0.2f" % worksheet.margins_footer})
+    
     if worksheet._charts:
         tag(doc, 'drawing', {'r:id':'rId1'})
     end_tag(doc, 'worksheet')

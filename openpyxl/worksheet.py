@@ -133,16 +133,6 @@ class ColumnDimension(object):
         self.collapsed = False
         self.style_index = 0
 
-
-class PageMargins(object):
-    """Information about page margins for view/print layouts."""
-
-    def __init__(self):
-        self.left = self.right = 0.7
-        self.top = self.bottom = 0.75
-        self.header = self.footer = 0.3
-
-
 class SheetProtection(object):
     """Information about protection of various aspects of a sheet."""
 
@@ -216,7 +206,6 @@ class Worksheet(object):
         self.active_cell = 'A1'
         self.sheet_state = self.SHEETSTATE_VISIBLE
         self.page_setup = PageSetup()
-        self.page_margins = PageMargins()
         self.header_footer = HeaderFooter()
         self.sheet_view = SheetView()
         self.protection = SheetProtection()
@@ -228,6 +217,12 @@ class Worksheet(object):
         self.default_column_dimension = ColumnDimension()
         self._auto_filter = None
         self._freeze_panes = None
+        self.margins_left = None
+        self.margins_right = None
+        self.margins_top = None
+        self.margins_bottom = None
+        self.margins_header = None
+        self.margins_footer = None
 
     def __repr__(self):
         return u'<Worksheet "%s">' % self.title
@@ -464,6 +459,21 @@ class Worksheet(object):
                 return result[0]
             else:
                 return tuple(result)
+
+    def set_page_margins(self, left=1.0, right=1.0, top=1.0, bottom=1.0, header=0.3, footer=0.3):
+        
+        # validate that all args are numeric; then take them all or none
+        try:
+            a = left + right + top + bottom + header + footer   # effectively validates that all are numeric
+            self.margins_left = left
+            self.margins_right = right
+            self.margins_top = top
+            self.margins_bottom = bottom
+            self.margins_header = header
+            self.margins_footer = footer
+
+        except:
+            pass
 
     def get_style(self, coordinate):
         """Return the style object for the specified cell."""

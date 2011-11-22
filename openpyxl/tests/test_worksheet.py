@@ -29,6 +29,7 @@ from nose.tools import eq_, raises, assert_raises
 # package imports
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet, Relationship, flatten
+from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.cell import Cell
 from openpyxl.shared.exc import CellCoordinatesException, \
         SheetTitleException, InsufficientCoordinatesException, \
@@ -241,6 +242,16 @@ class TestWorksheet(object):
 
         ws.auto_filter = 'c1:g9'
         assert ws.auto_filter == 'C1:G9'
+
+    def test_page_margins(self):        
+        ws = Worksheet(self.wb)
+        ws.set_page_margins(left=2.0, right=2.0, top=2.0, bottom=2.0, header=1.5, footer=1.5)
+        xml_string = write_worksheet(ws, None, None)
+        assert '<pageMargins header="1.50" top="2.00" left="2.00" right="2.00" footer="1.50" bottom="2.00"></pageMargins>' in xml_string        
+
+        ws = Worksheet(self.wb)
+        xml_string = write_worksheet(ws, None, None)
+        assert '<pageMargins' not in xml_string        
 
     def test_freeze(self):
         ws = Worksheet(self.wb)
