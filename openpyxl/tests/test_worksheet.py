@@ -32,8 +32,8 @@ from openpyxl.worksheet import Worksheet, Relationship, flatten
 from openpyxl.cell import Cell
 from openpyxl.shared.exc import CellCoordinatesException, \
         SheetTitleException, InsufficientCoordinatesException, \
-        NamedRangeException
-
+        NamedRangeException 
+from openpyxl.writer.worksheet import write_worksheet
 
 class TestWorksheet(object):
 
@@ -256,3 +256,14 @@ class TestWorksheet(object):
         ws.freeze_panes = ws.cell('A1')
         assert ws.freeze_panes is None
 
+    def test_printer_settings(self):
+        
+        ws = Worksheet(self.wb)
+        ws.set_printer_settings(Worksheet.PAPER_SIZE_LEGAL, Worksheet.ORIENTATION_LANDSCAPE)
+        xml_string = write_worksheet(ws, None, None)
+        assert '<pageSetup paperSize="5" orientation="landscape"></pageSetup>' in xml_string
+
+        ws = Worksheet(self.wb)
+        xml_string = write_worksheet(ws, None, None)
+        assert "<pageSetup paperSize" not in xml_string        
+        
