@@ -21,7 +21,13 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+import warnings
 try:
-    from xml.etree.ElementTree import iterparse
+    try:
+        from xml.etree.cElementTree import iterparse
+    except ImportError:
+        from xml.etree.ElementTree import iterparse
+        warnings.warn("""Unable to import 'xml.etree.cElementree'. Falling back on 'xml.etree.Elementree'""")
 except ImportError:
     from cElementTree import iterparse
+    warnings.warn("""Unable to import 'xml.etree.Elementree'. Falling back on 'cElementree'""")
