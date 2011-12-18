@@ -47,7 +47,8 @@ When you want to dump large amounts of data, you might find optimized writer hel
     
 .. warning:: 
 
-    * Those worksheet only have an append() method, it's not possible to access independant cells directly (through cell() or range()). They are write-only.
+    * Those worksheet only have an append() method, it's not possible to access independent cells directly (through cell() or range()). They are write-only.
     * It is able to export unlimited amount of data (even more than Excel can handle actually), while keeping memory usage under 10Mb.
+    * A workbook using the optimized writer can only be saved once. After that, every attempt to save the workbook or append() to an existing worksheet will raise an :class:`openpyxl.shared.exc.WorkbookAlreadySaved` exception.
 
 

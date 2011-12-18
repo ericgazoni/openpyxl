@@ -190,7 +190,14 @@ class Workbook(object):
         self._named_ranges.remove(named_range)
 
     def save(self, filename):
-        """ shortcut """
+        """Save the current workbook under the given `filename`. 
+        Use this function instead of using an `ExcelWriter`.
+        
+        .. warning::
+            When creating your workbook using `optimized_write` set to True, 
+            you will only be able to call this function once. Subsequents attempts to
+            modify or save the file will raise an :class:`openpyxl.shared.exc.WorkbookAlreadySaved` exception.
+        """
         if self.__optimized_write:
             save_dump(self, filename)
         else:
