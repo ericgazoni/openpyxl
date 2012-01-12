@@ -25,3 +25,8 @@ import sys
 from openpyxl.shared.compat.elementtree import iterparse
 from openpyxl.shared.compat.tempnamedfile import NamedTemporaryFile
 from openpyxl.shared.compat.allany import all, any
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    from openpyxl.shared.compat.odict import OrderedDict

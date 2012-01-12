@@ -8,7 +8,7 @@ amounts of data with (near) constant memory consumption.
 
 Introducing :class:`openpyxl.reader.iter_worksheet.IterableWorksheet`::
 
-    from openpyxl.reader.excel import load_workbook
+    from openpyxl import load_workbook
     wb = load_workbook(filename = 'large_file.xlsx', use_iterators = True)
     ws = wb.get_sheet_by_name(name = 'big_data') # ws is now an IterableWorksheet
 
@@ -34,7 +34,7 @@ Here again, the regular :class:`openpyxl.worksheet.Worksheet` has been replaced
 by a faster alternative, the :class:`openpyxl.writer.dump_worksheet.DumpWorksheet`.
 When you want to dump large amounts of data, you might find optimized writer helpful::
 
-    from openpyxl.workbook import Workbook
+    from openpyxl import Workbook
     wb = Workbook(optimized_write = True)
 
     ws = wb.create_sheet()
