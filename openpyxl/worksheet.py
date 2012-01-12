@@ -199,6 +199,11 @@ class Worksheet(object):
     SHEETSTATE_HIDDEN = 'hidden'
     SHEETSTATE_VERYHIDDEN = 'veryHidden'
 
+    PAPER_SIZE_LETTER = '1'
+    PAPER_SIZE_LEGAL = '5'
+    ORIENTATION_PORTRAIT = 'portrait'
+    ORIENTATION_LANDSCAPE = 'landscape'
+    
     def __init__(self, parent_workbook, title='Sheet'):
         self._parent = parent_workbook
         self._title = ''
@@ -228,6 +233,8 @@ class Worksheet(object):
         self.default_column_dimension = ColumnDimension()
         self._auto_filter = None
         self._freeze_panes = None
+        self.paper_size = None
+        self.orientation = None
 
     def __repr__(self):
         return u'<Worksheet "%s">' % self.title
@@ -471,6 +478,12 @@ class Worksheet(object):
             self._styles[coordinate] = Style()
         return self._styles[coordinate]
 
+    def set_printer_settings(self, paper_size, orientation):
+        """Set printer settings """
+        
+        self.paper_size = paper_size
+        self.orientation = orientation
+    
     def create_relationship(self, rel_type):
         """Add a relationship for this sheet."""
         rel = Relationship(rel_type)

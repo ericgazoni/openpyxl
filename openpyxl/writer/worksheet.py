@@ -61,6 +61,10 @@ def write_worksheet(worksheet, string_table, style_table):
     if worksheet.auto_filter:
         tag(doc, 'autoFilter', {'ref': worksheet.auto_filter})
     write_worksheet_hyperlinks(doc, worksheet)
+    
+    if worksheet.paper_size is not None:        #size and orientation set in common setter, so expect both or neither
+        tag(doc, 'pageSetup', {'paperSize':'%s' % worksheet.paper_size,'orientation':'%s' % worksheet.orientation}) 
+    
     if worksheet._charts:
         tag(doc, 'drawing', {'r:id':'rId1'})
     end_tag(doc, 'worksheet')
