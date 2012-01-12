@@ -100,7 +100,7 @@ class Workbook(object):
         """Returns the current active sheet."""
         return self.worksheets[self._active_sheet_index]
 
-    def create_sheet(self, index=None):
+    def create_sheet(self, index=None, title=None):
         """Create a worksheet (at an optional index).
 
         :param index: optional position at which the sheet will be inserted
@@ -114,7 +114,10 @@ class Workbook(object):
         if self.__optimized_write :
             new_ws = DumpWorksheet(parent_workbook=self)
         else:
-            new_ws = Worksheet(parent_workbook=self)
+            if title:
+                new_ws = Worksheet(parent_workbook=self, title=title)
+            else:
+                new_ws = Worksheet(parent_workbook=self)
 
         self.add_sheet(worksheet=new_ws, index=index)
         return new_ws
