@@ -103,7 +103,7 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.font.underline = Font.UNDERLINE_SINGLE
         w = StyleWriter(self.workbook)
         w._write_fonts()
-        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u val="single" /></font></fonts></styleSheet>')
+        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u /></font></fonts></styleSheet>')
 
     def test_fills(self):
 
