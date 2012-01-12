@@ -7,7 +7,7 @@ Create a workbook
 There is no need to create a file on the filesystem to get started with openpyxl.
 Just import the Worbook class and start using it ::
 
-	>>> from openpyxl.workbook import Workbook
+	>>> from openpyxl import Workbook
 	>>> wb = Workbook()
 	
 A workbook is always created with at least one worksheet. You can get it by 
@@ -199,10 +199,10 @@ The simplest and safest way to save a workbook is by using the
 Loading from a file
 =================== 
 	
-The same way as writing, you can import :func:`openpyxl.reader.excel.load_workbook` to 
+The same way as writing, you can import :func:`openpyxl.load_workbook` to 
 open an existing workbook::
 
-	>>> from openpyxl.reader.excel import load_workbook
+	>>> from openpyxl import load_workbook
 	>>> wb2 = load_workbook('test.xlsx')
 	>>> print wb2.get_sheet_names()
 	['Sheet2', 'New Title', 'Sheet1']

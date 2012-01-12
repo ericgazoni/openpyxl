@@ -5,7 +5,7 @@ Write a workbook
 ------------------
 ::
 
-    from openpyxl.workbook import Workbook
+    from openpyxl import Workbook
     
     from openpyxl.cell import get_column_letter
     
@@ -34,7 +34,7 @@ Read an existing workbook
 -----------------------------
 ::
 
-    from openpyxl.reader.excel import load_workbook
+    from openpyxl import load_workbook
 
     wb = load_workbook(filename = r'empty_book.xlsx')
     
@@ -48,7 +48,7 @@ Using number formats
 ::
 
     import datetime
-    from openpyxl.workbook import Workbook
+    from openpyxl import Workbook
     
     wb = Workbook()
     ws = wb.worksheets[0]
