@@ -36,7 +36,7 @@ from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
 from openpyxl.style import NumberFormat
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.style import NumberFormat, Border, Color
+from openpyxl.style import NumberFormat, Border, Color, Font
 
 
 class TestCreateStyle(object):
@@ -98,7 +98,12 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.font.bold = True
         w = StyleWriter(self.workbook)
         w._write_fonts()
-        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /></font></fonts></styleSheet>')
+        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u val="none" /></font></fonts></styleSheet>')
+
+        self.worksheet.cell('A1').style.font.underline = Font.UNDERLINE_SINGLE
+        w = StyleWriter(self.workbook)
+        w._write_fonts()
+        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u val="single" /></font></fonts></styleSheet>')
 
     def test_fills(self):
 
