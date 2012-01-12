@@ -39,23 +39,23 @@ def read_style_table(xml_source):
     custom_num_formats = parse_custom_num_formats(root, xmlns)
     builtin_formats = NumberFormat._BUILTIN_FORMATS
     cell_xfs = root.find(QName(xmlns, 'cellXfs').text)
-    cell_xfs_nodes = cell_xfs.findall(QName(xmlns, 'xf').text)
-    for index, cell_xfs_node in enumerate(cell_xfs_nodes):
-        new_style = Style()
-        number_format_id = int(cell_xfs_node.get('numFmtId'))
-        if number_format_id < 164:
-            new_style.number_format.format_code = \
-                    builtin_formats.get(number_format_id, 'General')
-        else:
-
-            if number_format_id in custom_num_formats:
+    if cell_xfs is not None: # can happen on bad OOXML writers (e.g. Gnumeric)
+        cell_xfs_nodes = cell_xfs.findall(QName(xmlns, 'xf').text)
+        for index, cell_xfs_node in enumerate(cell_xfs_nodes):
+            new_style = Style()
+            number_format_id = int(cell_xfs_node.get('numFmtId'))
+            if number_format_id < 164:
                 new_style.number_format.format_code = \
-                        custom_num_formats[number_format_id]
+                        builtin_formats.get(number_format_id, 'General')
             else:
-                raise MissingNumberFormat('%s' % number_format_id)
-        table[index] = new_style
-    return table
 
+                if number_format_id in custom_num_formats:
+                    new_style.number_format.format_code = \
+                            custom_num_formats[number_format_id]
+                else:
+                    raise MissingNumberFormat('%s' % number_format_id)
+            table[index] = new_style
+    return table
 
 def parse_custom_num_formats(root, xmlns):
     """Read in custom numeric formatting rules from the shared style table"""
