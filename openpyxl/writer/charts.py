@@ -244,10 +244,11 @@ class ChartWriter(object):
             literal=(serie.error_bar.type == ErrorBar.PLUS))
 
     def _write_legend(self, chart):
-
-        legend = SubElement(chart, 'c:legend')
-        SubElement(legend, 'c:legendPos', {'val':self.chart.legend.position})
-        SubElement(legend, 'c:layout')
+        
+        if self.chart.show_legend:
+            legend = SubElement(chart, 'c:legend')
+            SubElement(legend, 'c:legendPos', {'val':self.chart.legend.position})
+            SubElement(legend, 'c:layout')
 
     def _write_print_settings(self, root):
 

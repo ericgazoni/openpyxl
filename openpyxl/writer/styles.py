@@ -98,6 +98,11 @@ class StyleWriter(object):
                     SubElement(font_node, 'b')
                 if st.font.italic:
                     SubElement(font_node, 'i')
+                if st.font.underline == 'single':
+                    SubElement(font_node, 'u')
+                else:
+                    SubElement(font_node, 'u', {'val':st.font.underline})
+
                 index += 1
 
         fonts.attrib["count"] = str(index)
@@ -208,6 +213,9 @@ class StyleWriter(object):
 
                     if hash(st.alignment.wrap_text) != hash(style.DEFAULTS.alignment.wrap_text):
                         alignments['wrapText'] = '1'
+                    
+                    if st.alignment.text_rotation != 0: 
+                        alignments['textRotation'] = '%s' % st.alignment.text_rotation
 
                 SubElement(node, 'alignment', alignments)
 

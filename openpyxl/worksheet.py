@@ -189,6 +189,11 @@ class Worksheet(object):
     SHEETSTATE_HIDDEN = 'hidden'
     SHEETSTATE_VERYHIDDEN = 'veryHidden'
 
+    PAPER_SIZE_LETTER = '1'
+    PAPER_SIZE_LEGAL = '5'
+    ORIENTATION_PORTRAIT = 'portrait'
+    ORIENTATION_LANDSCAPE = 'landscape'
+
     def __init__(self, parent_workbook, title='Sheet'):
         self._parent = parent_workbook
         self._title = ''
@@ -223,6 +228,8 @@ class Worksheet(object):
         self.margins_bottom = None
         self.margins_header = None
         self.margins_footer = None
+        self.paper_size = None
+        self.orientation = None
 
     def __repr__(self):
         return u'<Worksheet "%s">' % self.title
@@ -461,7 +468,7 @@ class Worksheet(object):
                 return tuple(result)
 
     def set_page_margins(self, left=1.0, right=1.0, top=1.0, bottom=1.0, header=0.3, footer=0.3):
-        
+
         # validate that all args are numeric; then take them all or none
         try:
             a = left + right + top + bottom + header + footer   # effectively validates that all are numeric
@@ -480,6 +487,13 @@ class Worksheet(object):
         if not coordinate in self._styles:
             self._styles[coordinate] = Style()
         return self._styles[coordinate]
+
+    def set_printer_settings(self, paper_size, orientation):
+        """Set printer settings """
+
+        self.paper_size = paper_size
+        assert orientation in (self.ORIENTATION_PORTRAIT, self.ORIENTATION_LANDSCAPE), "Values should be %s or %s" % (self.ORIENTATION_PORTRAIT, self.ORIENTATION_LANDSCAPE)
+        self.orientation = orientation
 
     def create_relationship(self, rel_type):
         """Add a relationship for this sheet."""

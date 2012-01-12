@@ -56,4 +56,7 @@ class ReadOnlyWorkbookException(Exception):
 class MissingNumberFormat(Exception):
     """Error when a referenced number format is not in the stylesheet"""
 
+class WorkbookAlreadySaved(Exception):
+    """Error when attempting to perform operations on a dump workbook 
+    while it has already been dumped once"""
 

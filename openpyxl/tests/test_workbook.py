@@ -48,6 +48,11 @@ def test_create_sheet():
     new_sheet = wb.create_sheet(0)
     eq_(new_sheet, wb.worksheets[0])
 
+def test_create_sheet_with_name():
+    wb = Workbook()
+    new_sheet = wb.create_sheet(0, title='LikeThisName')
+    eq_(new_sheet, wb.worksheets[0])
+
 def test_add_correct_sheet():
     wb = Workbook()
     new_sheet = wb.create_sheet(0)

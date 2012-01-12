@@ -28,7 +28,7 @@
 from datetime import time, datetime
 
 # 3rd party imports
-from nose.tools import eq_
+from nose.tools import eq_, raises
 
 from openpyxl.workbook import Workbook
 from openpyxl.writer import dump_worksheet
@@ -39,6 +39,7 @@ from openpyxl.reader.excel import load_workbook
 from openpyxl.writer.strings import StringTableBuilder
 
 from openpyxl.shared.compat import NamedTemporaryFile
+from openpyxl.shared.exc import WorkbookAlreadySaved
 import os
 import os.path as osp
 import shutil
@@ -135,30 +136,31 @@ def test_create_temp_file():
     if not osp.isfile(f):
         raise Exception("The file %s does not exist" % f)
 
-def test_get_temp_file():
+@raises(WorkbookAlreadySaved)
+def test_dump_twice():
 
-    FILES = []
+    test_filename = _get_test_filename()
 
-    for i in range(dump_worksheet.DESCRIPTORS_CACHE_SIZE * 2):
+    wb = Workbook(optimized_write=True)
+    ws = wb.create_sheet()
+    ws.append(['hello'])
 
-        filename = dump_worksheet.create_temporary_file(suffix=str(i))
-        fobj = dump_worksheet.get_temporary_file(filename)
+    wb.save(test_filename)
+    os.remove(test_filename)
 
-        FILES.append(filename)
+    wb.save(test_filename)
 
-    eq_(len(dump_worksheet.DESCRIPTORS_CACHE), dump_worksheet.DESCRIPTORS_CACHE_SIZE)
+@raises(WorkbookAlreadySaved)
+def test_append_after_save():
 
-    filename = FILES[0]
+    test_filename = _get_test_filename()
 
-    assert filename  not in dump_worksheet.DESCRIPTORS_CACHE, "The cache contains a value that should have been evicted"
+    wb = Workbook(optimized_write=True)
+    ws = wb.create_sheet()
+    ws.append(['hello'])
 
-    fobj = dump_worksheet.get_temporary_file(filename)
+    wb.save(test_filename)
+    os.remove(test_filename)
 
-    assert filename  in dump_worksheet.DESCRIPTORS_CACHE, "The cache does not contain a value that should have been loaded"
+    ws.append(['hello'])
 
-    # clean this mess a bit
-    for fobj in dump_worksheet.DESCRIPTORS_CACHE.values():
-        fobj.close()
-
-    for filename in FILES:
-        os.remove(filename)

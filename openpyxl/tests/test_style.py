@@ -36,7 +36,7 @@ from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
 from openpyxl.style import NumberFormat
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.style import NumberFormat, Border, Color
+from openpyxl.style import NumberFormat, Border, Color, Font
 
 
 class TestCreateStyle(object):
@@ -98,7 +98,12 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.font.bold = True
         w = StyleWriter(self.workbook)
         w._write_fonts()
-        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /></font></fonts></styleSheet>')
+        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u val="none" /></font></fonts></styleSheet>')
+
+        self.worksheet.cell('A1').style.font.underline = Font.UNDERLINE_SINGLE
+        w = StyleWriter(self.workbook)
+        w._write_fonts()
+        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u /></font></fonts></styleSheet>')
 
     def test_fills(self):
 
@@ -139,6 +144,18 @@ class TestStyleWriter(object):
         ok_('applyAlignment="1"' in xml)
         ok_('horizontal="center"' in xml)
         ok_('vertical="center"' in xml)
+
+    def test_alignment_rotation(self):
+        self.worksheet.cell('A1').style.alignment.vertical = 'center'
+        self.worksheet.cell('A1').style.alignment.text_rotation = 90
+        self.worksheet.cell('A2').style.alignment.vertical = 'center'
+        self.worksheet.cell('A2').style.alignment.text_rotation = 135
+        w = StyleWriter(self.workbook)
+        nft = w._write_number_formats()
+        w._write_cell_xfs(nft, {}, {}, {})
+        xml = get_xml(w._root)
+        ok_('textRotation="90"' in xml)
+        ok_('textRotation="135"' in xml)
 
 
 #def test_format_comparisions():

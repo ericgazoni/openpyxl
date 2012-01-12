@@ -40,6 +40,7 @@ from openpyxl.shared.xmltools import (XMLGenerator, get_document_content,
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.ooxml import MAX_COLUMN, MAX_ROW
 from openpyxl.shared import NUMERIC_TYPES
+from openpyxl.shared.exc import WorkbookAlreadySaved
 from openpyxl.shared.compat import NamedTemporaryFile
 from openpyxl.writer.excel import ExcelWriter
 from openpyxl.writer.strings import write_string_table
@@ -90,7 +91,12 @@ def get_temporary_file(filename):
 
         return fobj
     else:
+        if filename is None:
+            raise WorkbookAlreadySaved('this workbook has already been saved '
+                    'and cannot be modified or saved anymore.')
+
         fobj = open(filename, 'r+')
+
         DESCRIPTORS_CACHE[filename] = fobj
 
         if len(DESCRIPTORS_CACHE) > DESCRIPTORS_CACHE_SIZE:
@@ -135,6 +141,11 @@ class DumpWorksheet(Worksheet):
         return (self._fileobj_content_name,
                 self._fileobj_header_name,
                 self._fileobj_name)
+
+    def _unset_temp_files(self):
+        self._fileobj_header_name = None
+        self._fileobj_content_name = None
+        self._fileobj_name = None
 
     def write_header(self):
 
@@ -305,7 +316,9 @@ class ExcelDumpWriter(ExcelWriter):
             sheet.close()
             archive.write(sheet.filename, PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1))
             for filename in sheet._temp_files:
+                del DESCRIPTORS_CACHE[filename]
                 os.remove(filename)
+            sheet._unset_temp_files()
 
 
 class StyleDumpWriter(StyleWriter):

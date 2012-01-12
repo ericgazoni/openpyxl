@@ -61,13 +61,16 @@ def write_worksheet(worksheet, string_table, style_table):
     if worksheet.auto_filter:
         tag(doc, 'autoFilter', {'ref': worksheet.auto_filter})
     write_worksheet_hyperlinks(doc, worksheet)
-    
+
     # all margins should be set or not set in setter function, so if one is no longer none, assume none is none
     if worksheet.margins_left is not None:
         tag(doc, 'pageMargins', {'left':"%0.2f" % worksheet.margins_left, 'right':"%0.2f" % worksheet.margins_right,
                                 'top':"%0.2f" % worksheet.margins_top, 'bottom':"%0.2f" % worksheet.margins_bottom,
                                 'header':"%0.2f" % worksheet.margins_header, 'footer':"%0.2f" % worksheet.margins_footer})
-    
+
+    if worksheet.paper_size is not None:        #size and orientation set in common setter, so expect both or neither
+        tag(doc, 'pageSetup', {'paperSize':'%s' % worksheet.paper_size, 'orientation':'%s' % worksheet.orientation})
+
     if worksheet._charts:
         tag(doc, 'drawing', {'r:id':'rId1'})
     end_tag(doc, 'worksheet')
@@ -108,7 +111,7 @@ def write_worksheet_sheetviews(doc, worksheet):
     tag(doc, 'selection', selectionAttrs)
     end_tag(doc, 'sheetView')
     end_tag(doc, 'sheetViews')
-    
+
 
 def write_worksheet_cols(doc, worksheet):
     """Write worksheet columns to xml."""
@@ -157,7 +160,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             attrs['customHeight'] = '1'
         start_tag(doc, 'row', attrs)
         row_cells = cells_by_row[row_idx]
-        sorted_cells = sorted(row_cells, key = row_sort)
+        sorted_cells = sorted(row_cells, key=row_sort)
         for cell in sorted_cells:
             value = cell._value
             coordinate = cell.get_coordinate()
@@ -170,20 +173,20 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             if value is None:
                 tag(doc, 'v', body='')
             elif cell.data_type == cell.TYPE_STRING:
-                tag(doc, 'v', body = '%s' % string_table[value])
+                tag(doc, 'v', body='%s' % string_table[value])
             elif cell.data_type == cell.TYPE_FORMULA:
-                tag(doc, 'f', body = '%s' % value[1:])
+                tag(doc, 'f', body='%s' % value[1:])
                 tag(doc, 'v')
             elif cell.data_type == cell.TYPE_NUMERIC:
                 if isinstance(value, (long, decimal.Decimal)):
-                    func=str
+                    func = str
                 else:
-                    func=repr
-                tag(doc, 'v', body = func(value))
+                    func = repr
+                tag(doc, 'v', body=func(value))
             elif cell.data_type == cell.TYPE_BOOL:
-                tag(doc, 'v', body = '%d' % value)
+                tag(doc, 'v', body='%d' % value)
             else:
-                tag(doc, 'v', body = '%s' % value)
+                tag(doc, 'v', body='%s' % value)
             end_tag(doc, 'c')
         end_tag(doc, 'row')
     end_tag(doc, 'sheetData')
