@@ -33,6 +33,7 @@ Shortcut functions taken from:
 # Python stdlib imports
 from xml.sax.xmlreader import AttributesNSImpl
 from openpyxl.shared.compat.sax import XMLGenerator
+from openpyxl.shared.compat import OrderedDict
 try:
     from xml.etree.ElementTree import ElementTree, Element, SubElement, \
             QName, fromstring, tostring
@@ -70,10 +71,10 @@ def pretty_indent(elem, level=0):
 def start_tag(doc, name, attr=None, body=None, namespace=None):
     """Wrapper to start an xml tag."""
     if attr is None:
-        attr = {}
+        attr = OrderedDict()
 
-    attr_vals = {}
-    attr_keys = {}
+    attr_vals = OrderedDict()
+    attr_keys = OrderedDict()
     for key, val in attr.iteritems():
         key_tuple = (namespace, key)
         attr_vals[key_tuple] = val

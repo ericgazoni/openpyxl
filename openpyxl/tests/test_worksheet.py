@@ -252,8 +252,7 @@ class TestWorksheet(object):
         ws.page_margins.header = 1.5
         ws.page_margins.footer = 1.5
         xml_string = write_worksheet(ws, None, None)
-        print xml_string
-        assert '<pageMargins right="2.00" header="1.50" bottom="2.00" footer="1.50" top="2.00" left="2.00"></pageMargins>' in xml_string
+        assert '<pageMargins left="2.00" right="2.00" top="2.00" bottom="2.00" header="1.50" footer="1.50"></pageMargins>' in xml_string
 
     def test_freeze(self):
         ws = Worksheet(self.wb)
