@@ -84,7 +84,26 @@ class Relationship(object):
 
 class PageSetup(object):
     """Information about page layout for this sheet"""
-    pass
+    valid_setup = ("orientation", "paperSize", "scale", "fitToPage", "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber")
+
+    def __init__(self):
+        self.orientation = self.paperSize = self.scale = self.fitToPage = self.fitToHeight = self.fitToWidth = self.firstPageNumber = self.useFirstPageNumber = None
+
+    @property
+    def setup(self):
+        setupGroup = OrderedDict()
+        for setup_name in self.valid_setup:
+            setup_value = getattr(self, setup_name)
+            if setup_value is not None:
+                if setup_name == 'orientation':
+                    setupGroup[setup_name] = '%s' % setup_value
+                elif setup_name in ('paperSize','scale'):
+                    setupGroup[setup_name] = '%d' % int(setup_value)
+                elif setup_name in ('fitToHeight','fitToWidth') and int(setup_value) >= 0:
+                    setupGroup[setup_name] = '%d' % int(setup_value)
+
+        return setupGroup
+
 
 
 class HeaderFooter(object):
@@ -208,8 +227,20 @@ class Worksheet(object):
     SHEETSTATE_HIDDEN = 'hidden'
     SHEETSTATE_VERYHIDDEN = 'veryHidden'
 
-    PAPER_SIZE_LETTER = '1'
-    PAPER_SIZE_LEGAL = '5'
+    # Paper size
+    PAPERSIZE_LETTER = '1'
+    PAPERSIZE_LETTER_SMALL = '2'
+    PAPERSIZE_TABLOID = '3'
+    PAPERSIZE_LEDGER = '4'
+    PAPERSIZE_LEGAL = '5'
+    PAPERSIZE_STATEMENT = '6'
+    PAPERSIZE_EXECUTIVE = '7'
+    PAPERSIZE_A3 = '8'
+    PAPERSIZE_A4 = '9'
+    PAPERSIZE_A4_SMALL = '10'
+    PAPERSIZE_A5 = '11'
+
+    # Page orientation
     ORIENTATION_PORTRAIT = 'portrait'
     ORIENTATION_LANDSCAPE = 'landscape'
 

@@ -52,6 +52,8 @@ def write_worksheet(worksheet, string_table, style_table):
     tag(doc, 'outlinePr',
             {'summaryBelow': '%d' % (worksheet.show_summary_below),
             'summaryRight': '%d' % (worksheet.show_summary_right)})
+    if worksheet.page_setup.fitToPage:
+        tag(doc, 'pageSetUpPr', {'fitToPage':'1'})
     end_tag(doc, 'sheetPr')
     tag(doc, 'dimension', {'ref': '%s' % worksheet.calculate_dimension()})
     write_worksheet_sheetviews(doc, worksheet)
@@ -66,8 +68,9 @@ def write_worksheet(worksheet, string_table, style_table):
     if margins:
         tag(doc, 'pageMargins', margins)
 
-    if worksheet.paper_size is not None:        #size and orientation set in common setter, so expect both or neither
-        tag(doc, 'pageSetup', {'paperSize':'%s' % worksheet.paper_size, 'orientation':'%s' % worksheet.orientation})
+    setup = worksheet.page_setup.setup
+    if setup:
+        tag(doc, 'pageSetup', setup)
 
     if worksheet._charts:
         tag(doc, 'drawing', {'r:id':'rId1'})

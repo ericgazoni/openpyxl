@@ -269,12 +269,17 @@ class TestWorksheet(object):
         assert ws.freeze_panes is None
 
     def test_printer_settings(self):
+        ws = Worksheet(self.wb)
+        ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+        ws.page_setup.paperSize = ws.PAPERSIZE_TABLOID
+        ws.page_setup.fitToPage = True
+        ws.page_setup.fitToHeight = 0
+        ws.page_setup.fitToWidth = 1
+        xml_string = write_worksheet(ws, None, None)
+        assert '<pageSetup orientation="landscape" paperSize="3" fitToHeight="0" fitToWidth="1"></pageSetup>' in xml_string
+        assert '<pageSetUpPr fitToPage="1"></pageSetUpPr>' in xml_string
 
         ws = Worksheet(self.wb)
-        ws.set_printer_settings(Worksheet.PAPER_SIZE_LEGAL, Worksheet.ORIENTATION_LANDSCAPE)
         xml_string = write_worksheet(ws, None, None)
-        assert '<pageSetup paperSize="5" orientation="landscape"></pageSetup>' in xml_string
-
-        ws = Worksheet(self.wb)
-        xml_string = write_worksheet(ws, None, None)
-        assert "<pageSetup paperSize" not in xml_string
+        assert "<pageSetup" not in xml_string
+        assert "<pageSetUpPr" not in xml_string
