@@ -27,7 +27,7 @@
 import os.path
 
 # 3rd-party imports
-from nose.tools import eq_, assert_raises
+from nose.tools import eq_, assert_raises, ok_
 
 # package imports
 from openpyxl.tests.helper import DATADIR, TMPDIR, clean_tmpdir, make_tmpdir
@@ -47,6 +47,30 @@ def test_split_no_quotes():
 
 def test_bad_range_name():
     assert_raises(NamedRangeException, split_named_range, 'HYPOTHESES$B$3')
+    
+def test_range_name_worksheet_special_chars():
+        class DummyWs(object):
+            title = 'My Sheeet with a , and \''
+
+            def __str__(self):
+                return self.title
+        ws = DummyWs()
+
+        class DummyWB(object):
+
+            def get_sheet_by_name(self, name):
+                if name == ws.title:
+                    return ws
+
+        handle = open(os.path.join(DATADIR, 'reader', 'workbook_namedrange.xml'))
+        try:
+            content = handle.read()
+            named_ranges = read_named_ranges(content, DummyWB())
+            eq_(1, len(named_ranges))
+            ok_(isinstance(named_ranges[0], NamedRange))
+            eq_([(ws, '$U$16:$U$24'), (ws, '$V$28:$V$36')], named_ranges[0].destinations)
+        finally:
+            handle.close()
 
 
 def test_read_named_ranges():
