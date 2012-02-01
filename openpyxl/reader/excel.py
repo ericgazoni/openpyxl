@@ -82,8 +82,10 @@ def load_workbook(filename, use_iterators=False):
         try:
             repair_central_directory(filename)
             archive = ZipFile(filename, 'r', ZIP_DEFLATED)
-        except (BadZipfile, RuntimeError, IOError, ValueError), e:
+        except BadZipfile, e:
             raise InvalidFileException(unicode(e))
+    except (BadZipfile, RuntimeError, IOError, ValueError), e:
+        raise InvalidFileException(unicode(e))
     wb = Workbook()
 
     if use_iterators:
