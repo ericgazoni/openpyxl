@@ -62,6 +62,7 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_data(doc, worksheet, string_table, style_table)
     if worksheet.auto_filter:
         tag(doc, 'autoFilter', {'ref': worksheet.auto_filter})
+    write_worksheet_mergecells(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
 
     margins = worksheet.page_margins.margins
@@ -191,6 +192,16 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             end_tag(doc, 'c')
         end_tag(doc, 'row')
     end_tag(doc, 'sheetData')
+
+
+def write_worksheet_mergecells(doc, worksheet):
+    """Write merged cells to xml."""
+    if len(worksheet._merged_cells) > 0:
+        start_tag(doc,'mergeCells')
+        for range_string in worksheet._merged_cells:
+            attrs = {'ref': range_string}
+            tag(doc,'mergeCell',attrs)
+        end_tag(doc,'mergeCells')
 
 
 def write_worksheet_hyperlinks(doc, worksheet):

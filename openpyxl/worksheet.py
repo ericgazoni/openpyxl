@@ -256,6 +256,7 @@ class Worksheet(object):
         self._cells = {}
         self._styles = {}
         self._charts = []
+        self._merged_cells = []
         self.relationships = []
         self.selected_cell = 'A1'
         self.active_cell = 'A1'
@@ -538,6 +539,57 @@ class Worksheet(object):
 
         chart._sheet = self
         self._charts.append(chart)
+
+    def merge_cells(self,range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
+        """ Set merge on a cell range.  Range is a cell range (e.g. A1:E1) """
+        if not range_string:
+            if  start_row is None or start_column is None or end_row is None or end_column is None:
+                msg = "You have to provide a value either for "\
+                      "'coordinate' or for 'start_row', 'start_column', 'end_row' *and* 'end_column'"
+                raise InsufficientCoordinatesException(msg)
+            else:
+                range_string = '%s%s:%s%s' % (get_column_letter(start_column + 1), start_row + 1, get_column_letter(end_column + 1), end_row + 1)
+        elif len(range_string.split(':')) != 2:
+                msg = "Range must be a cell range (e.g. A1:E1)"
+                raise InsufficientCoordinatesException(msg)
+        else:
+            range_string = range_string.replace('$', '')
+
+        # Make sure top_left cell exists - is this necessary?
+        min_col, min_row = coordinate_from_string(range_string.split(':')[0])
+        max_col, max_row = coordinate_from_string(range_string.split(':')[1])
+        min_col = column_index_from_string(min_col)
+        max_col = column_index_from_string(max_col)
+        # Blank out the rest of the cells in the range
+        for col in xrange(min_col,max_col+1):
+            for row in xrange(min_row,max_row+1):
+                if not (row == min_row and col == min_col):
+                    # PHPExcel adds cell and specifically blanks it out if it doesn't exist
+                    print '%s%s' % (get_column_letter(col), row)
+                    self._get_cell('%s%s' % (get_column_letter(col), row)).value = None
+
+        self._merged_cells.append(range_string)
+
+    def unmerge_cells(self,range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
+        """ Remove merge on a cell range.  Range is a cell range (e.g. A1:E1) """
+        if not range_string:
+            if start_row is None or start_column is None or end_row is None or end_column is None:
+                msg = "You have to provide a value either for "\
+                      "'coordinate' or for 'start_row', 'start_column', 'end_row' *and* 'end_column'"
+                raise InsufficientCoordinatesException(msg)
+            else:
+                range_string = '%s%s:%s%s' % (get_column_letter(start_column + 1), start_row + 1, get_column_letter(end_column + 1), end_row + 1)
+        elif len(range_string.split(':')) != 2:
+            msg = "Range must be a cell range (e.g. A1:E1)"
+            raise InsufficientCoordinatesException(msg)
+        else:
+            range_string = range_string.replace('$', '')
+
+        if range_string in self._merged_cells:
+            self._merged_cells.remove(range_string)
+        else:
+            msg = 'Cell range %s not known as merged.' % range_string
+            raise InsufficientCoordinatesException(msg)
 
     def append(self, list_or_dict):
         """Appends a group of values at the bottom of the current sheet.
