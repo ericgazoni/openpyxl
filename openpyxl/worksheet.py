@@ -565,10 +565,10 @@ class Worksheet(object):
             for row in xrange(min_row,max_row+1):
                 if not (row == min_row and col == min_col):
                     # PHPExcel adds cell and specifically blanks it out if it doesn't exist
-                    print '%s%s' % (get_column_letter(col), row)
                     self._get_cell('%s%s' % (get_column_letter(col), row)).value = None
 
-        self._merged_cells.append(range_string)
+        if range_string not in self._merged_cells:
+            self._merged_cells.append(range_string)
 
     def unmerge_cells(self,range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
         """ Remove merge on a cell range.  Range is a cell range (e.g. A1:E1) """
