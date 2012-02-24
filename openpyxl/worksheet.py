@@ -84,7 +84,26 @@ class Relationship(object):
 
 class PageSetup(object):
     """Information about page layout for this sheet"""
-    pass
+    valid_setup = ("orientation", "paperSize", "scale", "fitToPage", "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber")
+
+    def __init__(self):
+        self.orientation = self.paperSize = self.scale = self.fitToPage = self.fitToHeight = self.fitToWidth = self.firstPageNumber = self.useFirstPageNumber = None
+
+    @property
+    def setup(self):
+        setupGroup = OrderedDict()
+        for setup_name in self.valid_setup:
+            setup_value = getattr(self, setup_name)
+            if setup_value is not None:
+                if setup_name == 'orientation':
+                    setupGroup[setup_name] = '%s' % setup_value
+                elif setup_name in ('paperSize','scale'):
+                    setupGroup[setup_name] = '%d' % int(setup_value)
+                elif setup_name in ('fitToHeight','fitToWidth') and int(setup_value) >= 0:
+                    setupGroup[setup_name] = '%d' % int(setup_value)
+
+        return setupGroup
+
 
 
 class HeaderFooter(object):
@@ -208,8 +227,20 @@ class Worksheet(object):
     SHEETSTATE_HIDDEN = 'hidden'
     SHEETSTATE_VERYHIDDEN = 'veryHidden'
 
-    PAPER_SIZE_LETTER = '1'
-    PAPER_SIZE_LEGAL = '5'
+    # Paper size
+    PAPERSIZE_LETTER = '1'
+    PAPERSIZE_LETTER_SMALL = '2'
+    PAPERSIZE_TABLOID = '3'
+    PAPERSIZE_LEDGER = '4'
+    PAPERSIZE_LEGAL = '5'
+    PAPERSIZE_STATEMENT = '6'
+    PAPERSIZE_EXECUTIVE = '7'
+    PAPERSIZE_A3 = '8'
+    PAPERSIZE_A4 = '9'
+    PAPERSIZE_A4_SMALL = '10'
+    PAPERSIZE_A5 = '11'
+
+    # Page orientation
     ORIENTATION_PORTRAIT = 'portrait'
     ORIENTATION_LANDSCAPE = 'landscape'
 
@@ -225,6 +256,7 @@ class Worksheet(object):
         self._cells = {}
         self._styles = {}
         self._charts = []
+        self._merged_cells = []
         self.relationships = []
         self.selected_cell = 'A1'
         self.active_cell = 'A1'
@@ -507,6 +539,57 @@ class Worksheet(object):
 
         chart._sheet = self
         self._charts.append(chart)
+
+    def merge_cells(self,range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
+        """ Set merge on a cell range.  Range is a cell range (e.g. A1:E1) """
+        if not range_string:
+            if  start_row is None or start_column is None or end_row is None or end_column is None:
+                msg = "You have to provide a value either for "\
+                      "'coordinate' or for 'start_row', 'start_column', 'end_row' *and* 'end_column'"
+                raise InsufficientCoordinatesException(msg)
+            else:
+                range_string = '%s%s:%s%s' % (get_column_letter(start_column + 1), start_row + 1, get_column_letter(end_column + 1), end_row + 1)
+        elif len(range_string.split(':')) != 2:
+                msg = "Range must be a cell range (e.g. A1:E1)"
+                raise InsufficientCoordinatesException(msg)
+        else:
+            range_string = range_string.replace('$', '')
+
+        # Make sure top_left cell exists - is this necessary?
+        min_col, min_row = coordinate_from_string(range_string.split(':')[0])
+        max_col, max_row = coordinate_from_string(range_string.split(':')[1])
+        min_col = column_index_from_string(min_col)
+        max_col = column_index_from_string(max_col)
+        # Blank out the rest of the cells in the range
+        for col in xrange(min_col,max_col+1):
+            for row in xrange(min_row,max_row+1):
+                if not (row == min_row and col == min_col):
+                    # PHPExcel adds cell and specifically blanks it out if it doesn't exist
+                    self._get_cell('%s%s' % (get_column_letter(col), row)).value = None
+
+        if range_string not in self._merged_cells:
+            self._merged_cells.append(range_string)
+
+    def unmerge_cells(self,range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
+        """ Remove merge on a cell range.  Range is a cell range (e.g. A1:E1) """
+        if not range_string:
+            if start_row is None or start_column is None or end_row is None or end_column is None:
+                msg = "You have to provide a value either for "\
+                      "'coordinate' or for 'start_row', 'start_column', 'end_row' *and* 'end_column'"
+                raise InsufficientCoordinatesException(msg)
+            else:
+                range_string = '%s%s:%s%s' % (get_column_letter(start_column + 1), start_row + 1, get_column_letter(end_column + 1), end_row + 1)
+        elif len(range_string.split(':')) != 2:
+            msg = "Range must be a cell range (e.g. A1:E1)"
+            raise InsufficientCoordinatesException(msg)
+        else:
+            range_string = range_string.replace('$', '')
+
+        if range_string in self._merged_cells:
+            self._merged_cells.remove(range_string)
+        else:
+            msg = 'Cell range %s not known as merged.' % range_string
+            raise InsufficientCoordinatesException(msg)
 
     def append(self, list_or_dict):
         """Appends a group of values at the bottom of the current sheet.

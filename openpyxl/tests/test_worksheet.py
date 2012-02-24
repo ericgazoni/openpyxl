@@ -254,6 +254,24 @@ class TestWorksheet(object):
         xml_string = write_worksheet(ws, None, None)
         assert '<pageMargins left="2.00" right="2.00" top="2.00" bottom="2.00" header="1.50" footer="1.50"></pageMargins>' in xml_string
 
+    def test_merge(self):
+        ws = Worksheet(self.wb)
+        string_table = {'':'', 'Cell A1':'Cell A1','Cell B1':'Cell B1'}
+
+        ws.cell('A1').value = 'Cell A1'
+        ws.cell('B1').value = 'Cell B1'
+        xml_string = write_worksheet(ws, string_table, None)
+        assert '<c r="B1" t="s"><v>Cell B1</v></c>' in xml_string
+
+        ws.merge_cells('A1:B1')
+        xml_string = write_worksheet(ws, string_table, None)
+        assert '<c r="B1" t="s"><v>Cell B1</v></c>' not in xml_string
+        assert '<mergeCells><mergeCell ref="A1:B1"></mergeCell></mergeCells>' in xml_string
+
+        ws.unmerge_cells('A1:B1')
+        xml_string = write_worksheet(ws, string_table, None)
+        assert '<mergeCell ref="A1:B1"></mergeCell>' not in xml_string
+
     def test_freeze(self):
         ws = Worksheet(self.wb)
         ws.freeze_panes = ws.cell('b2')
@@ -269,12 +287,17 @@ class TestWorksheet(object):
         assert ws.freeze_panes is None
 
     def test_printer_settings(self):
+        ws = Worksheet(self.wb)
+        ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+        ws.page_setup.paperSize = ws.PAPERSIZE_TABLOID
+        ws.page_setup.fitToPage = True
+        ws.page_setup.fitToHeight = 0
+        ws.page_setup.fitToWidth = 1
+        xml_string = write_worksheet(ws, None, None)
+        assert '<pageSetup orientation="landscape" paperSize="3" fitToHeight="0" fitToWidth="1"></pageSetup>' in xml_string
+        assert '<pageSetUpPr fitToPage="1"></pageSetUpPr>' in xml_string
 
         ws = Worksheet(self.wb)
-        ws.set_printer_settings(Worksheet.PAPER_SIZE_LEGAL, Worksheet.ORIENTATION_LANDSCAPE)
         xml_string = write_worksheet(ws, None, None)
-        assert '<pageSetup paperSize="5" orientation="landscape"></pageSetup>' in xml_string
-
-        ws = Worksheet(self.wb)
-        xml_string = write_worksheet(ws, None, None)
-        assert "<pageSetup paperSize" not in xml_string
+        assert "<pageSetup" not in xml_string
+        assert "<pageSetUpPr" not in xml_string

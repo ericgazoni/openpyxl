@@ -52,6 +52,8 @@ def write_worksheet(worksheet, string_table, style_table):
     tag(doc, 'outlinePr',
             {'summaryBelow': '%d' % (worksheet.show_summary_below),
             'summaryRight': '%d' % (worksheet.show_summary_right)})
+    if worksheet.page_setup.fitToPage:
+        tag(doc, 'pageSetUpPr', {'fitToPage':'1'})
     end_tag(doc, 'sheetPr')
     tag(doc, 'dimension', {'ref': '%s' % worksheet.calculate_dimension()})
     write_worksheet_sheetviews(doc, worksheet)
@@ -60,14 +62,16 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_data(doc, worksheet, string_table, style_table)
     if worksheet.auto_filter:
         tag(doc, 'autoFilter', {'ref': worksheet.auto_filter})
+    write_worksheet_mergecells(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
 
     margins = worksheet.page_margins.margins
     if margins:
         tag(doc, 'pageMargins', margins)
 
-    if worksheet.paper_size is not None:        #size and orientation set in common setter, so expect both or neither
-        tag(doc, 'pageSetup', {'paperSize':'%s' % worksheet.paper_size, 'orientation':'%s' % worksheet.orientation})
+    setup = worksheet.page_setup.setup
+    if setup:
+        tag(doc, 'pageSetup', setup)
 
     if worksheet._charts:
         tag(doc, 'drawing', {'r:id':'rId1'})
@@ -188,6 +192,16 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             end_tag(doc, 'c')
         end_tag(doc, 'row')
     end_tag(doc, 'sheetData')
+
+
+def write_worksheet_mergecells(doc, worksheet):
+    """Write merged cells to xml."""
+    if len(worksheet._merged_cells) > 0:
+        start_tag(doc,'mergeCells')
+        for range_string in worksheet._merged_cells:
+            attrs = {'ref': range_string}
+            tag(doc,'mergeCell',attrs)
+        end_tag(doc,'mergeCells')
 
 
 def write_worksheet_hyperlinks(doc, worksheet):
