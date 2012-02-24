@@ -112,7 +112,7 @@ class Workbook(object):
             raise ReadOnlyWorkbookException('Cannot create new sheet in a read-only workbook')
 
         if self.__optimized_write :
-            new_ws = DumpWorksheet(parent_workbook=self)
+            new_ws = DumpWorksheet(parent_workbook=self, title=title)
         else:
             if title:
                 new_ws = Worksheet(parent_workbook=self, title=title)

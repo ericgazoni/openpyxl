@@ -50,6 +50,22 @@ def _get_test_filename():
     test_file.close()
     return test_file.name
 
+def test_dump_sheet_title():
+
+    test_filename = _get_test_filename()
+
+    wb = Workbook(optimized_write=True)
+
+    ws = wb.create_sheet(title='Test1')
+    
+    wb.save(test_filename)
+
+    wb2 = load_workbook(test_filename, True)
+
+    ws = wb2.get_sheet_by_name('Test1')
+        
+    eq_('Test1', ws.title)
+
 def test_dump_sheet():
 
     test_filename = _get_test_filename()

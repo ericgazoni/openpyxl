@@ -111,9 +111,9 @@ class DumpWorksheet(Worksheet):
         with `optimized_write = True`.
     """
 
-    def __init__(self, parent_workbook):
+    def __init__(self, parent_workbook, title):
 
-        Worksheet.__init__(self, parent_workbook)
+        Worksheet.__init__(self, parent_workbook, title)
 
         self._max_col = 0
         self._max_row = 0
@@ -122,8 +122,6 @@ class DumpWorksheet(Worksheet):
         self._fileobj_header_name = create_temporary_file(suffix='.header')
         self._fileobj_content_name = create_temporary_file(suffix='.content')
         self._fileobj_name = create_temporary_file()
-
-        self.title = 'Sheet'
 
         self._shared_date = SharedDate()
         self._string_builder = self._parent.strings_table_builder
