@@ -51,6 +51,11 @@ def read_dimension(xml_source):
 
     it = iterparse(source)
 
+    smax_col = None
+    smax_row = None
+    smin_col = None
+    smin_row = None
+
     for event, element in it:
 
         if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}dimension':
@@ -66,10 +71,25 @@ def read_dimension(xml_source):
 
             return min_col, min_row, max_col, max_row
 
+        if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c':
+            # Supposedly the dimension is mandatory, but in practice it can be
+            # left off sometimes, if so, observe the max/min extants and return
+            # those instead.
+            col, row = coordinate_from_string(element.get('r'))
+            if smin_row is None:
+                #initialize the observed max/min values
+                smin_col = smax_col = col
+                smin_row = smax_row = row
+            else:
+                #Keep track of the seen max and min (fallback if there's no dimension)
+                smin_col = min(smin_col, col)
+                smin_row = min(smin_row, row)
+                smax_col = max(smax_col, col)
+                smax_row = max(smax_row, row)
         else:
             element.clear()
 
-    return None
+    return smin_col, smin_row, smax_col, smax_row
 
 def filter_cells((event, element)):
 

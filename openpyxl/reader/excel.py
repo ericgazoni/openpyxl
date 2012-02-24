@@ -55,8 +55,8 @@ def repair_central_directory(zipFile):
 def load_workbook(filename, use_iterators=False):
     """Open the given filename and return the workbook
 
-    :param filename: the path to open
-    :type filename: string
+    :param filename: the path to open or a file-like object
+    :type filename: string or a file-like object open in binary mode c.f., :class:`zipfile.ZipFile`
 
     :param use_iterators: use lazy load for cells
     :type use_iterators: bool

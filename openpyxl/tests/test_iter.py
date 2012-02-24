@@ -34,6 +34,19 @@ class TestWorksheet(object):
 
     workbook_name = osp.join(DATADIR, 'genuine', 'empty.xlsx')
 
+    def _open_wb(self):
+        return load_workbook(filename = self.workbook_name, use_iterators = True)
+
+class TestDims(TestWorksheet):
+    expected = [ 'A1:G5', 'D1:K30', 'D2:D2', 'A1:C1' ]
+    def test_get_dimensions(self):
+        wb = self._open_wb()
+        for i, sheetn in enumerate(wb.get_sheet_names()):
+            ws = wb.get_sheet_by_name(name = sheetn)
+
+            eq_(ws._dimensions, self.expected[i])
+
+
 class TestText(TestWorksheet):
     sheet_name = 'Sheet1 - Text'
 
@@ -45,7 +58,7 @@ class TestText(TestWorksheet):
 
     def test_read_fast_integrated(self):
 
-        wb = load_workbook(filename = self.workbook_name, use_iterators = True)
+        wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
 
         for row, expected_row in zip(ws.iter_rows(), self.expected):
@@ -66,7 +79,7 @@ class TestText(TestWorksheet):
 
     def test_read_single_cell_range(self):
 
-        wb = load_workbook(filename = self.workbook_name, use_iterators = True)
+        wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
 
         eq_('This is cell A1 in Sheet 1', list(ws.iter_rows('A1'))[0][0].internal_value)
@@ -81,7 +94,7 @@ class TestIntegers(TestWorksheet):
 
     def test_read_fast_integrated(self):
 
-        wb = load_workbook(filename = self.workbook_name, use_iterators = True)
+        wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
 
         for row, expected_row in zip(ws.iter_rows(self.query_range), self.expected):
@@ -102,7 +115,7 @@ class TestDates(TestWorksheet):
 
     def test_read_single_cell_date(self):
 
-        wb = load_workbook(filename = self.workbook_name, use_iterators = True)
+        wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
 
         eq_(datetime.datetime(1973, 5, 20), list(ws.iter_rows('A1'))[0][0].internal_value)
