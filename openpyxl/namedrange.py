@@ -32,7 +32,8 @@ import re
 from openpyxl.shared.exc import NamedRangeException
 
 # constants
-NAMED_RANGE_RE = re.compile("'?([^']*)'?!((\$([A-Za-z]+))?\$([0-9]+)(:(\$([A-Za-z]+))?(\$([0-9]+)))?)$")
+NAMED_RANGE_RE = re.compile("^(('(?P<quoted>([^']|'')*)')|(?P<notquoted>[^']*))!(?P<range>(\$([A-Za-z]+))?\$([0-9]+)(:(\$([A-Za-z]+))?(\$([0-9]+)))?)")
+SPLIT_NAMED_RANGE_RE = re.compile(r"((?:[^,']|'(?:[^']|'')*')+)")
 
 class NamedRange(object):
     """A named group of cells
@@ -67,17 +68,20 @@ def split_named_range(range_string):
     """Separate a named range into its component parts"""
 
     destinations = []
-
-    for range_string in range_string.split(','):
+    for range_string in SPLIT_NAMED_RANGE_RE.split(range_string)[1::2]: # Skip first and from there every second item
 
         match = NAMED_RANGE_RE.match(range_string)
         if not match:
             raise NamedRangeException('Invalid named range string: "%s"' % range_string)
         else:
-            sheet_name, xlrange = match.groups()[:2]
+            match = match.groupdict()
+            sheet_name = match['quoted'] or match['notquoted']
+            xlrange = match['range']
+            sheet_name = sheet_name.replace("''", "'") # Unescape '
             destinations.append((sheet_name, xlrange))
-
+            
     return destinations
 
 def refers_to_range(range_string):
+    print range_string, bool(NAMED_RANGE_RE.match(range_string))
     return bool(NAMED_RANGE_RE.match(range_string))
