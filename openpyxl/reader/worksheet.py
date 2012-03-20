@@ -99,6 +99,15 @@ def filter_cells((event, element)):
 
 def fast_parse(ws, xml_source, string_table, style_table):
 
+    xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+    root = fromstring(xml_source)
+
+    mergeCells = root.find(QName(xmlns, 'mergeCells').text)
+    if mergeCells is not None:
+        mergeCellNodes = mergeCells.findall(QName(xmlns, 'mergeCell').text)
+        for mergeCell in mergeCellNodes:
+            ws.merge_cells(mergeCell.get('ref'))
+
     source = _get_xml_iter(xml_source)
 
     it = iterparse(source)
@@ -107,8 +116,13 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
         value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
 
-        if value is not None:
+        if value is None:
+            coordinate = element.get('r')
+            style_id = element.get('s')
 
+            if coordinate in ws._cells and ws.cell(coordinate).merged and style_id is not None:
+                ws._styles[coordinate] = style_table.get(int(style_id))
+        else:
             coordinate = element.get('r')
             data_type = element.get('t', 'n')
             style_id = element.get('s')
@@ -123,9 +137,6 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
         # to avoid memory exhaustion, clear the item after use
         element.clear()
-
-    xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
-    root = fromstring(xml_source)
 
     cols = root.find(QName(xmlns, 'cols').text)
     if cols is not None:
@@ -149,12 +160,6 @@ def fast_parse(ws, xml_source, string_table, style_table):
                     ws.column_dimensions[column].collapsed = True
                 if col.get('style') is not None:
                     ws.column_dimensions[column].style_index = col.get('style')
-
-    mergeCells = root.find(QName(xmlns, 'mergeCells').text)
-    if mergeCells is not None:
-        mergeCellNodes = mergeCells.findall(QName(xmlns, 'mergeCell').text)
-        for mergeCell in mergeCellNodes:
-            ws._merged_cells.append(mergeCell.get('ref'))
 
     pageMargins = root.find(QName(xmlns, 'pageMargins').text)
     if pageMargins is not None:
