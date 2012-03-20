@@ -197,7 +197,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
 def write_worksheet_mergecells(doc, worksheet):
     """Write merged cells to xml."""
     if len(worksheet._merged_cells) > 0:
-        start_tag(doc,'mergeCells')
+        start_tag(doc,'mergeCells', {'count': str(len(worksheet._merged_cells))})
         for range_string in worksheet._merged_cells:
             attrs = {'ref': range_string}
             tag(doc,'mergeCell',attrs)
