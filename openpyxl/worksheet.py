@@ -291,8 +291,8 @@ class Worksheet(object):
     def garbage_collect(self):
         """Delete cells that are not storing a value."""
         delete_list = [coordinate for coordinate, cell in \
-            self._cells.iteritems() if (cell.value in ('', None) and \
-            hash(cell.style) == _DEFAULTS_STYLE_HASH)]
+            self._cells.iteritems() if not cell.merged \
+            and (cell.value in ('', None) and hash(cell.style) == _DEFAULTS_STYLE_HASH)]
         for coordinate in delete_list:
             del self._cells[coordinate]
 
@@ -566,6 +566,7 @@ class Worksheet(object):
                 if not (row == min_row and col == min_col):
                     # PHPExcel adds cell and specifically blanks it out if it doesn't exist
                     self._get_cell('%s%s' % (get_column_letter(col), row)).value = None
+                    self._get_cell('%s%s' % (get_column_letter(col), row)).merged = True
 
         if range_string not in self._merged_cells:
             self._merged_cells.append(range_string)
@@ -587,6 +588,15 @@ class Worksheet(object):
 
         if range_string in self._merged_cells:
             self._merged_cells.remove(range_string)
+            min_col, min_row = coordinate_from_string(range_string.split(':')[0])
+            max_col, max_row = coordinate_from_string(range_string.split(':')[1])
+            min_col = column_index_from_string(min_col)
+            max_col = column_index_from_string(max_col)
+            # Mark cell as unmerged
+            for col in xrange(min_col,max_col+1):
+                for row in xrange(min_row,max_row+1):
+                    if not (row == min_row and col == min_col):
+                        self._get_cell('%s%s' % (get_column_letter(col), row)).merged = False
         else:
             msg = 'Cell range %s not known as merged.' % range_string
             raise InsufficientCoordinatesException(msg)
