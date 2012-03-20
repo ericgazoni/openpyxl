@@ -30,12 +30,14 @@ try:
     from openpyxl.shared.compat import iterparse
 except ImportError:
     from xml.etree.ElementTree import iterparse
+from openpyxl.cell import get_column_letter
+from openpyxl.shared.xmltools import fromstring, QName
 from itertools import ifilter
 from StringIO import StringIO
 
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
-from openpyxl.worksheet import Worksheet
+from openpyxl.worksheet import Worksheet, ColumnDimension
 
 def _get_xml_iter(xml_source):
 
@@ -121,6 +123,72 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
         # to avoid memory exhaustion, clear the item after use
         element.clear()
+
+    xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+    root = fromstring(xml_source)
+
+    cols = root.find(QName(xmlns, 'cols').text)
+    if cols is not None:
+        colNodes = cols.findall(QName(xmlns, 'col').text)
+        for col in colNodes:
+            min = int(col.get('min')) if col.get('min') else 1
+            max = int(col.get('max')) if col.get('max') else 1
+            for colId in range(min,max+1):
+                column = get_column_letter(colId)
+                if column not in ws.column_dimensions:
+                    ws.column_dimensions[column] = ColumnDimension(column)
+                if col.get('width') is not None:
+                    ws.column_dimensions[column].width = float(col.get('width'))
+                if col.get('bestFit') == '1':
+                    ws.column_dimensions[column].auto_size = True
+                if col.get('hidden') == '1':
+                    ws.column_dimensions[column].visible = False
+                if col.get('outlineLevel') is not None:
+                    ws.column_dimensions[column].outline_level = int(col.get('outlineLevel'))
+                if col.get('collapsed') == '1':
+                    ws.column_dimensions[column].collapsed = True
+                if col.get('style') is not None:
+                    ws.column_dimensions[column].style_index = col.get('style')
+
+    mergeCells = root.find(QName(xmlns, 'mergeCells').text)
+    if mergeCells is not None:
+        mergeCellNodes = mergeCells.findall(QName(xmlns, 'mergeCell').text)
+        for mergeCell in mergeCellNodes:
+            ws._merged_cells.append(mergeCell.get('ref'))
+
+    pageMargins = root.find(QName(xmlns, 'pageMargins').text)
+    if pageMargins is not None:
+        if pageMargins.get('left') is not None:
+            ws.page_margins.left = float(pageMargins.get('left'))
+        if pageMargins.get('right') is not None:
+            ws.page_margins.right = float(pageMargins.get('right'))
+        if pageMargins.get('top') is not None:
+            ws.page_margins.top = float(pageMargins.get('top'))
+        if pageMargins.get('bottom') is not None:
+            ws.page_margins.bottom = float(pageMargins.get('bottom'))
+        if pageMargins.get('header') is not None:
+            ws.page_margins.header = float(pageMargins.get('header'))
+        if pageMargins.get('footer') is not None:
+            ws.page_margins.footer = float(pageMargins.get('footer'))
+
+    pageSetup = root.find(QName(xmlns, 'pageSetup').text)
+    if pageSetup is not None:
+        if pageSetup.get('orientation') is not None:
+            ws.page_setup.orientation = pageSetup.get('orientation')
+        if pageSetup.get('paperSize') is not None:
+            ws.page_setup.paperSize = pageSetup.get('paperSize')
+        if pageSetup.get('scale') is not None:
+            ws.page_setup.top = pageSetup.get('scale')
+        if pageSetup.get('fitToPage') is not None:
+            ws.page_setup.fitToPage = pageSetup.get('fitToPage')
+        if pageSetup.get('fitToHeight') is not None:
+            ws.page_setup.fitToHeight = pageSetup.get('fitToHeight')
+        if pageSetup.get('fitToWidth') is not None:
+            ws.page_setup.fitToWidth = pageSetup.get('fitToWidth')
+        if pageSetup.get('firstPageNumber') is not None:
+            ws.page_setup.firstPageNumber = pageSetup.get('firstPageNumber')
+        if pageSetup.get('useFirstPageNumber') is not None:
+            ws.page_setup.useFirstPageNumber = pageSetup.get('useFirstPageNumber')
 
 from openpyxl.reader.iter_worksheet import IterableWorksheet
 
