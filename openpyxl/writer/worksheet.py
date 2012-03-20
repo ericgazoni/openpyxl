@@ -171,25 +171,26 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             if coordinate in worksheet._styles:
                 attributes['s'] = '%d' % style_id_by_hash[
                         hash(worksheet._styles[coordinate])]
-            start_tag(doc, 'c', attributes)
-            if value is None:
-                tag(doc, 'v', body='')
-            elif cell.data_type == cell.TYPE_STRING:
-                tag(doc, 'v', body='%s' % string_table[value])
-            elif cell.data_type == cell.TYPE_FORMULA:
-                tag(doc, 'f', body='%s' % value[1:])
-                tag(doc, 'v')
-            elif cell.data_type == cell.TYPE_NUMERIC:
-                if isinstance(value, (long, decimal.Decimal)):
-                    func = str
-                else:
-                    func = repr
-                tag(doc, 'v', body=func(value))
-            elif cell.data_type == cell.TYPE_BOOL:
-                tag(doc, 'v', body='%d' % value)
+            if value in ('', None):
+                tag(doc, 'c', attributes)
             else:
-                tag(doc, 'v', body='%s' % value)
-            end_tag(doc, 'c')
+                start_tag(doc, 'c', attributes)
+                if cell.data_type == cell.TYPE_STRING:
+                    tag(doc, 'v', body='%s' % string_table[value])
+                elif cell.data_type == cell.TYPE_FORMULA:
+                    tag(doc, 'f', body='%s' % value[1:])
+                    tag(doc, 'v')
+                elif cell.data_type == cell.TYPE_NUMERIC:
+                    if isinstance(value, (long, decimal.Decimal)):
+                        func = str
+                    else:
+                        func = repr
+                    tag(doc, 'v', body=func(value))
+                elif cell.data_type == cell.TYPE_BOOL:
+                    tag(doc, 'v', body='%d' % value)
+                else:
+                    tag(doc, 'v', body='%s' % value)
+                end_tag(doc, 'c')
         end_tag(doc, 'row')
     end_tag(doc, 'sheetData')
 
