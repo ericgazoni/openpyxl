@@ -31,7 +31,7 @@ from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 # package imports
 from openpyxl.shared.exc import OpenModeError, InvalidFileException
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, \
-        ARC_WORKBOOK, PACKAGE_WORKSHEETS, ARC_STYLE
+        ARC_WORKBOOK, PACKAGE_WORKSHEETS, ARC_STYLE, ARC_THEME
 from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
@@ -113,6 +113,7 @@ def _load_workbook(wb, archive, filename, use_iterators):
         string_table = read_string_table(archive.read(ARC_SHARED_STRINGS))
     except KeyError:
         string_table = {}
+    wb.loaded_theme = archive.read(ARC_THEME)
     style_table = read_style_table(archive.read(ARC_STYLE))
 
     wb.properties.excel_base_date = read_excel_base_date(xml_source=archive.read(ARC_WORKBOOK))

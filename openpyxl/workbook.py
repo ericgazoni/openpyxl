@@ -83,6 +83,7 @@ class Workbook(object):
         self.__optimized_write = optimized_write
         self.__optimized_read = False
         self.strings_table_builder = StringTableBuilder()
+        self.loaded_theme = None
 
         self.encoding = encoding
 
