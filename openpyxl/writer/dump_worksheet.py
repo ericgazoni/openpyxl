@@ -75,32 +75,7 @@ def create_temporary_file(suffix=''):
 
     return filename
 
-def get_temporary_file(filename):
 
-    if filename in DESCRIPTORS_CACHE:
-
-        fobj = DESCRIPTORS_CACHE[filename]
-
-        # re-insert the value so it does not get evicted
-        # from cache soon
-        del DESCRIPTORS_CACHE[filename]
-        DESCRIPTORS_CACHE[filename] = fobj
-
-        return fobj
-    else:
-        if filename is None:
-            raise WorkbookAlreadySaved('this workbook has already been saved '
-                    'and cannot be modified or saved anymore.')
-
-        fobj = open(filename, 'r+')
-
-        DESCRIPTORS_CACHE[filename] = fobj
-
-        if len(DESCRIPTORS_CACHE) > DESCRIPTORS_CACHE_SIZE:
-            filename, fileobj = DESCRIPTORS_CACHE.popitem(last=False)
-            fileobj.close()
-
-        return fobj
 
 class DumpWorksheet(Worksheet):
 
@@ -126,6 +101,34 @@ class DumpWorksheet(Worksheet):
         self._shared_date = SharedDate()
         self._string_builder = self._parent.strings_table_builder
 
+    def get_temporary_file(self, filename):
+        if filename in self._descriptors_cache:
+            fobj = self._descriptors_cache[filename]
+            # re-insert the value so it does not get evicted
+            # from cache soon
+            del self._descriptors_cache[filename]
+            self._descriptors_cache[filename] = fobj
+            return fobj
+        else:
+            if filename is None:
+                raise WorkbookAlreadySaved('this workbook has already been saved '
+                        'and cannot be modified or saved anymore.')
+
+            fobj = open(filename, 'r+')
+            self._descriptors_cache[filename] = fobj
+            if len(self._descriptors_cache) > DESCRIPTORS_CACHE_SIZE:
+                filename, fileobj = self._descriptors_cache.popitem(last=False)
+                fileobj.close()
+            return fobj
+
+    @property
+    def _descriptors_cache(self):
+        try:
+            return self._parent._local_data.cache
+        except AttributeError:
+            self._parent._local_data.cache = OrderedDict()
+            return self._parent._local_data.cache
+
     @property
     def filename(self):
         return self._fileobj_name
@@ -144,7 +147,7 @@ class DumpWorksheet(Worksheet):
 
     def write_header(self):
 
-        fobj = get_temporary_file(filename=self._fileobj_header_name)
+        fobj = self.get_temporary_file(filename=self._fileobj_header_name)
         doc = XMLGenerator(fobj, 'utf-8')
 
         start_tag(doc, 'worksheet',
@@ -170,7 +173,7 @@ class DumpWorksheet(Worksheet):
 
         self._close_content()
 
-        self._fileobj = get_temporary_file(filename=self._fileobj_name)
+        self._fileobj = self.get_temporary_file(filename=self._fileobj_name)
 
         self._write_fileobj(self._fileobj_header_name)
         self._write_fileobj(self._fileobj_content_name)
@@ -179,7 +182,7 @@ class DumpWorksheet(Worksheet):
 
     def _write_fileobj(self, fobj_name):
 
-        fobj = get_temporary_file(filename=fobj_name)
+        fobj = self.get_temporary_file(filename=fobj_name)
 
         fobj.flush()
         fobj.seek(0)
@@ -215,7 +218,7 @@ class DumpWorksheet(Worksheet):
         # when I'll recreate the XMLGenerator, it will start writing at the
         # begining of the file, erasing previously entered rows, so we have
         # to move to the end of the file before adding new tags
-        handle = get_temporary_file(filename=self._fileobj_content_name)
+        handle = self.get_temporary_file(filename=self._fileobj_content_name)
         handle.seek(0, 2)
 
         doc = XMLGenerator(out=handle)
@@ -311,7 +314,7 @@ class ExcelDumpWriter(ExcelWriter):
             sheet.close()
             archive.write(sheet.filename, PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1))
             for filename in sheet._temp_files:
-                del DESCRIPTORS_CACHE[filename]
+                del sheet._descriptors_cache[filename]
                 os.remove(filename)
             sheet._unset_temp_files()
 
