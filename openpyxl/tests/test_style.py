@@ -150,12 +150,14 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.alignment.text_rotation = 90
         self.worksheet.cell('A2').style.alignment.vertical = 'center'
         self.worksheet.cell('A2').style.alignment.text_rotation = 135
+        self.worksheet.cell('A3').style.alignment.text_rotation = -34
         w = StyleWriter(self.workbook)
         nft = w._write_number_formats()
         w._write_cell_xfs(nft, {}, {}, {})
         xml = get_xml(w._root)
         ok_('textRotation="90"' in xml)
         ok_('textRotation="135"' in xml)
+        ok_('textRotation="124"' in xml)
 
 
 #def test_format_comparisions():
