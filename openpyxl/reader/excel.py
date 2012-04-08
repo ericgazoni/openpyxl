@@ -32,6 +32,7 @@ from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 from openpyxl.shared.exc import OpenModeError, InvalidFileException
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, \
         ARC_WORKBOOK, PACKAGE_WORKSHEETS, ARC_STYLE
+from openpyxl.shared.compat import unicode
 from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table

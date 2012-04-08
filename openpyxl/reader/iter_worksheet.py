@@ -38,6 +38,7 @@ from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table, NumberFormat
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
+from openpyxl.shared.compat import unicode
 from openpyxl.shared.ooxml import (MIN_COLUMN, MAX_COLUMN, PACKAGE_WORKSHEETS,
     MAX_ROW, MIN_ROW, ARC_SHARED_STRINGS, ARC_APP, ARC_STYLE)
 from openpyxl.shared.compat import iterparse

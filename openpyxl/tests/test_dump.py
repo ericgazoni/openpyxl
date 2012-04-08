@@ -128,7 +128,7 @@ def test_table_builder():
 
     table = dict(sb.get_table())
 
-    for key, idx in result.iteritems():
+    for key, idx in result.items():
         eq_(idx, table[key])
 
 def test_open_too_many_files():

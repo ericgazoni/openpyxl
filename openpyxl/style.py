@@ -308,7 +308,7 @@ class NumberFormat(HashableObject):
         48: '##0.0E+0',
         49: '@', }
     _BUILTIN_FORMATS_REVERSE = dict(
-            [(value, key) for key, value in _BUILTIN_FORMATS.iteritems()])
+            [(value, key) for key, value in _BUILTIN_FORMATS.items()])
 
     __fields__ = ('_format_code',
                   '_format_index')

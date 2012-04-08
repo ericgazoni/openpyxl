@@ -31,6 +31,7 @@ from openpyxl.shared import exc
 from openpyxl.shared import ooxml
 from openpyxl.shared import password_hasher
 from openpyxl.shared import xmltools
+from openpyxl.shared.compat import long
 import decimal
 
 NUMERIC_TYPES = (int, float, long, decimal.Decimal)
