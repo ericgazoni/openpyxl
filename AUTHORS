@@ -10,7 +10,8 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Stephane Bard
 * Day Barr
 * Bernt R. Brenna
-* Anders Chrigström
+* Anders Chrigstrom
+* ccoacley
 * Maarten De Paepe
 * dieterv77
 * Alexandre Fayolle
@@ -22,7 +23,7 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Heikki Junes
 * Adam Lofts
 * Marko Loparic 
-* Samuel Lorétan
+* Samuel Loretan
 * Adam Morris
 * aceMueller
 * Jun Omae
@@ -36,6 +37,8 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Gerald Van Huffelen
 * Laurent Vasseur
 * Kay Webber
+
+Special thanks for Heikki Junes, for all his work on porting and maintaining the Python3.x fork
 
 Project logo designed by Eric Gazoni, font by claudeserieux
 (http://www.dafont.com/profile.php?user=337503)
