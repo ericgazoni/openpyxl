@@ -254,6 +254,10 @@ class TestWorksheet(object):
         xml_string = write_worksheet(ws, None, None)
         assert '<pageMargins left="2.00" right="2.00" top="2.00" bottom="2.00" header="1.50" footer="1.50"></pageMargins>' in xml_string
 
+        ws = Worksheet(self.wb)
+        xml_string = write_worksheet(ws, None, None)
+        assert '<pageMargins' not in xml_string        
+
     def test_merge(self):
         ws = Worksheet(self.wb)
         string_table = {'':'', 'Cell A1':'Cell A1','Cell B1':'Cell B1'}

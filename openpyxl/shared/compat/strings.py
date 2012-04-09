@@ -36,13 +36,17 @@ except NameError:
     unicode = str
 
 try:
+    # Python 3
+    from io import BytesIO, StringIO
+except:
+    # Python 2
     from StringIO import StringIO
     BytesIO = StringIO
-except:
-    from io import BytesIO, StringIO
 
 try:
-    file = file
-except:
+    # Python 3
     from io import BufferedReader
     file = BufferedReader
+except:
+    # Python 2
+    file = file

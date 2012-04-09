@@ -120,9 +120,9 @@ class Workbook(object):
         if self.__optimized_write :
             new_ws = DumpWorksheet(parent_workbook=self, title=title)
         else:
-            if title:
-                new_ws = Worksheet(parent_workbook=self, title=title)
-            else:
+            if title is not None:                                          
+                new_ws = Worksheet(parent_workbook = self, title=title)    
+            else:                                                          
                 new_ws = Worksheet(parent_workbook=self)
 
         self.add_sheet(worksheet=new_ws, index=index)

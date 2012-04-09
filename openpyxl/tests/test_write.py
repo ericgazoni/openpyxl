@@ -24,19 +24,26 @@
 # @author: see AUTHORS file
 
 # Python stdlib imports
+try:
+    # Python 2
+    from StringIO import StringIO
+    BytesIO = StringIO
+except ImportError:
+    # Python 3
+    from io import BytesIO, StringIO
 import decimal
 import os.path
 
 # 3rd party imports
-from nose.tools import eq_, with_setup
+from nose.tools import eq_, with_setup, raises
 
 # package imports
 from openpyxl.tests.helper import TMPDIR, DATADIR, \
         assert_equals_file_content, clean_tmpdir, make_tmpdir
 from openpyxl.workbook import Workbook
 from openpyxl.reader.excel import load_workbook
-from openpyxl.shared.compat import StringIO
-from openpyxl.writer.excel import save_workbook, save_virtual_workbook
+from openpyxl.writer.excel import save_workbook, save_virtual_workbook, \
+        ExcelWriter
 from openpyxl.writer.workbook import write_workbook, write_workbook_rels
 from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
 from openpyxl.writer.strings import write_string_table
@@ -54,7 +61,7 @@ def test_write_empty_workbook():
 def test_write_virtual_workbook():
     old_wb = Workbook()
     saved_wb = save_virtual_workbook(old_wb)
-    new_wb = load_workbook(StringIO(saved_wb))
+    new_wb = load_workbook(BytesIO(saved_wb))
     assert new_wb
 
 

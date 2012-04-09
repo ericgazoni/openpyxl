@@ -25,12 +25,27 @@
 
 """Write worksheets to xml representations."""
 
+# Python stdlib imports
+try:
+    # Python 2
+    from StringIO import StringIO  # cStringIO doesn't handle unicode
+    BytesIO = StringIO
+except ImportError:
+    # Python 3
+    from io import BytesIO, StringIO
+
+try:
+    # Python 2
+    isinstance(1, long)
+except NameError:
+    # Python 3, all ints are long
+    long = int
+
 # package imports
 import decimal
 from openpyxl.cell import coordinate_from_string, column_index_from_string
 from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, \
         get_document_content, start_tag, end_tag, tag
-from openpyxl.shared.compat import StringIO, long
 
 
 def row_sort(cell):
@@ -41,7 +56,7 @@ def row_sort(cell):
 def write_worksheet(worksheet, string_table, style_table):
     """Write a worksheet to an xml file."""
     xml_file = StringIO()
-    doc = XMLGenerator(xml_file, 'utf-8')
+    doc = XMLGenerator(out=xml_file, encoding='utf-8')
     start_tag(doc, 'worksheet',
             {'xml:space': 'preserve',
             'xmlns': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
@@ -70,7 +85,7 @@ def write_worksheet(worksheet, string_table, style_table):
     setup = worksheet.page_setup.setup
     if setup:
         tag(doc, 'pageSetup', setup)
-
+    
     if worksheet._charts:
         tag(doc, 'drawing', {'r:id':'rId1'})
     end_tag(doc, 'worksheet')
@@ -111,7 +126,7 @@ def write_worksheet_sheetviews(doc, worksheet):
     tag(doc, 'selection', selectionAttrs)
     end_tag(doc, 'sheetView')
     end_tag(doc, 'sheetViews')
-
+    
 
 def write_worksheet_cols(doc, worksheet):
     """Write worksheet columns to xml."""

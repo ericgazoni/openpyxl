@@ -97,11 +97,11 @@ class Reference(object):
         """ format excel reference notation """
 
         if self.pos2:
-            return '%s!$%s$%s:$%s$%s' % (self.sheet.title,
+            return "'%s'!$%s$%s:$%s$%s" % (self.sheet.title,
                 get_column_letter(self.pos1[1] + 1), self.pos1[0] + 1,
                 get_column_letter(self.pos2[1] + 1), self.pos2[0] + 1)
         else:
-            return '%s!$%s$%s' % (self.sheet.title,
+            return "'%s'!$%s$%s" % (self.sheet.title,
                 get_column_letter(self.pos1[1] + 1), self.pos1[0] + 1)
 
 
@@ -110,8 +110,8 @@ class Reference(object):
 
         cache = []
         if self.pos2:
-            for row in range(self.pos1[0], self.pos2[0] + 1):
-                for col in range(self.pos1[1], self.pos2[1] + 1):
+            for row in range(int(self.pos1[0]), int(self.pos2[0] + 1)):
+                for col in range(int(self.pos1[1]), int(self.pos2[1] + 1)):
                     cache.append(self.sheet.cell(row=row, column=col).value)
         else:
             cell = self.sheet.cell(row=self.pos1[0], column=self.pos1[1])
@@ -252,18 +252,18 @@ class Chart(object):
         mul = None
         if maxi < 1:
             s = str(maxi).split('.')[1]
-            mul = 10
+            mul = 10.0
             for x in s:
                 if x == '0':
-                    mul *= 10
+                    mul *= 10.0
                 else:
                     break
             maxi = maxi * mul
 
-        maxi = math.ceil(maxi * 1.1)
+        maxi = math.ceil(float(maxi) * 1.1)
         sz = len(str(int(maxi))) - 1
-        unit = math.ceil(math.ceil(maxi / pow(10, sz)) * pow(10, sz - 1))
-        maxi = math.ceil(maxi / unit) * unit
+        unit = math.ceil(math.ceil(float(maxi) / pow(10.0, sz)) * pow(10.0, sz - 1))
+        maxi = math.ceil(float(maxi) / unit) * unit
 
         if mul is not None:
             maxi = maxi / mul

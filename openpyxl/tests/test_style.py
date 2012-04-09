@@ -49,7 +49,7 @@ class TestCreateStyle(object):
         cls.worksheet.cell(coordinate='A1').value = '12.34%'
         cls.worksheet.cell(coordinate='B4').value = now
         cls.worksheet.cell(coordinate='B5').value = now
-        cls.worksheet.cell(coordinate='C14').value = u'This is a test'
+        cls.worksheet.cell(coordinate='C14').value = 'This is a test'
         cls.worksheet.cell(coordinate='D9').value = '31.31415'
         cls.worksheet.cell(coordinate='D9').style.number_format.format_code = \
                 NumberFormat.FORMAT_NUMBER_00

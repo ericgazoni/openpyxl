@@ -198,6 +198,7 @@ class Cell(object):
         # convert to unicode string
         if not isinstance(value, unicode):
             value = unicode(value, self.encoding)
+        value = unicode(value)
         # string must never be longer than 32,767 characters
         # truncate if necessary
         value = value[:32767]
@@ -245,7 +246,9 @@ class Cell(object):
             data_type = self.TYPE_STRING
         elif isinstance(value, basestring) and value[0] == '=':
             data_type = self.TYPE_FORMULA
-        elif self.RE_PATTERNS['numeric'].match(value):
+        elif isinstance(value, unicode) and self.RE_PATTERNS['numeric'].match(value):
+            data_type = self.TYPE_NUMERIC
+        elif not isinstance(value, unicode) and self.RE_PATTERNS['numeric'].match(str(value)):
             data_type = self.TYPE_NUMERIC
         elif value.strip() in self.ERROR_CODES:
             data_type = self.TYPE_ERROR
@@ -261,14 +264,20 @@ class Cell(object):
             return True
         elif self._data_type == self.TYPE_STRING:
             # percentage detection
-            percentage_search = self.RE_PATTERNS['percentage'].match(value)
+            if isinstance(value, unicode):
+                percentage_search = self.RE_PATTERNS['percentage'].match(value)
+            else:
+                percentage_search = self.RE_PATTERNS['percentage'].match(str(value))
             if percentage_search and value.strip() != '%':
                 value = float(value.replace('%', '')) / 100.0
                 self.set_value_explicit(value, self.TYPE_NUMERIC)
                 self._set_number_format(NumberFormat.FORMAT_PERCENTAGE)
                 return True
             # time detection
-            time_search = self.RE_PATTERNS['time'].match(value)
+            if isinstance(value, unicode):
+                time_search = self.RE_PATTERNS['time'].match(value)
+            else:
+                time_search = self.RE_PATTERNS['time'].match(str(value))
             if time_search:
                 sep_count = value.count(':') #pylint: disable=E1103
                 if sep_count == 1:

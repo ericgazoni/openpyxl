@@ -30,15 +30,24 @@ try:
     from openpyxl.shared.compat import iterparse
 except ImportError:
     from xml.etree.ElementTree import iterparse
+try:
+    # Python 2
+    from StringIO import StringIO
+except ImportError:
+    # Python 3
+    from io import BytesIO, StringIO
 
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet
-from openpyxl.shared.compat import ifilter, StringIO, unicode
 
 def _get_xml_iter(xml_source):
+
     if not hasattr(xml_source, 'name'):
-        return StringIO(unicode(xml_source))
+        if isinstance(xml_source,str):
+            return StringIO(xml_source)
+        else:
+            return StringIO(str(xml_source,'utf-8'))
     else:
         xml_source.seek(0)
         return xml_source
@@ -89,8 +98,10 @@ def read_dimension(xml_source):
 
     return smin_col, smin_row, smax_col, smax_row
 
-def filter_cells(item):
-    return item[1].tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c'
+def filter_cells(pair):
+    (event, element) = pair
+
+    return element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c'
 
 def fast_parse(ws, xml_source, string_table, style_table):
 
@@ -98,7 +109,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
     it = iterparse(source)
 
-    for event, element in ifilter(filter_cells, it):
+    for event, element in filter(filter_cells, it):
 
         value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
 

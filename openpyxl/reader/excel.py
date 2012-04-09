@@ -26,7 +26,6 @@
 """Read an xlsx file into Python"""
 
 # Python stdlib imports
-from sys import exc_info
 from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 
 # package imports
@@ -41,13 +40,22 @@ from openpyxl.reader.workbook import (read_sheets_titles, read_named_ranges,
         read_properties_core, read_excel_base_date)
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
+# Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
+from sys import exc_info
+
+try:
+    # Python 2
+    unicode
+except NameError:
+    # Python 3
+    unicode = str
 
 def repair_central_directory(zipFile):
     ''' trims trailing data from the central directory 
     code taken from http://stackoverflow.com/a/7457686/570216, courtesy of Uri Cohen
     '''
     f = open(zipFile, 'r+b')
-    data = f.read()
+    data = f.read().decode("utf-8")
     pos = data.find('\x50\x4b\x05\x06') # End of central directory signature  
     if (pos > 0):
         f.seek(pos + 22)   # size of 'ZIP end of central directory record' 
@@ -72,7 +80,15 @@ def load_workbook(filename, use_iterators=False):
 
     """
 
-    if isinstance(filename, file):
+    try:
+        # Python 2
+        is_file_instance = isinstance(filename, file)
+    except NameError:
+        # Python 3
+        from io import BufferedReader
+        is_file_instance = isinstance(filename, BufferedReader)
+
+    if is_file_instance:
         # fileobject must have been opened with 'rb' flag
         # it is required by zipfile
         if 'b' not in filename.mode:
