@@ -335,9 +335,6 @@ def unpack_worksheet(archive, filename):
             buff = decoder.decompress(buff)
         temp_file.write(buff)
 
-    if decoder:
-        temp_file.write(decoder.decompress('Z'))
-
     return temp_file
 
 def _get_file_offset(archive, zinfo):
