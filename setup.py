@@ -45,5 +45,6 @@ setup(name = 'openpyxl',
           'Operating System :: Microsoft :: Windows',
           'Operating System :: POSIX',
           'License :: OSI Approved :: MIT License',
-          'Programming Language :: Python'],
+          'Programming Language :: Python',
+          'Programming Language :: Python :: 3'],
     )
