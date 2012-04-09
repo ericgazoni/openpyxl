@@ -150,7 +150,7 @@ class Serie(object):
                 for i, v in enumerate(self.values._get_cache())]
         else:
             vals = self.values._get_cache()
-        return min(vals), max(vals)
+        return min(vals), self.mymax(vals)
 
     def __len__(self):
 
@@ -183,6 +183,9 @@ class Chart(object):
     BAR_CHART = 1
     LINE_CHART = 2
     SCATTER_CHART = 3
+
+    def mymax(self, values):
+        return max([x for x in values if x])
 
     def __init__(self, _type, grouping):
 
@@ -227,7 +230,7 @@ class Chart(object):
     def get_x_units(self):
         """ calculate one unit for x axis in EMU """
 
-        return max([len(s.values._get_cache()) for s in self._series])
+        return self.mymax([len(s.values._get_cache()) for s in self._series])
 
     def get_y_units(self):
         """ calculate one unit for y axis in EMU """
@@ -238,13 +241,13 @@ class Chart(object):
     def get_y_chars(self):
         """ estimate nb of chars for y axis """
 
-        _max = max([max(s.values._get_cache()) for s in self._series])
+        _max = max([self.mymax(s.values._get_cache()) for s in self._series])
         return len(str(int(_max)))
 
     def _compute_min_max(self):
         """ compute y axis limits and units """
 
-        maxi = max([max(s.values._get_cache()) for s in self._series if s.values._get_cache()])
+        maxi = max([self.mymax(s.values._get_cache()) for s in self._series if s.values._get_cache()])
 
         mul = None
         if maxi < 1:
@@ -276,7 +279,7 @@ class Chart(object):
     def _compute_xmin_xmax(self):
         """ compute x axis limits and units """
 
-        maxi = max([max(s.xvalues._get_cache()) for s in self._series])
+        maxi = max([self.mymax(s.xvalues._get_cache()) for s in self._series])
 
         mul = None
         if maxi < 1:
