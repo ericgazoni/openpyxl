@@ -30,7 +30,7 @@ import decimal
 from openpyxl.cell import coordinate_from_string, column_index_from_string
 from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, \
         get_document_content, start_tag, end_tag, tag
-from openpyxl.shared.compat import StringIO
+from openpyxl.shared.compat import StringIO, long
 
 
 def row_sort(cell):

@@ -24,20 +24,19 @@
 # @author: see AUTHORS file
 
 # Python stdlib imports
-from StringIO import StringIO
 import decimal
 import os.path
 
 # 3rd party imports
-from nose.tools import eq_, with_setup, raises
+from nose.tools import eq_, with_setup
 
 # package imports
 from openpyxl.tests.helper import TMPDIR, DATADIR, \
         assert_equals_file_content, clean_tmpdir, make_tmpdir
 from openpyxl.workbook import Workbook
 from openpyxl.reader.excel import load_workbook
-from openpyxl.writer.excel import save_workbook, save_virtual_workbook, \
-        ExcelWriter
+from openpyxl.shared.compat import StringIO
+from openpyxl.writer.excel import save_workbook, save_virtual_workbook
 from openpyxl.writer.workbook import write_workbook, write_workbook_rels
 from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
 from openpyxl.writer.strings import write_string_table

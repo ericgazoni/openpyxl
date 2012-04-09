@@ -139,7 +139,7 @@ class TestWorksheet(object):
         ws.cell('B2').value = '0'
         ws.cell('C4').value = 0
         ws.garbage_collect()
-        eq_(ws.get_cell_collection(), [ws.cell('B2'), ws.cell('C4')])
+        eq_(list(ws.get_cell_collection()), [ws.cell('B2'), ws.cell('C4')])
 
     def test_hyperlink_relationships(self):
         ws = Worksheet(self.wb)

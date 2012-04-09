@@ -38,7 +38,7 @@ from openpyxl.reader.excel import load_workbook
 
 from openpyxl.writer.strings import StringTableBuilder
 
-from openpyxl.shared.compat import NamedTemporaryFile
+from openpyxl.shared.compat import NamedTemporaryFile, xrange
 from openpyxl.shared.exc import WorkbookAlreadySaved
 import os
 import os.path as osp

@@ -30,16 +30,15 @@ try:
     from openpyxl.shared.compat import iterparse
 except ImportError:
     from xml.etree.ElementTree import iterparse
-from openpyxl.shared.compat import ifilter, StringIO
 
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet
+from openpyxl.shared.compat import ifilter, StringIO, unicode
 
 def _get_xml_iter(xml_source):
-
     if not hasattr(xml_source, 'name'):
-        return StringIO(xml_source)
+        return StringIO(unicode(xml_source))
     else:
         xml_source.seek(0)
         return xml_source

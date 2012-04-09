@@ -84,8 +84,8 @@ def assert_equals_file_content(reference_file, fixture, filetype = 'xml'):
         ElementTree(expected_content).write(temp)
         expected_content = temp.getvalue()
 
-    fixture_lines = fixture_content.split('\n')
-    expected_lines = expected_content.split('\n')
+    fixture_lines = unicode(fixture_content).split('\n')
+    expected_lines = unicode(expected_content).split('\n')
     differences = list(difflib.unified_diff(expected_lines, fixture_lines))
     if differences:
         temp = BytesIO()
