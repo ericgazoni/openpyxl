@@ -39,3 +39,9 @@ try:
     from StringIO import StringIO
 except:
     from io import StringIO
+
+try:
+    file = file
+except:
+    from io import BufferedReader
+    file = BufferedReader

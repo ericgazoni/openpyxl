@@ -27,23 +27,19 @@
 *Still very raw*
 """
 
-from StringIO import StringIO
 import warnings
 import operator
-from itertools import ifilter, groupby
+from itertools import  groupby
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import coordinate_from_string, get_column_letter, Cell
-from openpyxl.reader.excel import get_sheet_ids
-from openpyxl.reader.strings import read_string_table
-from openpyxl.reader.style import read_style_table, NumberFormat
+from openpyxl.reader.style import read_style_table
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.shared.compat import unicode
 from openpyxl.shared.ooxml import (MIN_COLUMN, MAX_COLUMN, PACKAGE_WORKSHEETS,
-    MAX_ROW, MIN_ROW, ARC_SHARED_STRINGS, ARC_APP, ARC_STYLE)
-from openpyxl.shared.compat import iterparse
+    MAX_ROW, MIN_ROW, ARC_STYLE)
+from openpyxl.shared.compat import iterparse, xrange
 from zipfile import ZipFile
-import openpyxl.cell
 import re
 import tempfile
 import zlib

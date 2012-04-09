@@ -26,18 +26,19 @@
 """Read an xlsx file into Python"""
 
 # Python stdlib imports
+from sys import exc_info
 from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 
 # package imports
 from openpyxl.shared.exc import OpenModeError, InvalidFileException
-from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, \
-        ARC_WORKBOOK, PACKAGE_WORKSHEETS, ARC_STYLE
-from openpyxl.shared.compat import unicode
+from openpyxl.shared.ooxml import (ARC_SHARED_STRINGS, ARC_CORE, ARC_WORKBOOK,
+                                   PACKAGE_WORKSHEETS, ARC_STYLE)
+from openpyxl.shared.compat import unicode, file
 from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
-from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, \
-        read_properties_core, get_sheet_ids, read_excel_base_date
+from openpyxl.reader.workbook import (read_sheets_titles, read_named_ranges,
+        read_properties_core, read_excel_base_date)
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
 
@@ -83,9 +84,11 @@ def load_workbook(filename, use_iterators=False):
         try:
             repair_central_directory(filename)
             archive = ZipFile(filename, 'r', ZIP_DEFLATED)
-        except BadZipfile, e:
+        except BadZipfile:
+            e = exc_info()[1]
             raise InvalidFileException(unicode(e))
-    except (BadZipfile, RuntimeError, IOError, ValueError), e:
+    except (BadZipfile, RuntimeError, IOError, ValueError):
+        e = exc_info()[1]
         raise InvalidFileException(unicode(e))
     wb = Workbook()
 
@@ -94,7 +97,8 @@ def load_workbook(filename, use_iterators=False):
 
     try:
         _load_workbook(wb, archive, filename, use_iterators)
-    except KeyError, e:
+    except KeyError:
+        e = exc_info()[1]
         raise InvalidFileException(unicode(e))
 
     archive.close()

@@ -37,9 +37,8 @@ from openpyxl.shared.exc import SheetTitleException, \
     NamedRangeException
 from openpyxl.shared.password_hasher import hash_password
 from openpyxl.style import Style, DEFAULTS as DEFAULTS_STYLE
-from openpyxl.drawing import Drawing
 from openpyxl.namedrange import NamedRangeContainingValue
-from openpyxl.shared.compat import OrderedDict, unicode
+from openpyxl.shared.compat import OrderedDict, unicode, xrange
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
@@ -97,9 +96,9 @@ class PageSetup(object):
             if setup_value is not None:
                 if setup_name == 'orientation':
                     setupGroup[setup_name] = '%s' % setup_value
-                elif setup_name in ('paperSize','scale'):
+                elif setup_name in ('paperSize', 'scale'):
                     setupGroup[setup_name] = '%d' % int(setup_value)
-                elif setup_name in ('fitToHeight','fitToWidth') and int(setup_value) >= 0:
+                elif setup_name in ('fitToHeight', 'fitToWidth') and int(setup_value) >= 0:
                     setupGroup[setup_name] = '%d' % int(setup_value)
 
         return setupGroup
@@ -542,7 +541,7 @@ class Worksheet(object):
         chart._sheet = self
         self._charts.append(chart)
 
-    def merge_cells(self,range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
+    def merge_cells(self, range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
         """ Set merge on a cell range.  Range is a cell range (e.g. A1:E1) """
         if not range_string:
             if  start_row is None or start_column is None or end_row is None or end_column is None:
@@ -563,8 +562,8 @@ class Worksheet(object):
         min_col = column_index_from_string(min_col)
         max_col = column_index_from_string(max_col)
         # Blank out the rest of the cells in the range
-        for col in xrange(min_col,max_col+1):
-            for row in xrange(min_row,max_row+1):
+        for col in xrange(min_col, max_col + 1):
+            for row in xrange(min_row, max_row + 1):
                 if not (row == min_row and col == min_col):
                     # PHPExcel adds cell and specifically blanks it out if it doesn't exist
                     self._get_cell('%s%s' % (get_column_letter(col), row)).value = None
@@ -572,7 +571,7 @@ class Worksheet(object):
         if range_string not in self._merged_cells:
             self._merged_cells.append(range_string)
 
-    def unmerge_cells(self,range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
+    def unmerge_cells(self, range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
         """ Remove merge on a cell range.  Range is a cell range (e.g. A1:E1) """
         if not range_string:
             if start_row is None or start_column is None or end_row is None or end_column is None:

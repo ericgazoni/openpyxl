@@ -30,8 +30,7 @@ try:
     from openpyxl.shared.compat import iterparse
 except ImportError:
     from xml.etree.ElementTree import iterparse
-from itertools import ifilter
-from StringIO import StringIO
+from openpyxl.shared.compat import ifilter, StringIO
 
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
@@ -91,9 +90,8 @@ def read_dimension(xml_source):
 
     return smin_col, smin_row, smax_col, smax_row
 
-def filter_cells((event, element)):
-
-    return element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c'
+def filter_cells(item):
+    return item[1].tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c'
 
 def fast_parse(ws, xml_source, string_table, style_table):
 
