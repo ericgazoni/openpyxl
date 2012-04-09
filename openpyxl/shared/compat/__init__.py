@@ -25,7 +25,7 @@ import sys
 from openpyxl.shared.compat.elementtree import iterparse
 from openpyxl.shared.compat.tempnamedfile import NamedTemporaryFile
 from openpyxl.shared.compat.allany import all, any
-from openpyxl.shared.compat.strings import basestring, unicode
+from openpyxl.shared.compat.strings import basestring, unicode, StringIO
 from openpyxl.shared.compat.numbers import long
 
 try:

@@ -34,3 +34,8 @@ try:
 except NameError:
     # Python 3
     unicode = str
+
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO

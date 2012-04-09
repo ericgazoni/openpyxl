@@ -27,7 +27,6 @@
 
 # Python stdlib imports
 from zipfile import ZipFile, ZIP_DEFLATED
-from StringIO import StringIO
 
 # package imports
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, \
@@ -43,6 +42,7 @@ from openpyxl.writer.styles import StyleWriter
 from openpyxl.writer.drawings import DrawingWriter, ShapeWriter
 from openpyxl.writer.charts import ChartWriter
 from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
+from openpyxl.shared.compat import StringIO
 
 
 class ExcelWriter(object):
