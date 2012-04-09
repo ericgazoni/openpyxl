@@ -28,11 +28,11 @@ import os
 import os.path
 import shutil
 import difflib
-from StringIO import StringIO
 from pprint import pprint
 from tempfile import gettempdir
 
 # package imports
+from openpyxl.shared.compat import StringIO
 from openpyxl.shared.xmltools import fromstring, ElementTree
 from openpyxl.shared.xmltools import pretty_indent
 

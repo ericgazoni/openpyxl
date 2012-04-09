@@ -38,7 +38,7 @@ class TestChartWriter(object):
 
         wb = Workbook()
         ws = wb.get_active_sheet()
-        ws.title = u'data'
+        ws.title = 'data'
         for i in range(10):
             ws.cell(row = i, column = 0).value = i
         self.chart = BarChart()
@@ -89,7 +89,7 @@ class TestScatterChartWriter(object):
 
         wb = Workbook()
         ws = wb.get_active_sheet()
-        ws.title = u'data'
+        ws.title = 'data'
         for i in range(10):
             ws.cell(row = i, column = 0).value = i
             ws.cell(row = i, column = 1).value = i
@@ -125,7 +125,7 @@ class TestScatterChartWriter(object):
         
         wb = Workbook()
         ws = wb.get_active_sheet()
-        ws.title = u'data'
+        ws.title = 'data'
         for i in range(10):
             ws.cell(row = i, column = 0).value = i
             ws.cell(row = i, column = 1).value = i

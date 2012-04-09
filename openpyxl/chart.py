@@ -244,7 +244,7 @@ class Chart(object):
     def _compute_min_max(self):
         """ compute y axis limits and units """
 
-        maxi = max([max(s.values._get_cache()) for s in self._series])
+        maxi = max([max(s.values._get_cache()) for s in self._series if s.values._get_cache()])
 
         mul = None
         if maxi < 1:
