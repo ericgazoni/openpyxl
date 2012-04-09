@@ -312,7 +312,7 @@ class IterableWorksheet(Worksheet):
 
 def unpack_worksheet(archive, filename):
 
-    temp_file = tempfile.TemporaryFile(mode='r+', prefix='openpyxl.', suffix='.unpack.temp')
+    temp_file = tempfile.TemporaryFile(mode='rb+', prefix='openpyxl.', suffix='.unpack.temp')
 
     zinfo = archive.getinfo(filename)
 

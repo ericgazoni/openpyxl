@@ -30,11 +30,13 @@ import shutil
 import difflib
 from pprint import pprint
 from tempfile import gettempdir
+from sys import version_info
 
 # package imports
-from openpyxl.shared.compat import StringIO
+from openpyxl.shared.compat import BytesIO, unicode
 from openpyxl.shared.xmltools import fromstring, ElementTree
 from openpyxl.shared.xmltools import pretty_indent
+
 
 # constants
 DATADIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'test_data'))
@@ -72,13 +74,13 @@ def assert_equals_file_content(reference_file, fixture, filetype = 'xml'):
     if filetype == 'xml':
         fixture_content = fromstring(fixture_content)
         pretty_indent(fixture_content)
-        temp = StringIO()
+        temp = BytesIO()
         ElementTree(fixture_content).write(temp)
         fixture_content = temp.getvalue()
 
         expected_content = fromstring(expected_content)
         pretty_indent(expected_content)
-        temp = StringIO()
+        temp = BytesIO()
         ElementTree(expected_content).write(temp)
         expected_content = temp.getvalue()
 
@@ -86,14 +88,19 @@ def assert_equals_file_content(reference_file, fixture, filetype = 'xml'):
     expected_lines = expected_content.split('\n')
     differences = list(difflib.unified_diff(expected_lines, fixture_lines))
     if differences:
-        temp = StringIO()
+        temp = BytesIO()
         pprint(differences, stream = temp)
         assert False, 'Differences found : %s' % temp.getvalue()
 
 def get_xml(xml_node):
 
-    io = StringIO()
-    ElementTree(xml_node).write(io, encoding = 'UTF-8')
-    ret = io.getvalue()
+    io = BytesIO()
+    if version_info[0] >= 3 and version_info[1] >= 2:
+        ElementTree(xml_node).write(io, encoding='UTF-8', xml_declaration=True)
+        ret = str(io.getvalue(), 'utf-8')
+        ret = ret.replace('utf-8', 'UTF-8', 1)
+    else:
+        ElementTree(xml_node).write(io, encoding='UTF-8')
+        ret = io.getvalue()
     io.close()
     return ret.replace('\n', '')

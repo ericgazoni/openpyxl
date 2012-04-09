@@ -23,6 +23,7 @@
 # @author: see AUTHORS file
 
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
+from openpyxl.shared.compat.strings import basestring
 from openpyxl.chart import Chart, ErrorBar
 
 class ChartWriter(object):

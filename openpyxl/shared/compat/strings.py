@@ -37,8 +37,9 @@ except NameError:
 
 try:
     from StringIO import StringIO
+    BytesIO = StringIO
 except:
-    from io import StringIO
+    from io import BytesIO, StringIO
 
 try:
     file = file
