@@ -28,7 +28,7 @@
 # package imports
 from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.shared.exc import MissingNumberFormat
-from openpyxl.style import Style, NumberFormat, Font, Fill, Borders
+from openpyxl.style import Style, NumberFormat, Font, Fill, Borders, Protection
 from copy import deepcopy
 
 
@@ -62,18 +62,19 @@ def read_style_table(xml_source):
 
             if cell_xfs_node.get('applyAlignment') == '1':
                 alignment = cell_xfs_node.find(QName(xmlns, 'alignment').text)
-                if alignment.get('horizontal') is not None:
-                    new_style.alignment.horizontal = alignment.get('horizontal')
-                if alignment.get('vertical') is not None:
-                    new_style.alignment.horizontal = alignment.get('vertical')
-                if alignment.get('wrapText'):
-                    new_style.alignment.wrap_text = True
-                if alignment.get('shrinkToFit'):
-                    new_style.alignment.shrink_to_fit = True
-                if alignment.get('indent') is not None:
-                    new_style.alignment.ident = int(alignment.get('indent'))
-                if alignment.get('textRotation') is not None:
-                    new_style.alignment.text_rotation = int(alignment.get('textRotation'))
+                if alignment is not None:
+                    if alignment.get('horizontal') is not None:
+                        new_style.alignment.horizontal = alignment.get('horizontal')
+                    if alignment.get('vertical') is not None:
+                        new_style.alignment.vertical = alignment.get('vertical')
+                    if alignment.get('wrapText'):
+                        new_style.alignment.wrap_text = True
+                    if alignment.get('shrinkToFit'):
+                        new_style.alignment.shrink_to_fit = True
+                    if alignment.get('indent') is not None:
+                        new_style.alignment.ident = int(alignment.get('indent'))
+                    if alignment.get('textRotation') is not None:
+                        new_style.alignment.text_rotation = int(alignment.get('textRotation'))
                     # ignore justifyLastLine option when horizontal = distributed
 
             if cell_xfs_node.get('applyFont') == '1':
@@ -104,14 +105,14 @@ def read_style_table(xml_source):
                 if protection is not None:
                     if protection.get('locked') is not None:
                         if protection.get('locked') == '1':
-                            new_style.protection.locked = protection.PROTECTION_PROTECTED
+                            new_style.protection.locked = Protection.PROTECTION_PROTECTED
                         else:
-                            new_style.protection.locked = protection.PROTECTION_UNPROTECTED
+                            new_style.protection.locked = Protection.PROTECTION_UNPROTECTED
                     if protection.get('hidden') is not None:
                         if protection.get('hidden') == '1':
-                            new_style.protection.hidden = protection.PROTECTION_PROTECTED
+                            new_style.protection.hidden = Protection.PROTECTION_PROTECTED
                         else:
-                            new_style.protection.hidden = protection.PROTECTION_UNPROTECTED
+                            new_style.protection.hidden = Protection.PROTECTION_UNPROTECTED
 
             table[index] = new_style
     return table
