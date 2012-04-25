@@ -31,6 +31,7 @@ import datetime
 from nose.tools import eq_, assert_false, ok_
 
 # package imports
+from openpyxl.reader.excel import load_workbook
 from openpyxl.tests.helper import DATADIR, assert_equals_file_content, get_xml
 from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
@@ -191,6 +192,55 @@ def test_read_style():
             style_table[1].number_format.format_code)
     eq_('yyyy-mm-dd', style_table[2].number_format.format_code)
 
+
+def test_read_complex_style():
+    reference_file = os.path.join(DATADIR, 'reader', 'complex-styles.xlsx')
+    wb = load_workbook(reference_file)
+    ws = wb.get_active_sheet()
+    eq_(ws.column_dimensions['A'].width, 31.1640625)
+    eq_(ws.cell('A2').style.font.name, 'Arial')
+    eq_(ws.cell('A2').style.font.size, '10')
+    eq_(ws.cell('A2').style.font.bold, False)
+    eq_(ws.cell('A2').style.font.italic, False)
+    eq_(ws.cell('A3').style.font.name, 'Arial')
+    eq_(ws.cell('A3').style.font.size, '12')
+    eq_(ws.cell('A3').style.font.bold, True)
+    eq_(ws.cell('A3').style.font.italic, False)
+    eq_(ws.cell('A4').style.font.name, 'Arial')
+    eq_(ws.cell('A4').style.font.size, '14')
+    eq_(ws.cell('A4').style.font.bold, False)
+    eq_(ws.cell('A4').style.font.italic, True)
+    eq_(ws.cell('A5').style.font.color.index, 'FF3300FF')
+    eq_(ws.cell('A6').style.font.color.index, 'theme:9:')
+    eq_(ws.cell('A7').style.fill.start_color.index, 'FFFFFF66')
+    eq_(ws.cell('A8').style.fill.start_color.index, 'theme:8:')
+    eq_(ws.cell('A9').style.alignment.horizontal,'left')
+    eq_(ws.cell('A10').style.alignment.horizontal,'right')
+    eq_(ws.cell('A11').style.alignment.horizontal,'center')
+    eq_(ws.cell('A12').style.alignment.vertical,'top')
+    eq_(ws.cell('A13').style.alignment.vertical,'center')
+    eq_(ws.cell('A14').style.alignment.vertical,'bottom')
+    eq_(ws.cell('A15').style.number_format._format_code,'0.00')
+    eq_(ws.cell('A16').style.number_format._format_code,'mm-dd-yy')
+    eq_(ws.cell('A17').style.number_format._format_code,'0.00%')
+    eq_('A18:B18' in ws._merged_cells, True)
+    eq_(ws.cell('B18').merged,True)
+    eq_(ws.cell('A19').style.borders.top.color.index,'FF006600')
+    eq_(ws.cell('A19').style.borders.bottom.color.index,'FF006600')
+    eq_(ws.cell('A19').style.borders.left.color.index,'FF006600')
+    eq_(ws.cell('A19').style.borders.right.color.index,'FF006600')
+    eq_(ws.cell('A21').style.borders.top.color.index,'theme:7:')
+    eq_(ws.cell('A21').style.borders.bottom.color.index,'theme:7:')
+    eq_(ws.cell('A21').style.borders.left.color.index,'theme:7:')
+    eq_(ws.cell('A21').style.borders.right.color.index,'theme:7:')
+    eq_(ws.cell('A23').style.fill.start_color.index,'FFCCCCFF')
+    eq_(ws.cell('A23').style.borders.top.color.index,'theme:6:')
+    eq_('A23:B24' in ws._merged_cells, True)
+    eq_(ws.cell('A24').merged,True)
+    eq_(ws.cell('B23').merged,True)
+    eq_(ws.cell('B24').merged,True)
+    eq_(ws.cell('A25').style.alignment.wrap_text,True)
+    eq_(ws.cell('A26').style.alignment.shrink_to_fit,True)
 
 def test_read_cell_style():
     reference_file = os.path.join(
