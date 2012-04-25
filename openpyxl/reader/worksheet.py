@@ -120,7 +120,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
             coordinate = element.get('r')
             style_id = element.get('s')
 
-            if coordinate in ws._cells and ws.cell(coordinate).merged and style_id is not None:
+            if style_id is not None:
                 ws._styles[coordinate] = style_table.get(int(style_id))
         else:
             coordinate = element.get('r')
