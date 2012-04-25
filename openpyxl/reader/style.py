@@ -65,7 +65,7 @@ def read_style_table(xml_source):
                 if alignment.get('horizontal') is not None:
                     new_style.alignment.horizontal = alignment.get('horizontal')
                 if alignment.get('vertical') is not None:
-                    new_style.alignment.horizontal = alignment.get('vertical')
+                    new_style.alignment.vertical = alignment.get('vertical')
                 if alignment.get('wrapText'):
                     new_style.alignment.wrap_text = True
                 if alignment.get('shrinkToFit'):
