@@ -73,6 +73,14 @@ def write_worksheet(worksheet, string_table, style_table):
     if setup:
         tag(doc, 'pageSetup', setup)
 
+    if worksheet.header_footer.hasHeader() or worksheet.header_footer.hasFooter():
+        start_tag(doc, 'headerFooter')
+        if worksheet.header_footer.hasHeader():
+            tag(doc, 'oddHeader', None, worksheet.header_footer.getHeader())
+        if worksheet.header_footer.hasFooter():
+            tag(doc, 'oddFooter', None, worksheet.header_footer.getFooter())
+        end_tag(doc, 'headerFooter')
+
     if worksheet._charts:
         tag(doc, 'drawing', {'r:id':'rId1'})
     end_tag(doc, 'worksheet')

@@ -105,10 +105,188 @@ class PageSetup(object):
         return setupGroup
 
 
-
 class HeaderFooter(object):
-    """Information about the header/footer for this sheet."""
-    pass
+    """Information about the header/footer for this sheet.
+
+       Note: creates an oddHeader and oddFooter tag.  evenHeader/evenFooter not supported yet.
+
+       Header amp Footer codes are:
+
+       * &A   Inserts the worksheet name
+       * &B   Toggles bold
+       * &D or &[Date]   Inserts the current date
+       * &E   Toggles double-underline
+       * &F or &[File]   Inserts the workbook name
+       * &I   Toggles italic
+       * &N or &[Pages]   Inserts the total page count
+       * &S   Toggles strikethrough
+       * &T   Inserts the current time
+       * &[Tab]   Inserts the worksheet name
+       * &U   Toggles underline
+       * &X   Toggles superscript
+       * &Y   Toggles subscript
+       * &P or &[Page]   Inserts the current page number
+       * &P+n   Inserts the page number incremented by n
+       * &P-n   Inserts the page number decremented by n
+       * &[Path]   Inserts the workbook path
+       * &&   Escapes the ampersand character
+       * &"fontname"   Selects the named font
+       * &nn   Selects the specified 2-digit font point size
+    """
+    replaceList = (
+        ('\n','_x000D_'),
+        ('&[Page]','&P'),
+        ('&[Pages]','&N'),
+        ('&[Date]','&D'),
+        ('&[Time]','&T'),
+        ('&[Path]','&Z'),
+        ('&[File]','&F'),
+        ('&[Tab]','&A'),
+        ('&[Picture]','&G')
+        )
+
+    __slots__ = ('left_header_font_name',
+                 'left_header_font_size',
+                 'left_header_font_color',
+                 'left_header_text',
+                 'center_header_font_name',
+                 'center_header_font_size',
+                 'center_header_font_color',
+                 'center_header_text',
+                 'right_header_font_name',
+                 'right_header_font_size',
+                 'right_header_font_color',
+                 'right_header_text',
+                 'left_footer_font_name',
+                 'left_footer_font_size',
+                 'left_footer_font_color',
+                 'left_footer_text',
+                 'center_footer_font_name',
+                 'center_footer_font_size',
+                 'center_footer_font_color',
+                 'center_footer_text',
+                 'right_footer_font_name',
+                 'right_footer_font_size',
+                 'right_footer_font_color',
+                 'right_footer_text')
+
+    def __init__(self):
+        self.left_header_font_name = None
+        self.left_header_font_size = None
+        self.left_header_font_color = None
+        self.left_header_text = None
+        self.center_header_font_name = None
+        self.center_header_font_size = None
+        self.center_header_font_color = None
+        self.center_header_text = None
+        self.right_header_font_name = None
+        self.right_header_font_color = None
+        self.right_header_font_size = None
+        self.right_header_text = None
+        self.left_footer_font_name = None
+        self.left_footer_font_size = None
+        self.left_footer_font_color = None
+        self.left_footer_text = None
+        self.center_footer_font_name = None
+        self.center_footer_font_size = None
+        self.center_footer_font_color = None
+        self.center_footer_text = None
+        self.right_footer_font_name = None
+        self.right_footer_font_size = None
+        self.right_footer_font_color = None
+        self.right_footer_text = None
+
+    def hasHeader(self):
+        return True if self.left_header_text or self.center_header_text or self.right_header_text else False
+
+    def hasFooter(self):
+        return True if self.left_footer_text or self.center_footer_text or self.right_footer_text else False
+
+    def getHeader(self):
+        t = []
+        if self.left_header_text:
+            t.append('&L')
+            if self.left_header_font_name:
+                t.append('&"%s"' % self.left_header_font_name)
+            if self.left_header_font_size:
+                t.append('&%d' % self.left_header_font_size)
+            if self.left_header_font_color:
+                t.append('&K%s' % self.left_header_font_color)
+            text = self.left_header_text
+            for old,new in self.replaceList:
+                text = text.replace(old,new)
+            t.append(text)
+
+        if self.center_header_text:
+            t.append('&C')
+            if self.center_header_font_name:
+                t.append('&"%s"' % self.center_header_font_name)
+            if self.center_header_font_size:
+                t.append('&%d' % self.center_header_font_size)
+            if self.center_header_font_color:
+                t.append('&K%s' % self.center_header_font_color)
+            text = self.center_header_text
+            for old,new in self.replaceList:
+                text = text.replace(old,new)
+            t.append(text)
+
+        if self.right_header_text:
+            t.append('&R')
+            if self.right_header_font_name:
+                t.append('&"%s"' % self.right_header_font_name)
+            if self.right_header_font_size:
+                t.append('&%d' % self.right_header_font_size)
+            if self.right_header_font_color:
+                t.append('&K%s' % self.right_header_font_color)
+            text = self.right_header_text
+            for old,new in self.replaceList:
+                text = text.replace(old,new)
+            t.append(text)
+
+        return ''.join(t)
+
+    def getFooter(self):
+        t = []
+        if self.left_footer_text:
+            t.append('&L')
+            if self.left_footer_font_name:
+                t.append('&"%s"' % self.left_footer_font_name)
+            if self.left_footer_font_size:
+                t.append('&%d' % self.left_footer_font_size)
+            if self.left_footer_font_color:
+                t.append('&K%s' % self.left_footer_font_color)
+            text = self.left_footer_text
+            for old,new in self.replaceList:
+                text = text.replace(old,new)
+            t.append(text)
+
+        if self.center_footer_text:
+            t.append('&C')
+            if self.center_footer_font_name:
+                t.append('&"%s"' % self.center_footer_font_name)
+            if self.center_footer_font_size:
+                t.append('&%d' % self.center_footer_font_size)
+            if self.center_footer_font_color:
+                t.append('&K%s' % self.center_footer_font_color)
+            text = self.center_footer_text
+            for old,new in self.replaceList:
+                text = text.replace(old,new)
+            t.append(text)
+
+        if self.right_footer_text:
+            t.append('&R')
+            if self.right_footer_font_name:
+                t.append('&"%s"' % self.right_footer_font_name)
+            if self.right_footer_font_size:
+                t.append('&%d' % self.right_footer_font_size)
+            if self.right_footer_font_color:
+                t.append('&K%s' % self.right_footer_font_color)
+            text = self.right_footer_text
+            for old,new in self.replaceList:
+                text = text.replace(old,new)
+            t.append(text)
+
+        return ''.join(t)
 
 
 class SheetView(object):
