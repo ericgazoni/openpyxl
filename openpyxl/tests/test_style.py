@@ -131,7 +131,7 @@ class TestStyleWriter(object):
         w._write_cell_xfs(nft, ft, {}, {})
         xml = get_xml(w._root)
         ok_('applyFont="1"' in xml)
-        ok_('applyFillId="1"' not in xml)
+        ok_('applyFill="1"' not in xml)
         ok_('applyBorder="1"' not in xml)
         ok_('applyAlignment="1"' not in xml)
 
