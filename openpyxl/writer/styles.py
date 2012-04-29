@@ -140,10 +140,10 @@ class StyleWriter(object):
                     if hash(st.fill.end_color) != hash(style.DEFAULTS.fill.end_color):
                         if str(st.fill.end_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
                             if str(st.fill.end_color.index).split(':')[2]:
-                                SubElement(node, 'fgColor', {'theme':str(st.fill.end_color.index).split(':')[1],
+                                SubElement(node, 'bgColor', {'theme':str(st.fill.end_color.index).split(':')[1],
                                                              'tint':str(st.fill.end_color.index).split(':')[2]})
                             else:
-                                SubElement(node, 'fgColor', {'theme':str(st.fill.end_color.index).split(':')[1]})
+                                SubElement(node, 'bgColor', {'theme':str(st.fill.end_color.index).split(':')[1]})
                         else:
                             SubElement(node, 'bgColor', {'rgb':str(st.fill.end_color.index)})
                 index += 1
@@ -222,7 +222,7 @@ class StyleWriter(object):
 
             if hash(st.fill) != hash(style.DEFAULTS.fill):
                 vals['fillId'] = fills_table[hash(st.fill)]
-                vals['applyFillId'] = '1'
+                vals['applyFill'] = '1'
 
             if st.number_format != style.DEFAULTS.number_format:
                 vals['numFmtId'] = '%d' % number_format_table[st.number_format]
