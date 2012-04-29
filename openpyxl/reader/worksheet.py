@@ -161,6 +161,13 @@ def fast_parse(ws, xml_source, string_table, style_table):
                 if col.get('style') is not None:
                     ws.column_dimensions[column].style_index = col.get('style')
 
+    printOptions = root.find(QName(xmlns, 'printOptions').text)
+    if printOptions is not None:
+        if printOptions.get('horizontalCentered') is not None:
+            ws.page_setup.horizontalCentered = printOptions.get('horizontalCentered')
+        if printOptions.get('verticalCentered') is not None:
+            ws.page_setup.verticalCentered = printOptions.get('verticalCentered')
+
     pageMargins = root.find(QName(xmlns, 'pageMargins').text)
     if pageMargins is not None:
         if pageMargins.get('left') is not None:
@@ -194,6 +201,15 @@ def fast_parse(ws, xml_source, string_table, style_table):
             ws.page_setup.firstPageNumber = pageSetup.get('firstPageNumber')
         if pageSetup.get('useFirstPageNumber') is not None:
             ws.page_setup.useFirstPageNumber = pageSetup.get('useFirstPageNumber')
+
+    headerFooter = root.find(QName(xmlns, 'headerFooter').text)
+    if headerFooter is not None:
+        oddHeader = headerFooter.find(QName(xmlns, 'oddHeader').text)
+        if oddHeader is not None:
+            ws.header_footer.setHeader(oddHeader.text)
+        oddFooter = headerFooter.find(QName(xmlns, 'oddFooter').text)
+        if oddFooter is not None:
+            ws.header_footer.setFooter(oddFooter.text)
 
 from openpyxl.reader.iter_worksheet import IterableWorksheet
 

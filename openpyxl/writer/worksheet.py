@@ -65,6 +65,10 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_mergecells(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
 
+    options = worksheet.page_setup.options
+    if options:
+        tag(doc, 'printOptions', options)
+
     margins = worksheet.page_margins.margins
     if margins:
         tag(doc, 'pageMargins', margins)

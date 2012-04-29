@@ -293,14 +293,18 @@ class TestWorksheet(object):
         ws.page_setup.fitToPage = True
         ws.page_setup.fitToHeight = 0
         ws.page_setup.fitToWidth = 1
+        ws.page_setup.horizontalCentered = True
+        ws.page_setup.verticalCentered = True
         xml_string = write_worksheet(ws, None, None)
         assert '<pageSetup orientation="landscape" paperSize="3" fitToHeight="0" fitToWidth="1"></pageSetup>' in xml_string
         assert '<pageSetUpPr fitToPage="1"></pageSetUpPr>' in xml_string
+        assert '<printOptions horizontalCentered="1" verticalCentered="1"></pageSetUpPr>' in xml_string
 
         ws = Worksheet(self.wb)
         xml_string = write_worksheet(ws, None, None)
         assert "<pageSetup" not in xml_string
         assert "<pageSetUpPr" not in xml_string
+        assert "<printOptions" not in xml_string
 
     def test_header_footer(self):
         ws = Worksheet(self.wb)

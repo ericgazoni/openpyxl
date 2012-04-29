@@ -84,10 +84,12 @@ class Relationship(object):
 
 class PageSetup(object):
     """Information about page layout for this sheet"""
-    valid_setup = ("orientation", "paperSize", "scale", "fitToPage", "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber")
+    valid_setup = ("orientation", "paperSize", "scale", "fitToPage", "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber",)
+    valid_options = ("horizontalCentered", "verticalCentered")
 
     def __init__(self):
         self.orientation = self.paperSize = self.scale = self.fitToPage = self.fitToHeight = self.fitToWidth = self.firstPageNumber = self.useFirstPageNumber = None
+        self.horizontalCentered = self.verticalCentered = None
 
     @property
     def setup(self):
@@ -103,6 +105,17 @@ class PageSetup(object):
                     setupGroup[setup_name] = '%d' % int(setup_value)
 
         return setupGroup
+
+    @property
+    def options(self):
+        optionsGroup = OrderedDict()
+        for options_name in self.valid_options:
+            options_value = getattr(self, options_name)
+            if options_value is not None:
+                if options_name in ('horizontalCentered','verticalCentered') and options_value:
+                    optionsGroup[options_name] = '1'
+
+        return optionsGroup
 
 
 class HeaderFooterItem(object):
@@ -177,6 +190,23 @@ class HeaderFooterItem(object):
             t.append(text)
         return ''.join(t)
 
+    def set(self,itemArray):
+        textArray = []
+        for item in itemArray[1:]:
+            if len(item) and textArray:
+                textArray.append('&%s' % item)
+            elif len(item) and not textArray:
+                if item[0] == '"':
+                    self.font_name = item.replace('"','')
+                elif item[0] == 'K':
+                    self.font_color = item[1:7]
+                    textArray.append(item[7:])
+                else:
+                    try:
+                        self.font_size = int(item)
+                    except:
+                        pass
+        self.text = ''.join(textArray)
 
 class HeaderFooter(object):
     """Information about the header/footer for this sheet.
@@ -221,6 +251,46 @@ class HeaderFooter(object):
         if self.right_footer.has():
             t.append(self.right_footer.get())
         return ''.join(t)
+
+    def setHeader(self,item):
+        itemArray = [i.replace('#DOUBLEAMP#','&&') for i in item.replace('&&','#DOUBLEAMP#').split('&')]
+        l = itemArray.index('L') if 'L' in itemArray else None
+        c = itemArray.index('C') if 'C' in itemArray else None
+        r = itemArray.index('R') if 'R' in itemArray else None
+        if l:
+            if c:
+                self.left_header.set(itemArray[l:c])
+            elif r:
+                self.left_header.set(itemArray[l:r])
+            else:
+                self.left_header.set(itemArray[l:])
+        if c:
+            if r:
+                self.center_header.set(itemArray[c:r])
+            else:
+                self.center_header.set(itemArray[c:])
+        if r:
+            self.right_header.set(itemArray[r:])
+
+    def setFooter(self,item):
+        itemArray = [i.replace('#DOUBLEAMP#','&&') for i in item.replace('&&','#DOUBLEAMP#').split('&')]
+        l = itemArray.index('L') if 'L' in itemArray else None
+        c = itemArray.index('C') if 'C' in itemArray else None
+        r = itemArray.index('R') if 'R' in itemArray else None
+        if l:
+            if c:
+                self.left_footer.set(itemArray[l:c])
+            elif r:
+                self.left_footer.set(itemArray[l:r])
+            else:
+                self.left_footer.set(itemArray[l:])
+        if c:
+            if r:
+                self.center_footer.set(itemArray[c:r])
+            else:
+                self.center_footer.set(itemArray[c:])
+        if r:
+            self.right_footer.set(itemArray[r:])
 
 class SheetView(object):
     """Information about the visible portions of this sheet."""
