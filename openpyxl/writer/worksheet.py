@@ -184,8 +184,11 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             attributes = {'r': coordinate}
             attributes['t'] = cell.data_type
             if coordinate in worksheet._styles:
-                attributes['s'] = '%d' % style_id_by_hash[
-                        hash(worksheet._styles[coordinate])]
+                try:
+                    attributes['s'] = '%d' % style_id_by_hash[
+                            hash(worksheet._styles[coordinate])]
+                except:
+                    pass
             if value in ('', None):
                 tag(doc, 'c', attributes)
             else:
