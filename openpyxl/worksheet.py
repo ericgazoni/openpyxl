@@ -292,8 +292,9 @@ class Worksheet(object):
     def garbage_collect(self):
         """Delete cells that are not storing a value."""
         delete_list = [coordinate for coordinate, cell in \
-            self._cells.items() if (cell.value in ('', None) and \
-            hash(cell.style) == _DEFAULTS_STYLE_HASH)]
+            self._cells.iteritems() if (cell.value in ('', None) and \
+            (coordinate not in self._styles or
+            hash(cell.style) == _DEFAULTS_STYLE_HASH))]
         for coordinate in delete_list:
             del self._cells[coordinate]
 
