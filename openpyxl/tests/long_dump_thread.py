@@ -37,4 +37,4 @@ def test_thread_safe_dump():
     for thread_idx in range(400):
         thread = threading.Thread(target=dump_workbook)
         thread.start()
-        print "starting thread %d" % thread_idx
+        print("starting thread %d" % thread_idx)
