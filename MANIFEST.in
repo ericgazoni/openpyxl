@@ -1,3 +1,2 @@
-recursive-include src/openpyxl/tests/test_data *.xml *.rels *.xlsx
+recursive-include openpyxl/tests/test_data *.xml *.rels *.xlsx
 include LICENCE
-include CREDITS
