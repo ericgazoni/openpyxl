@@ -35,6 +35,8 @@ from openpyxl.namedrange import split_named_range, NamedRange
 from openpyxl.reader.workbook import read_named_ranges
 from openpyxl.shared.exc import NamedRangeException
 from openpyxl.reader.excel import load_workbook
+from openpyxl.writer.workbook import write_workbook
+from openpyxl.workbook import Workbook
 
 
 def test_split():
@@ -127,7 +129,20 @@ def test_merged_cells_named_range():
 
     eq_(10, cell.value)
 
+def test_print_titles():
 
+	wb = Workbook()
+	ws1 = wb.create_sheet()
+	ws2 = wb.create_sheet()
+	ws1.add_print_title(2)
+	ws2.add_print_title(3, rows_or_cols='cols')
+
+	def mystr(nr):
+		return ','.join(['%s!%s' % (sheet.title, name) for sheet, name in nr.destinations])
+
+	actual_named_ranges = set([(nr.name, nr.scope, mystr(nr)) for nr in wb.get_named_ranges()])
+	expected_named_ranges = set([('_xlnm.Print_Titles', ws1, 'Sheet1!$1:$2'), ('_xlnm.Print_Titles', ws2, 'Sheet2!$A:$C')])
+	assert(actual_named_ranges == expected_named_ranges)
 
 class TestNameRefersToValue(object):
     def setUp(self):

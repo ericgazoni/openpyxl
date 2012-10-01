@@ -166,10 +166,10 @@ class Workbook(object):
         """
         return [s.title for s in self.worksheets]
 
-    def create_named_range(self, name, worksheet, range):
+    def create_named_range(self, name, worksheet, range, scope=None):
         """Create a new named_range on a worksheet"""
         assert isinstance(worksheet, Worksheet)
-        named_range = NamedRange(name, [(worksheet, range)])
+        named_range = NamedRange(name, [(worksheet, range)], scope)
         self.add_named_range(named_range)
 
     def get_named_ranges(self):

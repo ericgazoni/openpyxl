@@ -541,6 +541,16 @@ class Worksheet(object):
     freeze_panes = property(_get_freeze_panes, _set_freeze_panes, doc=
                            "Get or set frozen panes")
 
+    def add_print_title(self, n, rows_or_cols='rows'):
+        """Print Titles are rows or columns that are repeated on each printed sheet.
+        This adds n rows or columns at the top or left of the sheet"""
+    	if rows_or_cols == 'cols':
+		r = '$A:$%s' % get_column_letter(n)
+	else:
+		r = '$1:$%d' % n
+	self.parent.create_named_range('_xlnm.Print_Titles', self, r, self)
+
+
     def cell(self, coordinate=None, row=None, column=None):
         """Returns a cell object based on the given coordinates.
 

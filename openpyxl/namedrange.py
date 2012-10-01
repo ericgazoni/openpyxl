@@ -42,17 +42,16 @@ class NamedRange(object):
     """
     __slots__ = ('name', 'destinations', 'scope')
 
-    def __init__(self, name, destinations):
+    def __init__(self, name, destinations, scope=None):
         self.name = name
         self.destinations = destinations
-        self.scope = None
+        self.scope = scope
 
     def __str__(self):
         return  ','.join([u'%s!%s' % (sheet, name) for sheet, name in self.destinations])
 
     def __repr__(self):
-
-        return '<%s "%s">' % (self.__class__.__name__, str(self))
+	return '<%s "%s">' % (self.__class__.__name__, str(self))
 
 class NamedRangeContainingValue(object):
     """A named value"""
