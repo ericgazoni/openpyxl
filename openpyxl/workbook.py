@@ -84,6 +84,7 @@ class Workbook(object):
         self.__optimized_read = False
         self.strings_table_builder = StringTableBuilder()
         self.loaded_theme = None
+	self.vba_archive = None
 
         self.encoding = encoding
 

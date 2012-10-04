@@ -457,6 +457,7 @@ class Worksheet(object):
         self._freeze_panes = None
         self.paper_size = None
         self.orientation = None
+	self.xml_source = None
 
     def __repr__(self):
         return u'<Worksheet "%s">' % self.title

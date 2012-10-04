@@ -52,7 +52,7 @@ def repair_central_directory(zipFile):
         f.truncate()
         f.close()
 
-def load_workbook(filename, use_iterators=False):
+def load_workbook(filename, use_iterators=False, keep_vba=False):
     """Open the given filename and return the workbook
 
     :param filename: the path to open or a file-like object
@@ -92,16 +92,22 @@ def load_workbook(filename, use_iterators=False):
         wb._set_optimized_read()
 
     try:
-        _load_workbook(wb, archive, filename, use_iterators)
+        _load_workbook(wb, archive, filename, use_iterators, keep_vba=keep_vba)
     except KeyError, e:
         raise InvalidFileException(unicode(e))
 
-    archive.close()
+    if not keep_vba:
+	    archive.close()
     return wb
 
-def _load_workbook(wb, archive, filename, use_iterators):
+def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
 
     valid_files = archive.namelist()
+
+    # If are going to preserve the vba then attach the archive to the
+    # workbook so that is available for the save.
+    if keep_vba:
+	    wb.vba_archive = archive
 
     # get workbook-level information
     try:
@@ -130,7 +136,7 @@ def _load_workbook(wb, archive, filename, use_iterators):
             continue
 
         if not use_iterators:
-            new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table)
+            new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table, keep_vba=keep_vba)
         else:
             xml_source = unpack_worksheet(archive, worksheet_path)
             new_ws = read_worksheet(xml_source, wb, sheet_name, string_table, style_table, filename, sheet_codename)
