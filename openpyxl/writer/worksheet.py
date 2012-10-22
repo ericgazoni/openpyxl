@@ -185,6 +185,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
         row_dimension = worksheet.row_dimensions[row_idx]
         attrs = {'r': '%d' % row_idx,
                  'spans': '1:%d' % max_column}
+        if not row_dimension.visible:
+            attrs['hidden'] = '1'
         if row_dimension.height > 0:
             attrs['ht'] = str(row_dimension.height)
             attrs['customHeight'] = '1'
