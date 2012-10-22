@@ -1,2 +1,4 @@
 recursive-include openpyxl/tests/test_data *.xml *.rels *.xlsx
 include LICENCE
+include AUTHORS
+include README
