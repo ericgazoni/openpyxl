@@ -89,7 +89,14 @@ class StyleWriter(object):
                 table[hash(st.font)] = str(index)
                 font_node = SubElement(fonts, 'font')
                 SubElement(font_node, 'sz', {'val':str(st.font.size)})
-                SubElement(font_node, 'color', {'rgb':str(st.font.color.index)})
+                if str(st.font.color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
+                    if str(st.font.color.index).split(':')[2]:
+                        SubElement(font_node, 'color', {'theme':str(st.font.color.index).split(':')[1],
+                                                        'tint':str(st.font.color.index).split(':')[2]})
+                    else:
+                        SubElement(font_node, 'color', {'theme':str(st.font.color.index).split(':')[1]})
+                else:
+                    SubElement(font_node, 'color', {'rgb':str(st.font.color.index)})
                 SubElement(font_node, 'name', {'val':st.font.name})
                 SubElement(font_node, 'family', {'val':'2'})
                 # Don't write the 'scheme' element because it appears to prevent
@@ -101,8 +108,6 @@ class StyleWriter(object):
                     SubElement(font_node, 'i')
                 if st.font.underline == 'single':
                     SubElement(font_node, 'u')
-                else:
-                    SubElement(font_node, 'u', {'val':st.font.underline})
 
                 index += 1
 
@@ -125,10 +130,23 @@ class StyleWriter(object):
                 if hash(st.fill.fill_type) != hash(style.DEFAULTS.fill.fill_type):
                     node = SubElement(fill, 'patternFill', {'patternType':st.fill.fill_type})
                     if hash(st.fill.start_color) != hash(style.DEFAULTS.fill.start_color):
-
-                        SubElement(node, 'fgColor', {'rgb':str(st.fill.start_color.index)})
+                        if str(st.fill.start_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
+                            if str(st.fill.start_color.index).split(':')[2]:
+                                SubElement(node, 'fgColor', {'theme':str(st.fill.start_color.index).split(':')[1],
+                                                             'tint':str(st.fill.start_color.index).split(':')[2]})
+                            else:
+                                SubElement(node, 'fgColor', {'theme':str(st.fill.start_color.index).split(':')[1]})
+                        else:
+                            SubElement(node, 'fgColor', {'rgb':str(st.fill.start_color.index)})
                     if hash(st.fill.end_color) != hash(style.DEFAULTS.fill.end_color):
-                        SubElement(node, 'bgColor', {'rgb':str(st.fill.start_color.index)})
+                        if str(st.fill.end_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
+                            if str(st.fill.end_color.index).split(':')[2]:
+                                SubElement(node, 'bgColor', {'theme':str(st.fill.end_color.index).split(':')[1],
+                                                             'tint':str(st.fill.end_color.index).split(':')[2]})
+                            else:
+                                SubElement(node, 'bgColor', {'theme':str(st.fill.end_color.index).split(':')[1]})
+                        else:
+                            SubElement(node, 'bgColor', {'rgb':str(st.fill.end_color.index)})
                 index += 1
 
         fills.attrib["count"] = str(index)
@@ -155,8 +173,19 @@ class StyleWriter(object):
                 # caution: respect this order
                 for side in ('left', 'right', 'top', 'bottom', 'diagonal'):
                     obj = getattr(st.borders, side)
-                    node = SubElement(border, side, {'style':obj.border_style})
-                    SubElement(node, 'color', {'rgb':str(obj.color.index)})
+                    if obj.border_style is None or obj.border_style == 'none':
+                        node = SubElement(border, side)
+                        attrs = {}
+                    else:
+                        node = SubElement(border, side, {'style':obj.border_style})
+                        if str(obj.color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
+                            if str(obj.color.index).split(':')[2]:
+                                SubElement(node, 'color', {'theme':str(obj.color.index).split(':')[1],
+                                                                'tint':str(obj.color.index).split(':')[2]})
+                            else:
+                                SubElement(node, 'color', {'theme':str(obj.color.index).split(':')[1]})
+                        else:
+                            SubElement(node, 'color', {'rgb':str(obj.color.index)})
                 index += 1
 
         borders.attrib["count"] = str(index)
@@ -194,7 +223,7 @@ class StyleWriter(object):
 
             if hash(st.fill) != hash(style.DEFAULTS.fill):
                 vals['fillId'] = fills_table[hash(st.fill)]
-                vals['applyFillId'] = '1'
+                vals['applyFill'] = '1'
 
             if st.number_format != style.DEFAULTS.number_format:
                 vals['numFmtId'] = '%d' % number_format_table[st.number_format]
