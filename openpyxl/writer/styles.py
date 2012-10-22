@@ -40,7 +40,8 @@ class StyleWriter(object):
     def _get_style_list(self, workbook):
         crc = {}
         for worksheet in workbook.worksheets:
-            for style in worksheet._styles.values():
+            uniqueStyles = dict((id(style), style) for style in worksheet._styles.values()).values()
+            for style in uniqueStyles:
                 crc[hash(style)] = style
         self.style_table = dict([(style, i + 1) \
             for i, style in enumerate(crc.values())])
