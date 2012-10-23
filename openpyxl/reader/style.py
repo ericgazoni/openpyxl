@@ -138,6 +138,16 @@ def parse_color_index(root, xmlns):
             color_nodes = indexedColors.findall(QName(xmlns, 'rgbColor').text)
             for color_node in color_nodes:
                 color_index.append(color_node.get('rgb'))
+    if not color_index:
+        # Default Color Index as per http://dmcritchie.mvps.org/excel/colors.htm
+        print 'USING DEFAULT COLOR LIST'
+        color_index = ['FF000000', 'FFFFFFFF', 'FFFF0000', 'FF00FF00', 'FF0000FF', 'FFFFFF00', 'FFFF00FF', 'FF00FFFF',
+                       'FF800000', 'FF008000', 'FF000080', 'FF808000', 'FF800080', 'FF008080', 'FFC0C0C0', 'FF808080',
+                       'FF9999FF', 'FF993366', 'FFFFFFCC', 'FFCCFFFF', 'FF660066', 'FFFF8080', 'FF0066CC', 'FFCCCCFF',
+                       'FF000080', 'FFFF00FF', 'FFFFFF00', 'FF00FFFF', 'FF800080', 'FF800000', 'FF008080', 'FF0000FF',
+                       'FF00CCFF', 'FFCCFFFF', 'FFCCFFCC', 'FFFFFF99', 'FF99CCFF', 'FFFF99CC', 'FFCC99FF', 'FFFFCC99',
+                       'FF3366FF', 'FF33CCCC', 'FF99CC00', 'FFFFCC00', 'FFFF9900', 'FFFF6600', 'FF666699', 'FF969696',
+                       'FF003366', 'FF339966', 'FF003300', 'FF333300', 'FF993300', 'FF993366', 'FF333399', 'FF333333']
     return color_index
 
 def parse_fonts(root, xmlns, color_index):
@@ -186,6 +196,8 @@ def parse_fills(root, xmlns, color_index):
             if fgColor is not None:
                 if fgColor.get('indexed') is not None and 0 <= int(fgColor.get('indexed')) < len(color_index):
                     newFill.start_color.index = color_index[int(fgColor.get('indexed'))]
+                elif fgColor.get('indexed') is not None:
+                    print 'NO FGCOLOR FOR INDEXED {0}'.format(int(fgColor.get('indexed')))
                 elif fgColor.get('theme') is not None:
                     if fgColor.get('tint') is not None:
                         newFill.start_color.index = 'theme:%s:%s' % (fgColor.get('theme'), fgColor.get('tint'))
@@ -198,6 +210,9 @@ def parse_fills(root, xmlns, color_index):
             if bgColor is not None:
                 if bgColor.get('indexed') is not None and 0 <= int(bgColor.get('indexed')) < len(color_index):
                     newFill.end_color.index = color_index[int(bgColor.get('indexed'))]
+                elif bgColor.get('indexed') is not None:
+                    print 'NO BGCOLOR FOR INDEXED {0}'.format(int(bgColor.get('indexed')))
+                    newFill.end_color.index = 'FFFFFFFF'
                 elif bgColor.get('theme') is not None:
                     if bgColor.get('tint') is not None:
                         newFill.end_color.index = 'theme:%s:%s' % (bgColor.get('theme'), bgColor.get('tint'))

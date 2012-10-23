@@ -265,6 +265,7 @@ class TestWorksheet(object):
 
         ws.merge_cells('A1:B1')
         xml_string = write_worksheet(ws, string_table, None)
+        print xml_string
         assert '<c r="B1" t="s"><v>Cell B1</v></c>' not in xml_string
         assert '<mergeCells><mergeCell ref="A1:B1"></mergeCell></mergeCells>' in xml_string
 
@@ -297,6 +298,7 @@ class TestWorksheet(object):
         ws.page_setup.verticalCentered = True
         xml_string = write_worksheet(ws, None, None)
         assert '<pageSetup orientation="landscape" paperSize="3" fitToHeight="0" fitToWidth="1"></pageSetup>' in xml_string
+        print xml_string
         assert '<pageSetUpPr fitToPage="1"></pageSetUpPr>' in xml_string
         assert '<printOptions horizontalCentered="1" verticalCentered="1"></pageSetUpPr>' in xml_string
 

@@ -144,22 +144,28 @@ def fast_parse(ws, xml_source, string_table, style_table):
         for col in colNodes:
             min = int(col.get('min')) if col.get('min') else 1
             max = int(col.get('max')) if col.get('max') else 1
-            for colId in range(min,max+1):
-                column = get_column_letter(colId)
-                if column not in ws.column_dimensions:
-                    ws.column_dimensions[column] = ColumnDimension(column)
-                if col.get('width') is not None:
-                    ws.column_dimensions[column].width = float(col.get('width'))
-                if col.get('bestFit') == '1':
-                    ws.column_dimensions[column].auto_size = True
-                if col.get('hidden') == '1':
-                    ws.column_dimensions[column].visible = False
-                if col.get('outlineLevel') is not None:
-                    ws.column_dimensions[column].outline_level = int(col.get('outlineLevel'))
-                if col.get('collapsed') == '1':
-                    ws.column_dimensions[column].collapsed = True
-                if col.get('style') is not None:
-                    ws.column_dimensions[column].style_index = col.get('style')
+            if max != 16384:
+                # 16384 is the default last column
+                # print 'COL RANGE: {0}:{1}'.format(min,max)
+                for colId in range(min,max+1):
+                    if colId < 100:
+                        column = get_column_letter(colId)
+                        if column not in ws.column_dimensions:
+                            ws.column_dimensions[column] = ColumnDimension(column)
+                        if col.get('width') is not None:
+                            ws.column_dimensions[column].width = float(col.get('width'))
+                        if col.get('bestFit') == '1':
+                            ws.column_dimensions[column].auto_size = True
+                        if col.get('hidden') == '1':
+                            ws.column_dimensions[column].visible = False
+                        if col.get('outlineLevel') is not None:
+                            ws.column_dimensions[column].outline_level = int(col.get('outlineLevel'))
+                        if col.get('collapsed') == '1':
+                            ws.column_dimensions[column].collapsed = True
+                        if col.get('style') is not None:
+                            ws.column_dimensions[column].style_index = col.get('style')
+                    elif colId == 100:
+                        print 'Passing 100'
 
     printOptions = root.find(QName(xmlns, 'printOptions').text)
     if printOptions is not None:
