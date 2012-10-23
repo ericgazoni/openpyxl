@@ -30,10 +30,16 @@ try:
     from openpyxl.shared.compat import iterparse
 except ImportError:
     from xml.etree.ElementTree import iterparse
+try:
+    # Python 2
+    from StringIO import StringIO
+except ImportError:
+    # Python 3
+    from io import BytesIO, StringIO
+
 from openpyxl.cell import get_column_letter
 from openpyxl.shared.xmltools import fromstring, QName
 from itertools import ifilter
-from StringIO import StringIO
 
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
@@ -42,7 +48,10 @@ from openpyxl.worksheet import Worksheet, ColumnDimension
 def _get_xml_iter(xml_source):
 
     if not hasattr(xml_source, 'name'):
-        return StringIO(xml_source)
+        if isinstance(xml_source, str):
+            return StringIO(xml_source)
+        else:
+            return StringIO(str(xml_source, 'utf-8'))
     else:
         xml_source.seek(0)
         return xml_source
@@ -93,7 +102,8 @@ def read_dimension(xml_source):
 
     return smin_col, smin_row, smax_col, smax_row
 
-def filter_cells((event, element)):
+def filter_cells(pair):
+    (event, element) = pair
 
     return element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c'
 
@@ -112,28 +122,21 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
     it = iterparse(source)
 
-    for event, element in ifilter(filter_cells, it):
+    for event, element in filter(filter_cells, it):
 
         value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
 
-        if value is None:
-            coordinate = element.get('r')
-            style_id = element.get('s')
+        coordinate = element.get('r')
+        style_id = element.get('s')
+        if style_id is not None:
+            ws._styles[coordinate] = style_table.get(int(style_id))
 
-            if style_id is not None:
-                ws._styles[coordinate] = style_table.get(int(style_id))
-        else:
-            coordinate = element.get('r')
+        if value is not None:
             data_type = element.get('t', 'n')
-            style_id = element.get('s')
-
             if data_type == Cell.TYPE_STRING:
                 value = string_table.get(int(value))
 
             ws.cell(coordinate).value = value
-
-            if style_id is not None:
-                ws._styles[coordinate] = style_table.get(int(style_id))
 
         # to avoid memory exhaustion, clear the item after use
         element.clear()
@@ -143,29 +146,22 @@ def fast_parse(ws, xml_source, string_table, style_table):
         colNodes = cols.findall(QName(xmlns, 'col').text)
         for col in colNodes:
             min = int(col.get('min')) if col.get('min') else 1
-            max = int(col.get('max')) if col.get('max') else 1
-            if max != 16384:
-                # 16384 is the default last column
-                # print 'COL RANGE: {0}:{1}'.format(min,max)
-                for colId in range(min,max+1):
-                    if colId < 100:
-                        column = get_column_letter(colId)
-                        if column not in ws.column_dimensions:
-                            ws.column_dimensions[column] = ColumnDimension(column)
-                        if col.get('width') is not None:
-                            ws.column_dimensions[column].width = float(col.get('width'))
-                        if col.get('bestFit') == '1':
-                            ws.column_dimensions[column].auto_size = True
-                        if col.get('hidden') == '1':
-                            ws.column_dimensions[column].visible = False
-                        if col.get('outlineLevel') is not None:
-                            ws.column_dimensions[column].outline_level = int(col.get('outlineLevel'))
-                        if col.get('collapsed') == '1':
-                            ws.column_dimensions[column].collapsed = True
-                        if col.get('style') is not None:
-                            ws.column_dimensions[column].style_index = col.get('style')
-                    elif colId == 100:
-                        print 'Passing 100'
+            for colId in range(min, max + 1):
+                column = get_column_letter(colId)
+                if column not in ws.column_dimensions:
+                    ws.column_dimensions[column] = ColumnDimension(column)
+                if col.get('width') is not None:
+                    ws.column_dimensions[column].width = float(col.get('width'))
+                if col.get('bestFit') == '1':
+                    ws.column_dimensions[column].auto_size = True
+                if col.get('hidden') == '1':
+                    ws.column_dimensions[column].visible = False
+                if col.get('outlineLevel') is not None:
+                    ws.column_dimensions[column].outline_level = int(col.get('outlineLevel'))
+                if col.get('collapsed') == '1':
+                    ws.column_dimensions[column].collapsed = True
+                if col.get('style') is not None:
+                    ws.column_dimensions[column].style_index = col.get('style')
 
     printOptions = root.find(QName(xmlns, 'printOptions').text)
     if printOptions is not None:

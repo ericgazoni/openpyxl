@@ -139,7 +139,7 @@ class TestWorksheet(object):
         ws.cell('B2').value = '0'
         ws.cell('C4').value = 0
         ws.garbage_collect()
-        eq_(ws.get_cell_collection(), [ws.cell('B2'), ws.cell('C4')])
+        eq_(list(ws.get_cell_collection()), [ws.cell('B2'), ws.cell('C4')])
 
     def test_hyperlink_relationships(self):
         ws = Worksheet(self.wb)
@@ -254,6 +254,10 @@ class TestWorksheet(object):
         xml_string = write_worksheet(ws, None, None)
         assert '<pageMargins left="2.00" right="2.00" top="2.00" bottom="2.00" header="1.50" footer="1.50"></pageMargins>' in xml_string
 
+        ws = Worksheet(self.wb)
+        xml_string = write_worksheet(ws, None, None)
+        assert '<pageMargins' not in xml_string        
+
     def test_merge(self):
         ws = Worksheet(self.wb)
         string_table = {'':'', 'Cell A1':'Cell A1','Cell B1':'Cell B1'}
@@ -267,11 +271,11 @@ class TestWorksheet(object):
         xml_string = write_worksheet(ws, string_table, None)
         print xml_string
         assert '<c r="B1" t="s"><v>Cell B1</v></c>' not in xml_string
-        assert '<mergeCells><mergeCell ref="A1:B1"></mergeCell></mergeCells>' in xml_string
+        assert '<mergeCells count="1"><mergeCell ref="A1:B1"></mergeCell></mergeCells>' in xml_string
 
         ws.unmerge_cells('A1:B1')
         xml_string = write_worksheet(ws, string_table, None)
-        assert '<mergeCell ref="A1:B1"></mergeCell>' not in xml_string
+        assert '<mergeCell ref="A1:B1"/>' not in xml_string
 
     def test_freeze(self):
         ws = Worksheet(self.wb)
@@ -300,7 +304,7 @@ class TestWorksheet(object):
         assert '<pageSetup orientation="landscape" paperSize="3" fitToHeight="0" fitToWidth="1"></pageSetup>' in xml_string
         print xml_string
         assert '<pageSetUpPr fitToPage="1"></pageSetUpPr>' in xml_string
-        assert '<printOptions horizontalCentered="1" verticalCentered="1"></pageSetUpPr>' in xml_string
+        assert '<printOptions horizontalCentered="1" verticalCentered="1">' in xml_string
 
         ws = Worksheet(self.wb)
         xml_string = write_worksheet(ws, None, None)

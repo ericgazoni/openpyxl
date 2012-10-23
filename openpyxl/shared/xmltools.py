@@ -75,7 +75,7 @@ def start_tag(doc, name, attr=None, body=None, namespace=None):
 
     attr_vals = OrderedDict()
     attr_keys = OrderedDict()
-    for key, val in attr.iteritems():
+    for key, val in attr.items():
         key_tuple = (namespace, key)
         attr_vals[key_tuple] = val
         attr_keys[key_tuple] = key

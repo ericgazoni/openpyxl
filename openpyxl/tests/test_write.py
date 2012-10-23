@@ -24,7 +24,13 @@
 # @author: see AUTHORS file
 
 # Python stdlib imports
-from StringIO import StringIO
+try:
+    # Python 2
+    from StringIO import StringIO
+    BytesIO = StringIO
+except ImportError:
+    # Python 3
+    from io import BytesIO, StringIO
 import decimal
 import os.path
 
@@ -55,7 +61,7 @@ def test_write_empty_workbook():
 def test_write_virtual_workbook():
     old_wb = Workbook()
     saved_wb = save_virtual_workbook(old_wb)
-    new_wb = load_workbook(StringIO(saved_wb))
+    new_wb = load_workbook(BytesIO(saved_wb))
     assert new_wb
 
 

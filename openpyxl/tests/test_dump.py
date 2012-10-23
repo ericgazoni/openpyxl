@@ -38,7 +38,7 @@ from openpyxl.reader.excel import load_workbook
 
 from openpyxl.writer.strings import StringTableBuilder
 
-from openpyxl.shared.compat import NamedTemporaryFile
+from openpyxl.shared.compat import NamedTemporaryFile, xrange
 from openpyxl.shared.exc import WorkbookAlreadySaved
 import os
 import os.path as osp
@@ -128,7 +128,7 @@ def test_table_builder():
 
     table = dict(sb.get_table())
 
-    for key, idx in result.iteritems():
+    for key, idx in result.items():
         eq_(idx, table[key])
 
 def test_open_too_many_files():

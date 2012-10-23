@@ -20,15 +20,10 @@ them here.
 """
 
 from setuptools import setup, Extension, find_packages
-import sys
-import openpyxl#to fetch __version__ etc
+import openpyxl  # to fetch __version__ etc
 
 setup(name = 'openpyxl',
-    packages = find_packages('.'),
-    include_package_data = True,
-    package_dir = {'': '.'},
-    # Doesn't affect zip distribution. Must modify MANIFEST.in too.
-    package_data = {'': ['openpyxl/tests/*.xml', 'openpyxl/tests/*.xslx']},
+    packages = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     # metadata
     version = openpyxl.__version__,
     description = "A Python library to read/write Excel 2007 xlsx/xlsm files",
@@ -45,5 +40,6 @@ setup(name = 'openpyxl',
           'Operating System :: Microsoft :: Windows',
           'Operating System :: POSIX',
           'License :: OSI Approved :: MIT License',
-          'Programming Language :: Python'],
+          'Programming Language :: Python',
+          'Programming Language :: Python :: 3'],
     )

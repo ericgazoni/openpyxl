@@ -26,7 +26,20 @@
 """Write worksheets to xml representations."""
 
 # Python stdlib imports
-from StringIO import StringIO  # cStringIO doesn't handle unicode
+try:
+    # Python 2
+    from StringIO import StringIO  # cStringIO doesn't handle unicode
+    BytesIO = StringIO
+except ImportError:
+    # Python 3
+    from io import BytesIO, StringIO
+
+try:
+    # Python 2
+    isinstance(1, long)
+except NameError:
+    # Python 3, all ints are long
+    long = int
 
 # package imports
 import decimal
@@ -43,7 +56,7 @@ def row_sort(cell):
 def write_worksheet(worksheet, string_table, style_table):
     """Write a worksheet to an xml file."""
     xml_file = StringIO()
-    doc = XMLGenerator(xml_file, 'utf-8')
+    doc = XMLGenerator(out=xml_file, encoding='utf-8')
     start_tag(doc, 'worksheet',
             {'xml:space': 'preserve',
             'xmlns': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
@@ -172,6 +185,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
         row_dimension = worksheet.row_dimensions[row_idx]
         attrs = {'r': '%d' % row_idx,
                  'spans': '1:%d' % max_column}
+        if not row_dimension.visible:
+            attrs['hidden'] = '1'
         if row_dimension.height > 0:
             attrs['ht'] = str(row_dimension.height)
             attrs['customHeight'] = '1'
@@ -216,11 +231,11 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
 def write_worksheet_mergecells(doc, worksheet):
     """Write merged cells to xml."""
     if len(worksheet._merged_cells) > 0:
-        start_tag(doc,'mergeCells', {'count': str(len(worksheet._merged_cells))})
+        start_tag(doc, 'mergeCells', {'count': str(len(worksheet._merged_cells))})
         for range_string in worksheet._merged_cells:
             attrs = {'ref': range_string}
-            tag(doc,'mergeCell',attrs)
-        end_tag(doc,'mergeCells')
+            tag(doc, 'mergeCell', attrs)
+        end_tag(doc, 'mergeCells')
 
 
 def write_worksheet_hyperlinks(doc, worksheet):
