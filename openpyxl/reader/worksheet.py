@@ -43,7 +43,7 @@ from itertools import ifilter
 
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
-from openpyxl.worksheet import Worksheet, ColumnDimension
+from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
 
 def _get_xml_iter(xml_source):
 
@@ -163,6 +163,16 @@ def fast_parse(ws, xml_source, string_table, style_table):
                     ws.column_dimensions[column].collapsed = True
                 if col.get('style') is not None:
                     ws.column_dimensions[column].style_index = col.get('style')
+
+    sheetData = root.find(QName(xmlns, 'sheetData').text)
+    if sheetData is not None:
+        rowNodes = sheetData.findall(QName(xmlns, 'row').text)
+        for row in rowNodes:
+            rowId = int(row.get('r'))
+            if rowId not in ws.row_dimensions:
+                ws.row_dimensions[rowId] = RowDimension(rowId)
+            if row.get('ht') is not None:
+                ws.row_dimensions[rowId].height = float(row.get('ht'))
 
     printOptions = root.find(QName(xmlns, 'printOptions').text)
     if printOptions is not None:
