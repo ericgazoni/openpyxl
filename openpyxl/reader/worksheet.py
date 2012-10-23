@@ -146,6 +146,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
         colNodes = cols.findall(QName(xmlns, 'col').text)
         for col in colNodes:
             min = int(col.get('min')) if col.get('min') else 1
+            max = int(col.get('max')) if col.get('max') else 1
             for colId in range(min, max + 1):
                 column = get_column_letter(colId)
                 if column not in ws.column_dimensions:
