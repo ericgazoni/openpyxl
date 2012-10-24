@@ -39,7 +39,6 @@ except ImportError:
 
 from openpyxl.cell import get_column_letter
 from openpyxl.shared.xmltools import fromstring, QName
-from itertools import ifilter
 
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
