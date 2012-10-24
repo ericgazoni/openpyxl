@@ -40,6 +40,7 @@ from openpyxl.style import Style, DEFAULTS as DEFAULTS_STYLE
 from openpyxl.drawing import Drawing
 from openpyxl.namedrange import NamedRangeContainingValue
 from openpyxl.shared.compat import OrderedDict, unicode, xrange, basestring
+from openpyxl.shared.compat.itertools import iteritems
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
@@ -474,7 +475,7 @@ class Worksheet(object):
     def garbage_collect(self):
         """Delete cells that are not storing a value."""
         delete_list = [coordinate for coordinate, cell in \
-            self._cells.iteritems() if (not cell.merged and cell.value in ('', None) and \
+            iteritems(self._cells) if (not cell.merged and cell.value in ('', None) and \
             (coordinate not in self._styles or
             hash(cell.style) == _DEFAULTS_STYLE_HASH))]
         for coordinate in delete_list:
@@ -814,7 +815,7 @@ class Worksheet(object):
 
         elif isinstance(list_or_dict, dict):
 
-            for col_idx, content in list_or_dict.iteritems():
+            for col_idx, content in iteritems(list_or_dict):
 
                 if isinstance(col_idx, basestring):
                     col_idx = column_index_from_string(col_idx) - 1

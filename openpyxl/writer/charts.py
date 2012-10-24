@@ -23,6 +23,7 @@
 # @author: see AUTHORS file
 
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
+from openpyxl.shared.compat.itertools import iteritems
 from openpyxl.chart import Chart, ErrorBar
 
 try:
@@ -263,7 +264,7 @@ class ChartWriter(object):
         SubElement(settings, 'c:headerFooter')
         try:
             # Python 2
-            print_margins_items = self.chart.print_margins.iteritems()
+            print_margins_items = iteritems(self.chart.print_margins)
         except AttributeError:
             # Python 3
             print_margins_items = self.chart.print_margins.items()

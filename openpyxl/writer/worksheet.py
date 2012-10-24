@@ -46,6 +46,7 @@ import decimal
 from openpyxl.cell import coordinate_from_string, column_index_from_string
 from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, \
         get_document_content, start_tag, end_tag, tag
+from openpyxl.shared.compat.itertools import iteritems, iterkeys
 
 
 def row_sort(cell):
@@ -145,7 +146,7 @@ def write_worksheet_cols(doc, worksheet):
     if worksheet.column_dimensions:
         start_tag(doc, 'cols')
         for column_string, columndimension in \
-                worksheet.column_dimensions.iteritems():
+                iteritems(worksheet.column_dimensions):
             col_index = column_index_from_string(column_string)
             col_def = {}
             col_def['collapsed'] = str(columndimension.style_index)
@@ -176,7 +177,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
     max_column = worksheet.get_highest_column()
     style_id_by_hash = style_table
     cells_by_row = {}
-    for styleCoord in worksheet._styles.iterkeys():
+    for styleCoord in iterkeys(worksheet._styles):
         # Ensure a blank cell exists if it has a style
         worksheet.cell(styleCoord)
     for cell in worksheet.get_cell_collection():
