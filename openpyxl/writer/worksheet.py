@@ -148,7 +148,7 @@ def write_worksheet_cols(doc, worksheet):
                 worksheet.column_dimensions.iteritems():
             col_index = column_index_from_string(column_string)
             col_def = {}
-            col_def['collapsed'] = str(columndimension.style_index)
+            col_def['style'] = str(columndimension.style_index)
             col_def['min'] = str(col_index)
             col_def['max'] = str(col_index)
             if columndimension.width != \
