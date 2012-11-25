@@ -162,6 +162,7 @@ class Serie(object):
         except:
             raise TypeError("Series values must be References")
         self._values = reference.values
+        self.reference = reference
 
     def mymax(self, values):
         return max([x for x in values])
@@ -254,7 +255,7 @@ class Chart(object):
     def get_x_units(self):
         """ calculate one unit for x axis in EMU """
 
-        return self.mymax([len(s.values._get_cache()) for s in self._series])
+        return self.mymax([len(s.values) for s in self._series])
 
     def get_y_units(self):
         """ calculate one unit for y axis in EMU """
@@ -265,13 +266,13 @@ class Chart(object):
     def get_y_chars(self):
         """ estimate nb of chars for y axis """
 
-        _max = max([self.mymax(s.values._get_cache()) for s in self._series])
+        _max = max([self.mymax(s.values) for s in self._series])
         return len(str(int(_max)))
 
     def _compute_min_max(self):
         """ compute y axis limits and units """
 
-        maxi = max([self.mymax(s.values._get_cache()) for s in self._series if s.values._get_cache()])
+        maxi = max([self.mymax(s.values) for s in self._series if s.values])
 
         mul = None
         if maxi < 1:
