@@ -142,6 +142,9 @@ class Serie(object):
 
     color = property(_get_color, _set_color)
 
+    def mymax(self, values):
+        return max([x for x in values if x])
+
     def get_min_max(self):
 
         if self.error_bar:
@@ -197,7 +200,7 @@ class Chart(object):
         self.x_axis = Axis.default_category()
         self.y_axis = Axis.default_value()
         self.legend = Legend()
-        self.show_legend = True        
+        self.show_legend = True
         self.lang = 'fr-FR'
         self.title = ''
         self.print_margins = dict(b=.75, l=.7, r=.7, t=.75, header=0.3, footer=.3)
