@@ -179,6 +179,24 @@ class TestChart(object):
         eq_(c.x_axis.max, 2.0)
         eq_(c.x_axis.unit, 1.0)
 
+    def test_get_margin_top(self):
+        c = Chart(None, None)
+        eq_(c._get_margin_top(), 0.21250000000000005)
+
+    def test_get_margin_left(self):
+        c = Chart(None, None)
+        c._series.append(self.range)
+        eq_(c._get_margin_left(), 1.2857142857142858)
+
+    def test_get_max_margin_top(self):
+        c = Chart(None, None)
+        eq_(c._get_max_margin_top(), 0.21250000000000005)
+
+    def test_get_min_margin_left(self):
+        c = Chart(None, None)
+        c._series.append(self.range)
+        eq_(c._get_min_margin_left(), 1.2857142857142858)
+
 
 class TestChartWriter(object):
 
