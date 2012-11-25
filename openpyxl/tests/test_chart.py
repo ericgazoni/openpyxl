@@ -136,6 +136,13 @@ class TestChart(object):
         eq_(c.margin_left, 0)
         eq_(c._shapes, [])
 
+    def test_mymax(self):
+        c = Chart(None, None)
+        eq_(c.mymax(range(10)), 9)
+        from string import letters
+        eq_(c.mymax(list(letters)), "z")
+        eq_(c.mymax(range(-10, 1)), 0)
+
 
 class TestChartWriter(object):
 
