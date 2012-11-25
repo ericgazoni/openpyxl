@@ -142,15 +142,17 @@ class Serie(object):
         self.labels = labels
         self.legend = legend
         self.error_bar = None
-        self._color = color
+        self.color = color
 
-    def _get_color(self):
+    @property
+    def color(self):
         return self._color
 
-    def _set_color(self, color):
-        self._color = short_color(color)
-
-    color = property(_get_color, _set_color)
+    @color.setter
+    def color(self, color):
+        if color is not None:
+            color = short_color(color)
+        self._color = color
 
     @property
     def values(self):
