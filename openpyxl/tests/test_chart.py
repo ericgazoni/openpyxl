@@ -73,6 +73,19 @@ class TestReference(object):
         eq_(self.range._get_ref(), "'reference'!$A$1:$A$10")
 
 
+class TestErrorBar(object):
+
+    def setUp(self):
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        for i in range(10):
+            ws.cell(row=i, column=0).value = i
+        self.range = Reference(ws, (0, 0), (9, 0))
+
+    def test_ctor(self):
+        from openpyxl.chart import ErrorBar
+        assert_raises(TypeError, ErrorBar, None, range(10))
+
 
 class TestSerie(object):
 
@@ -107,6 +120,12 @@ class TestSerie(object):
     def test_len(self):
         series = Serie(self.cell)
         eq_(len(series), 1)
+
+    def test_error_bar(self):
+        series = Serie(self.cell)
+        from openpyxl.chart import ErrorBar
+        series.error_bar = ErrorBar(None, self.cell)
+        eq_(series.get_min_max(), (0, 0))
 
 
 class TestChart(object):

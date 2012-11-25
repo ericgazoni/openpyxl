@@ -163,7 +163,7 @@ class Serie(object):
         """Assign values from reference to serie"""
         if reference is not None:
             if not isinstance(reference, Reference):
-                TypeError("Series values must be a Reference instance")
+                raise TypeError("Series values must be a Reference instance")
             self._values = reference.values
         else:
             self._values = None
@@ -178,7 +178,7 @@ class Serie(object):
     def xvalues(self, reference):
         if reference is not None:
             if not isinstance(reference, Reference):
-                TypeError("Series xvalues must be a Reference instance")
+                raise TypeError("Series xvalues must be a Reference instance")
             self._xvalues = reference.values
         else:
             self._xvalues = None
@@ -190,7 +190,7 @@ class Serie(object):
     def get_min_max(self):
 
         if self.error_bar:
-            err_cache = self.error_bar.values._get_cache()
+            err_cache = self.error_bar.values
             vals = [v + err_cache[i] \
                 for i, v in enumerate(self.values)]
         else:
@@ -218,6 +218,22 @@ class ErrorBar(object):
 
         self.type = _type
         self.values = values
+
+    @property
+    def values(self):
+        """Return values from underlying reference"""
+        return self._values
+
+    @values.setter
+    def values(self, reference):
+        """Assign values from reference to serie"""
+        if reference is not None:
+            if not isinstance(reference, Reference):
+                raise TypeError("Errorbar values must be a Reference instance")
+            self._values = reference.values
+        else:
+            self._values = None
+        self.reference = reference
 
 class Chart(object):
     """ raw chart class """
