@@ -153,6 +153,11 @@ class TestChart(object):
         c._series.append(self.range)
         eq_(c.get_x_units(), 10)
 
+    def test_get_y_unit(self):
+        c = Chart(None, None)
+        c._series.append(self.range)
+        c.y_axis.max = 10
+        eq_(c.get_y_units(), 109728.0)
 
 
 class TestChartWriter(object):
