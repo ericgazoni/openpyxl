@@ -171,6 +171,14 @@ class TestChart(object):
         eq_(c.y_axis.max, 2.0)
         eq_(c.y_axis.unit, 1.0)
 
+    def test_computer_xmin_xmax(self):
+        c = Chart(None, None)
+        s = Serie(self.range, xvalues=self.range)
+        c._series.append(s)
+        c._compute_xmin_xmax()
+        eq_(c.x_axis.max, 2.0)
+        eq_(c.x_axis.unit, 1.0)
+
 
 class TestChartWriter(object):
 
