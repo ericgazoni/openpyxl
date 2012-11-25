@@ -98,6 +98,7 @@ class TestSerie(object):
         eq_(series.color, None)
         series.color = "blue"
         eq_(series.color, "blue")
+        assert_raises(ValueError, setattr, series, 'color', None)
 
     def test_min_max(self):
         series = Serie(self.cell)

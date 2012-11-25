@@ -142,17 +142,16 @@ class Serie(object):
         self.labels = labels
         self.legend = legend
         self.error_bar = None
-        self.color = color
 
     @property
     def color(self):
-        return self._color
+        return getattr(self, "_color", None)
 
     @color.setter
     def color(self, color):
-        if color is not None:
-            color = short_color(color)
-        self._color = color
+        if color is None:
+            raise ValueError("Colors must be strings of the format XXXXX")
+        self._color = short_color(color)
 
     @property
     def values(self):
