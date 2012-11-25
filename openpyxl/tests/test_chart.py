@@ -159,6 +159,18 @@ class TestChart(object):
         c.y_axis.max = 10
         eq_(c.get_y_units(), 109728.0)
 
+    def test_get_y_char(self):
+        c = Chart(None, None)
+        c._series.append(self.range)
+        eq_(c.get_y_chars(), 1)
+
+    def test_compute_min_max(self):
+        c = Chart(None, None)
+        c._series.append(self.range)
+        c._compute_min_max()
+        eq_(c.y_axis.max, 2.0)
+        eq_(c.y_axis.unit, 1.0)
+
 
 class TestChartWriter(object):
 
