@@ -23,13 +23,13 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-from nose.tools import eq_, assert_raises
+from nose.tools import eq_, assert_raises, assert_true
 
 from openpyxl.tests.helper import get_xml
 from openpyxl.shared.xmltools import Element
 from openpyxl.writer.charts import ChartWriter
 from openpyxl.workbook import Workbook
-from openpyxl.chart import BarChart, ScatterChart, Serie, Reference
+from openpyxl.chart import Chart, BarChart, ScatterChart, Serie, Reference
 from openpyxl.style import Color
 from re import sub
 
@@ -111,8 +111,30 @@ class TestSerie(object):
 class TestChart(object):
 
     def setUp(self):
-        from openpyxl.chart import Chart
-        self.chart = Chart()
+        pass
+
+
+    def test_ctor(self):
+        from openpyxl.chart import Axis, Legend
+        from openpyxl.drawing import Drawing
+        c = Chart(None, None)
+        eq_(c.type, None)
+        eq_(c.grouping, None)
+        assert_true(isinstance(c.x_axis, Axis))
+        assert_true(isinstance(c.y_axis, Axis))
+        assert_true(isinstance(c.legend, Legend))
+        eq_(c.show_legend, True)
+        eq_(c.lang, 'fr-FR')
+        eq_(c.title, '')
+        eq_(c.print_margins,
+            {'b':.75, 'l':.7, 'r':.7, 't':.75, 'header':0.3, 'footer':.3}
+            )
+        assert_true(isinstance(c.drawing, Drawing))
+        eq_(c.width, .6)
+        eq_(c.height, .6)
+        eq_(c.margin_top,  c._get_max_margin_top())
+        eq_(c.margin_left, 0)
+        eq_(c._shapes, [])
 
 
 class TestChartWriter(object):
