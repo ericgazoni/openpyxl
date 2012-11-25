@@ -56,8 +56,6 @@ class TestReference(object):
         eq_(self.range.pos2, (9, 0))
 
     def test_get_type(self):
-        assert_raises(AttributeError, self.cell.get_type)
-        self.cell.cache = self.cell._get_cache()
         eq_(self.cell.get_type(), 'num')
 
     def test_caching_cell(self):
