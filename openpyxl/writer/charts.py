@@ -192,7 +192,7 @@ class ChartWriter(object):
             if self.chart.type == Chart.SCATTER_CHART:
                 if serie.xvalues:
                     xval = SubElement(ser, 'c:xVal')
-                    self._write_serial(xval, serie.xvalues)
+                    self._write_serial(xval, serie.xreference)
 
                 yval = SubElement(ser, 'c:yVal')
                 self._write_serial(yval, serie.reference)

@@ -160,12 +160,28 @@ class Serie(object):
     @values.setter
     def values(self, reference):
         """Assign values from reference to serie"""
-        try:
-            isinstance(reference, Reference)
-        except:
-            raise TypeError("Series values must be References")
-        self._values = reference.values
+        if reference is not None:
+            if not isinstance(reference, Reference):
+                TypeError("Series values must be a Reference instance")
+            self._values = reference.values
+        else:
+            self._values = None
         self.reference = reference
+
+    @property
+    def xvalues(self):
+        """Return xvalues"""
+        return self._xvalues
+
+    @xvalues.setter
+    def xvalues(self, reference):
+        if reference is not None:
+            if not isinstance(reference, Reference):
+                TypeError("Series xvalues must be a Reference instance")
+            self._xvalues = reference.values
+        else:
+            self._xvalues = None
+        self.xreference = reference
 
     def mymax(self, values):
         return max([x for x in values])
@@ -307,7 +323,7 @@ class Chart(object):
     def _compute_xmin_xmax(self):
         """ compute x axis limits and units """
 
-        maxi = max([self.mymax(s.xvalues._get_cache()) for s in self._series])
+        maxi = max([self.mymax(s.xvalues) for s in self._series])
 
         mul = None
         if maxi < 1:
