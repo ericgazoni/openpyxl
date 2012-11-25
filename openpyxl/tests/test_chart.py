@@ -73,6 +73,47 @@ class TestReference(object):
         eq_(self.range._get_ref(), "'reference'!$A$1:$A$10")
 
 
+class TestSerie(object):
+
+    def setUp(self):
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        for i in range(10):
+            ws.cell(row=i, column=0).value = i
+        self.cell = Reference(ws, (0, 0))
+        self.range = Reference(ws, (0, 0), (9, 0))
+
+    def test_ctor(self):
+        series = Serie(self.cell)
+        eq_(series.values, self.cell)
+        eq_(series.color, None)
+        eq_(series.error_bar, None)
+        eq_(series.xvalues, None)
+        eq_(series.labels, None)
+        eq_(series.legend, None)
+
+    def test_color(self):
+        series = Serie(self.cell)
+        eq_(series.color, None)
+        series.color = "blue"
+        eq_(series.color, "blue")
+
+    def test_min_max(self):
+        series = Serie(self.cell)
+        eq_(series.get_min_max(), 1)
+
+    def test_len(self):
+        series = Serie(self.cell)
+        eq_(len(series), 1)
+
+
+class TestChart(object):
+
+    def setUp(self):
+        from openpyxl.chart import Chart
+        self.chart = Chart()
+
+
 class TestChartWriter(object):
 
     def setUp(self):
