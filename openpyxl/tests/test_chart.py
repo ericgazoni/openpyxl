@@ -65,10 +65,13 @@ class TestReference(object):
         eq_(self.range._get_cache(), [0, 1, 2, 3, 4, 5, 6, 7, 8 , 9])
 
     def test_ref_cell(self):
+        eq_(str(self.cell), "'reference'!$A$1")
         eq_(self.cell._get_ref(), "'reference'!$A$1")
 
     def test_ref_range(self):
+        eq_(str(self.range), "'reference'!$A$1:$A$10")
         eq_(self.range._get_ref(), "'reference'!$A$1:$A$10")
+
 
 
 class TestSerie(object):

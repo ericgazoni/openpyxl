@@ -109,6 +109,10 @@ class Reference(object):
         return self._values
 
     def _get_ref(self):
+        """ legace method """
+        return str(self)
+
+    def __str__(self):
         """ format excel reference notation """
 
         if self.pos2:
@@ -118,7 +122,6 @@ class Reference(object):
         else:
             return "'%s'!$%s$%s" % (self.sheet.title,
                 get_column_letter(self.pos1[1] + 1), self.pos1[0] + 1)
-
 
     def _get_cache(self):
         """ legacy method """

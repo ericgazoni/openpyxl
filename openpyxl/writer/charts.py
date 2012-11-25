@@ -200,9 +200,9 @@ class ChartWriter(object):
                 val = SubElement(ser, 'c:val')
                 self._write_serial(val, serie.reference)
 
-    def _write_serial(self, node, serie, literal=False):
+    def _write_serial(self, node, reference, literal=False):
 
-        cache = serie.values
+        cache = reference.values
         if isinstance(cache[0], basestring):
             typ = 'str'
         else:
@@ -213,7 +213,7 @@ class ChartWriter(object):
                 ref = SubElement(node, 'c:numRef')
             else:
                 ref = SubElement(node, 'c:strRef')
-            SubElement(ref, 'c:f').text = serie._get_ref()
+            SubElement(ref, 'c:f').text = str(reference)
             if typ == 'num':
                 data = SubElement(ref, 'c:numCache')
             else:
