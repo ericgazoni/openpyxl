@@ -88,10 +88,25 @@ class Reference(object):
 
     def get_type(self):
 
-        if isinstance(self.cache[0], basestring):
+        if isinstance(self.values[0], basestring):
             return 'str'
         else:
             return 'num'
+
+    @property
+    def values(self):
+        """ read data in sheet - to be used at writing time """
+        if hasattr(self, "values"):
+            return self._values
+        if self.pos2 is None:
+            cell = self.sheet.cell(row=self.pos1[0], column=self.pos1[1])
+            self._values = [cell.value]
+        else:
+            self._values = []
+            for row in range(int(self.pos1[0]), int(self.pos2[0] + 1)):
+                for col in range(int(self.pos1[1]), int(self.pos2[1] + 1)):
+                    self._values.append(self.sheet.cell(row=row, column=col).value)
+        return self._values
 
     def _get_ref(self):
         """ format excel reference notation """
@@ -106,17 +121,9 @@ class Reference(object):
 
 
     def _get_cache(self):
-        """ read data in sheet - to be used at writing time """
+        """ legacy method """
+        return self.values
 
-        cache = []
-        if self.pos2:
-            for row in range(int(self.pos1[0]), int(self.pos2[0] + 1)):
-                for col in range(int(self.pos1[1]), int(self.pos2[1] + 1)):
-                    cache.append(self.sheet.cell(row=row, column=col).value)
-        else:
-            cell = self.sheet.cell(row=self.pos1[0], column=self.pos1[1])
-            cache.append(cell.value)
-        return cache
 
 
 class Serie(object):
@@ -142,22 +149,36 @@ class Serie(object):
 
     color = property(_get_color, _set_color)
 
+    @property
+    def values(self):
+        """Return values from underlying reference"""
+        return self._values
+
+    @values.setter
+    def values(self, reference):
+        """Assign values from reference to serie"""
+        try:
+            isinstance(reference, Reference)
+        except:
+            raise TypeError("Series values must be References")
+        self._values = reference.values
+
     def mymax(self, values):
-        return max([x for x in values if x])
+        return max([x for x in values])
 
     def get_min_max(self):
 
         if self.error_bar:
             err_cache = self.error_bar.values._get_cache()
             vals = [v + err_cache[i] \
-                for i, v in enumerate(self.values._get_cache())]
+                for i, v in enumerate(self.values)]
         else:
-            vals = self.values._get_cache()
+            vals = self.values
         return min(vals), self.mymax(vals)
 
     def __len__(self):
 
-        return len(self.values.cache)
+        return len(self.values)
 
 class Legend(object):
 

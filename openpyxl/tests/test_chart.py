@@ -83,7 +83,7 @@ class TestSerie(object):
 
     def test_ctor(self):
         series = Serie(self.cell)
-        eq_(series.values, self.cell)
+        eq_(series.values, [0])
         eq_(series.color, None)
         eq_(series.error_bar, None)
         eq_(series.xvalues, None)
@@ -98,7 +98,7 @@ class TestSerie(object):
 
     def test_min_max(self):
         series = Serie(self.cell)
-        eq_(series.get_min_max(), 1)
+        eq_(series.get_min_max(), (0, 0))
 
     def test_len(self):
         series = Serie(self.cell)
