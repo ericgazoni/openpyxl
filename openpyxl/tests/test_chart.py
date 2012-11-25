@@ -111,7 +111,11 @@ class TestSerie(object):
 class TestChart(object):
 
     def setUp(self):
-        pass
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        for i in range(10):
+            ws.cell(row=i, column=0).value = 1
+        self.range = Reference(ws, (0, 0), (0, 9))
 
 
     def test_ctor(self):
@@ -141,7 +145,14 @@ class TestChart(object):
         eq_(c.mymax(range(10)), 9)
         from string import letters
         eq_(c.mymax(list(letters)), "z")
-        eq_(c.mymax(range(-10, 1)), 0)
+        #eq_(c.mymax(range(-10, 1)), 0)
+        #eq_(c.mymax([""]*10), None)
+
+    def test_get_x_unit(self):
+        c = Chart(None, None)
+        c._series.append(self.range)
+        eq_(c.get_x_units(), 10)
+
 
 
 class TestChartWriter(object):
