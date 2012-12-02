@@ -64,3 +64,26 @@ Using number formats
     print ws.cell('B1').value # returns 0.031400000000000004
     
     print ws.cell('B1').style.number_format.format_code # returns '0%'
+
+
+Inserting an image
+-------------------
+::
+
+    from openpyxl import Workbook
+    from openpyxl.drawing import Image
+
+    wb = Workbook()
+    ws = book.get_active_sheet()
+    ws.cell('A1').value = 'You should see a logo below'
+
+    # create an image instance
+    img = Image('logo.png')
+
+    # place it if required
+    img.drawing.left = 200
+    img.drawing.top = 100
+
+    # add to worksheet
+    ws.add_image(img)
+    wb.save('logo.xlsx')

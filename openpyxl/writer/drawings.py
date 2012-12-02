@@ -86,16 +86,62 @@ class DrawingWriter(object):
 
             SubElement(anchor, 'xdr:clientData')
 
+        for i, img in enumerate(self._sheet._images):
+            drawing = img.drawing
+
+            x, y, w, h = drawing.get_emu_dimensions()
+            anchor = SubElement(root, 'xdr:absoluteAnchor')
+            SubElement(anchor, 'xdr:pos', {'x':str(x), 'y':str(y)})
+            SubElement(anchor, 'xdr:ext', {'cx':str(w), 'cy':str(h)})
+
+            pic = SubElement(anchor, 'xdr:pic')
+            name = SubElement(pic, 'xdr:nvPicPr')
+            SubElement(name, 'xdr:cNvPr', {'id':'%s' % i, 'name':'Picture %s' % i})
+            SubElement(SubElement(name, 'xdr:cNvPicPr'), 'a:picLocks', {'noChangeAspect':"1" if img.nochangeaspect else '0','noChangeArrowheads':"1" if img.nochangearrowheads else '0'})
+            blipfill = SubElement(pic, 'xdr:blipFill')
+            SubElement(blipfill, 'a:blip', {
+                'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+                'r:embed': 'rId%s' % (i + 1),
+                'cstate':'print'
+            })
+            SubElement(blipfill, 'a:srcRect')
+            SubElement(SubElement(blipfill, 'a:stretch'), 'a:fillRect')
+
+            sppr = SubElement(pic, 'xdr:spPr', {'bwMode':'auto'})
+            frm = SubElement(sppr, 'a:xfrm')
+            # no transformation
+            SubElement(frm, 'a:off', {'x':'0', 'y':'0'})
+            SubElement(frm, 'a:ext', {'cx':'0', 'cy':'0'})
+
+            SubElement(SubElement(sppr, 'a:prstGeom', {'prst':'rect'}), 'a:avLst')
+
+            SubElement(sppr, 'a:noFill')
+
+            ln = SubElement(sppr, 'a:ln', {'w':'1'})
+            SubElement(ln, 'a:noFill')
+            SubElement(ln, 'a:miter', {'lim':'800000'})
+            SubElement(ln, 'a:headEnd')
+            SubElement(ln, 'a:tailEnd', {'type':'none', 'w':'med', 'len':'med'})
+            SubElement(sppr, 'a:effectLst')
+
+            SubElement(anchor, 'xdr:clientData')
+
         return get_document_content(root)
 
-    def write_rels(self, chart_id):
+    def write_rels(self, chart_id, image_id):
 
         root = Element('Relationships',
             {'xmlns' : 'http://schemas.openxmlformats.org/package/2006/relationships'})
+        i = 0
         for i, chart in enumerate(self._sheet._charts):
             attrs = {'Id' : 'rId%s' % (i + 1),
                 'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart',
                 'Target' : '../charts/chart%s.xml' % (chart_id + i) }
+            SubElement(root, 'Relationship', attrs)
+        for j, img in enumerate(self._sheet._images):
+            attrs = {'Id' : 'rId%s' % (i + j + 1),
+                'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+                'Target' : '../media/image%s.png' % (image_id + j) }
             SubElement(root, 'Relationship', attrs)
         return get_document_content(root)
 

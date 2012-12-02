@@ -68,6 +68,7 @@ class Relationship(object):
     TYPES = {
         'hyperlink': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
         'drawing':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
+        'image':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing'
         #'worksheet': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
         #'sharedStrings': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
         #'styles': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
@@ -440,6 +441,7 @@ class Worksheet(object):
         self._cells = {}
         self._styles = {}
         self._charts = []
+        self._images = []
         self._merged_cells = []
         self.relationships = []
         self.selected_cell = 'A1'
@@ -724,6 +726,12 @@ class Worksheet(object):
 
         chart._sheet = self
         self._charts.append(chart)
+
+    def add_image(self, img):
+        """ Add an image to the sheet """
+
+        img._sheet = self
+        self._images.append(img)
 
     def merge_cells(self, range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
         """ Set merge on a cell range.  Range is a cell range (e.g. A1:E1) """
