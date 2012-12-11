@@ -101,6 +101,14 @@ def write_worksheet(worksheet, string_table, style_table):
 
     if worksheet._charts:
         tag(doc, 'drawing', {'r:id':'rId1'})
+
+    breaks = worksheet.page_breaks
+    if breaks:
+        start_tag(doc, 'rowBreaks', {'count': str(len(breaks)), 'manualBreakCount': str(len(breaks))})
+        for b in breaks:
+            tag(doc, 'brk', {'id': str(b), 'man': 'true', 'max': '16383', 'min': '0'})
+        end_tag(doc, 'rowBreaks')
+
     end_tag(doc, 'worksheet')
     doc.endDocument()
     xml_string = xml_file.getvalue()
@@ -198,7 +206,11 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             value = cell._value
             coordinate = cell.get_coordinate()
             attributes = {'r': coordinate}
-            attributes['t'] = cell.data_type
+            if cell.data_type == cell.TYPE_FORMULA:
+                attributes['t'] = 's'
+            else:
+                attributes['t'] = cell.data_type
+
             if coordinate in worksheet._styles:
                 attributes['s'] = '%d' % style_id_by_hash[
                         hash(worksheet._styles[coordinate])]
