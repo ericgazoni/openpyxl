@@ -243,6 +243,9 @@ class StyleWriter(object):
 
                     if hash(st.alignment.wrap_text) != hash(style.DEFAULTS.alignment.wrap_text):
                         alignments['wrapText'] = '1'
+
+                    if st.alignment.indent > 0:
+                        alignments['indent'] = '%s' % st.alignment.indent
                     
                     if st.alignment.text_rotation > 0:
                         alignments['textRotation'] = '%s' % st.alignment.text_rotation

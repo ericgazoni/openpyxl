@@ -163,6 +163,14 @@ class TestStyleWriter(object):
         ok_('textRotation="135"' in xml)
         ok_('textRotation="124"' in xml)
 
+    def test_alignment_indent(self):
+        self.worksheet.cell('A1').style.alignment.indent = 4
+        w = StyleWriter(self.workbook)
+        nft = w._write_number_formats()
+        w._write_cell_xfs(nft, {}, {}, {})
+        xml = get_xml(w._root)
+        ok_('indent="4"' in xml)
+
 
 #def test_format_comparisions():
 #    format1 = NumberFormat()
