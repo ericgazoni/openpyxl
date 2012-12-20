@@ -77,6 +77,7 @@ def write_worksheet(worksheet, string_table, style_table):
     if worksheet.auto_filter:
         tag(doc, 'autoFilter', {'ref': worksheet.auto_filter})
     write_worksheet_mergecells(doc, worksheet)
+    write_worksheet_datavalidations(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
 
     options = worksheet.page_setup.options
@@ -236,6 +237,21 @@ def write_worksheet_mergecells(doc, worksheet):
             tag(doc, 'mergeCell', attrs)
         end_tag(doc, 'mergeCells')
 
+def write_worksheet_datavalidations(doc, worksheet):
+    """ Write data validation(s) to xml."""
+    count = len(worksheet._data_validations)
+    if count == 0:
+        return
+    
+    start_tag(doc, 'dataValidations', {'count': str(count)})
+    for data_validation in worksheet._data_validations:
+        start_tag(doc, 'dataValidation', data_validation.generate_attributes_map())
+        if data_validation.formula1:
+            tag(doc, 'forumla1', body=data_validation.formula1)
+        if data_validation.formula2:
+            tag(doc, 'forumla2', body=data_validation.formula2)
+        end_tag(doc, 'dataValidation')
+    end_tag(doc, 'dataValidations')
 
 def write_worksheet_hyperlinks(doc, worksheet):
     """Write worksheet hyperlinks to xml."""

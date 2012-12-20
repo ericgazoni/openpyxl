@@ -442,6 +442,7 @@ class Worksheet(object):
         self._charts = []
         self._merged_cells = []
         self.relationships = []
+        self._data_validations = []
         self.selected_cell = 'A1'
         self.active_cell = 'A1'
         self.sheet_state = self.SHEETSTATE_VISIBLE
@@ -719,6 +720,14 @@ class Worksheet(object):
         rel.id = 'rId' + str(rel_id + 1)
         return self.relationships[rel_id]
 
+    def add_data_validation(self, data_validation):
+        """ Add a data-validation object to the sheet.  The data-validation
+            object defines the type of data-validation to be applied and the
+            cell or range of cells it should apply to.
+        """
+        data_validation._sheet = self
+        self._data_validations.append(data_validation)
+                
     def add_chart(self, chart):
         """ Add a chart to the sheet """
 
