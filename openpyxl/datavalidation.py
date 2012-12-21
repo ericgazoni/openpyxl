@@ -51,8 +51,9 @@ def collapse_cell_addresses(cells):
     
     # For each column, find contiguous ranges of rows
     for column in grouped_coords:
+        rows = sorted(grouped_coords[column])
         grouped_rows = [[r[1] for r in list(g)] for k, g in\
-                        groupby(enumerate(grouped_coords[column]),\
+                        groupby(enumerate(rows),\
                         lambda x: x[0]-x[1])]
         
         for rows in grouped_rows:
@@ -143,13 +144,17 @@ def collapse_cell_addresses(cells):
     </xsd:restriction>
   </xsd:simpleType>
 """
-    
+default_attr_map = {
+    "allowBlank": "1",
+    "showInputMessage": "1",
+    "showErrorMessage": "1",
+}
 class DataValidation(object):
-    def __init__(self, type="list", formula1="", attribute_map={}):
+    def __init__(self, type="list", formula1="", attr_map=default_attr_map):
         self.type = type
         self.formula1 = formula1
         self.formula2 = None
-        self.attribute_map = {}
+        self.attr_map = attr_map
         self.cells = []
 
     def set_forumula1(new):
@@ -159,13 +164,14 @@ class DataValidation(object):
         self.formula2 = new
         
     def set_attribute_map(new):
-        self.attribute_map = new
+        self.attr_map = new
         
     def add_validation_on_cell(self, cell_coordinate):
         self.cells.append(cell_coordinate)
         
     def generate_attributes_map(self):
         # Update the sqref to ensure it points at all cells we're interested in
-        self.attribute_map['sqref'] = collapse_cell_addresses(self.cells)
-        return self.attribute_map
+        self.attr_map['type'] = self.type
+        self.attr_map['sqref'] = collapse_cell_addresses(self.cells)
+        return self.attr_map
         
