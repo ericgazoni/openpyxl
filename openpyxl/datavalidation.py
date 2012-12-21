@@ -148,7 +148,7 @@ class DataValidation(object):
     def __init__(self, type="list", formula1="", attribute_map={}):
         self.type = type
         self.formula1 = formula1
-        self.forumla2 = None
+        self.formula2 = None
         self.attribute_map = {}
         self.cells = []
 

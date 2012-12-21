@@ -247,9 +247,9 @@ def write_worksheet_datavalidations(doc, worksheet):
     for data_validation in worksheet._data_validations:
         start_tag(doc, 'dataValidation', data_validation.generate_attributes_map())
         if data_validation.formula1:
-            tag(doc, 'forumla1', body=data_validation.formula1)
+            tag(doc, 'formula1', body=data_validation.formula1)
         if data_validation.formula2:
-            tag(doc, 'forumla2', body=data_validation.formula2)
+            tag(doc, 'formula2', body=data_validation.formula2)
         end_tag(doc, 'dataValidation')
     end_tag(doc, 'dataValidations')
 
