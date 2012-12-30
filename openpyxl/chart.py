@@ -77,6 +77,21 @@ class Axis(object):
         ax.cross_between = 'between'
         return ax
 
+    @classmethod
+    def default_ser(cls):
+        """ default values for series axes """
+
+        ax = Axis()
+        ax.id = 60880064
+        ax.cross = 60873344
+        ax.position = Axis.POSITION_BOTTOM
+        ax.major_gridlines = None
+        ax.tick_label_position = 'nextTo'
+        ax.crosses = 'autoZero'
+        ax.auto = False
+        ax.cross_between = 'between'
+        return ax
+
 class Reference(object):
     """ a simple wrapper around a serie of reference data """
 
@@ -183,6 +198,7 @@ class Chart(object):
     BAR_CHART = 1
     LINE_CHART = 2
     SCATTER_CHART = 3
+    SURFACE_3D_CHART = 4
 
     def mymax(self, values):
         return max([x for x in values if x])
@@ -196,6 +212,8 @@ class Chart(object):
         self.grouping = grouping
         self.x_axis = Axis.default_category()
         self.y_axis = Axis.default_value()
+        if self.type == Chart.SURFACE_3D_CHART:
+            self.z_axis = Axis.default_ser()
         self.legend = Legend()
         self.show_legend = True        
         self.lang = 'fr-FR'
@@ -340,4 +358,6 @@ class ScatterChart(Chart):
     def __init__(self):
         super(ScatterChart, self).__init__(Chart.SCATTER_CHART, Chart.GROUPING_STANDARD)
 
-
+class Surface3DChart(Chart):
+    def __init__(self):
+        super(Surface3DChart, self).__init__(Chart.SURFACE_3D_CHART, Chart.GROUPING_STANDARD)

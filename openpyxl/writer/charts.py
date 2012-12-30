@@ -77,22 +77,30 @@ class ChartWriter(object):
             if chart.type == Chart.BAR_CHART:
                 subchart = SubElement(plot_area, 'c:barChart')
                 SubElement(subchart, 'c:barDir', {'val':'col'})
+            elif chart.type == Chart.SURFACE_3D_CHART:
+                subchart = SubElement(plot_area, 'c:surface3DChart')
             else:
                 subchart = SubElement(plot_area, 'c:lineChart')
 
-            SubElement(subchart, 'c:grouping', {'val':chart.grouping})
+            if chart.type <> Chart.SURFACE_3D_CHART:
+                SubElement(subchart, 'c:grouping', {'val':chart.grouping})
 
         self._write_series(subchart)
 
-        SubElement(subchart, 'c:marker', {'val':'1'})
+        if chart.type <> Chart.SURFACE_3D_CHART:
+            SubElement(subchart, 'c:marker', {'val':'1'})
         SubElement(subchart, 'c:axId', {'val':str(chart.x_axis.id)})
         SubElement(subchart, 'c:axId', {'val':str(chart.y_axis.id)})
+        if chart.type == Chart.SURFACE_3D_CHART:
+            SubElement(subchart, 'c:axId', {'val':str(chart.z_axis.id)})
 
         if chart.type == Chart.SCATTER_CHART:
             self._write_axis(plot_area, chart.x_axis, 'c:valAx')
         else:
             self._write_axis(plot_area, chart.x_axis, 'c:catAx')
         self._write_axis(plot_area, chart.y_axis, 'c:valAx')
+        if chart.type == Chart.SURFACE_3D_CHART:
+            self._write_axis(plot_area, chart.z_axis, 'c:serAx')
 
         self._write_legend(ch)
 
