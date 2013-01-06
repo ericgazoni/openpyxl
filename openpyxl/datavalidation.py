@@ -41,7 +41,6 @@ def collapse_cell_addresses(cells):
     
     # Get the raw coordinates for each cell given
     raw_coords = [coordinate_from_string(cell) for cell in cells]
-    print "raw_coords =", raw_coords
     
     # Group up as {column: [list of rows]}
     grouped_coords = {k: [c[1] for c in g] for k, g in\

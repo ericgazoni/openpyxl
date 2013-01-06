@@ -36,7 +36,8 @@ from openpyxl.datavalidation import collapse_cell_addresses
 COLLAPSE_TEST_DATA = [
     (["A1"], "A1"),
     (["A1", "B1"], "A1 B1"),
-    (["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4"], "A1:A4 B1:B4")
+    (["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4"], "A1:A4 B1:B4"),
+	(["A2", "A4", "A3", "A1", "A5"], "A1:A5"),
 ]
 
 def test_collapse_cell_addresses():
