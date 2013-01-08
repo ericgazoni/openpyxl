@@ -239,12 +239,15 @@ def write_worksheet_mergecells(doc, worksheet):
 
 def write_worksheet_datavalidations(doc, worksheet):
     """ Write data validation(s) to xml."""
-    count = len(worksheet._data_validations)
+    # Filter out "empty" data-validation objects (i.e. with 0 cells)
+    required_dvs = [x for x in worksheet._data_validations
+                    if len(x.cells)]
+    count = len(required_dvs)
     if count == 0:
         return
     
     start_tag(doc, 'dataValidations', {'count': str(count)})
-    for data_validation in worksheet._data_validations:
+    for data_validation in required_dvs:
         start_tag(doc, 'dataValidation', data_validation.generate_attributes_map())
         if data_validation.formula1:
             tag(doc, 'formula1', body=data_validation.formula1)
