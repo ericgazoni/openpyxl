@@ -198,7 +198,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             value = cell._value
             coordinate = cell.get_coordinate()
             attributes = {'r': coordinate}
-            attributes['t'] = cell.data_type
+            if cell.data_type != cell.TYPE_FORMULA:
+                attributes['t'] = cell.data_type
             if coordinate in worksheet._styles:
                 attributes['s'] = '%d' % style_id_by_hash[
                         hash(worksheet._styles[coordinate])]
