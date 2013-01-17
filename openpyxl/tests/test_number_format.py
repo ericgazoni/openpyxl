@@ -24,7 +24,7 @@
 # @author: see AUTHORS file
 
 # Python stdlib imports
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 # 3rd party imports
 from nose.tools import eq_, assert_almost_equal, assert_raises
@@ -36,7 +36,6 @@ from openpyxl.cell import Cell
 from openpyxl.style import NumberFormat
 from openpyxl.shared.date_time import SharedDate, CALENDAR_MAC_1904, CALENDAR_WINDOWS_1900
 
-from datetime import datetime
 import time
 
 # strptime fallback, thanks to coderfi
@@ -77,6 +76,9 @@ class TestNumberFormat(object):
     def test_convert_datetime_to_julian(self):
         eq_(40167, self.sd.datetime_to_julian(datetime(2009, 12, 20)))
         eq_(40196.5939815, self.sd.datetime_to_julian(datetime(2010, 1, 18, 14, 15, 20, 1600)))
+
+    def test_convert_timedelta_to_julian(self):
+        eq_(1.125, self.sd.datetime_to_julian(timedelta(days=1, hours=3)))
 
     def test_insert_float(self):
         self.worksheet.cell('A1').value = 3.14
