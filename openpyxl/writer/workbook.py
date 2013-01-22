@@ -49,6 +49,11 @@ def write_properties_core(properties):
     SubElement(root, 'dcterms:modified',
             {'xsi:type': 'dcterms:W3CDTF'}).text = \
             datetime_to_W3CDTF(properties.modified)
+    SubElement(root, 'dc:title').text = properties.title
+    SubElement(root, 'dc:description').text = properties.description
+    SubElement(root, 'dc:subject').text = properties.subject
+    SubElement(root, 'cp:keywords').text = properties.keywords
+    SubElement(root, 'cp:category').text = properties.category
     return get_document_content(root)
 
 
