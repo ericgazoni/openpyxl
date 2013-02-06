@@ -241,11 +241,11 @@ def write_worksheet_datavalidations(doc, worksheet):
     """ Write data validation(s) to xml."""
     # Filter out "empty" data-validation objects (i.e. with 0 cells)
     required_dvs = [x for x in worksheet._data_validations
-                    if len(x.cells)]
+                    if len(x.cells) or len(x.ranges)]
     count = len(required_dvs)
     if count == 0:
         return
-    
+
     start_tag(doc, 'dataValidations', {'count': str(count)})
     for data_validation in required_dvs:
         start_tag(doc, 'dataValidation', data_validation.generate_attributes_map())

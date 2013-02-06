@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_cell.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -29,16 +29,17 @@ from nose.tools import eq_, raises, assert_raises #pylint: disable=E0611
 # package imports
 from openpyxl.datavalidation import collapse_cell_addresses
 
-# There are already unit-tests in test_cell.py that test out the 
-# coordinate_from_string method.  This should be the only way the 
+# There are already unit-tests in test_cell.py that test out the
+# coordinate_from_string method.  This should be the only way the
 # collapse_cell_addresses method can throw, so we don't bother using invalid
 # cell coordinates in the test-data here.
 COLLAPSE_TEST_DATA = [
     (["A1"], "A1"),
     (["A1", "B1"], "A1 B1"),
     (["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4"], "A1:A4 B1:B4"),
-	(["A2", "A4", "A3", "A1", "A5"], "A1:A5"),
+    (["A2", "A4", "A3", "A1", "A5"], "A1:A5"),
 ]
+
 
 def test_collapse_cell_addresses():
     for data in COLLAPSE_TEST_DATA:

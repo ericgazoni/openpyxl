@@ -27,34 +27,34 @@ from itertools import groupby
 
 from openpyxl.cell import coordinate_from_string
 
-def collapse_cell_addresses(cells):
+def collapse_cell_addresses(cells, input_ranges=()):
     """ Collapse a collection of cell co-ordinates down into an optimal
         range or collection of ranges.
-        
+
         E.g. Cells A1, A2, A3, B1, B2 and B3 should have the data-validation
         object applied, attempt to collapse down to a single range, A1:B3.
-        
-        Currently only collapsing contiguous vertical ranges (i.e. above 
+
+        Currently only collapsing contiguous vertical ranges (i.e. above
         example results in A1:A3 B1:B3).  More work to come.
     """
     keyfunc = lambda x: x[0]
-    
+
     # Get the raw coordinates for each cell given
     raw_coords = [coordinate_from_string(cell) for cell in cells]
-    
+
     # Group up as {column: [list of rows]}
     grouped_coords = {k: [c[1] for c in g] for k, g in\
                      groupby(sorted(raw_coords, key=keyfunc), keyfunc)}
-                     
-    ranges = []
-    
+
+    ranges = list(input_ranges)
+
     # For each column, find contiguous ranges of rows
     for column in grouped_coords:
         rows = sorted(grouped_coords[column])
         grouped_rows = [[r[1] for r in list(g)] for k, g in\
                         groupby(enumerate(rows),\
                         lambda x: x[0]-x[1])]
-        
+
         for rows in grouped_rows:
             if len(rows) == 0:
                 pass
@@ -62,9 +62,9 @@ def collapse_cell_addresses(cells):
                 ranges.append("%s%d" % (column, rows[0]))
             else:
                 ranges.append("%s%d:%s%d" % (column, rows[0], column, rows[-1]))
-                
+
     return " ".join(ranges)
-    
+
 """
   <xsd:complexType name="CT_DataValidations">
     <xsd:sequence>
@@ -155,22 +155,23 @@ class DataValidation(object):
         self.formula2 = None
         self.attr_map = attr_map
         self.cells = []
+        self.ranges = []
 
     def set_forumula1(new):
         self.formula1 = new
-        
+
     def set_formula2(new):
         self.formula2 = new
-        
+
     def set_attribute_map(new):
         self.attr_map = new
-        
+
     def add_validation_on_cell(self, cell_coordinate):
         self.cells.append(cell_coordinate)
-        
+
     def generate_attributes_map(self):
         # Update the sqref to ensure it points at all cells we're interested in
         self.attr_map['type'] = self.type
-        self.attr_map['sqref'] = collapse_cell_addresses(self.cells)
+        self.attr_map['sqref'] = collapse_cell_addresses(self.cells, self.ranges)
         return self.attr_map
-        
+
