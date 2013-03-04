@@ -163,6 +163,21 @@ class TestStyleWriter(object):
         ok_('textRotation="135"' in xml)
         ok_('textRotation="124"' in xml)
 
+    def test_alignment_indent(self):
+        self.worksheet.cell('A1').style.alignment.indent = 1
+        self.worksheet.cell('A2').style.alignment.indent = 4
+        self.worksheet.cell('A3').style.alignment.indent = 0
+        self.worksheet.cell('A3').style.alignment.indent = -1
+        w = StyleWriter(self.workbook)
+        nft = w._write_number_formats()
+        w._write_cell_xfs(nft, {}, {}, {})
+        xml = get_xml(w._root)
+        ok_('indent="1"' in xml)
+        ok_('indent="4"' in xml)
+        #Indents not greater than zero are ignored when writing
+        ok_('indent="0"' not in xml)
+        ok_('indent="-1"' not in xml)
+
 
 #def test_format_comparisions():
 #    format1 = NumberFormat()
