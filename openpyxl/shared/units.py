@@ -27,7 +27,7 @@ import math
 
 
 def cm_to_pixels(value):
-    return int(value * 37.795276)
+    return int(value * 44.6)
 
 
 def pixels_to_cm(value):

@@ -344,7 +344,7 @@ def test_cell_anchor():
     ws = wb.get_active_sheet()
 
     eq_(ws.cell('A1').anchor, (0, 0))
-    eq_(ws.cell('D32').anchor, (527, 258))
+    eq_(ws.cell('D32').anchor, (620, 210))
 
 
 def test_image_anchor():
@@ -361,4 +361,4 @@ def test_image_anchor():
     cell = ws.cell('D32')
     img = DummyImage(None)
     img.anchor(cell)
-    eq_((img.drawing.top, img.drawing.left), (527, 258))
+    eq_((img.drawing.top, img.drawing.left), (620, 210))
