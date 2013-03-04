@@ -38,6 +38,7 @@ import datetime
 import re
 
 # package imports
+from openpyxl.shared.units import cm_to_pixels
 from openpyxl.shared.compat import all, unicode, basestring
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.exc import CellCoordinatesException, \
@@ -49,6 +50,7 @@ from openpyxl.shared import NUMERIC_TYPES
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
 
 ABSOLUTE_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)(:[$]?([A-Z]+)[$]?(\d+))?$')
+
 
 def coordinate_from_string(coord_string):
     """Convert a coordinate string like 'B12' to a tuple ('B', 12)"""
@@ -76,13 +78,14 @@ def absolute_coordinate(coord_string):
 
 def column_index_from_string(column, fast=False):
     """Convert a column letter into a column number (e.g. B -> 2)
-    
+
     Excel only supports 1-3 letter column names from A -> ZZZ, so we
     restrict our column names to 1-3 characters, each in the range A-Z.
-    
+
     .. note::
-    
-        Fast mode is faster but does not check that all letters are capitals between A and Z
+
+        Fast mode is faster but does not check that all letters
+        are capitals between A and Z
 
     """
     column = column.upper()
@@ -253,9 +256,9 @@ class Cell(object):
         elif not isinstance(value, unicode) and self.RE_PATTERNS['numeric'].match(str(value)):
             data_type = self.TYPE_NUMERIC
         elif isinstance(value, basestring) and value.strip() in self.ERROR_CODES:
-          data_type = self.TYPE_ERROR
+            data_type = self.TYPE_ERROR
         elif isinstance(value, list):
-          data_type = self.TYPE_ERROR
+            data_type = self.TYPE_ERROR
         else:
             data_type = self.TYPE_STRING
         return data_type
@@ -283,13 +286,13 @@ class Cell(object):
             else:
                 time_search = self.RE_PATTERNS['time'].match(str(value))
             if time_search:
-                sep_count = value.count(':') #pylint: disable=E1103
+                sep_count = value.count(':')  # pylint: disable=E1103
                 if sep_count == 1:
-                    hours, minutes = [int(bit) for bit in value.split(':')] #pylint: disable=E1103
+                    hours, minutes = [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
                     seconds = 0
                 elif sep_count == 2:
                     hours, minutes, seconds = \
-                            [int(bit) for bit in value.split(':')] #pylint: disable=E1103
+                            [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
                 days = (hours / 24.0) + (minutes / 1440.0) + \
                         (seconds / 86400.0)
                 self.set_value_explicit(days, self.TYPE_NUMERIC)
@@ -364,7 +367,7 @@ class Cell(object):
     @property
     def has_style(self):
         """Check if the parent worksheet has a style for this cell"""
-        return self.get_coordinate() in self.parent._styles #pylint: disable=W0212
+        return self.get_coordinate() in self.parent._styles  # pylint: disable=W0212
 
     @property
     def style(self):
@@ -409,9 +412,29 @@ class Cell(object):
 
     def is_date(self):
         """Returns whether the value is *probably* a date or not
-        
+
         :rtype: bool
         """
         return (self.has_style
                 and self.style.number_format.is_date_format()
                 and isinstance(self._value, NUMERIC_TYPES))
+
+    @property
+    def anchor(self):
+        """ returns the expected position of a cell in pixels from the top-left
+            of the sheet. For example, A1 anchor should be (0,0).
+        """
+        left_columns = (column_index_from_string(self.column, True) - 1)
+        existing_left_columns = [dimension.width for dimension
+                                 in self.parent.column_dimensions.values()
+                                 if dimension.width > 0]
+        left_anchor = (cm_to_pixels(2.29) * left_columns)
+        left_anchor += sum(existing_left_columns)
+
+        top_rows = (self.row - 1)
+        existing_top_rows = [dimension.height for dimension
+                             in self.parent.row_dimensions.values()
+                             if dimension.height > 0]
+        top_anchor = (cm_to_pixels(0.45) * top_rows)
+        top_anchor += sum(existing_top_rows)
+        return (top_anchor, left_anchor)
