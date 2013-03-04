@@ -266,6 +266,7 @@ class NumberFormat(HashableObject):
     FORMAT_DATE_TIME6 = 'h:mm:ss'
     FORMAT_DATE_TIME7 = 'i:s.S'
     FORMAT_DATE_TIME8 = 'h:mm:ss@'
+    FORMAT_DATE_TIMEDELTA = '[hh]:mm:ss'
     FORMAT_DATE_YYYYMMDDSLASH = 'yy/mm/dd@'
     FORMAT_CURRENCY_USD_SIMPLE = '"$"#,##0.00_-'
     FORMAT_CURRENCY_USD = '$#,##0_-'

@@ -24,7 +24,7 @@
 # @author: see AUTHORS file
 
 # Python stdlib imports
-from datetime import time, datetime
+from datetime import time, datetime, timedelta
 
 # 3rd party imports
 from nose.tools import eq_, raises, assert_raises #pylint: disable=E0611
@@ -201,6 +201,16 @@ def test_time():
     values = (('03:40:16', time(3, 40, 16)), ('03:40', time(3, 40)),)
     for raw_value, coerced_value in values:
         yield check_time, raw_value, coerced_value
+
+
+def test_timedelta():
+
+    wb = Workbook()
+    ws = Worksheet(wb)
+    cell = Cell(ws, 'A', 1)
+    cell.value = timedelta(days=1, hours=3)
+    eq_(cell.value, 1.125)
+    eq_(cell.TYPE_NUMERIC, cell.data_type)
 
 
 def test_date_format_on_non_date():

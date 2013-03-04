@@ -242,7 +242,7 @@ class Cell(object):
             data_type = self.TYPE_BOOL
         elif isinstance(value, NUMERIC_TYPES):
             data_type = self.TYPE_NUMERIC
-        elif isinstance(value, (datetime.datetime, datetime.date, datetime.time)):
+        elif isinstance(value, (datetime.datetime, datetime.date, datetime.time, datetime.timedelta)):
             data_type = self.TYPE_NUMERIC
         elif not value:
             data_type = self.TYPE_STRING
@@ -302,11 +302,13 @@ class Cell(object):
             if isinstance(value, datetime.date) and not \
                     isinstance(value, datetime.datetime):
                 value = datetime.datetime.combine(value, datetime.time())
-            if isinstance(value, (datetime.datetime, datetime.time)):
+            if isinstance(value, (datetime.datetime, datetime.time, datetime.timedelta)):
                 if isinstance(value, datetime.datetime):
                     self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
                 elif isinstance(value, datetime.time):
                     self._set_number_format(NumberFormat.FORMAT_DATE_TIME6)
+                elif isinstance(value, datetime.timedelta):
+                    self._set_number_format(NumberFormat.FORMAT_DATE_TIMEDELTA)
                 value = SharedDate().datetime_to_julian(date=value)
                 self.set_value_explicit(value, self.TYPE_NUMERIC)
                 return True
