@@ -212,3 +212,9 @@ def test_repair_central_directory():
 
     f = repair_central_directory(StringIO(data_b), True)
     eq_(f.read(), data_b)
+
+
+def test_read_no_theme():
+    path = os.path.join(DATADIR, 'genuine', 'libreoffice_nrt.xlsx')
+    wb = load_workbook(path)
+    assert wb
