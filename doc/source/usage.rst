@@ -84,6 +84,9 @@ Inserting an image
     img.drawing.left = 200
     img.drawing.top = 100
 
+    # you could also 'anchor' the image to a specific cell
+    # img.anchor(ws.cell('B12'))
+
     # add to worksheet
     ws.add_image(img)
     wb.save('logo.xlsx')
