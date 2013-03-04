@@ -197,3 +197,18 @@ class TestReadBaseDateFormat(object):
         eq_(self.mac_ws.cell('A1').value, dt)
         eq_(self.win_ws.cell('A1').value, dt)
         eq_(self.mac_ws.cell('A1').value, self.win_ws.cell('A1').value)
+
+def test_repair_central_directory():
+    from openpyxl.reader.excel import repair_central_directory, CENTRAL_DIRECTORY_SIGNATURE
+    from StringIO import StringIO
+
+    data_a = "foobarbaz" + CENTRAL_DIRECTORY_SIGNATURE
+    data_b = "bazbarfoo1234567890123456890"
+
+    # The repair_central_directory looks for a magic set of bytes
+    # (CENTRAL_DIRECTORY_SIGNATURE) and strips off everything 18 bytes past the sequence
+    f = repair_central_directory(StringIO(data_a + data_b), True)
+    eq_(f.read(), data_a + data_b[:18])
+
+    f = repair_central_directory(StringIO(data_b), True)
+    eq_(f.read(), data_b)

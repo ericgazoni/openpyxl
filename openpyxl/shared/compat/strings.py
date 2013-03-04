@@ -44,9 +44,9 @@ except:
     BytesIO = StringIO
 
 try:
+    # Python 2
+    file = file
+except:
     # Python 3
     from io import BufferedReader
     file = BufferedReader
-except:
-    # Python 2
-    file = file
