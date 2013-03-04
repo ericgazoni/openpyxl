@@ -59,6 +59,7 @@ def write_content_types(workbook):
     SubElement(root, 'Override', {'PartName': '/' + ARC_STYLE, 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml'})
     SubElement(root, 'Default', {'Extension': 'rels', 'ContentType': 'application/vnd.openxmlformats-package.relationships+xml'})
     SubElement(root, 'Default', {'Extension': 'xml', 'ContentType': 'application/xml'})
+    SubElement(root, 'Default', {'Extension': 'png', 'ContentType': 'image/png'})
     SubElement(root, 'Override', {'PartName': '/' + ARC_WORKBOOK, 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'})
     SubElement(root, 'Override', {'PartName': '/' + ARC_APP, 'ContentType': 'application/vnd.openxmlformats-officedocument.extended-properties+xml'})
     SubElement(root, 'Override', {'PartName': '/' + ARC_CORE, 'ContentType': 'application/vnd.openxmlformats-package.core-properties+xml'})
@@ -71,7 +72,7 @@ def write_content_types(workbook):
         SubElement(root, 'Override',
                 {'PartName': '/xl/worksheets/sheet%d.xml' % (sheet_id + 1),
                 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'})
-        if sheet._charts:
+        if sheet._charts or sheet._images:
             SubElement(root, 'Override',
                 {'PartName' : '/xl/drawings/drawing%d.xml' % drawing_id,
                 'ContentType' : 'application/vnd.openxmlformats-officedocument.drawing+xml'})

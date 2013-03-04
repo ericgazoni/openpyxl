@@ -396,3 +396,46 @@ class Shape(object):
 
         return (_norm_pct(x_start), _norm_pct(y_start),
             _norm_pct(x_end), _norm_pct(y_end))
+
+def bounding_box(bw, bh, w, h):
+    """
+    Returns a tuple (new_width, new_height) which has the property
+    that it fits within box_width and box_height and has (close to)
+    the same aspect ratio as the original size
+    """
+    new_width, new_height = w, h
+    if bw and new_width > bw:
+        new_width = bw
+        new_height = new_width/(float(w)/h)
+    if bh and new_height > bh:
+        new_height = bh
+        new_width = new_height * (float(w)/h)
+    return (new_width, new_height)
+
+class Image(object):
+    """ Raw Image class """
+
+    def __init__(self, img, coordinates=((0,0), (1,1)), size=(None,None), nochangeaspect=True, nochangearrowheads=True):
+        try:
+            try:
+                import Image as PILImage
+            except ImportError:
+                from PIL import Image as PILImage
+        except ImportError:
+            raise ImportError('You must install PIL to fetch image objects')
+
+        if not isinstance(img, PILImage.Image):
+            img = PILImage.open(img)
+        self.image = img
+
+        self.nochangeaspect = nochangeaspect
+        self.nochangearrowheads= nochangearrowheads
+
+        # the containing drawing
+        self.drawing = Drawing()
+        self.drawing.coordinates = coordinates
+
+        newsize = bounding_box(size[0], size[1], img.size[0], img.size[1])
+        size = newsize
+        self.drawing.width = size[0]
+        self.drawing.height = size[1]
