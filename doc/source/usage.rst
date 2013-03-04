@@ -74,7 +74,7 @@ Inserting an image
     from openpyxl.drawing import Image
 
     wb = Workbook()
-    ws = book.get_active_sheet()
+    ws = wb.get_active_sheet()
     ws.cell('A1').value = 'You should see a logo below'
 
     # create an image instance
