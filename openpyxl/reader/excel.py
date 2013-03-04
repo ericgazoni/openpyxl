@@ -53,17 +53,17 @@ except NameError:
 CENTRAL_DIRECTORY_SIGNATURE = '\x50\x4b\x05\x06'
 
 def repair_central_directory(zipFile, is_file_instance):
-    ''' trims trailing data from the central directory 
+    ''' trims trailing data from the central directory
     code taken from http://stackoverflow.com/a/7457686/570216, courtesy of Uri Cohen
     '''
     from StringIO import StringIO
 
     f = zipFile if is_file_instance else open(zipFile, 'r+b')
     data = f.read().decode("utf-8")
-    pos = data.find(CENTRAL_DIRECTORY_SIGNATURE) # End of central directory signature
+    pos = data.find(CENTRAL_DIRECTORY_SIGNATURE)  # End of central directory signature
     if (pos > 0):
         sio = StringIO(data)
-        sio.seek(pos + 22)   # size of 'ZIP end of central directory record'
+        sio.seek(pos + 22)  # size of 'ZIP end of central directory record'
         sio.truncate()
         sio.seek(0)
         return sio
@@ -145,7 +145,11 @@ def _load_workbook(wb, archive, filename, use_iterators):
         string_table = read_string_table(archive.read(ARC_SHARED_STRINGS))
     except KeyError:
         string_table = {}
-    wb.loaded_theme = archive.read(ARC_THEME)
+    try:
+        wb.loaded_theme = archive.read(ARC_THEME)  # some writers don't output a theme, live with it (fixes #160)
+    except KeyError:
+        assert wb.loaded_theme == None, "even though the theme information is missing there is a theme object ?"
+
     style_table = read_style_table(archive.read(ARC_STYLE))
 
     wb.properties.excel_base_date = read_excel_base_date(xml_source=archive.read(ARC_WORKBOOK))
