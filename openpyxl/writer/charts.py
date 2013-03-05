@@ -23,6 +23,7 @@
 # @author: see AUTHORS file
 
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
+from openpyxl.shared.compat.itertools import iteritems
 from openpyxl.chart import Chart, ErrorBar
 
 try:
@@ -191,17 +192,17 @@ class ChartWriter(object):
             if self.chart.type == Chart.SCATTER_CHART:
                 if serie.xvalues:
                     xval = SubElement(ser, 'c:xVal')
-                    self._write_serial(xval, serie.xvalues)
+                    self._write_serial(xval, serie.xreference)
 
                 yval = SubElement(ser, 'c:yVal')
-                self._write_serial(yval, serie.values)
+                self._write_serial(yval, serie.reference)
             else:
                 val = SubElement(ser, 'c:val')
-                self._write_serial(val, serie.values)
+                self._write_serial(val, serie.reference)
 
-    def _write_serial(self, node, serie, literal=False):
+    def _write_serial(self, node, reference, literal=False):
 
-        cache = serie._get_cache()
+        cache = reference.values
         if isinstance(cache[0], basestring):
             typ = 'str'
         else:
@@ -212,7 +213,7 @@ class ChartWriter(object):
                 ref = SubElement(node, 'c:numRef')
             else:
                 ref = SubElement(node, 'c:strRef')
-            SubElement(ref, 'c:f').text = serie._get_ref()
+            SubElement(ref, 'c:f').text = str(reference)
             if typ == 'num':
                 data = SubElement(ref, 'c:numCache')
             else:
@@ -263,7 +264,7 @@ class ChartWriter(object):
         SubElement(settings, 'c:headerFooter')
         try:
             # Python 2
-            print_margins_items = self.chart.print_margins.iteritems()
+            print_margins_items = iteritems(self.chart.print_margins)
         except AttributeError:
             # Python 3
             print_margins_items = self.chart.print_margins.items()

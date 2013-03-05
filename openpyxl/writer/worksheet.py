@@ -46,6 +46,7 @@ import decimal
 from openpyxl.cell import coordinate_from_string, column_index_from_string
 from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, \
         get_document_content, start_tag, end_tag, tag
+from openpyxl.shared.compat.itertools import iteritems, iterkeys
 
 
 def row_sort(cell):
@@ -98,7 +99,7 @@ def write_worksheet(worksheet, string_table, style_table):
             tag(doc, 'oddFooter', None, worksheet.header_footer.getFooter())
         end_tag(doc, 'headerFooter')
 
-    if worksheet._charts:
+    if worksheet._charts or worksheet._images:
         tag(doc, 'drawing', {'r:id':'rId1'})
     end_tag(doc, 'worksheet')
     doc.endDocument()
@@ -145,7 +146,7 @@ def write_worksheet_cols(doc, worksheet):
     if worksheet.column_dimensions:
         start_tag(doc, 'cols')
         for column_string, columndimension in \
-                worksheet.column_dimensions.iteritems():
+                iteritems(worksheet.column_dimensions):
             col_index = column_index_from_string(column_string)
             col_def = {}
             col_def['collapsed'] = str(columndimension.style_index)
@@ -176,7 +177,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
     max_column = worksheet.get_highest_column()
     style_id_by_hash = style_table
     cells_by_row = {}
-    for styleCoord in worksheet._styles.iterkeys():
+    for styleCoord in iterkeys(worksheet._styles):
         # Ensure a blank cell exists if it has a style
         worksheet.cell(styleCoord)
     for cell in worksheet.get_cell_collection():
@@ -197,7 +198,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             value = cell._value
             coordinate = cell.get_coordinate()
             attributes = {'r': coordinate}
-            attributes['t'] = cell.data_type
+            if cell.data_type != cell.TYPE_FORMULA:
+                attributes['t'] = cell.data_type
             if coordinate in worksheet._styles:
                 try:
                     attributes['s'] = '%d' % style_id_by_hash[
@@ -264,7 +266,7 @@ def write_worksheet_rels(worksheet, idx):
         if rel.target_mode:
             attrs['TargetMode'] = rel.target_mode
         SubElement(root, 'Relationship', attrs)
-    if worksheet._charts:
+    if worksheet._charts or worksheet._images:
         attrs = {'Id' : 'rId1',
             'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
             'Target' : '../drawings/drawing%s.xml' % idx }

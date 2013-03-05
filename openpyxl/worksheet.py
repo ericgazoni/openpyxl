@@ -40,6 +40,7 @@ from openpyxl.style import Style, DEFAULTS as DEFAULTS_STYLE
 from openpyxl.drawing import Drawing
 from openpyxl.namedrange import NamedRangeContainingValue
 from openpyxl.shared.compat import OrderedDict, unicode, xrange, basestring
+from openpyxl.shared.compat.itertools import iteritems
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
@@ -67,6 +68,7 @@ class Relationship(object):
     TYPES = {
         'hyperlink': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
         'drawing':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
+        'image':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing'
         #'worksheet': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
         #'sharedStrings': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
         #'styles': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
@@ -439,6 +441,7 @@ class Worksheet(object):
         self._cells = {}
         self._styles = {}
         self._charts = []
+        self._images = []
         self._merged_cells = []
         self.relationships = []
         self.selected_cell = 'A1'
@@ -474,7 +477,7 @@ class Worksheet(object):
     def garbage_collect(self):
         """Delete cells that are not storing a value."""
         delete_list = [coordinate for coordinate, cell in \
-            self._cells.iteritems() if (not cell.merged and cell.value in ('', None) and \
+            iteritems(self._cells) if (not cell.merged and cell.value in ('', None) and \
             (coordinate not in self._styles or
             hash(cell.style) == _DEFAULTS_STYLE_HASH))]
         for coordinate in delete_list:
@@ -724,6 +727,12 @@ class Worksheet(object):
         chart._sheet = self
         self._charts.append(chart)
 
+    def add_image(self, img):
+        """ Add an image to the sheet """
+
+        img._sheet = self
+        self._images.append(img)
+
     def merge_cells(self, range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
         """ Set merge on a cell range.  Range is a cell range (e.g. A1:E1) """
         if not range_string:
@@ -814,7 +823,7 @@ class Worksheet(object):
 
         elif isinstance(list_or_dict, dict):
 
-            for col_idx, content in list_or_dict.iteritems():
+            for col_idx, content in iteritems(list_or_dict):
 
                 if isinstance(col_idx, basestring):
                     col_idx = column_index_from_string(col_idx) - 1

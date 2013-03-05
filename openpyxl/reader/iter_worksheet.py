@@ -31,7 +31,8 @@ import warnings
 import operator
 from itertools import  groupby
 from openpyxl.worksheet import Worksheet
-from openpyxl.cell import coordinate_from_string, get_column_letter, Cell
+from openpyxl.cell import (coordinate_from_string, get_column_letter, Cell,
+                            column_index_from_string)
 from openpyxl.reader.style import read_style_table
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
@@ -305,7 +306,7 @@ class IterableWorksheet(Worksheet):
         return self._dimensions
 
     def get_highest_column(self):
-        return self._max_column
+        return column_index_from_string(self._max_column)
 
     def get_highest_row(self):
         return self._max_row

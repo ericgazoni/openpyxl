@@ -8,6 +8,7 @@
 	<Default ContentType="application/vnd.openxmlformats-package.relationships+xml"
 		Extension="rels" />
 	<Default ContentType="application/xml" Extension="xml" />
+	<Default ContentType="image/png" Extension="png" />
 	<Override
 		ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"
 		PartName="/xl/workbook.xml" />

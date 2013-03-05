@@ -189,7 +189,8 @@ def parse_fills(root, xmlns, color_index):
             newFill = Fill()
             # Rotation is unset
             patternFill = fill.find(QName(xmlns, 'patternFill').text)
-            newFill.fill_type = patternFill.get('patternType')
+            if patternFill is not None:
+                newFill.fill_type = patternFill.get('patternType')
 
             fgColor = patternFill.find(QName(xmlns, 'fgColor').text)
             if fgColor is not None:
@@ -201,10 +202,10 @@ def parse_fills(root, xmlns, color_index):
                 elif fgColor.get('theme') is not None:
                     if fgColor.get('tint') is not None:
                         newFill.start_color.index = 'theme:%s:%s' % (fgColor.get('theme'), fgColor.get('tint'))
+                        else:
+                            newFill.start_color.index = 'theme:%s:' % fgColor.get('theme')  # prefix color with theme
                     else:
-                        newFill.start_color.index = 'theme:%s:' % fgColor.get('theme') # prefix color with theme
-                else:
-                    newFill.start_color.index = fgColor.get('rgb')
+                        newFill.start_color.index = fgColor.get('rgb')
 
             bgColor = patternFill.find(QName(xmlns, 'bgColor').text)
             if bgColor is not None:
