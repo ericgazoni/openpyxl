@@ -796,38 +796,31 @@ class Worksheet(object):
 
     def append(self, list_or_dict):
         """Appends a group of values at the bottom of the current sheet.
-        
+
         * If it's a list: all values are added in order, starting from the first column
         * If it's a dict: values are assigned to the columns indicated by the keys (numbers or letters)
-        
+
         :param list_or_dict: list or dict containing values to append
         :type list_or_dict: list/tuple or dict
-        
+
         Usage:
-        
+
         * append(['This is A1', 'This is B1', 'This is C1'])
         * **or** append({'A' : 'This is A1', 'C' : 'This is C1'})
         * **or** append({0 : 'This is A1', 2 : 'This is C1'})
-        
+
         :raise: TypeError when list_or_dict is neither a list/tuple nor a dict
-        
+
         """
-
         row_idx = len(self.row_dimensions)
-
         if isinstance(list_or_dict, (list, tuple)):
-
             for col_idx, content in enumerate(list_or_dict):
-
                 self.cell(row=row_idx, column=col_idx).value = content
 
         elif isinstance(list_or_dict, dict):
-
             for col_idx, content in iteritems(list_or_dict):
-
                 if isinstance(col_idx, basestring):
                     col_idx = column_index_from_string(col_idx) - 1
-
                 self.cell(row=row_idx, column=col_idx).value = content
 
         else:
@@ -835,21 +828,18 @@ class Worksheet(object):
 
     @property
     def rows(self):
-
         return self.range(self.calculate_dimension())
 
     @property
     def columns(self):
-
         max_row = self.get_highest_row()
-
         cols = []
-
         for col_idx in range(self.get_highest_column()):
             col = get_column_letter(col_idx + 1)
             res = self.range('%s1:%s%d' % (col, col, max_row))
             cols.append(tuple([x[0] for x in res]))
 
-
         return tuple(cols)
 
+    def point_pos(self, left=0, top=0):
+        pass

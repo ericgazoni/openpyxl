@@ -34,17 +34,18 @@ cells using Excel's 'A1' column/row nomenclature are also provided.
 __docformat__ = "restructuredtext en"
 
 # Python stdlib imports
+from openpyxl.shared import (NUMERIC_TYPES, DEFAULT_ROW_HEIGHT,
+    DEFAULT_COLUMN_WIDTH)
+from openpyxl.shared.compat import all, unicode, basestring
+from openpyxl.shared.date_time import SharedDate
+from openpyxl.shared.exc import (CellCoordinatesException,
+    ColumnStringIndexException, DataTypeException)
+from openpyxl.shared.units import points_to_pixels
+from openpyxl.style import NumberFormat
 import datetime
 import re
 
 # package imports
-from openpyxl.shared.units import points_to_pixels
-from openpyxl.shared.compat import all, unicode, basestring
-from openpyxl.shared.date_time import SharedDate
-from openpyxl.shared.exc import CellCoordinatesException, \
-        ColumnStringIndexException, DataTypeException
-from openpyxl.style import NumberFormat
-from openpyxl.shared import NUMERIC_TYPES
 
 # constants
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
@@ -423,18 +424,20 @@ class Cell(object):
     def anchor(self):
         """ returns the expected position of a cell in pixels from the top-left
             of the sheet. For example, A1 anchor should be (0,0).
+
+            :rtype: tuple(int, int)
         """
         left_columns = (column_index_from_string(self.column, True) - 1)
         existing_left_columns = [dimension.width for dimension
                                  in self.parent.column_dimensions.values()
                                  if dimension.width > 0]
-        left_anchor = (points_to_pixels(51.85) * left_columns)
+        left_anchor = (points_to_pixels(DEFAULT_COLUMN_WIDTH) * left_columns)
         left_anchor += sum(existing_left_columns)
 
         top_rows = (self.row - 1)
         existing_top_rows = [dimension.height for dimension
                              in self.parent.row_dimensions.values()
                              if dimension.height > 0]
-        top_anchor = (points_to_pixels(15.) * top_rows)
+        top_anchor = (points_to_pixels(DEFAULT_ROW_HEIGHT) * top_rows)
         top_anchor += sum(existing_top_rows)
         return (top_anchor, left_anchor)

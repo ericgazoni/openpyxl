@@ -463,3 +463,7 @@ class Image(object):
     def anchor(self, cell):
         """ anchors the image to the given cell """
         self.drawing.top, self.drawing.left = cell.anchor
+
+    @property
+    def end(self):
+        pass

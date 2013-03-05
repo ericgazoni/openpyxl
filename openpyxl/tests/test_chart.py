@@ -339,26 +339,36 @@ class TestScatterChartWriter(object):
         eq_(test_xml, '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:chart><c:plotArea><c:layout><c:manualLayout><c:layoutTarget val="inner" /><c:xMode val="edge" /><c:yMode val="edge" /><c:x val="1.2857" /><c:y val="0.2125" /><c:w val="0.6" /><c:h val="0.6" /></c:manualLayout></c:layout><c:scatterChart><c:scatterStyle val="lineMarker" /><c:ser><c:idx val="0" /><c:order val="0" /><c:marker><c:symbol val="none" /></c:marker><c:xVal><c:numRef><c:f>\'data\'!$B$1:$B$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:xVal><c:yVal><c:numRef><c:f>\'data\'!$A$1:$A$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:yVal></c:ser><c:marker val="1" /><c:axId val="60871424" /><c:axId val="60873344" /></c:scatterChart><c:valAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="b" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx></c:plotArea><c:legend><c:legendPos val="r" /><c:layout /></c:legend><c:plotVisOnly val="1" /></c:chart></test>')
 
 
-def test_cell_anchor():
-    wb = Workbook()
-    ws = wb.get_active_sheet()
+class TestAnchoring(object):
+    def _get_dummy_class(self):
+        class DummyImg(object):
+            size = (200, 200)
 
-    eq_(ws.cell('A1').anchor, (0, 0))
-    eq_(ws.cell('D32').anchor, (620, 210))
+        class DummyImage(Image):
+            def _import_image(self, img):
+                return DummyImg()
+        return DummyImage
 
+    def test_cell_anchor(self):
+        wb = Workbook()
+        ws = wb.get_active_sheet()
 
-def test_image_anchor():
+        eq_(ws.cell('A1').anchor, (0, 0))
+        eq_(ws.cell('D32').anchor, (620, 210))
 
-    class DummyImg(object):
-        size = (200, 200)
+    def test_image_anchor(self):
+        DummyImage = self._get_dummy_class()
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        cell = ws.cell('D32')
+        img = DummyImage(None)
+        img.anchor(cell)
+        eq_((img.drawing.top, img.drawing.left), (620, 210))
 
-    class DummyImage(Image):
-        def _import_image(self, img):
-            return DummyImg()
-
-    wb = Workbook()
-    ws = wb.get_active_sheet()
-    cell = ws.cell('D32')
-    img = DummyImage(None)
-    img.anchor(cell)
-    eq_((img.drawing.top, img.drawing.left), (620, 210))
+    def test_image_end(self):
+        DummyImage = self._get_dummy_class()
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        img = DummyImage(None)
+        img.image.size = (50, 50)
+        eq_(img.end, ('A', 20))
