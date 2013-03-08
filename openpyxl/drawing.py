@@ -462,7 +462,7 @@ class Image(object):
 
     def anchor(self, cell):
         """ anchors the image to the given cell """
-        self.drawing.top, self.drawing.left = cell.anchor
+        self.drawing.left, self.drawing.top = cell.anchor
         return ((cell.column, cell.row),
                 cell.parent.point_pos(self.drawing.top + self.drawing.height,
                                       self.drawing.left + self.drawing.width))

@@ -356,7 +356,7 @@ class TestAnchoring(object):
         ws = wb.get_active_sheet()
 
         eq_(ws.cell('A1').anchor, (0, 0))
-        eq_(ws.cell('D32').anchor, (620, 210))
+        eq_(ws.cell('D32').anchor, (210, 620))
 
     def test_image_anchor(self):
         DummyImage = self._get_dummy_class()

@@ -453,4 +453,4 @@ class Cell(object):
                     continue
             top_anchor += default_height
 
-        return (top_anchor, left_anchor)
+        return (left_anchor, top_anchor)

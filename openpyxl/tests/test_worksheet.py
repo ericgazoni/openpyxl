@@ -30,7 +30,7 @@ from nose.tools import eq_, raises, assert_raises
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet, Relationship, flatten
 from openpyxl.writer.worksheet import write_worksheet
-from openpyxl.cell import Cell
+from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.shared.exc import CellCoordinatesException, \
         SheetTitleException, InsufficientCoordinatesException, \
         NamedRangeException
@@ -351,4 +351,11 @@ class TestPositioning(object):
         wb = Workbook()
         ws = wb.get_active_sheet()
         eq_(ws.point_pos(top=40, left=150), ('C', 3))
+
+    def test_roundtrip(self):
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        for address in ('A1', 'D52', 'X11'):
+            eq_(ws.point_pos(*ws.cell(address).anchor),
+                coordinate_from_string(address))
 

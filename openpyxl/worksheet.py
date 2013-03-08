@@ -858,23 +858,23 @@ class Worksheet(object):
 
         while left_pos <= left:
             letter = get_column_letter(current_col)
+            current_col += 1
             if letter in column_dimensions:
                 cdw = column_dimensions[letter].width
                 if cdw > 0:
                     left_pos += points_to_pixels(cdw)
                     continue
             left_pos += default_width
-            current_col += 1
 
         while top_pos <= top:
             row = current_row
+            current_row += 1
             if row in row_dimensions:
                 rdh = row_dimensions[row].height
                 if rdh > 0:
                     top_pos += points_to_pixels(rdh)
                     continue
             top_pos += default_height
-            current_row += 1
 
         return (letter, row)
 
