@@ -842,4 +842,8 @@ class Worksheet(object):
         return tuple(cols)
 
     def point_pos(self, left=0, top=0):
-        pass
+        """ tells which cell is under the given coordinates (in pixels)
+        counting from the top-left corner of the sheet.
+        Can be used to locate images and charts on the worksheet """
+
+

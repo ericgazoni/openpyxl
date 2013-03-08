@@ -428,16 +428,29 @@ class Cell(object):
             :rtype: tuple(int, int)
         """
         left_columns = (column_index_from_string(self.column, True) - 1)
-        existing_left_columns = [dimension.width for dimension
-                                 in self.parent.column_dimensions.values()
-                                 if dimension.width > 0]
-        left_anchor = (points_to_pixels(DEFAULT_COLUMN_WIDTH) * left_columns)
-        left_anchor += sum(existing_left_columns)
+        column_dimensions = self.parent.column_dimensions
+        left_anchor = 0
+        default_width = points_to_pixels(DEFAULT_COLUMN_WIDTH)
 
+        for col_idx in range(left_columns):
+            letter = get_column_letter(col_idx + 1)
+            if letter in column_dimensions:
+                cdw = column_dimensions.get(letter).width
+                if cdw > 0:
+                    left_anchor += cdw
+                    continue
+            left_anchor += default_width
+
+        row_dimensions = self.parent.row_dimensions
+        top_anchor = 0
         top_rows = (self.row - 1)
-        existing_top_rows = [dimension.height for dimension
-                             in self.parent.row_dimensions.values()
-                             if dimension.height > 0]
-        top_anchor = (points_to_pixels(DEFAULT_ROW_HEIGHT) * top_rows)
-        top_anchor += sum(existing_top_rows)
+        default_height = points_to_pixels(DEFAULT_ROW_HEIGHT)
+        for row_idx in range(1, top_rows + 1):
+            if row_idx in row_dimensions:
+                rdh = row_dimensions[row_idx].height
+                if rdh > 0:
+                    top_anchor += rdh
+                    continue
+            top_anchor += default_height
+
         return (top_anchor, left_anchor)
