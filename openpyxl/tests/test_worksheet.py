@@ -350,5 +350,5 @@ class TestPositioning(object):
     def test_point(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
-        eq_(ws.point_pos(top=40, left=150), ('A', 3))
+        eq_(ws.point_pos(top=40, left=150), ('C', 3))
 

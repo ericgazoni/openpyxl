@@ -342,11 +342,13 @@ class TestScatterChartWriter(object):
 class TestAnchoring(object):
     def _get_dummy_class(self):
         class DummyImg(object):
-            size = (200, 200)
+            def __init__(self):
+                self.size = (200, 200)
 
         class DummyImage(Image):
             def _import_image(self, img):
                 return DummyImg()
+
         return DummyImage
 
     def test_cell_anchor(self):
@@ -369,6 +371,8 @@ class TestAnchoring(object):
         DummyImage = self._get_dummy_class()
         wb = Workbook()
         ws = wb.get_active_sheet()
+        cell = ws.cell('A1')
         img = DummyImage(None)
-        img.image.size = (50, 50)
-        eq_(img.end, ('A', 20))
+        img.drawing.width, img.drawing.height = (50, 50)
+        end = img.anchor(cell)
+        eq_(end[1], ('A', 3))
