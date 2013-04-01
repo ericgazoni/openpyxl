@@ -192,17 +192,17 @@ class ChartWriter(object):
             if self.chart.type == Chart.SCATTER_CHART:
                 if serie.xvalues:
                     xval = SubElement(ser, 'c:xVal')
-                    self._write_serial(xval, serie.xvalues)
+                    self._write_serial(xval, serie.xreference)
 
                 yval = SubElement(ser, 'c:yVal')
-                self._write_serial(yval, serie.values)
+                self._write_serial(yval, serie.reference)
             else:
                 val = SubElement(ser, 'c:val')
-                self._write_serial(val, serie.values)
+                self._write_serial(val, serie.reference)
 
-    def _write_serial(self, node, serie, literal=False):
+    def _write_serial(self, node, reference, literal=False):
 
-        cache = serie._get_cache()
+        cache = reference.values
         if isinstance(cache[0], basestring):
             typ = 'str'
         else:
@@ -213,7 +213,7 @@ class ChartWriter(object):
                 ref = SubElement(node, 'c:numRef')
             else:
                 ref = SubElement(node, 'c:strRef')
-            SubElement(ref, 'c:f').text = serie._get_ref()
+            SubElement(ref, 'c:f').text = str(reference)
             if typ == 'num':
                 data = SubElement(ref, 'c:numCache')
             else:

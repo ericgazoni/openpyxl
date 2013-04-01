@@ -34,21 +34,24 @@ cells using Excel's 'A1' column/row nomenclature are also provided.
 __docformat__ = "restructuredtext en"
 
 # Python stdlib imports
+from openpyxl.shared import (NUMERIC_TYPES, DEFAULT_ROW_HEIGHT,
+    DEFAULT_COLUMN_WIDTH)
+from openpyxl.shared.compat import all, unicode, basestring
+from openpyxl.shared.date_time import SharedDate
+from openpyxl.shared.exc import (CellCoordinatesException,
+    ColumnStringIndexException, DataTypeException)
+from openpyxl.shared.units import points_to_pixels
+from openpyxl.style import NumberFormat
 import datetime
 import re
 
 # package imports
-from openpyxl.shared.compat import all, unicode, basestring
-from openpyxl.shared.date_time import SharedDate
-from openpyxl.shared.exc import CellCoordinatesException, \
-        ColumnStringIndexException, DataTypeException
-from openpyxl.style import NumberFormat
-from openpyxl.shared import NUMERIC_TYPES
 
 # constants
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
 
 ABSOLUTE_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)(:[$]?([A-Z]+)[$]?(\d+))?$')
+
 
 def coordinate_from_string(coord_string):
     """Convert a coordinate string like 'B12' to a tuple ('B', 12)"""
@@ -76,13 +79,14 @@ def absolute_coordinate(coord_string):
 
 def column_index_from_string(column, fast=False):
     """Convert a column letter into a column number (e.g. B -> 2)
-    
+
     Excel only supports 1-3 letter column names from A -> ZZZ, so we
     restrict our column names to 1-3 characters, each in the range A-Z.
-    
+
     .. note::
-    
-        Fast mode is faster but does not check that all letters are capitals between A and Z
+
+        Fast mode is faster but does not check that all letters
+        are capitals between A and Z
 
     """
     column = column.upper()
@@ -242,7 +246,7 @@ class Cell(object):
             data_type = self.TYPE_BOOL
         elif isinstance(value, NUMERIC_TYPES):
             data_type = self.TYPE_NUMERIC
-        elif isinstance(value, (datetime.datetime, datetime.date, datetime.time)):
+        elif isinstance(value, (datetime.datetime, datetime.date, datetime.time, datetime.timedelta)):
             data_type = self.TYPE_NUMERIC
         elif not value:
             data_type = self.TYPE_STRING
@@ -253,9 +257,9 @@ class Cell(object):
         elif not isinstance(value, unicode) and self.RE_PATTERNS['numeric'].match(str(value)):
             data_type = self.TYPE_NUMERIC
         elif isinstance(value, basestring) and value.strip() in self.ERROR_CODES:
-          data_type = self.TYPE_ERROR
+            data_type = self.TYPE_ERROR
         elif isinstance(value, list):
-          data_type = self.TYPE_ERROR
+            data_type = self.TYPE_ERROR
         else:
             data_type = self.TYPE_STRING
         return data_type
@@ -283,13 +287,13 @@ class Cell(object):
             else:
                 time_search = self.RE_PATTERNS['time'].match(str(value))
             if time_search:
-                sep_count = value.count(':') #pylint: disable=E1103
+                sep_count = value.count(':')  # pylint: disable=E1103
                 if sep_count == 1:
-                    hours, minutes = [int(bit) for bit in value.split(':')] #pylint: disable=E1103
+                    hours, minutes = [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
                     seconds = 0
                 elif sep_count == 2:
                     hours, minutes, seconds = \
-                            [int(bit) for bit in value.split(':')] #pylint: disable=E1103
+                            [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
                 days = (hours / 24.0) + (minutes / 1440.0) + \
                         (seconds / 86400.0)
                 self.set_value_explicit(days, self.TYPE_NUMERIC)
@@ -302,11 +306,13 @@ class Cell(object):
             if isinstance(value, datetime.date) and not \
                     isinstance(value, datetime.datetime):
                 value = datetime.datetime.combine(value, datetime.time())
-            if isinstance(value, (datetime.datetime, datetime.time)):
+            if isinstance(value, (datetime.datetime, datetime.time, datetime.timedelta)):
                 if isinstance(value, datetime.datetime):
                     self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
                 elif isinstance(value, datetime.time):
                     self._set_number_format(NumberFormat.FORMAT_DATE_TIME6)
+                elif isinstance(value, datetime.timedelta):
+                    self._set_number_format(NumberFormat.FORMAT_DATE_TIMEDELTA)
                 value = SharedDate().datetime_to_julian(date=value)
                 self.set_value_explicit(value, self.TYPE_NUMERIC)
                 return True
@@ -362,7 +368,7 @@ class Cell(object):
     @property
     def has_style(self):
         """Check if the parent worksheet has a style for this cell"""
-        return self.get_coordinate() in self.parent._styles #pylint: disable=W0212
+        return self.get_coordinate() in self.parent._styles  # pylint: disable=W0212
 
     @property
     def style(self):
@@ -407,9 +413,44 @@ class Cell(object):
 
     def is_date(self):
         """Returns whether the value is *probably* a date or not
-        
+
         :rtype: bool
         """
         return (self.has_style
                 and self.style.number_format.is_date_format()
                 and isinstance(self._value, NUMERIC_TYPES))
+
+    @property
+    def anchor(self):
+        """ returns the expected position of a cell in pixels from the top-left
+            of the sheet. For example, A1 anchor should be (0,0).
+
+            :rtype: tuple(int, int)
+        """
+        left_columns = (column_index_from_string(self.column, True) - 1)
+        column_dimensions = self.parent.column_dimensions
+        left_anchor = 0
+        default_width = points_to_pixels(DEFAULT_COLUMN_WIDTH)
+
+        for col_idx in range(left_columns):
+            letter = get_column_letter(col_idx + 1)
+            if letter in column_dimensions:
+                cdw = column_dimensions.get(letter).width
+                if cdw > 0:
+                    left_anchor += points_to_pixels(cdw)
+                    continue
+            left_anchor += default_width
+
+        row_dimensions = self.parent.row_dimensions
+        top_anchor = 0
+        top_rows = (self.row - 1)
+        default_height = points_to_pixels(DEFAULT_ROW_HEIGHT)
+        for row_idx in range(1, top_rows + 1):
+            if row_idx in row_dimensions:
+                rdh = row_dimensions[row_idx].height
+                if rdh > 0:
+                    top_anchor += points_to_pixels(rdh)
+                    continue
+            top_anchor += default_height
+
+        return (left_anchor, top_anchor)

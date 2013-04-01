@@ -88,12 +88,31 @@ class Reference(object):
 
     def get_type(self):
 
-        if isinstance(self.cache[0], basestring):
+        if isinstance(self.values[0], basestring):
             return 'str'
         else:
             return 'num'
 
+    @property
+    def values(self):
+        """ read data in sheet - to be used at writing time """
+        if hasattr(self, "values"):
+            return self._values
+        if self.pos2 is None:
+            cell = self.sheet.cell(row=self.pos1[0], column=self.pos1[1])
+            self._values = [cell.value]
+        else:
+            self._values = []
+            for row in range(int(self.pos1[0]), int(self.pos2[0] + 1)):
+                for col in range(int(self.pos1[1]), int(self.pos2[1] + 1)):
+                    self._values.append(self.sheet.cell(row=row, column=col).value)
+        return self._values
+
     def _get_ref(self):
+        """ legace method """
+        return str(self)
+
+    def __str__(self):
         """ format excel reference notation """
 
         if self.pos2:
@@ -104,19 +123,10 @@ class Reference(object):
             return "'%s'!$%s$%s" % (self.sheet.title,
                 get_column_letter(self.pos1[1] + 1), self.pos1[0] + 1)
 
-
     def _get_cache(self):
-        """ read data in sheet - to be used at writing time """
+        """ legacy method """
+        return self.values
 
-        cache = []
-        if self.pos2:
-            for row in range(int(self.pos1[0]), int(self.pos2[0] + 1)):
-                for col in range(int(self.pos1[1]), int(self.pos2[1] + 1)):
-                    cache.append(self.sheet.cell(row=row, column=col).value)
-        else:
-            cell = self.sheet.cell(row=self.pos1[0], column=self.pos1[1])
-            cache.append(cell.value)
-        return cache
 
 
 class Serie(object):
@@ -132,29 +142,64 @@ class Serie(object):
         self.labels = labels
         self.legend = legend
         self.error_bar = None
-        self._color = color
 
-    def _get_color(self):
-        return self._color
+    @property
+    def color(self):
+        return getattr(self, "_color", None)
 
-    def _set_color(self, color):
+    @color.setter
+    def color(self, color):
+        if color is None:
+            raise ValueError("Colors must be strings of the format XXXXX")
         self._color = short_color(color)
 
-    color = property(_get_color, _set_color)
+    @property
+    def values(self):
+        """Return values from underlying reference"""
+        return self._values
+
+    @values.setter
+    def values(self, reference):
+        """Assign values from reference to serie"""
+        if reference is not None:
+            if not isinstance(reference, Reference):
+                raise TypeError("Series values must be a Reference instance")
+            self._values = reference.values
+        else:
+            self._values = None
+        self.reference = reference
+
+    @property
+    def xvalues(self):
+        """Return xvalues"""
+        return self._xvalues
+
+    @xvalues.setter
+    def xvalues(self, reference):
+        if reference is not None:
+            if not isinstance(reference, Reference):
+                raise TypeError("Series xvalues must be a Reference instance")
+            self._xvalues = reference.values
+        else:
+            self._xvalues = None
+        self.xreference = reference
+
+    def mymax(self, values):
+        return max([x for x in values])
 
     def get_min_max(self):
 
         if self.error_bar:
-            err_cache = self.error_bar.values._get_cache()
+            err_cache = self.error_bar.values
             vals = [v + err_cache[i] \
-                for i, v in enumerate(self.values._get_cache())]
+                for i, v in enumerate(self.values)]
         else:
-            vals = self.values._get_cache()
+            vals = self.values
         return min(vals), self.mymax(vals)
 
     def __len__(self):
 
-        return len(self.values.cache)
+        return len(self.values)
 
 class Legend(object):
 
@@ -173,6 +218,22 @@ class ErrorBar(object):
 
         self.type = _type
         self.values = values
+
+    @property
+    def values(self):
+        """Return values from underlying reference"""
+        return self._values
+
+    @values.setter
+    def values(self, reference):
+        """Assign values from reference to serie"""
+        if reference is not None:
+            if not isinstance(reference, Reference):
+                raise TypeError("Errorbar values must be a Reference instance")
+            self._values = reference.values
+        else:
+            self._values = None
+        self.reference = reference
 
 class Chart(object):
     """ raw chart class """
@@ -197,7 +258,7 @@ class Chart(object):
         self.x_axis = Axis.default_category()
         self.y_axis = Axis.default_value()
         self.legend = Legend()
-        self.show_legend = True        
+        self.show_legend = True
         self.lang = 'fr-FR'
         self.title = ''
         self.print_margins = dict(b=.75, l=.7, r=.7, t=.75, header=0.3, footer=.3)
@@ -230,7 +291,7 @@ class Chart(object):
     def get_x_units(self):
         """ calculate one unit for x axis in EMU """
 
-        return self.mymax([len(s.values._get_cache()) for s in self._series])
+        return self.mymax([len(s.values) for s in self._series])
 
     def get_y_units(self):
         """ calculate one unit for y axis in EMU """
@@ -241,13 +302,13 @@ class Chart(object):
     def get_y_chars(self):
         """ estimate nb of chars for y axis """
 
-        _max = max([self.mymax(s.values._get_cache()) for s in self._series])
+        _max = max([self.mymax(s.values) for s in self._series])
         return len(str(int(_max)))
 
     def _compute_min_max(self):
         """ compute y axis limits and units """
 
-        maxi = max([self.mymax(s.values._get_cache()) for s in self._series if s.values._get_cache()])
+        maxi = max([self.mymax(s.values) for s in self._series if s.values])
 
         mul = None
         if maxi < 1:
@@ -279,7 +340,7 @@ class Chart(object):
     def _compute_xmin_xmax(self):
         """ compute x axis limits and units """
 
-        maxi = max([self.mymax(s.xvalues._get_cache()) for s in self._series])
+        maxi = max([self.mymax(s.xvalues) for s in self._series])
 
         mul = None
         if maxi < 1:

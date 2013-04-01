@@ -36,3 +36,6 @@ import decimal
 
 NUMERIC_TYPES = (int, float, long, decimal.Decimal)
 
+# both values in points
+DEFAULT_ROW_HEIGHT = 15.
+DEFAULT_COLUMN_WIDTH = 51.85

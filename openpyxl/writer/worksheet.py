@@ -100,7 +100,7 @@ def write_worksheet(worksheet, string_table, style_table):
             tag(doc, 'oddFooter', None, worksheet.header_footer.getFooter())
         end_tag(doc, 'headerFooter')
 
-    if worksheet._charts:
+    if worksheet._charts or worksheet._images:
         tag(doc, 'drawing', {'r:id':'rId1'})
     end_tag(doc, 'worksheet')
     doc.endDocument()
@@ -199,7 +199,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             value = cell._value
             coordinate = cell.get_coordinate()
             attributes = {'r': coordinate}
-            attributes['t'] = cell.data_type
+            if cell.data_type != cell.TYPE_FORMULA:
+                attributes['t'] = cell.data_type
             if coordinate in worksheet._styles:
                 attributes['s'] = '%d' % style_id_by_hash[
                         hash(worksheet._styles[coordinate])]
@@ -282,7 +283,7 @@ def write_worksheet_rels(worksheet, idx):
         if rel.target_mode:
             attrs['TargetMode'] = rel.target_mode
         SubElement(root, 'Relationship', attrs)
-    if worksheet._charts:
+    if worksheet._charts or worksheet._images:
         attrs = {'Id' : 'rId1',
             'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
             'Target' : '../drawings/drawing%s.xml' % idx }

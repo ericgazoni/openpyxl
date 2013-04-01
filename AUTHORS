@@ -1,4 +1,4 @@
-This project is developped by Eric Gazoni.
+This project is developed by Eric Gazoni.
 
 It is *heavily* inspired by the PHPExcel library that can be
 found here: http://www.phpexcel.net/
@@ -12,10 +12,13 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Bernt R. Brenna
 * Anders Chrigstrom
 * ccoacley
+* Charlie Clark
 * Maarten De Paepe
 * Etienne Desautels
+* echlebek_
 * Alexandre Fayolle
 * Eric Gazoni
+* Brice Gelineau
 * Alex Gronholm
 * Yaroslav Halchenko
 * Jeff Holman
@@ -23,12 +26,16 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * JarekPS
 * Heikki Junes
 * Chi Ho Kwok
+* Yingjie Lan
+* Greg Lehmann
 * Adam Lofts
 * Marko Loparic 
 * Samuel Loretan
+* Amin Mirzaee
 * Adam Morris
 * aceMueller
 * Jun Omae
+* Waldemar Osuch
 * Jonathan Peirce
 * Ted Pollari 
 * Rick Rankin

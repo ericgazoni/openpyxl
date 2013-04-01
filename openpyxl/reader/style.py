@@ -180,31 +180,32 @@ def parse_fills(root, xmlns, color_index):
             newFill = Fill()
             # Rotation is unset
             patternFill = fill.find(QName(xmlns, 'patternFill').text)
-            newFill.fill_type = patternFill.get('patternType')
+            if patternFill is not None:
+                newFill.fill_type = patternFill.get('patternType')
 
-            fgColor = patternFill.find(QName(xmlns, 'fgColor').text)
-            if fgColor is not None:
-                if fgColor.get('indexed') is not None and 0 <= int(fgColor.get('indexed')) < len(color_index):
-                    newFill.start_color.index = color_index[int(fgColor.get('indexed'))]
-                elif fgColor.get('theme') is not None:
-                    if fgColor.get('tint') is not None:
-                        newFill.start_color.index = 'theme:%s:%s' % (fgColor.get('theme'), fgColor.get('tint'))
+                fgColor = patternFill.find(QName(xmlns, 'fgColor').text)
+                if fgColor is not None:
+                    if fgColor.get('indexed') is not None and 0 <= int(fgColor.get('indexed')) < len(color_index):
+                        newFill.start_color.index = color_index[int(fgColor.get('indexed'))]
+                    elif fgColor.get('theme') is not None:
+                        if fgColor.get('tint') is not None:
+                            newFill.start_color.index = 'theme:%s:%s' % (fgColor.get('theme'), fgColor.get('tint'))
+                        else:
+                            newFill.start_color.index = 'theme:%s:' % fgColor.get('theme')  # prefix color with theme
                     else:
-                        newFill.start_color.index = 'theme:%s:' % fgColor.get('theme') # prefix color with theme
-                else:
-                    newFill.start_color.index = fgColor.get('rgb')
+                        newFill.start_color.index = fgColor.get('rgb')
 
-            bgColor = patternFill.find(QName(xmlns, 'bgColor').text)
-            if bgColor is not None:
-                if bgColor.get('indexed') is not None and 0 <= int(bgColor.get('indexed')) < len(color_index):
-                    newFill.end_color.index = color_index[int(bgColor.get('indexed'))]
-                elif bgColor.get('theme') is not None:
-                    if bgColor.get('tint') is not None:
-                        newFill.end_color.index = 'theme:%s:%s' % (bgColor.get('theme'), bgColor.get('tint'))
-                    else:
-                        newFill.end_color.index = 'theme:%s:' % bgColor.get('theme') # prefix color with theme
-                elif bgColor.get('rgb'):
-                    newFill.end_color.index = bgColor.get('rgb')
+                bgColor = patternFill.find(QName(xmlns, 'bgColor').text)
+                if bgColor is not None:
+                    if bgColor.get('indexed') is not None and 0 <= int(bgColor.get('indexed')) < len(color_index):
+                        newFill.end_color.index = color_index[int(bgColor.get('indexed'))]
+                    elif bgColor.get('theme') is not None:
+                        if bgColor.get('tint') is not None:
+                            newFill.end_color.index = 'theme:%s:%s' % (bgColor.get('theme'), bgColor.get('tint'))
+                        else:
+                            newFill.end_color.index = 'theme:%s:' % bgColor.get('theme')  # prefix color with theme
+                    elif bgColor.get('rgb'):
+                        newFill.end_color.index = bgColor.get('rgb')
             count += 1
             fill_list.append(newFill)
     return fill_list
