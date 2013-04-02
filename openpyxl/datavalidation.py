@@ -27,6 +27,7 @@ from itertools import groupby
 
 from openpyxl.cell import coordinate_from_string
 
+
 def collapse_cell_addresses(cells, input_ranges=()):
     """ Collapse a collection of cell co-ordinates down into an optimal
         range or collection of ranges.
@@ -43,17 +44,17 @@ def collapse_cell_addresses(cells, input_ranges=()):
     raw_coords = [coordinate_from_string(cell) for cell in cells]
 
     # Group up as {column: [list of rows]}
-    grouped_coords = {k: [c[1] for c in g] for k, g in\
-                     groupby(sorted(raw_coords, key=keyfunc), keyfunc)}
+    grouped_coords = {k: [c[1] for c in g] for k, g in
+                      groupby(sorted(raw_coords, key=keyfunc), keyfunc)}
 
     ranges = list(input_ranges)
 
     # For each column, find contiguous ranges of rows
     for column in grouped_coords:
         rows = sorted(grouped_coords[column])
-        grouped_rows = [[r[1] for r in list(g)] for k, g in\
-                        groupby(enumerate(rows),\
-                        lambda x: x[0]-x[1])]
+        grouped_rows = [[r[1] for r in list(g)] for k, g in
+                        groupby(enumerate(rows),
+                        lambda x: x[0] - x[1])]
 
         for rows in grouped_rows:
             if len(rows) == 0:
@@ -64,6 +65,7 @@ def collapse_cell_addresses(cells, input_ranges=()):
                 ranges.append("%s%d:%s%d" % (column, rows[0], column, rows[-1]))
 
     return " ".join(ranges)
+
 
 """
   <xsd:complexType name="CT_DataValidations">
@@ -143,35 +145,78 @@ def collapse_cell_addresses(cells, input_ranges=()):
     </xsd:restriction>
   </xsd:simpleType>
 """
+
+
 default_attr_map = {
-    "allowBlank": "1",
     "showInputMessage": "1",
-    "showErrorMessage": "1",
 }
+
+
 class DataValidation(object):
-    def __init__(self, type="list", formula1="", attr_map=default_attr_map):
-        self.type = type
-        self.formula1 = formula1
-        self.formula2 = None
+    def __init__(self,
+                 validation_type,
+                 operator=None,
+                 formula1=None,
+                 formula2=None,
+                 allow_blank=False,
+                 attr_map=default_attr_map):
+
+        self.validation_type = validation_type
+        self.operator = operator
+        self.formula1 = str(formula1)
+        self.formula2 = str(formula2)
+        self.allow_blank = allow_blank
         self.attr_map = attr_map
         self.cells = []
         self.ranges = []
 
-    def set_forumula1(new):
-        self.formula1 = new
+    def add_cell(self, cell):
+        """Adds a openpyxl.cell to this validator"""
+        self.cells.append(cell.get_coordinate())
 
-    def set_formula2(new):
-        self.formula2 = new
-
-    def set_attribute_map(new):
-        self.attr_map = new
-
-    def add_validation_on_cell(self, cell_coordinate):
-        self.cells.append(cell_coordinate)
+    def set_error_message(self, error, error_title="Validation Error"):
+        """Creates a custom error message, displayed when a user changes a cell
+           to an invalid value"""
+        self.attr_map['showErrorMessage'] = '1'
+        self.attr_map['errorTitle'] = error_title
+        self.attr_map['error'] = error
 
     def generate_attributes_map(self):
+        self.attr_map['type'] = self.validation_type
+        self.attr_map['allowBlank'] = '1' if self.allow_blank else '0'
+
+        if self.operator:
+            self.attr_map['operator'] = self.operator
+
         # Update the sqref to ensure it points at all cells we're interested in
-        self.attr_map['type'] = self.type
         self.attr_map['sqref'] = collapse_cell_addresses(self.cells, self.ranges)
+
         return self.attr_map
 
+
+class ValidationType(object):
+    NONE = "none"
+    WHOLE = "whole"
+    DECIMAL = "decimal"
+    LIST = "list"
+    DATE = "date"
+    TIME = "time"
+    TEXT_LENGTH = "textLength"
+    CUSTOM = "custom"
+
+
+class ValidationOperator(object):
+    BETWEEN = "between"
+    NOT_BETWEEN = "notBetween"
+    EQUAL = "equal"
+    NOT_EQUAL = "notEqual"
+    LESS_THAN = "lessThan"
+    LESS_THAN_OR_EQUAL = "lessThanOrEqual"
+    GREATER_THAN = "greaterThan"
+    GREATER_THAN_OR_EQUAL = "greaterThanOrEqual"
+
+
+class ValidationErrorStyle(object):
+    STOP = "stop"
+    WARNING = "warning"
+    INFORMATION = "information"

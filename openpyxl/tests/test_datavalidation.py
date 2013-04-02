@@ -27,7 +27,7 @@
 from nose.tools import eq_, raises, assert_raises #pylint: disable=E0611
 
 # package imports
-from openpyxl.datavalidation import collapse_cell_addresses
+from openpyxl.datavalidation import collapse_cell_addresses, DataValidation, ValidationType
 
 # There are already unit-tests in test_cell.py that test out the
 # coordinate_from_string method.  This should be the only way the
@@ -44,3 +44,18 @@ COLLAPSE_TEST_DATA = [
 def test_collapse_cell_addresses():
     for data in COLLAPSE_TEST_DATA:
         eq_(collapse_cell_addresses(data[0]), data[1])
+
+
+def test_list_validation():
+    dv = DataValidation(ValidationType.LIST, formula1='"Dog,Cat,Fish"')
+    eq_(dv.formula1, '"Dog,Cat,Fish"')
+    eq_(dv.generate_attributes_map()['type'], 'list')
+    eq_(dv.generate_attributes_map()['allowBlank'], '0')
+
+
+def test_error_message():
+    dv = DataValidation(ValidationType.LIST, formula1='"Dog,Cat,Fish"')
+    dv.set_error_message('You done bad')
+    eq_(dv.generate_attributes_map()['showErrorMessage'], '1')
+    eq_(dv.generate_attributes_map()['errorTitle'], 'Validation Error')
+    eq_(dv.generate_attributes_map()['error'], 'You done bad')
