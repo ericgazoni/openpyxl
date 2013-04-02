@@ -51,11 +51,19 @@ def test_list_validation():
     eq_(dv.formula1, '"Dog,Cat,Fish"')
     eq_(dv.generate_attributes_map()['type'], 'list')
     eq_(dv.generate_attributes_map()['allowBlank'], '0')
+    eq_(dv.generate_attributes_map()['showErrorMessage'], '1')
+    eq_(dv.generate_attributes_map()['showInputMessage'], '1')
 
 
 def test_error_message():
     dv = DataValidation(ValidationType.LIST, formula1='"Dog,Cat,Fish"')
     dv.set_error_message('You done bad')
-    eq_(dv.generate_attributes_map()['showErrorMessage'], '1')
     eq_(dv.generate_attributes_map()['errorTitle'], 'Validation Error')
     eq_(dv.generate_attributes_map()['error'], 'You done bad')
+
+
+def test_prompt_message():
+    dv = DataValidation(ValidationType.LIST, formula1='"Dog,Cat,Fish"')
+    dv.set_prompt_message('Please enter a value')
+    eq_(dv.generate_attributes_map()['promptTitle'], 'Validation Prompt')
+    eq_(dv.generate_attributes_map()['prompt'], 'Please enter a value')

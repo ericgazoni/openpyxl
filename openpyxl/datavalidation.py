@@ -149,6 +149,7 @@ def collapse_cell_addresses(cells, input_ranges=()):
 
 default_attr_map = {
     "showInputMessage": "1",
+    "showErrorMessage": "1",
 }
 
 
@@ -159,16 +160,19 @@ class DataValidation(object):
                  formula1=None,
                  formula2=None,
                  allow_blank=False,
-                 attr_map=default_attr_map):
+                 attr_map=None):
 
         self.validation_type = validation_type
         self.operator = operator
         self.formula1 = str(formula1)
         self.formula2 = str(formula2)
         self.allow_blank = allow_blank
-        self.attr_map = attr_map
+        self.attr_map = {}
         self.cells = []
         self.ranges = []
+
+        if not attr_map:
+            self.attr_map.update(default_attr_map)
 
     def add_cell(self, cell):
         """Adds a openpyxl.cell to this validator"""
@@ -177,9 +181,13 @@ class DataValidation(object):
     def set_error_message(self, error, error_title="Validation Error"):
         """Creates a custom error message, displayed when a user changes a cell
            to an invalid value"""
-        self.attr_map['showErrorMessage'] = '1'
         self.attr_map['errorTitle'] = error_title
         self.attr_map['error'] = error
+
+    def set_prompt_message(self, prompt, prompt_title="Validation Prompt"):
+        """Creates a custom prompt message"""
+        self.attr_map['promptTitle'] = prompt_title
+        self.attr_map['prompt'] = prompt
 
     def generate_attributes_map(self):
         self.attr_map['type'] = self.validation_type

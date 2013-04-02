@@ -104,7 +104,13 @@ Validating cells
     ws = wb.get_active_sheet()
 
     # Create a data-validation object with list validation
-    dv = DataValidation(ValidationType.LIST, '"Dog,Cat,Bat"')
+    dv = DataValidation(ValidationType.LIST, '"Dog,Cat,Bat"', allow_blank=True)
+
+    # Optionally set a custom error message
+    dv.set_error_message('Your entry is not in the list', 'Invalid Entry')
+
+    # Optionally set a custom prompt message
+    dv.set_prompt_message('Please select from the list', 'List Selection')
 
     # Add the data-validation object to the worksheet
     ws.add_data_validation(dv)
