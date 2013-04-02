@@ -13,7 +13,7 @@
 
 Usage examples
 ------------------
- 
+
 Tutorial
 ++++++++
 
@@ -23,10 +23,10 @@ Tutorial
 
 Cookbook
 ++++++++
-    
+
 .. toctree::
 
-   	usage
+       usage
 
 Read/write large files
 ++++++++++++++++++++++
@@ -36,11 +36,11 @@ Read/write large files
     optimized
 
 API Documentation
------------------- 
+------------------
 
 .. toctree::
 
-   	api
+       api
 
 Indices and tables
 ==================
