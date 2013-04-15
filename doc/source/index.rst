@@ -48,10 +48,13 @@ or ::
 
 .. note::
 
-    To install from sources (there is nothing to build, openpyxl is 100% pure Python), you can download an archive from https://bitbucket.org/ericgazoni/openpyxl/downloads (look in the "tags" tab).
+    To install from sources (there is nothing to build, openpyxl is 100% pure Python), you can download an archive from `bitbucket`_ (look in the "tags" tab).
+    
     After extracting the archive, you can do::
 
     $ python setup.py install 
+
+.. _bitbucket: https://bitbucket.org/ericgazoni/openpyxl/downloads
 
 .. warning::
     
@@ -60,6 +63,18 @@ or ::
     $ pip install pillow
 
     or browse https://pypi.python.org/pypi/Pillow/, pick the latest version and head to the bottom of the page for Windows binaries.
+
+
+Getting the source
+------------------
+
+Source code is hosted on bitbucket.org. You can get it using a Mercurial client and the following URLs: 
+
+    * $ hg clone \https://bitbucket.org/ericgazoni/openpyxl -r |release|
+
+or to get the latest development version:
+
+    * $ hg clone \https://bitbucket.org/ericgazoni/openpyxl
 
 
 Usage examples
