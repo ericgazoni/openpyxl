@@ -136,43 +136,52 @@ Other validation examples
 
 Any whole number:
 ::
+    
     dv = DataValidation(ValidationType.WHOLE)
 
 Any whole number above 100:
 ::
+    
     dv = DataValidation(ValidationType.WHOLE,
                         ValidationOperator.GREATER_THAN,
                         100)
 
 Any decimal number:
 ::
+    
     dv = DataValidation(ValidationType.DECIMAL)
 
 Any decimal number between 0 and 1:
 ::
+    
     dv = DataValidation(ValidationType.DECIMAL,
                         ValidationOperator.BETWEEN,
                         0, 1)
 
 Any date:
 ::
+    
     dv = DataValidation(ValidationType.DATE)
 
 or time:
 ::
+    
     dv = DataValidation(ValidationType.TIME)
 
 Any string at most 15 characters:
 ::
+    
     dv = DataValidation(ValidationType.TEXT_LENGTH,
                         ValidationOperator.LESS_THAN_OR_EQUAL,
                         15)
 
 Custom rule:
 ::
+    
     dv = DataValidation(ValidationType.CUSTOM,
                         None,
                         "=SOMEFORMULA")
 
-See http://www.contextures.com/xlDataVal07.html for custom rules
+.. note::
+    See http://www.contextures.com/xlDataVal07.html for custom rules
 
