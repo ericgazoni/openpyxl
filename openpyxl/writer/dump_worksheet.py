@@ -237,7 +237,8 @@ class DumpWorksheet(Worksheet):
                 dtype = 'string'
                 cell = self._string_builder.add(cell)
 
-            attributes['t'] = STYLES[dtype]['type']
+            if dtype != 'formula':
+                attributes['t'] = STYLES[dtype]['type']
             start_tag(doc, 'c', attributes)
 
             if dtype == 'formula':
