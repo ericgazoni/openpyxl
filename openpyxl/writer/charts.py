@@ -231,7 +231,9 @@ class ChartWriter(object):
         SubElement(data, 'c:ptCount', {'val':str(len(values))})
         for j, val in enumerate(values):
             point = SubElement(data, 'c:pt', {'idx':str(j)})
-            SubElement(point, 'c:v').text = str(val)
+            if not isinstance(val, basestring):
+                val = str(val)
+            SubElement(point, 'c:v').text = val
 
     def _write_error_bar(self, node, serie):
 
