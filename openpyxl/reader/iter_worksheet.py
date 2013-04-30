@@ -23,7 +23,7 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-""" Iterators-based worksheet reader 
+""" Iterators-based worksheet reader
 *Still very raw*
 """
 
@@ -33,7 +33,7 @@ from itertools import  groupby
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import (coordinate_from_string, get_column_letter, Cell,
                             column_index_from_string)
-from openpyxl.reader.style import read_style_table
+from openpyxl.reader.style import read_style_table, NumberFormat
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.shared.compat import unicode
@@ -83,6 +83,7 @@ except ImportError:
 
             return self
 
+formatter = NumberFormat()
 
 class RawCell(BaseRawCell):
     """Optimized version of the :class:`openpyxl.cell.Cell`, using named tuples.
@@ -103,16 +104,7 @@ class RawCell(BaseRawCell):
 
     @property
     def is_date(self):
-        res = (self.data_type == Cell.TYPE_NUMERIC
-               and self.number_format is not None
-               and ('d' in self.number_format
-                    or 'm' in self.number_format
-                    or 'y' in self.number_format
-                    or 'h' in self.number_format
-                    or 's' in self.number_format
-                   ))
-
-        return res
+        return formatter.is_date_format(self.number_format)
 
 def iter_rows(workbook_name, sheet_name, xml_source, shared_date, string_table, range_string='', row_offset=0, column_offset=0):
 
@@ -154,14 +146,14 @@ def get_cells(p, min_row, min_col, max_row, max_col, _re_coordinate=RE_COORDINAT
             if min_col <= column <= max_col and min_row <= row <= max_row:
                 data_type = element.get('t', 'n')
                 style_id = element.get('s')
+                formula = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}f')
                 value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
+                if formula is not None:
+                    data_type = Cell.TYPE_FORMULA
+                    value = "=" + formula
                 yield RawCell(row, column_str, coord, value, data_type, style_id, None)
 
-        if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v':
-            continue
-        element.clear()
-
-
+            element.clear()
 
 def get_range_boundaries(range_string, row=0, column=0):
 
@@ -248,7 +240,7 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
 
         yield tuple(full_row)
 
-#------------------------------------------------------------------------------ 
+#------------------------------------------------------------------------------
 
 class IterableWorksheet(Worksheet):
 
@@ -271,20 +263,20 @@ class IterableWorksheet(Worksheet):
 
 
     def iter_rows(self, range_string='', row_offset=0, column_offset=0):
-        """ Returns a squared range based on the `range_string` parameter, 
+        """ Returns a squared range based on the `range_string` parameter,
         using generators.
-        
+
         :param range_string: range of cells (e.g. 'A1:C4')
         :type range_string: string
-        
+
         :param row: row index of the cell (e.g. 4)
         :type row: int
 
         :param column: column index of the cell (e.g. 3)
         :type column: int
-        
+
         :rtype: generator
-        
+
         """
 
         return iter_rows(workbook_name=self._workbook_name,
