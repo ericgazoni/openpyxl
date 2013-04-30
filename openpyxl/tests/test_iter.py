@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_iter.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -125,6 +125,3 @@ class TestDates(TestWorksheet):
 
         eq_(datetime.datetime(1973, 5, 20), list(ws.iter_rows('A1'))[0][0].internal_value)
         eq_(datetime.datetime(1973, 5, 20, 9, 15, 2), list(ws.iter_rows('C1'))[0][0].internal_value)
-
-
-
