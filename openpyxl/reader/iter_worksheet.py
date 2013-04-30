@@ -154,14 +154,14 @@ def get_cells(p, min_row, min_col, max_row, max_col, _re_coordinate=RE_COORDINAT
             if min_col <= column <= max_col and min_row <= row <= max_row:
                 data_type = element.get('t', 'n')
                 style_id = element.get('s')
+                formula = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}f')
                 value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
+                if formula is not None:
+                    data_type = Cell.TYPE_FORMULA
+                    value = "=" + formula
                 yield RawCell(row, column_str, coord, value, data_type, style_id, None)
 
-        if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v':
-            continue
-        element.clear()
-
-
+            element.clear()
 
 def get_range_boundaries(range_string, row=0, column=0):
 
@@ -248,7 +248,7 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
 
         yield tuple(full_row)
 
-#------------------------------------------------------------------------------ 
+#------------------------------------------------------------------------------
 
 class IterableWorksheet(Worksheet):
 
@@ -271,20 +271,20 @@ class IterableWorksheet(Worksheet):
 
 
     def iter_rows(self, range_string='', row_offset=0, column_offset=0):
-        """ Returns a squared range based on the `range_string` parameter, 
+        """ Returns a squared range based on the `range_string` parameter,
         using generators.
-        
+
         :param range_string: range of cells (e.g. 'A1:C4')
         :type range_string: string
-        
+
         :param row: row index of the cell (e.g. 4)
         :type row: int
 
         :param column: column index of the cell (e.g. 3)
         :type column: int
-        
+
         :rtype: generator
-        
+
         """
 
         return iter_rows(workbook_name=self._workbook_name,
