@@ -124,6 +124,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
     for event, element in filter(filter_cells, it):
 
         value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
+        formula = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}f')
 
         coordinate = element.get('r')
         style_id = element.get('s')
@@ -134,7 +135,8 @@ def fast_parse(ws, xml_source, string_table, style_table):
             data_type = element.get('t', 'n')
             if data_type == Cell.TYPE_STRING:
                 value = string_table.get(int(value))
-
+            if formula is not None:
+                value = "=" + formula
             ws.cell(coordinate).value = value
 
         # to avoid memory exhaustion, clear the item after use
