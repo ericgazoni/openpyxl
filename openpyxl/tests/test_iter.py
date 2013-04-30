@@ -108,11 +108,24 @@ class TestIntegers(TestWorksheet):
 
             eq_(row_values, expected_row)
 
+
 class TestFloats(TestWorksheet):
 
     sheet_name = 'Sheet2 - Numbers'
     query_range = 'K1:L30'
-    expected = expected = [[(x + 1) / 100.0] for x in xrange(30)]
+    expected = [[(x + 1) / 100.0] for x in xrange(30)]
+
+    def test_read_fast_integrated(self):
+
+        wb = self._open_wb()
+        ws = wb.get_sheet_by_name(name = self.sheet_name)
+
+        for row, expected_row in zip(ws.iter_rows(self.query_range), self.expected):
+
+            row_values = [x.internal_value for x in row]
+
+            eq_(row_values, expected_row)
+
 
 class TestDates(TestWorksheet):
 
