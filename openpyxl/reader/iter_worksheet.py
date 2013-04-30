@@ -23,7 +23,7 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-""" Iterators-based worksheet reader 
+""" Iterators-based worksheet reader
 *Still very raw*
 """
 
@@ -33,7 +33,7 @@ from itertools import  groupby
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import (coordinate_from_string, get_column_letter, Cell,
                             column_index_from_string)
-from openpyxl.reader.style import read_style_table
+from openpyxl.reader.style import read_style_table, NumberFormat
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.shared.compat import unicode
@@ -83,6 +83,7 @@ except ImportError:
 
             return self
 
+formatter = NumberFormat()
 
 class RawCell(BaseRawCell):
     """Optimized version of the :class:`openpyxl.cell.Cell`, using named tuples.
@@ -103,16 +104,7 @@ class RawCell(BaseRawCell):
 
     @property
     def is_date(self):
-        res = (self.data_type == Cell.TYPE_NUMERIC
-               and self.number_format is not None
-               and ('d' in self.number_format
-                    or 'm' in self.number_format
-                    or 'y' in self.number_format
-                    or 'h' in self.number_format
-                    or 's' in self.number_format
-                   ))
-
-        return res
+        return formatter.is_date_format(self.number_format)
 
 def iter_rows(workbook_name, sheet_name, xml_source, shared_date, string_table, range_string='', row_offset=0, column_offset=0):
 
