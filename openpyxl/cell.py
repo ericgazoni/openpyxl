@@ -34,17 +34,18 @@ cells using Excel's 'A1' column/row nomenclature are also provided.
 __docformat__ = "restructuredtext en"
 
 # Python stdlib imports
+from openpyxl.shared import (NUMERIC_TYPES, DEFAULT_ROW_HEIGHT,
+    DEFAULT_COLUMN_WIDTH)
+from openpyxl.shared.compat import all, unicode, basestring
+from openpyxl.shared.date_time import SharedDate
+from openpyxl.shared.exc import (CellCoordinatesException,
+    ColumnStringIndexException, DataTypeException)
+from openpyxl.shared.units import points_to_pixels
+from openpyxl.style import NumberFormat
 import datetime
 import re
 
 # package imports
-from openpyxl.shared.units import points_to_pixels
-from openpyxl.shared.compat import all, unicode, basestring
-from openpyxl.shared.date_time import SharedDate
-from openpyxl.shared.exc import CellCoordinatesException, \
-        ColumnStringIndexException, DataTypeException
-from openpyxl.style import NumberFormat
-from openpyxl.shared import NUMERIC_TYPES
 
 # constants
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
@@ -423,18 +424,33 @@ class Cell(object):
     def anchor(self):
         """ returns the expected position of a cell in pixels from the top-left
             of the sheet. For example, A1 anchor should be (0,0).
+
+            :rtype: tuple(int, int)
         """
         left_columns = (column_index_from_string(self.column, True) - 1)
-        existing_left_columns = [dimension.width for dimension
-                                 in self.parent.column_dimensions.values()
-                                 if dimension.width > 0]
-        left_anchor = (points_to_pixels(51.85) * left_columns)
-        left_anchor += sum(existing_left_columns)
+        column_dimensions = self.parent.column_dimensions
+        left_anchor = 0
+        default_width = points_to_pixels(DEFAULT_COLUMN_WIDTH)
 
+        for col_idx in range(left_columns):
+            letter = get_column_letter(col_idx + 1)
+            if letter in column_dimensions:
+                cdw = column_dimensions.get(letter).width
+                if cdw > 0:
+                    left_anchor += points_to_pixels(cdw)
+                    continue
+            left_anchor += default_width
+
+        row_dimensions = self.parent.row_dimensions
+        top_anchor = 0
         top_rows = (self.row - 1)
-        existing_top_rows = [dimension.height for dimension
-                             in self.parent.row_dimensions.values()
-                             if dimension.height > 0]
-        top_anchor = (points_to_pixels(15.) * top_rows)
-        top_anchor += sum(existing_top_rows)
-        return (top_anchor, left_anchor)
+        default_height = points_to_pixels(DEFAULT_ROW_HEIGHT)
+        for row_idx in range(1, top_rows + 1):
+            if row_idx in row_dimensions:
+                rdh = row_dimensions[row_idx].height
+                if rdh > 0:
+                    top_anchor += points_to_pixels(rdh)
+                    continue
+            top_anchor += default_height
+
+        return (left_anchor, top_anchor)

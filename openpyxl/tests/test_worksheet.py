@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_worksheet.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -30,7 +30,7 @@ from nose.tools import eq_, raises, assert_raises
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet, Relationship, flatten
 from openpyxl.writer.worksheet import write_worksheet
-from openpyxl.cell import Cell
+from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.shared.exc import CellCoordinatesException, \
         SheetTitleException, InsufficientCoordinatesException, \
         NamedRangeException
@@ -256,11 +256,11 @@ class TestWorksheet(object):
 
         ws = Worksheet(self.wb)
         xml_string = write_worksheet(ws, None, None)
-        assert '<pageMargins' not in xml_string        
+        assert '<pageMargins' not in xml_string
 
     def test_merge(self):
         ws = Worksheet(self.wb)
-        string_table = {'':'', 'Cell A1':'Cell A1','Cell B1':'Cell B1'}
+        string_table = {'':'', 'Cell A1':'Cell A1', 'Cell B1':'Cell B1'}
 
         ws.cell('A1').value = 'Cell A1'
         ws.cell('B1').value = 'Cell B1'
@@ -344,3 +344,18 @@ class TestWorksheet(object):
         assert "<headerFooter>" not in xml_string
         assert "<oddHeader>" not in xml_string
         assert "<oddFooter>" not in xml_string
+
+
+class TestPositioning(object):
+    def test_point(self):
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        eq_(ws.point_pos(top=40, left=150), ('C', 3))
+
+    def test_roundtrip(self):
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        for address in ('A1', 'D52', 'X11'):
+            eq_(ws.point_pos(*ws.cell(address).anchor),
+                coordinate_from_string(address))
+
