@@ -23,6 +23,7 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+from datetime import date
 
 from nose.tools import eq_, assert_raises, assert_true
 
@@ -139,6 +140,10 @@ class TestChart(object):
             ws.cell(row=i, column=0).value = 1
         self.range = Reference(ws, (0, 0), (0, 9))
 
+    def make_worksheet(self):
+        wb = Workbook()
+        return wb.get_active_sheet()
+
     def test_ctor(self):
         from openpyxl.chart import Axis, Legend
         from openpyxl.drawing import Drawing
@@ -191,6 +196,24 @@ class TestChart(object):
         maxi, unit = c._compute_series_max()
         eq_(maxi, 2.0)
         eq_(unit, 1.0)
+
+    def test_compute_series_max_dates(self):
+        ws = self.make_worksheet()
+        for i in range(1, 10):
+            ws.append([date(2013, i, 1)])
+        c = Chart(None, None)
+        ref = Reference(ws, (0, 0), (9, 0))
+        c._series.append(ref)
+        #maxi, unit = c._compute_series_max()
+
+    def test_computer_series_max_strings(self):
+        ws = self.make_worksheet()
+        for i in range(10):
+            ws.append(['a'])
+        ref = Reference(ws, (0, 0), (9, 0))
+        c = Chart(None, None)
+        c._series.append(ref)
+        #maxi, unit = c._compute_series_max()
 
     def test_get_margin_top(self):
         c = Chart(None, None)

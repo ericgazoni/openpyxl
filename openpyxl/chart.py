@@ -312,6 +312,7 @@ class Chart(object):
         'xvalues for rows
         """
 
+        # calculate the maximum for all series
         series_max = []
         for s in self._series:
             series = getattr(s, attr)
@@ -320,6 +321,7 @@ class Chart(object):
                 series_max.append(m)
         maxi = max(series_max)
 
+        # ugh! handle values 0 < x < 1
         mul = None
         if maxi < 1:
             s = str(maxi).split('.')[1]
@@ -331,11 +333,16 @@ class Chart(object):
                     break
             maxi = maxi * mul
 
+        # coerce float and expand
         maxi = math.ceil(float(maxi) * 1.1)
+        # calculate length in characters
         sz = len(str(int(maxi))) - 1
+        # calculate tick
         unit = math.ceil(math.ceil(float(maxi) / pow(10.0, sz)) * pow(10.0, sz - 1))
+        # recalculate max
         maxi = math.ceil(float(maxi) / unit) * unit
 
+        # recalibrate for 0 < x < 1
         if mul is not None:
             maxi = maxi / mul
             unit = unit / mul
