@@ -185,7 +185,7 @@ class TestChart(object):
         c._series.append(self.range)
         eq_(c.get_y_chars(), 1)
 
-    def test_compute_series_max(self):
+    def test_compute_series_max_numbers(self):
         c = Chart(None, None)
         c._series.append(self.range)
         maxi, unit = c._compute_series_max()
