@@ -185,20 +185,12 @@ class TestChart(object):
         c._series.append(self.range)
         eq_(c.get_y_chars(), 1)
 
-    def test_compute_ymin_ymax(self):
+    def test_compute_series_max(self):
         c = Chart(None, None)
         c._series.append(self.range)
-        c._compute_ymin_ymax()
-        eq_(c.y_axis.max, 2.0)
-        eq_(c.y_axis.unit, 1.0)
-
-    def test_computer_xmin_xmax(self):
-        c = Chart(None, None)
-        s = Serie(self.range, xvalues=self.range)
-        c._series.append(s)
-        c._compute_xmin_xmax()
-        eq_(c.x_axis.max, 2.0)
-        eq_(c.x_axis.unit, 1.0)
+        maxi, unit = c._compute_series_max()
+        eq_(maxi, 2.0)
+        eq_(unit, 1.0)
 
     def test_get_margin_top(self):
         c = Chart(None, None)
