@@ -185,10 +185,10 @@ class TestChart(object):
         c._series.append(self.range)
         eq_(c.get_y_chars(), 1)
 
-    def test_compute_min_max(self):
+    def test_compute_ymin_ymax(self):
         c = Chart(None, None)
         c._series.append(self.range)
-        c._compute_min_max()
+        c._compute_ymin_ymax()
         eq_(c.y_axis.max, 2.0)
         eq_(c.y_axis.unit, 1.0)
 

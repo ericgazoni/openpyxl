@@ -279,7 +279,7 @@ class Chart(object):
 
         serie.id = len(self._series)
         self._series.append(serie)
-        self._compute_min_max()
+        self._compute_ymin_ymax()
         if not None in [s.xvalues for s in self._series]:
             self._compute_xmin_xmax()
 
@@ -305,10 +305,20 @@ class Chart(object):
         _max = max([self.mymax(s.values) for s in self._series])
         return len(str(int(_max)))
 
-    def _compute_min_max(self):
-        """ compute y axis limits and units """
 
-        maxi = max([self.mymax(s.values) for s in self._series if s.values])
+    def _compute_series_max(self, attr='values'):
+        """Calculate the maximum value of all series for an axis
+        'values' for columns
+        'xvalues for rows
+        """
+
+        series_max = []
+        for s in self._series:
+            series = getattr(s, attr)
+            if series is not None:
+                m = self.mymax(series)
+                series_max.append(m)
+        maxi = max(series_max)
 
         mul = None
         if maxi < 1:
@@ -333,6 +343,11 @@ class Chart(object):
         if maxi / unit > 9:
             # no more that 10 ticks
             unit *= 2
+        return maxi, unit
+
+    def _compute_ymin_ymax(self):
+        """ compute y axis limits and units """
+        maxi, unit = self._compute_series_max('values')
 
         self.y_axis.max = maxi
         self.y_axis.unit = unit
@@ -340,31 +355,7 @@ class Chart(object):
     def _compute_xmin_xmax(self):
         """ compute x axis limits and units """
 
-        maxi = max([self.mymax(s.xvalues) for s in self._series])
-
-        mul = None
-        if maxi < 1:
-            s = str(maxi).split('.')[1]
-            mul = 10
-            for x in s:
-                if x == '0':
-                    mul *= 10
-                else:
-                    break
-            maxi = maxi * mul
-
-        maxi = math.ceil(maxi * 1.1)
-        sz = len(str(int(maxi))) - 1
-        unit = math.ceil(math.ceil(maxi / pow(10, sz)) * pow(10, sz - 1))
-        maxi = math.ceil(maxi / unit) * unit
-
-        if mul is not None:
-            maxi = maxi / mul
-            unit = unit / mul
-
-        if maxi / unit > 9:
-            # no more that 10 ticks
-            unit *= 2
+        maxi, unit = self._compute_series_max('xvalues')
 
         self.x_axis.max = maxi
         self.x_axis.unit = unit
