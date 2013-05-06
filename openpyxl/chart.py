@@ -80,18 +80,17 @@ class Axis(object):
 class Reference(object):
     """ a simple wrapper around a serie of reference data """
 
+
     def __init__(self, sheet, pos1, pos2=None):
 
         self.sheet = sheet
         self.pos1 = pos1
         self.pos2 = pos2
+        self.data_type = None
 
     def get_type(self):
-
-        if isinstance(self.values[0], basestring):
-            return 'str'
-        else:
-            return 'num'
+        """Legacy method"""
+        return self.data_type
 
     @property
     def values(self):
@@ -101,11 +100,19 @@ class Reference(object):
         if self.pos2 is None:
             cell = self.sheet.cell(row=self.pos1[0], column=self.pos1[1])
             self._values = [cell.value]
+            self.data_type = cell.data_type
         else:
             self._values = []
+
             for row in range(int(self.pos1[0]), int(self.pos2[0] + 1)):
                 for col in range(int(self.pos1[1]), int(self.pos2[1] + 1)):
-                    self._values.append(self.sheet.cell(row=row, column=col).value)
+                    cell = self.sheet.cell(row=row, column=col)
+                    if not self.data_type and cell.data_type:
+                        self.data_type = cell.data_type
+                    self._values.append(cell.value)
+            if self.data_type is None:
+                self.data_type = 'n'
+
         return self._values
 
     def _get_ref(self):
@@ -246,7 +253,7 @@ class Chart(object):
     SCATTER_CHART = 3
 
     def mymax(self, values):
-        return max([x for x in values if x])
+        return max([x for x in values if x is not None])
 
     def __init__(self, _type, grouping):
 

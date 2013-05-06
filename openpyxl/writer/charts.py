@@ -203,25 +203,23 @@ class ChartWriter(object):
     def _write_serial(self, node, reference, literal=False):
 
         cache = reference.values
-        if isinstance(cache[0], basestring):
-            typ = 'str'
-        else:
-            typ = 'num'
+        typ = reference.data_type
+
 
         if not literal:
-            if typ == 'num':
+            if typ == 'n':
                 ref = SubElement(node, 'c:numRef')
             else:
                 ref = SubElement(node, 'c:strRef')
             SubElement(ref, 'c:f').text = str(reference)
-            if typ == 'num':
+            if typ == 'n':
                 data = SubElement(ref, 'c:numCache')
             else:
                 data = SubElement(ref, 'c:strCache')
         else:
             data = SubElement(node, 'c:numLit')
 
-        if typ == 'num':
+        if typ == 'n':
             SubElement(data, 'c:formatCode').text = 'General'
         if literal:
             values = (1,)

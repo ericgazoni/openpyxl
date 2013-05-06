@@ -59,7 +59,8 @@ class TestReference(object):
         eq_(self.range.pos2, (9, 0))
 
     def test_get_type(self):
-        eq_(self.cell.get_type(), 'num')
+        self.cell.data_type = 'n'
+        eq_(self.cell.get_type(), 'n')
 
     def test_caching_cell(self):
         eq_(self.cell._get_cache(), [0])
@@ -171,8 +172,8 @@ class TestChart(object):
         eq_(c.mymax(range(10)), 9)
         from string import letters
         eq_(c.mymax(list(letters)), "z")
-        # eq_(c.mymax(range(-10, 1)), 0)
-        # eq_(c.mymax([""]*10), None)
+        eq_(c.mymax(range(-10, 1)), 0)
+        eq_(c.mymax([""]*10), "")
 
     def test_get_x_unit(self):
         c = Chart(None, None)
