@@ -64,12 +64,11 @@ class ExcelWriter(object):
         shared_string_table = self._write_string_table(archive)
         
         archive.writestr(ARC_CONTENT_TYPES, write_content_types(self.workbook))
-	if not self.workbook.vba_archive:
-		archive.writestr(ARC_ROOT_RELS, write_root_rels(self.workbook))
+        if not self.workbook.vba_archive:
+            archive.writestr(ARC_ROOT_RELS, write_root_rels(self.workbook))
         archive.writestr(ARC_WORKBOOK_RELS, write_workbook_rels(self.workbook))
         archive.writestr(ARC_APP, write_properties_app(self.workbook))
-        archive.writestr(ARC_CORE,
-                write_properties_core(self.workbook.properties))
+        archive.writestr(ARC_CORE, write_properties_core(self.workbook.properties))
         if self.workbook.loaded_theme:
             archive.writestr(ARC_THEME, self.workbook.loaded_theme)
         else:
@@ -77,13 +76,13 @@ class ExcelWriter(object):
         archive.writestr(ARC_STYLE, self.style_writer.write_table())
         archive.writestr(ARC_WORKBOOK, write_workbook(self.workbook))
 
-	if self.workbook.vba_archive:
-		vba_archive = self.workbook.vba_archive
-		for name in vba_archive.namelist():
-			for s in ARC_VBA:
-				if name.startswith(s):
-					archive.writestr(name, vba_archive.read(name))
-					break
+        if self.workbook.vba_archive:
+            vba_archive = self.workbook.vba_archive
+            for name in vba_archive.namelist():
+                for s in ARC_VBA:
+                    if name.startswith(s):
+                        archive.writestr(name, vba_archive.read(name))
+                        break
 
         self._write_worksheets(archive, shared_string_table, self.style_writer)
 

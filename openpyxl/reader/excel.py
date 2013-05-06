@@ -129,7 +129,7 @@ def load_workbook(filename, use_iterators=False, keep_vba=False):
         raise InvalidFileException(unicode(e))
 
     if not keep_vba:
-	    archive.close()
+        archive.close()
     return wb
 
 def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
@@ -139,7 +139,7 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
     # If are going to preserve the vba then attach the archive to the
     # workbook so that is available for the save.
     if keep_vba:
-	    wb.vba_archive = archive
+        wb.vba_archive = archive
 
     # get workbook-level information
     try:

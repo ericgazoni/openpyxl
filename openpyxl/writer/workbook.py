@@ -56,49 +56,54 @@ def write_content_types(workbook):
     """Write the content-types xml."""
     seen = set()
     if workbook.vba_archive:
-    	root = fromstring(workbook.vba_archive.read(ARC_CONTENT_TYPES))
-	register_namespace('', 'http://schemas.openxmlformats.org/package/2006/content-types')
-	for elem in root.findall('{http://schemas.openxmlformats.org/package/2006/content-types}Override'):
-	    seen.add(elem.attrib['PartName'])
+        root = fromstring(workbook.vba_archive.read(ARC_CONTENT_TYPES))
+        register_namespace('', 'http://schemas.openxmlformats.org/package/2006/content-types')
+        for elem in root.findall('{http://schemas.openxmlformats.org/package/2006/content-types}Override'):
+            seen.add(elem.attrib['PartName'])
     else:
-	root = Element('Types', {'xmlns': 'http://schemas.openxmlformats.org/package/2006/content-types'})
-	SubElement(root, 'Override', {'PartName': '/' + ARC_THEME, 'ContentType': 'application/vnd.openxmlformats-officedocument.theme+xml'})
-	SubElement(root, 'Override', {'PartName': '/' + ARC_STYLE, 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml'})
-	SubElement(root, 'Default', {'Extension': 'rels', 'ContentType': 'application/vnd.openxmlformats-package.relationships+xml'})
-	SubElement(root, 'Default', {'Extension': 'xml', 'ContentType': 'application/xml'})
+        root = Element('Types', {'xmlns': 'http://schemas.openxmlformats.org/package/2006/content-types'})
+        SubElement(root, 'Override', {'PartName': '/' + ARC_THEME, 'ContentType': 'application/vnd.openxmlformats-officedocument.theme+xml'})
+        SubElement(root, 'Override', {'PartName': '/' + ARC_STYLE, 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml'})
+        SubElement(root, 'Default', {'Extension': 'rels', 'ContentType': 'application/vnd.openxmlformats-package.relationships+xml'})
+        SubElement(root, 'Default', {'Extension': 'xml', 'ContentType': 'application/xml'})
         SubElement(root, 'Default', {'Extension': 'png', 'ContentType': 'image/png'})
-	SubElement(root, 'Override', {'PartName': '/' + ARC_WORKBOOK, 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'})
-	SubElement(root, 'Override', {'PartName': '/' + ARC_APP, 'ContentType': 'application/vnd.openxmlformats-officedocument.extended-properties+xml'})
-	SubElement(root, 'Override', {'PartName': '/' + ARC_CORE, 'ContentType': 'application/vnd.openxmlformats-package.core-properties+xml'})
-	SubElement(root, 'Override', {'PartName': '/' + ARC_SHARED_STRINGS, 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml'})
+        SubElement(root, 'Override', {'PartName': '/' + ARC_WORKBOOK, 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'})
+        SubElement(root, 'Override', {'PartName': '/' + ARC_APP, 'ContentType': 'application/vnd.openxmlformats-officedocument.extended-properties+xml'})
+        SubElement(root, 'Override', {'PartName': '/' + ARC_CORE, 'ContentType': 'application/vnd.openxmlformats-package.core-properties+xml'})
+        SubElement(root, 'Override', {'PartName': '/' + ARC_SHARED_STRINGS, 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml'})
 
     drawing_id = 1
     chart_id = 1
 
     for sheet_id, sheet in enumerate(workbook.worksheets):
-	part_name = '/xl/worksheets/sheet%d.xml' % (sheet_id + 1)
-	if part_name not in seen:
-		SubElement(root, 'Override', {'PartName': part_name,
-		'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'})
+        part_name = '/xl/worksheets/sheet%d.xml' % (sheet_id + 1)
+        if part_name not in seen:
+            SubElement(root, 'Override',
+                       {'PartName': part_name,
+                        'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'})
         if sheet._charts or sheet._images:
-	    part_name = '/xl/drawings/drawing%d.xml' % drawing_id
-	    if part_name not in seen:
-		    SubElement(root, 'Override', {'PartName' : part_name,
-			'ContentType' : 'application/vnd.openxmlformats-officedocument.drawing+xml'})
+            part_name = '/xl/drawings/drawing%d.xml' % drawing_id
+            if part_name not in seen:
+                SubElement(root, 'Override',
+                           {'PartName': part_name,
+                            'ContentType': 'application/vnd.openxmlformats-officedocument.drawing+xml'})
             drawing_id += 1
 
             for chart in sheet._charts:
-		part_name = '/xl/charts/chart%d.xml' % chart_id
-		if part_name not in seen:
-			SubElement(root, 'Override', {'PartName' : part_name,
-			    'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml'})
-                chart_id += 1
-                if chart._shapes:
-		    part_name = '/xl/drawings/drawing%d.xml' % drawing_id
-		    if part_name not in seen:
-			    SubElement(root, 'Override', {'PartName' : part_name,
-				'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml'})
-                    drawing_id += 1
+                part_name = '/xl/charts/chart%d.xml' % chart_id
+
+                if part_name not in seen:
+                    SubElement(root, 'Override',
+                               {'PartName': part_name,
+                                'ContentType': 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml'})
+                    chart_id += 1
+                    if chart._shapes:
+                        part_name = '/xl/drawings/drawing%d.xml' % drawing_id
+                        if part_name not in seen:
+                            SubElement(root, 'Override',
+                                       {'PartName': part_name,
+                                        'ContentType': 'application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml'})
+                        drawing_id += 1
 
     return get_document_content(root)
 
@@ -229,7 +234,7 @@ def write_workbook_rels(workbook):
             {'Id': 'rId%d' % (rid + 2), 'Target': 'theme/theme1.xml',
             'Type': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme'})
     if workbook.vba_archive:
-	    SubElement(root, 'Relationship',
-		    {'Id': 'rId%d' % (rid + 3), 'Target': 'vbaProject.bin',
-		    'Type': 'http://schemas.microsoft.com/office/2006/relationships/vbaProject'})
+        SubElement(root, 'Relationship',
+                   {'Id': 'rId%d' % (rid + 3), 'Target': 'vbaProject.bin',
+                    'Type': 'http://schemas.microsoft.com/office/2006/relationships/vbaProject'})
     return get_document_content(root)

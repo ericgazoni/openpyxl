@@ -218,7 +218,7 @@ def parse_fills(root, xmlns, color_index):
                         if bgColor.get('tint') is not None:
                             newFill.end_color.index = 'theme:%s:%s' % (bgColor.get('theme'), bgColor.get('tint'))
                         else:
-                            newFill.end_color.index = 'theme:%s:' % bgColor.get('theme') # prefix color with theme
+                            newFill.end_color.index = 'theme:%s:' % bgColor.get('theme')  # prefix color with theme
                     elif bgColor.get('rgb'):
                         newFill.end_color.index = bgColor.get('rgb')
                 count += 1

@@ -54,19 +54,19 @@ def row_sort(cell):
     return column_index_from_string(cell.column)
 
 def write_etree(doc, element):
-	start_tag(doc, element.tag, element)
-	for e in element.getchildren():
-		write_etree(doc, e)
-	end_tag(doc, element.tag)
+    start_tag(doc, element.tag, element)
+    for e in element.getchildren():
+        write_etree(doc, e)
+    end_tag(doc, element.tag)
 	
 def write_worksheet(worksheet, string_table, style_table):
     """Write a worksheet to an xml file."""
     if worksheet.xml_source:
-    	vba_root = fromstring(worksheet.xml_source)
-	register_namespace("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships")
-	register_namespace("", "http://schemas.openxmlformats.org/spreadsheetml/2006/main")
+        vba_root = fromstring(worksheet.xml_source)
+        register_namespace("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships")
+        register_namespace("", "http://schemas.openxmlformats.org/spreadsheetml/2006/main")
     else:
-    	vba_root = None
+        vba_root = None
     xml_file = StringIO()
     doc = XMLGenerator(out=xml_file, encoding='utf-8')
     start_tag(doc, 'worksheet',
@@ -74,7 +74,7 @@ def write_worksheet(worksheet, string_table, style_table):
             'xmlns': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
             'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
     if vba_root is not None:
-    	codename = vba_root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}sheetPr').get('codeName', worksheet.title)
+        codename = vba_root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}sheetPr').get('codeName', worksheet.title)
         start_tag(doc, 'sheetPr', {"codeName": codename})
     else:
         start_tag(doc, 'sheetPr')
@@ -122,10 +122,10 @@ def write_worksheet(worksheet, string_table, style_table):
     # been loaded with keep-vba true and we need to extract any control
     # elements.
     if vba_root is not None:
-	for t in ('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}legacyDrawing',
-		  '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}controls'):
-	    for elem in vba_root.findall(t):
-		xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem)))
+        for t in ('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}legacyDrawing',
+                  '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}controls'):
+            for elem in vba_root.findall(t):
+                xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem)))
 
     end_tag(doc, 'worksheet')
     doc.endDocument()
