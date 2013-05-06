@@ -114,6 +114,7 @@ class ChartWriter(object):
             SubElement(title, 'c:layout')
 
     def _write_axis(self, plot_area, axis, label):
+        self.chart.compute_axes()
 
         ax = SubElement(plot_area, label)
         SubElement(ax, 'c:axId', {'val':str(axis.id)})

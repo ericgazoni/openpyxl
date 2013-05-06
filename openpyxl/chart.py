@@ -286,9 +286,6 @@ class Chart(object):
 
         serie.id = len(self._series)
         self._series.append(serie)
-        self._compute_ymin_ymax()
-        if not None in [s.xvalues for s in self._series]:
-            self._compute_xmin_xmax()
 
     def add_shape(self, shape):
 
@@ -312,6 +309,11 @@ class Chart(object):
         _max = max([self.mymax(s.values) for s in self._series])
         return len(str(int(_max)))
 
+    def compute_axes(self):
+        """Calculate maximum value and units for axes"""
+        self._compute_ymin_ymax()
+        if not None in [s.xvalues for s in self._series]:
+            self._compute_xmin_xmax()
 
     def _compute_series_max(self, attr='values'):
         """Calculate the maximum value of all series for an axis
