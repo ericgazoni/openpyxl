@@ -99,8 +99,8 @@ class Reference(object):
             return self._values
         if self.pos2 is None:
             cell = self.sheet.cell(row=self.pos1[0], column=self.pos1[1])
-            self._values = [cell.value]
             self.data_type = cell.data_type
+            self._values = [cell.excel_value]
         else:
             self._values = []
 
@@ -109,7 +109,7 @@ class Reference(object):
                     cell = self.sheet.cell(row=row, column=col)
                     if not self.data_type and cell.data_type:
                         self.data_type = cell.data_type
-                    self._values.append(cell.value)
+                    self._values.append(cell.excel_value)
             if self.data_type is None:
                 self.data_type = 'n'
 
