@@ -30,27 +30,47 @@ from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 
 # package imports
 from openpyxl.shared.exc import OpenModeError, InvalidFileException
-from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CORE, ARC_APP, \
-        ARC_WORKBOOK, PACKAGE_WORKSHEETS, ARC_STYLE, ARC_THEME
+from openpyxl.shared.ooxml import (ARC_SHARED_STRINGS, ARC_CORE, ARC_WORKBOOK,
+                                   PACKAGE_WORKSHEETS, ARC_STYLE, ARC_THEME)
+from openpyxl.shared.compat import unicode, file
 from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
-from openpyxl.reader.workbook import read_sheets_titles, read_named_ranges, \
-        read_properties_core, get_sheet_ids, read_excel_base_date
+from openpyxl.reader.workbook import (read_sheets_titles, read_named_ranges,
+        read_properties_core, read_excel_base_date, get_sheet_ids)
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
+# Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
+from sys import exc_info
 
-def repair_central_directory(zipFile):
-    ''' trims trailing data from the central directory 
+try:
+    # Python 2
+    unicode
+except NameError:
+    # Python 3
+    unicode = str
+
+CENTRAL_DIRECTORY_SIGNATURE = '\x50\x4b\x05\x06'
+
+def repair_central_directory(zipFile, is_file_instance):
+    ''' trims trailing data from the central directory
     code taken from http://stackoverflow.com/a/7457686/570216, courtesy of Uri Cohen
     '''
-    f = open(zipFile, 'r+b')
-    data = f.read()
-    pos = data.find('\x50\x4b\x05\x06') # End of central directory signature  
+    from StringIO import StringIO
+
+    f = zipFile if is_file_instance else open(zipFile, 'r+b')
+    data = f.read().decode("utf-8")
+    pos = data.find(CENTRAL_DIRECTORY_SIGNATURE)  # End of central directory signature
     if (pos > 0):
-        f.seek(pos + 22)   # size of 'ZIP end of central directory record' 
-        f.truncate()
-        f.close()
+        sio = StringIO(data)
+        sio.seek(pos + 22)  # size of 'ZIP end of central directory record'
+        sio.truncate()
+        sio.seek(0)
+        return sio
+
+    f.seek(0)
+    return f
+
 
 def load_workbook(filename, use_iterators=False, keep_vba=False):
     """Open the given filename and return the workbook
@@ -70,7 +90,16 @@ def load_workbook(filename, use_iterators=False, keep_vba=False):
 
     """
 
-    if isinstance(filename, file):
+    try:
+        # Python 2
+        is_file_instance = isinstance(filename, file)
+    except NameError:
+        # Python 3
+        from io import BufferedReader
+        is_file_instance = isinstance(filename, BufferedReader)
+
+
+    if is_file_instance:
         # fileobject must have been opened with 'rb' flag
         # it is required by zipfile
         if 'b' not in filename.mode:
@@ -80,11 +109,13 @@ def load_workbook(filename, use_iterators=False, keep_vba=False):
         archive = ZipFile(filename, 'r', ZIP_DEFLATED)
     except BadZipfile:
         try:
-            repair_central_directory(filename)
-            archive = ZipFile(filename, 'r', ZIP_DEFLATED)
-        except BadZipfile, e:
+            f = repair_central_directory(filename, is_file_instance)
+            archive = ZipFile(f, 'r', ZIP_DEFLATED)
+        except BadZipfile:
+            e = exc_info()[1]
             raise InvalidFileException(unicode(e))
-    except (BadZipfile, RuntimeError, IOError, ValueError), e:
+    except (BadZipfile, RuntimeError, IOError, ValueError):
+        e = exc_info()[1]
         raise InvalidFileException(unicode(e))
     wb = Workbook()
 
@@ -93,7 +124,8 @@ def load_workbook(filename, use_iterators=False, keep_vba=False):
 
     try:
         _load_workbook(wb, archive, filename, use_iterators, keep_vba=keep_vba)
-    except KeyError, e:
+    except KeyError:
+        e = exc_info()[1]
         raise InvalidFileException(unicode(e))
 
     if not keep_vba:
@@ -119,7 +151,11 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
         string_table = read_string_table(archive.read(ARC_SHARED_STRINGS))
     except KeyError:
         string_table = {}
-    wb.loaded_theme = archive.read(ARC_THEME)
+    try:
+        wb.loaded_theme = archive.read(ARC_THEME)  # some writers don't output a theme, live with it (fixes #160)
+    except KeyError:
+        assert wb.loaded_theme == None, "even though the theme information is missing there is a theme object ?"
+
     style_table = read_style_table(archive.read(ARC_STYLE))
 
     wb.properties.excel_base_date = read_excel_base_date(xml_source=archive.read(ARC_WORKBOOK))

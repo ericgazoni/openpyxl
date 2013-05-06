@@ -1,4 +1,6 @@
 # file openpyxl/worksheet.py
+from openpyxl.shared.units import points_to_pixels
+from openpyxl.shared import DEFAULT_COLUMN_WIDTH, DEFAULT_ROW_HEIGHT
 
 # Copyright (c) 2010-2011 openpyxl
 #
@@ -39,7 +41,8 @@ from openpyxl.shared.password_hasher import hash_password
 from openpyxl.style import Style, DEFAULTS as DEFAULTS_STYLE
 from openpyxl.drawing import Drawing
 from openpyxl.namedrange import NamedRangeContainingValue
-from openpyxl.shared.compat import OrderedDict
+from openpyxl.shared.compat import OrderedDict, unicode, xrange, basestring
+from openpyxl.shared.compat.itertools import iteritems
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
@@ -67,10 +70,11 @@ class Relationship(object):
     TYPES = {
         'hyperlink': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
         'drawing':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
-        #'worksheet': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
-        #'sharedStrings': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
-        #'styles': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
-        #'theme': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
+        'image':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing'
+        # 'worksheet': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
+        # 'sharedStrings': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
+        # 'styles': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
+        # 'theme': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
     }
 
     def __init__(self, rel_type):
@@ -84,7 +88,7 @@ class Relationship(object):
 
 class PageSetup(object):
     """Information about page layout for this sheet"""
-    valid_setup = ("orientation", "paperSize", "scale", "fitToPage", "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber",)
+    valid_setup = ("orientation", "paperSize", "scale", "fitToPage", "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber")
     valid_options = ("horizontalCentered", "verticalCentered")
 
     def __init__(self):
@@ -99,9 +103,9 @@ class PageSetup(object):
             if setup_value is not None:
                 if setup_name == 'orientation':
                     setupGroup[setup_name] = '%s' % setup_value
-                elif setup_name in ('paperSize','scale'):
+                elif setup_name in ('paperSize', 'scale'):
                     setupGroup[setup_name] = '%d' % int(setup_value)
-                elif setup_name in ('fitToHeight','fitToWidth') and int(setup_value) >= 0:
+                elif setup_name in ('fitToHeight', 'fitToWidth') and int(setup_value) >= 0:
                     setupGroup[setup_name] = '%d' % int(setup_value)
 
         return setupGroup
@@ -112,7 +116,7 @@ class PageSetup(object):
         for options_name in self.valid_options:
             options_value = getattr(self, options_name)
             if options_value is not None:
-                if options_name in ('horizontalCentered','verticalCentered') and options_value:
+                if options_name in ('horizontalCentered', 'verticalCentered') and options_value:
                     optionsGroup[options_name] = '1'
 
         return optionsGroup
@@ -149,15 +153,15 @@ class HeaderFooterItem(object):
     RIGHT = 'R'
 
     REPLACE_LIST = (
-        ('\n','_x000D_'),
-        ('&[Page]','&P'),
-        ('&[Pages]','&N'),
-        ('&[Date]','&D'),
-        ('&[Time]','&T'),
-        ('&[Path]','&Z'),
-        ('&[File]','&F'),
-        ('&[Tab]','&A'),
-        ('&[Picture]','&G')
+        ('\n', '_x000D_'),
+        ('&[Page]', '&P'),
+        ('&[Pages]', '&N'),
+        ('&[Date]', '&D'),
+        ('&[Time]', '&T'),
+        ('&[Path]', '&Z'),
+        ('&[File]', '&F'),
+        ('&[Tab]', '&A'),
+        ('&[Picture]', '&G')
         )
 
     __slots__ = ('type',
@@ -166,7 +170,7 @@ class HeaderFooterItem(object):
                  'font_color',
                  'text')
 
-    def __init__(self,type):
+    def __init__(self, type):
         self.type = type
         self.font_name = "Calibri,Regular"
         self.font_size = None
@@ -185,19 +189,19 @@ class HeaderFooterItem(object):
                 t.append('&%d' % self.font_size)
             t.append('&K%s' % self.font_color)
             text = self.text
-            for old,new in self.REPLACE_LIST:
-                text = text.replace(old,new)
+            for old, new in self.REPLACE_LIST:
+                text = text.replace(old, new)
             t.append(text)
         return ''.join(t)
 
-    def set(self,itemArray):
+    def set(self, itemArray):
         textArray = []
         for item in itemArray[1:]:
             if len(item) and textArray:
                 textArray.append('&%s' % item)
             elif len(item) and not textArray:
                 if item[0] == '"':
-                    self.font_name = item.replace('"','')
+                    self.font_name = item.replace('"', '')
                 elif item[0] == 'K':
                     self.font_color = item[1:7]
                     textArray.append(item[7:])
@@ -205,7 +209,7 @@ class HeaderFooterItem(object):
                     try:
                         self.font_size = int(item)
                     except:
-                        pass
+                        textArray.append('&%s' % item)
         self.text = ''.join(textArray)
 
 class HeaderFooter(object):
@@ -252,8 +256,8 @@ class HeaderFooter(object):
             t.append(self.right_footer.get())
         return ''.join(t)
 
-    def setHeader(self,item):
-        itemArray = [i.replace('#DOUBLEAMP#','&&') for i in item.replace('&&','#DOUBLEAMP#').split('&')]
+    def setHeader(self, item):
+        itemArray = [i.replace('#DOUBLEAMP#', '&&') for i in item.replace('&&', '#DOUBLEAMP#').split('&')]
         l = itemArray.index('L') if 'L' in itemArray else None
         c = itemArray.index('C') if 'C' in itemArray else None
         r = itemArray.index('R') if 'R' in itemArray else None
@@ -272,8 +276,8 @@ class HeaderFooter(object):
         if r:
             self.right_header.set(itemArray[r:])
 
-    def setFooter(self,item):
-        itemArray = [i.replace('#DOUBLEAMP#','&&') for i in item.replace('&&','#DOUBLEAMP#').split('&')]
+    def setFooter(self, item):
+        itemArray = [i.replace('#DOUBLEAMP#', '&&') for i in item.replace('&&', '#DOUBLEAMP#').split('&')]
         l = itemArray.index('L') if 'L' in itemArray else None
         c = itemArray.index('C') if 'C' in itemArray else None
         r = itemArray.index('R') if 'R' in itemArray else None
@@ -400,6 +404,8 @@ class Worksheet(object):
     use :func:`openpyxl.workbook.Workbook.create_sheet` instead
 
     """
+    repr_format = unicode('<Worksheet "%s">')
+
     BREAK_NONE = 0
     BREAK_ROW = 1
     BREAK_COLUMN = 2
@@ -437,8 +443,10 @@ class Worksheet(object):
         self._cells = {}
         self._styles = {}
         self._charts = []
+        self._images = []
         self._merged_cells = []
         self.relationships = []
+        self._data_validations = []
         self.selected_cell = 'A1'
         self.active_cell = 'A1'
         self.sheet_state = self.SHEETSTATE_VISIBLE
@@ -460,7 +468,7 @@ class Worksheet(object):
 	self.xml_source = None
 
     def __repr__(self):
-        return u'<Worksheet "%s">' % self.title
+        return self.repr_format % self.title
 
     @property
     def parent(self):
@@ -473,8 +481,9 @@ class Worksheet(object):
     def garbage_collect(self):
         """Delete cells that are not storing a value."""
         delete_list = [coordinate for coordinate, cell in \
-            self._cells.iteritems() if not cell.merged \
-            and (cell.value in ('', None) and hash(cell.style) == _DEFAULTS_STYLE_HASH)]
+            iteritems(self._cells) if (not cell.merged and cell.value in ('', None) and \
+            (coordinate not in self._styles or
+            hash(cell.style) == _DEFAULTS_STYLE_HASH))]
         for coordinate in delete_list:
             del self._cells[coordinate]
 
@@ -516,7 +525,7 @@ class Worksheet(object):
             range = None
         elif isinstance(range, str):
             range = range.upper()
-        else: # Assume a range
+        else:  # Assume a range
             range = range[0][0].address + ':' + range[-1][-1].address
         self._auto_filter = range
 
@@ -530,7 +539,7 @@ class Worksheet(object):
             topLeftCell = None
         elif isinstance(topLeftCell, str):
             topLeftCell = topLeftCell.upper()
-        else: # Assume a cell
+        else:  # Assume a cell
             topLeftCell = topLeftCell.address
         if topLeftCell == 'A1':
             topLeftCell = None
@@ -603,7 +612,7 @@ class Worksheet(object):
 
     def get_highest_row(self):
         """Returns the maximum row index containing data
-        
+
         :rtype: int
         """
         if self.row_dimensions:
@@ -613,7 +622,7 @@ class Worksheet(object):
 
     def get_highest_column(self):
         """Get the largest value for column currently stored.
-        
+
         :rtype: int
         """
         if self.column_dimensions:
@@ -726,13 +735,27 @@ class Worksheet(object):
         rel.id = 'rId' + str(rel_id + 1)
         return self.relationships[rel_id]
 
+    def add_data_validation(self, data_validation):
+        """ Add a data-validation object to the sheet.  The data-validation
+            object defines the type of data-validation to be applied and the
+            cell or range of cells it should apply to.
+        """
+        data_validation._sheet = self
+        self._data_validations.append(data_validation)
+                
     def add_chart(self, chart):
         """ Add a chart to the sheet """
 
         chart._sheet = self
         self._charts.append(chart)
 
-    def merge_cells(self,range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
+    def add_image(self, img):
+        """ Add an image to the sheet """
+
+        img._sheet = self
+        self._images.append(img)
+
+    def merge_cells(self, range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
         """ Set merge on a cell range.  Range is a cell range (e.g. A1:E1) """
         if not range_string:
             if  start_row is None or start_column is None or end_row is None or end_column is None:
@@ -753,8 +776,8 @@ class Worksheet(object):
         min_col = column_index_from_string(min_col)
         max_col = column_index_from_string(max_col)
         # Blank out the rest of the cells in the range
-        for col in xrange(min_col,max_col+1):
-            for row in xrange(min_row,max_row+1):
+        for col in xrange(min_col, max_col + 1):
+            for row in xrange(min_row, max_row + 1):
                 if not (row == min_row and col == min_col):
                     # PHPExcel adds cell and specifically blanks it out if it doesn't exist
                     self._get_cell('%s%s' % (get_column_letter(col), row)).value = None
@@ -763,7 +786,7 @@ class Worksheet(object):
         if range_string not in self._merged_cells:
             self._merged_cells.append(range_string)
 
-    def unmerge_cells(self,range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
+    def unmerge_cells(self, range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
         """ Remove merge on a cell range.  Range is a cell range (e.g. A1:E1) """
         if not range_string:
             if start_row is None or start_column is None or end_row is None or end_column is None:
@@ -785,8 +808,8 @@ class Worksheet(object):
             min_col = column_index_from_string(min_col)
             max_col = column_index_from_string(max_col)
             # Mark cell as unmerged
-            for col in xrange(min_col,max_col+1):
-                for row in xrange(min_row,max_row+1):
+            for col in xrange(min_col, max_col + 1):
+                for row in xrange(min_row, max_row + 1):
                     if not (row == min_row and col == min_col):
                         self._get_cell('%s%s' % (get_column_letter(col), row)).merged = False
         else:
@@ -795,38 +818,31 @@ class Worksheet(object):
 
     def append(self, list_or_dict):
         """Appends a group of values at the bottom of the current sheet.
-        
+
         * If it's a list: all values are added in order, starting from the first column
         * If it's a dict: values are assigned to the columns indicated by the keys (numbers or letters)
-        
+
         :param list_or_dict: list or dict containing values to append
         :type list_or_dict: list/tuple or dict
-        
+
         Usage:
-        
+
         * append(['This is A1', 'This is B1', 'This is C1'])
         * **or** append({'A' : 'This is A1', 'C' : 'This is C1'})
         * **or** append({0 : 'This is A1', 2 : 'This is C1'})
-        
+
         :raise: TypeError when list_or_dict is neither a list/tuple nor a dict
-        
+
         """
-
         row_idx = len(self.row_dimensions)
-
         if isinstance(list_or_dict, (list, tuple)):
-
             for col_idx, content in enumerate(list_or_dict):
-
                 self.cell(row=row_idx, column=col_idx).value = content
 
         elif isinstance(list_or_dict, dict):
-
-            for col_idx, content in list_or_dict.iteritems():
-
+            for col_idx, content in iteritems(list_or_dict):
                 if isinstance(col_idx, basestring):
                     col_idx = column_index_from_string(col_idx) - 1
-
                 self.cell(row=row_idx, column=col_idx).value = content
 
         else:
@@ -834,21 +850,51 @@ class Worksheet(object):
 
     @property
     def rows(self):
-
         return self.range(self.calculate_dimension())
 
     @property
     def columns(self):
-
         max_row = self.get_highest_row()
-
         cols = []
-
         for col_idx in range(self.get_highest_column()):
             col = get_column_letter(col_idx + 1)
             res = self.range('%s1:%s%d' % (col, col, max_row))
             cols.append(tuple([x[0] for x in res]))
 
-
         return tuple(cols)
+
+    def point_pos(self, left=0, top=0):
+        """ tells which cell is under the given coordinates (in pixels)
+        counting from the top-left corner of the sheet.
+        Can be used to locate images and charts on the worksheet """
+        current_col = 1
+        current_row = 1
+        column_dimensions = self.column_dimensions
+        row_dimensions = self.row_dimensions
+        default_width = points_to_pixels(DEFAULT_COLUMN_WIDTH)
+        default_height = points_to_pixels(DEFAULT_ROW_HEIGHT)
+        left_pos = 0
+        top_pos = 0
+
+        while left_pos <= left:
+            letter = get_column_letter(current_col)
+            current_col += 1
+            if letter in column_dimensions:
+                cdw = column_dimensions[letter].width
+                if cdw > 0:
+                    left_pos += points_to_pixels(cdw)
+                    continue
+            left_pos += default_width
+
+        while top_pos <= top:
+            row = current_row
+            current_row += 1
+            if row in row_dimensions:
+                rdh = row_dimensions[row].height
+                if rdh > 0:
+                    top_pos += points_to_pixels(rdh)
+                    continue
+            top_pos += default_height
+
+        return (letter, row)
 

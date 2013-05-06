@@ -23,7 +23,15 @@
 # @author: see AUTHORS file
 
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
+from openpyxl.shared.compat.itertools import iteritems
 from openpyxl.chart import Chart, ErrorBar
+
+try:
+    # Python 2
+    basestring
+except NameError:
+    # Python 3
+    basestring = str
 
 class ChartWriter(object):
 
@@ -113,8 +121,8 @@ class ChartWriter(object):
         scaling = SubElement(ax, 'c:scaling')
         SubElement(scaling, 'c:orientation', {'val':axis.orientation})
         if label == 'c:valAx':
-            SubElement(scaling, 'c:max', {'val':str(axis.max)})
-            SubElement(scaling, 'c:min', {'val':str(axis.min)})
+            SubElement(scaling, 'c:max', {'val':str(float(axis.max))})
+            SubElement(scaling, 'c:min', {'val':str(float(axis.min))})
 
         SubElement(ax, 'c:axPos', {'val':axis.position})
         if label == 'c:valAx':
@@ -147,7 +155,7 @@ class ChartWriter(object):
                 SubElement(ax, 'c:crossBetween', {'val':'midCat'})
             else:
                 SubElement(ax, 'c:crossBetween', {'val':'between'})
-            SubElement(ax, 'c:majorUnit', {'val':str(axis.unit)})
+            SubElement(ax, 'c:majorUnit', {'val':str(float(axis.unit))})
 
     def _write_series(self, subchart):
 
@@ -184,17 +192,17 @@ class ChartWriter(object):
             if self.chart.type == Chart.SCATTER_CHART:
                 if serie.xvalues:
                     xval = SubElement(ser, 'c:xVal')
-                    self._write_serial(xval, serie.xvalues)
+                    self._write_serial(xval, serie.xreference)
 
                 yval = SubElement(ser, 'c:yVal')
-                self._write_serial(yval, serie.values)
+                self._write_serial(yval, serie.reference)
             else:
                 val = SubElement(ser, 'c:val')
-                self._write_serial(val, serie.values)
+                self._write_serial(val, serie.reference)
 
-    def _write_serial(self, node, serie, literal=False):
+    def _write_serial(self, node, reference, literal=False):
 
-        cache = serie._get_cache()
+        cache = reference.values
         if isinstance(cache[0], basestring):
             typ = 'str'
         else:
@@ -205,7 +213,7 @@ class ChartWriter(object):
                 ref = SubElement(node, 'c:numRef')
             else:
                 ref = SubElement(node, 'c:strRef')
-            SubElement(ref, 'c:f').text = serie._get_ref()
+            SubElement(ref, 'c:f').text = str(reference)
             if typ == 'num':
                 data = SubElement(ref, 'c:numCache')
             else:
@@ -244,7 +252,7 @@ class ChartWriter(object):
             literal=(serie.error_bar.type == ErrorBar.PLUS))
 
     def _write_legend(self, chart):
-        
+
         if self.chart.show_legend:
             legend = SubElement(chart, 'c:legend')
             SubElement(legend, 'c:legendPos', {'val':self.chart.legend.position})
@@ -254,7 +262,14 @@ class ChartWriter(object):
 
         settings = SubElement(root, 'c:printSettings')
         SubElement(settings, 'c:headerFooter')
-        margins = dict([(k, str(v)) for (k, v) in self.chart.print_margins.iteritems()])
+        try:
+            # Python 2
+            print_margins_items = iteritems(self.chart.print_margins)
+        except AttributeError:
+            # Python 3
+            print_margins_items = self.chart.print_margins.items()
+
+        margins = dict([(k, str(v)) for (k, v) in print_margins_items])
         SubElement(settings, 'c:pageMargins', margins)
         SubElement(settings, 'c:pageSetup')
 

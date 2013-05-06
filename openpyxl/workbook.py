@@ -30,6 +30,7 @@ __docformat__ = "restructuredtext en"
 # Python stdlib imports
 import datetime
 import os
+import threading
 
 # package imports
 from openpyxl.worksheet import Worksheet
@@ -82,6 +83,7 @@ class Workbook(object):
         self.security = DocumentSecurity()
         self.__optimized_write = optimized_write
         self.__optimized_read = False
+        self.__thread_local_data = threading.local()
         self.strings_table_builder = StringTableBuilder()
         self.loaded_theme = None
 	self.vba_archive = None
@@ -90,6 +92,10 @@ class Workbook(object):
 
         if not optimized_write:
             self.worksheets.append(Worksheet(self))
+
+    @property
+    def _local_data(self):
+        return self.__thread_local_data
 
     @property
     def excel_base_date(self):
@@ -116,9 +122,9 @@ class Workbook(object):
         if self.__optimized_write :
             new_ws = DumpWorksheet(parent_workbook=self, title=title)
         else:
-            if title:
-                new_ws = Worksheet(parent_workbook=self, title=title)
-            else:
+            if title is not None:                                          
+                new_ws = Worksheet(parent_workbook = self, title=title)    
+            else:                                                          
                 new_ws = Worksheet(parent_workbook=self)
 
         self.add_sheet(worksheet=new_ws, index=index)

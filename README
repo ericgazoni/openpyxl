@@ -39,7 +39,7 @@ Releases are also packaged on PyPi, so all you have to type to get the latest ve
 
 == Python 3.x support ==
 
-Openpyxl supports python (even if some tests can fail on 2.4) from 2.4 to 2.6. If you use a more recent version of python, please use the hjunes fork you can find here : https://bitbucket.org/hjunes/openpyxl/.
+Openpyxl supports python (even if some tests can fail on 2.4) from 2.4 to 3.2. 
 
 == Full documentation==
 With tutorial, examples, API documentation: http://packages.python.org/openpyxl/

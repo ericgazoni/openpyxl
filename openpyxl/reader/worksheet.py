@@ -30,19 +30,27 @@ try:
     from openpyxl.shared.compat import iterparse
 except ImportError:
     from xml.etree.ElementTree import iterparse
+try:
+    # Python 2
+    from StringIO import StringIO
+except ImportError:
+    # Python 3
+    from io import BytesIO, StringIO
+
 from openpyxl.cell import get_column_letter
 from openpyxl.shared.xmltools import fromstring, QName
-from itertools import ifilter
-from StringIO import StringIO
 
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
-from openpyxl.worksheet import Worksheet, ColumnDimension
+from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
 
 def _get_xml_iter(xml_source):
 
     if not hasattr(xml_source, 'name'):
-        return StringIO(xml_source)
+        if isinstance(xml_source, str):
+            return StringIO(xml_source)
+        else:
+            return StringIO(str(xml_source, 'utf-8'))
     else:
         xml_source.seek(0)
         return xml_source
@@ -93,7 +101,8 @@ def read_dimension(xml_source):
 
     return smin_col, smin_row, smax_col, smax_row
 
-def filter_cells((event, element)):
+def filter_cells(pair):
+    (event, element) = pair
 
     return element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c'
 
@@ -112,28 +121,21 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
     it = iterparse(source)
 
-    for event, element in ifilter(filter_cells, it):
+    for event, element in filter(filter_cells, it):
 
         value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
 
-        if value is None:
-            coordinate = element.get('r')
-            style_id = element.get('s')
+        coordinate = element.get('r')
+        style_id = element.get('s')
+        if style_id is not None:
+            ws._styles[coordinate] = style_table.get(int(style_id))
 
-            if style_id is not None:
-                ws._styles[coordinate] = style_table.get(int(style_id))
-        else:
-            coordinate = element.get('r')
+        if value is not None:
             data_type = element.get('t', 'n')
-            style_id = element.get('s')
-
             if data_type == Cell.TYPE_STRING:
                 value = string_table.get(int(value))
 
             ws.cell(coordinate).value = value
-
-            if style_id is not None:
-                ws._styles[coordinate] = style_table.get(int(style_id))
 
         # to avoid memory exhaustion, clear the item after use
         element.clear()
@@ -144,7 +146,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
         for col in colNodes:
             min = int(col.get('min')) if col.get('min') else 1
             max = int(col.get('max')) if col.get('max') else 1
-            for colId in range(min,max+1):
+            for colId in range(min, max + 1):
                 column = get_column_letter(colId)
                 if column not in ws.column_dimensions:
                     ws.column_dimensions[column] = ColumnDimension(column)
@@ -160,6 +162,16 @@ def fast_parse(ws, xml_source, string_table, style_table):
                     ws.column_dimensions[column].collapsed = True
                 if col.get('style') is not None:
                     ws.column_dimensions[column].style_index = col.get('style')
+
+    sheetData = root.find(QName(xmlns, 'sheetData').text)
+    if sheetData is not None:
+        rowNodes = sheetData.findall(QName(xmlns, 'row').text)
+        for row in rowNodes:
+            rowId = int(row.get('r'))
+            if rowId not in ws.row_dimensions:
+                ws.row_dimensions[rowId] = RowDimension(rowId)
+            if row.get('ht') is not None:
+                ws.row_dimensions[rowId].height = float(row.get('ht'))
 
     printOptions = root.find(QName(xmlns, 'printOptions').text)
     if printOptions is not None:

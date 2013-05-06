@@ -30,10 +30,9 @@ import os
 
 from openpyxl.shared.compat import OrderedDict
 
-from openpyxl.cell import column_index_from_string, get_column_letter, Cell
+from openpyxl.cell import  get_column_letter, Cell
 from openpyxl.worksheet import Worksheet
-from openpyxl.shared.xmltools import (XMLGenerator, get_document_content,
-        start_tag, end_tag, tag)
+from openpyxl.shared.xmltools import (XMLGenerator, start_tag, end_tag, tag)
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.ooxml import MAX_COLUMN, MAX_ROW
 from openpyxl.shared import NUMERIC_TYPES
@@ -44,10 +43,7 @@ from openpyxl.writer.strings import write_string_table
 from openpyxl.writer.styles import StyleWriter
 from openpyxl.style import Style, NumberFormat
 
-from openpyxl.shared.ooxml import (ARC_SHARED_STRINGS, ARC_CONTENT_TYPES,
-        ARC_ROOT_RELS, ARC_WORKBOOK_RELS, ARC_APP, ARC_CORE, ARC_THEME,
-        ARC_STYLE, ARC_WORKBOOK,
-        PACKAGE_WORKSHEETS, PACKAGE_DRAWINGS, PACKAGE_CHARTS)
+from openpyxl.shared.ooxml import (ARC_SHARED_STRINGS, PACKAGE_WORKSHEETS)
 
 STYLES = {'datetime' : {'type':Cell.TYPE_NUMERIC,
                         'style':'1'},
@@ -62,57 +58,24 @@ STYLES = {'datetime' : {'type':Cell.TYPE_NUMERIC,
         }
 
 DESCRIPTORS_CACHE_SIZE = 50
-DESCRIPTORS_CACHE = OrderedDict()
 
 DATETIME_STYLE = Style()
 DATETIME_STYLE.number_format.format_code = NumberFormat.FORMAT_DATE_YYYYMMDD2
 BOUNDING_BOX_PLACEHOLDER = 'A1:%s%d' % (get_column_letter(MAX_COLUMN), MAX_ROW)
 
 def create_temporary_file(suffix=''):
-
     fobj = NamedTemporaryFile(mode='w+', suffix=suffix, prefix='openpyxl.', delete=False)
     filename = fobj.name
-
     return filename
 
-def get_temporary_file(filename):
-
-    if filename in DESCRIPTORS_CACHE:
-
-        fobj = DESCRIPTORS_CACHE[filename]
-
-        # re-insert the value so it does not get evicted
-        # from cache soon
-        del DESCRIPTORS_CACHE[filename]
-        DESCRIPTORS_CACHE[filename] = fobj
-
-        return fobj
-    else:
-        if filename is None:
-            raise WorkbookAlreadySaved('this workbook has already been saved '
-                    'and cannot be modified or saved anymore.')
-
-        fobj = open(filename, 'r+')
-
-        DESCRIPTORS_CACHE[filename] = fobj
-
-        if len(DESCRIPTORS_CACHE) > DESCRIPTORS_CACHE_SIZE:
-            filename, fileobj = DESCRIPTORS_CACHE.popitem(last=False)
-            fileobj.close()
-
-        return fobj
-
 class DumpWorksheet(Worksheet):
-
     """
     .. warning::
 
         You shouldn't initialize this yourself, use :class:`openpyxl.workbook.Workbook` constructor instead, 
         with `optimized_write = True`.
     """
-
     def __init__(self, parent_workbook, title):
-
         Worksheet.__init__(self, parent_workbook, title)
 
         self._max_col = 0
@@ -126,13 +89,40 @@ class DumpWorksheet(Worksheet):
         self._shared_date = SharedDate()
         self._string_builder = self._parent.strings_table_builder
 
+    def get_temporary_file(self, filename):
+        if filename in self._descriptors_cache:
+            fobj = self._descriptors_cache[filename]
+            # re-insert the value so it does not get evicted
+            # from cache soon
+            del self._descriptors_cache[filename]
+            self._descriptors_cache[filename] = fobj
+            return fobj
+        else:
+            if filename is None:
+                raise WorkbookAlreadySaved('this workbook has already been saved '
+                        'and cannot be modified or saved anymore.')
+
+            fobj = open(filename, 'r+')
+            self._descriptors_cache[filename] = fobj
+            if len(self._descriptors_cache) > DESCRIPTORS_CACHE_SIZE:
+                filename, fileobj = self._descriptors_cache.popitem(last=False)
+                fileobj.close()
+            return fobj
+
+    @property
+    def _descriptors_cache(self):
+        try:
+            return self._parent._local_data.cache
+        except AttributeError:
+            self._parent._local_data.cache = OrderedDict()
+            return self._parent._local_data.cache
+
     @property
     def filename(self):
         return self._fileobj_name
 
     @property
     def _temp_files(self):
-
         return (self._fileobj_content_name,
                 self._fileobj_header_name,
                 self._fileobj_name)
@@ -144,7 +134,7 @@ class DumpWorksheet(Worksheet):
 
     def write_header(self):
 
-        fobj = get_temporary_file(filename=self._fileobj_header_name)
+        fobj = self.get_temporary_file(filename=self._fileobj_header_name)
         doc = XMLGenerator(fobj, 'utf-8')
 
         start_tag(doc, 'worksheet',
@@ -167,20 +157,14 @@ class DumpWorksheet(Worksheet):
         start_tag(doc, 'sheetData')
 
     def close(self):
-
         self._close_content()
-
-        self._fileobj = get_temporary_file(filename=self._fileobj_name)
-
+        self._fileobj = self.get_temporary_file(filename=self._fileobj_name)
         self._write_fileobj(self._fileobj_header_name)
         self._write_fileobj(self._fileobj_content_name)
-
         self._fileobj.close()
 
     def _write_fileobj(self, fobj_name):
-
-        fobj = get_temporary_file(filename=fobj_name)
-
+        fobj = self.get_temporary_file(filename=fobj_name)
         fobj.flush()
         fobj.seek(0)
 
@@ -191,18 +175,14 @@ class DumpWorksheet(Worksheet):
             self._fileobj.write(chunk)
 
         fobj.close()
-
         self._fileobj.flush()
 
     def _close_content(self):
-
         doc = self._get_content_generator()
         end_tag(doc, 'sheetData')
-
         end_tag(doc, 'worksheet')
 
     def get_dimensions(self):
-
         if not self._max_col or not self._max_row:
             return 'A1'
         else:
@@ -215,7 +195,7 @@ class DumpWorksheet(Worksheet):
         # when I'll recreate the XMLGenerator, it will start writing at the
         # begining of the file, erasing previously entered rows, so we have
         # to move to the end of the file before adding new tags
-        handle = get_temporary_file(filename=self._fileobj_content_name)
+        handle = self.get_temporary_file(filename=self._fileobj_content_name)
         handle.seek(0, 2)
 
         doc = XMLGenerator(out=handle)
@@ -223,27 +203,20 @@ class DumpWorksheet(Worksheet):
         return doc
 
     def append(self, row):
-
         """
         :param row: iterable containing values to append
         :type row: iterable
         """
-
         doc = self._get_content_generator()
-
         self._max_row += 1
         span = len(row)
         self._max_col = max(self._max_col, span)
-
         row_idx = self._max_row
-
         attrs = {'r': '%d' % row_idx,
                  'spans': '1:%d' % span}
-
         start_tag(doc, 'row', attrs)
 
         for col_idx, cell in enumerate(row):
-
             if cell is None:
                 continue
 
@@ -264,8 +237,8 @@ class DumpWorksheet(Worksheet):
                 dtype = 'string'
                 cell = self._string_builder.add(cell)
 
-            attributes['t'] = STYLES[dtype]['type']
-
+            if dtype != 'formula':
+                attributes['t'] = STYLES[dtype]['type']
             start_tag(doc, 'c', attributes)
 
             if dtype == 'formula':
@@ -275,29 +248,21 @@ class DumpWorksheet(Worksheet):
                 tag(doc, 'v', body='%d' % cell)
             else:
                 tag(doc, 'v', body='%s' % cell)
-
             end_tag(doc, 'c')
-
-
         end_tag(doc, 'row')
 
-
 def save_dump(workbook, filename):
-
     writer = ExcelDumpWriter(workbook)
     writer.save(filename)
     return True
 
 class ExcelDumpWriter(ExcelWriter):
-
     def __init__(self, workbook):
-
         self.workbook = workbook
         self.style_writer = StyleDumpWriter(workbook)
         self.style_writer._style_list.append(DATETIME_STYLE)
 
     def _write_string_table(self, archive):
-
         shared_string_table = self.workbook.strings_table_builder.get_table()
         archive.writestr(ARC_SHARED_STRINGS,
                 write_string_table(shared_string_table))
@@ -305,19 +270,16 @@ class ExcelDumpWriter(ExcelWriter):
         return shared_string_table
 
     def _write_worksheets(self, archive, shared_string_table, style_writer):
-
         for i, sheet in enumerate(self.workbook.worksheets):
             sheet.write_header()
             sheet.close()
             archive.write(sheet.filename, PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1))
             for filename in sheet._temp_files:
-                del DESCRIPTORS_CACHE[filename]
+                del sheet._descriptors_cache[filename]
                 os.remove(filename)
             sheet._unset_temp_files()
 
-
 class StyleDumpWriter(StyleWriter):
-
     def _get_style_list(self, workbook):
         return []
 

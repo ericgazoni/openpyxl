@@ -28,6 +28,7 @@ import os.path as osp
 from openpyxl.tests.helper import DATADIR
 from openpyxl.reader.iter_worksheet import get_range_boundaries
 from openpyxl.reader.excel import load_workbook
+from openpyxl.shared.compat import xrange
 import datetime
 
 class TestWorksheet(object):
@@ -46,6 +47,10 @@ class TestDims(TestWorksheet):
 
             eq_(ws._dimensions, self.expected[i])
 
+    def test_get_highest_column_iter(self):
+        wb = self._open_wb()
+        ws = wb.worksheets[0]
+        eq_(ws.get_highest_column(), 7)
 
 class TestText(TestWorksheet):
     sheet_name = 'Sheet1 - Text'

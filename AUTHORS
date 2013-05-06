@@ -1,4 +1,4 @@
-This project is developped by Eric Gazoni.
+This project is developed by Eric Gazoni.
 
 It is *heavily* inspired by the PHPExcel library that can be
 found here: http://www.phpexcel.net/
@@ -10,32 +10,46 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Stephane Bard
 * Day Barr
 * Bernt R. Brenna
-* Anders Chrigström
+* Anders Chrigstrom
+* ccoacley
+* Charlie Clark
 * Maarten De Paepe
-* dieterv77
+* Etienne Desautels
+* echlebek_
 * Alexandre Fayolle
 * Eric Gazoni
+* Brice Gelineau
+* Alex Gronholm
 * Yaroslav Halchenko
 * Jeff Holman
 * Brent Hoover
 * JarekPS
 * Heikki Junes
+* Chi Ho Kwok
+* Yingjie Lan
+* Greg Lehmann
 * Adam Lofts
 * Marko Loparic 
-* Samuel Lorétan
+* Samuel Loretan
+* Amin Mirzaee
 * Adam Morris
 * aceMueller
 * Jun Omae
+* Waldemar Osuch
 * Jonathan Peirce
 * Ted Pollari 
 * Rick Rankin
+* ramn_se
 * Philip Roche
 * James Smagala
 * Joseph Tate
+* Dieter Vandenbussche
 * Paul Van Der Linden
 * Gerald Van Huffelen
 * Laurent Vasseur
 * Kay Webber
+
+Special thanks for Heikki Junes, for all his work on porting and maintaining the Python3.x fork
 
 Project logo designed by Eric Gazoni, font by claudeserieux
 (http://www.dafont.com/profile.php?user=337503)

@@ -20,16 +20,33 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
-import sys
-
-from openpyxl.shared.compat.elementtree import iterparse
-from openpyxl.shared.compat.tempnamedfile import NamedTemporaryFile
-from openpyxl.shared.compat.allany import all, any
-from openpyxl.shared.compat.strings import basestring, unicode, StringIO, file, BytesIO
-from openpyxl.shared.compat.numbers import long
-from openpyxl.shared.compat.itertools import xrange
 
 try:
-    from collections import OrderedDict
-except ImportError:
-    from openpyxl.shared.compat.odict import OrderedDict
+    # Python 2
+    basestring = basestring
+except NameError:
+    # Python 3
+    basestring = str
+
+try:
+    # Python 2
+    unicode = unicode
+except NameError:
+    # Python 3
+    unicode = str
+
+try:
+    # Python 3
+    from io import BytesIO, StringIO
+except:
+    # Python 2
+    from StringIO import StringIO
+    BytesIO = StringIO
+
+try:
+    # Python 2
+    file = file
+except:
+    # Python 3
+    from io import BufferedReader
+    file = BufferedReader

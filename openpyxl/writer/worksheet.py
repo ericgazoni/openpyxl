@@ -26,13 +26,27 @@
 """Write worksheets to xml representations."""
 
 # Python stdlib imports
-from StringIO import StringIO  # cStringIO doesn't handle unicode
+try:
+    # Python 2
+    from StringIO import StringIO  # cStringIO doesn't handle unicode
+    BytesIO = StringIO
+except ImportError:
+    # Python 3
+    from io import BytesIO, StringIO
+
+try:
+    # Python 2
+    isinstance(1, long)
+except NameError:
+    # Python 3, all ints are long
+    long = int
 
 # package imports
 import decimal, re
 from openpyxl.cell import coordinate_from_string, column_index_from_string
 from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, ElementTree, \
         get_document_content, start_tag, end_tag, tag, fromstring, tostring, register_namespace
+from openpyxl.shared.compat.itertools import iteritems, iterkeys
 
 
 def row_sort(cell):
@@ -54,7 +68,7 @@ def write_worksheet(worksheet, string_table, style_table):
     else:
     	vba_root = None
     xml_file = StringIO()
-    doc = XMLGenerator(xml_file, 'utf-8')
+    doc = XMLGenerator(out=xml_file, encoding='utf-8')
     start_tag(doc, 'worksheet',
             {'xml:space': 'preserve',
             'xmlns': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
@@ -78,6 +92,7 @@ def write_worksheet(worksheet, string_table, style_table):
     if worksheet.auto_filter:
         tag(doc, 'autoFilter', {'ref': worksheet.auto_filter})
     write_worksheet_mergecells(doc, worksheet)
+    write_worksheet_datavalidations(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
 
     options = worksheet.page_setup.options
@@ -100,7 +115,7 @@ def write_worksheet(worksheet, string_table, style_table):
             tag(doc, 'oddFooter', None, worksheet.header_footer.getFooter())
         end_tag(doc, 'headerFooter')
 
-    if worksheet._charts:
+    if worksheet._charts or worksheet._images:
         tag(doc, 'drawing', {'r:id':'rId1'})
 
     # if the sheet has an xml_source field then the workbook must have
@@ -157,10 +172,10 @@ def write_worksheet_cols(doc, worksheet):
     if worksheet.column_dimensions:
         start_tag(doc, 'cols')
         for column_string, columndimension in \
-                worksheet.column_dimensions.iteritems():
+                iteritems(worksheet.column_dimensions):
             col_index = column_index_from_string(column_string)
             col_def = {}
-            col_def['collapsed'] = str(columndimension.style_index)
+            col_def['style'] = str(columndimension.style_index)
             col_def['min'] = str(col_index)
             col_def['max'] = str(col_index)
             if columndimension.width != \
@@ -188,7 +203,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
     max_column = worksheet.get_highest_column()
     style_id_by_hash = style_table
     cells_by_row = {}
-    for styleCoord in worksheet._styles.iterkeys():
+    for styleCoord in iterkeys(worksheet._styles):
         # Ensure a blank cell exists if it has a style
         worksheet.cell(styleCoord)
     for cell in worksheet.get_cell_collection():
@@ -197,6 +212,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
         row_dimension = worksheet.row_dimensions[row_idx]
         attrs = {'r': '%d' % row_idx,
                  'spans': '1:%d' % max_column}
+        if not row_dimension.visible:
+            attrs['hidden'] = '1'
         if row_dimension.height > 0:
             attrs['ht'] = str(row_dimension.height)
             attrs['customHeight'] = '1'
@@ -207,7 +224,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             value = cell._value
             coordinate = cell.get_coordinate()
             attributes = {'r': coordinate}
-            attributes['t'] = cell.data_type
+            if cell.data_type != cell.TYPE_FORMULA:
+                attributes['t'] = cell.data_type
             if coordinate in worksheet._styles:
                 try:
                     attributes['s'] = '%d' % style_id_by_hash[
@@ -241,12 +259,30 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
 def write_worksheet_mergecells(doc, worksheet):
     """Write merged cells to xml."""
     if len(worksheet._merged_cells) > 0:
-        start_tag(doc,'mergeCells', {'count': str(len(worksheet._merged_cells))})
+        start_tag(doc, 'mergeCells', {'count': str(len(worksheet._merged_cells))})
         for range_string in worksheet._merged_cells:
             attrs = {'ref': range_string}
-            tag(doc,'mergeCell',attrs)
-        end_tag(doc,'mergeCells')
+            tag(doc, 'mergeCell', attrs)
+        end_tag(doc, 'mergeCells')
 
+def write_worksheet_datavalidations(doc, worksheet):
+    """ Write data validation(s) to xml."""
+    # Filter out "empty" data-validation objects (i.e. with 0 cells)
+    required_dvs = [x for x in worksheet._data_validations
+                    if len(x.cells) or len(x.ranges)]
+    count = len(required_dvs)
+    if count == 0:
+        return
+
+    start_tag(doc, 'dataValidations', {'count': str(count)})
+    for data_validation in required_dvs:
+        start_tag(doc, 'dataValidation', data_validation.generate_attributes_map())
+        if data_validation.formula1:
+            tag(doc, 'formula1', body=data_validation.formula1)
+        if data_validation.formula2:
+            tag(doc, 'formula2', body=data_validation.formula2)
+        end_tag(doc, 'dataValidation')
+    end_tag(doc, 'dataValidations')
 
 def write_worksheet_hyperlinks(doc, worksheet):
     """Write worksheet hyperlinks to xml."""
@@ -274,7 +310,7 @@ def write_worksheet_rels(worksheet, idx):
         if rel.target_mode:
             attrs['TargetMode'] = rel.target_mode
         SubElement(root, 'Relationship', attrs)
-    if worksheet._charts:
+    if worksheet._charts or worksheet._images:
         attrs = {'Id' : 'rId1',
             'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
             'Target' : '../drawings/drawing%s.xml' % idx }

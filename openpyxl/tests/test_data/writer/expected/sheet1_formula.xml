@@ -25,7 +25,7 @@
             </c>
         </row>
         <row r="3" spans="1:6">
-            <c r="F3" t="f">
+            <c r="F3">
                 <f>F1+F2</f><v />
             </c>
         </row>

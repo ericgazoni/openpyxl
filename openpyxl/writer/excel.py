@@ -27,13 +27,19 @@
 
 # Python stdlib imports
 from zipfile import ZipFile, ZIP_DEFLATED
-from StringIO import StringIO
+try:
+    # Python 2
+    from StringIO import StringIO
+    BytesIO = StringIO
+except ImportError:
+    # Python 3
+    from io import BytesIO, StringIO
 
 # package imports
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, \
         ARC_ROOT_RELS, ARC_WORKBOOK_RELS, ARC_APP, ARC_CORE, ARC_THEME, \
         ARC_STYLE, ARC_WORKBOOK, ARC_VBA,\
-        PACKAGE_WORKSHEETS, PACKAGE_DRAWINGS, PACKAGE_CHARTS
+        PACKAGE_WORKSHEETS, PACKAGE_DRAWINGS, PACKAGE_CHARTS, PACKAGE_IMAGES
 from openpyxl.writer.strings import create_string_table, write_string_table
 from openpyxl.writer.workbook import write_content_types, write_root_rels, \
         write_workbook_rels, write_properties_app, write_properties_core, \
@@ -92,25 +98,25 @@ class ExcelWriter(object):
         return shared_string_table
 
     def _write_worksheets(self, archive, shared_string_table, style_writer):
-
         drawing_id = 1
         chart_id = 1
+        image_id = 1
         shape_id = 1
 
         for i, sheet in enumerate(self.workbook.worksheets):
             archive.writestr(PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1),
                     write_worksheet(sheet, shared_string_table,
                             style_writer.get_style_by_hash()))
-            if sheet._charts or sheet.relationships:
+            if sheet._charts or sheet._images or sheet.relationships:
                 archive.writestr(PACKAGE_WORKSHEETS +
                         '/_rels/sheet%d.xml.rels' % (i + 1),
                         write_worksheet_rels(sheet, drawing_id))
-            if sheet._charts:
+            if sheet._charts or sheet._images:
                 dw = DrawingWriter(sheet)
                 archive.writestr(PACKAGE_DRAWINGS + '/drawing%d.xml' % drawing_id,
                     dw.write())
                 archive.writestr(PACKAGE_DRAWINGS + '/_rels/drawing%d.xml.rels' % drawing_id,
-                    dw.write_rels(chart_id))
+                    dw.write_rels(chart_id, image_id))
                 drawing_id += 1
 
                 for chart in sheet._charts:
@@ -129,6 +135,11 @@ class ExcelWriter(object):
 
                     chart_id += 1
 
+                for img in sheet._images:
+                    buf = StringIO()
+                    img.image.save(buf, format= 'PNG')
+                    archive.writestr(PACKAGE_IMAGES + '/image%d.png' % image_id, buf.getvalue())
+                    image_id += 1
 
     def save(self, filename):
         """Write data into the archive."""
@@ -157,7 +168,7 @@ def save_workbook(workbook, filename):
 def save_virtual_workbook(workbook):
     """Return an in-memory workbook, suitable for a Django response."""
     writer = ExcelWriter(workbook)
-    temp_buffer = StringIO()
+    temp_buffer = BytesIO()
     try:
         archive = ZipFile(temp_buffer, 'w', ZIP_DEFLATED)
         writer.write_data(archive)

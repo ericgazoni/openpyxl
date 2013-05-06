@@ -2,14 +2,14 @@ Module :mod:`openpyxl.workbook` -- Workbook
 =============================================================
 
 .. autoclass:: openpyxl.workbook.Workbook
-   	:members:
-   	
+       :members:
+
 Module :mod:`openpyxl.worksheet` -- Worksheet
 =============================================================
 
 .. autoclass:: openpyxl.worksheet.Worksheet
-   	:members:
-   	
+       :members:
+
 Module :mod:`openpyxl.reader.iter_worksheet` -- Optimized reader
 ================================================================
 
@@ -18,12 +18,12 @@ Module :mod:`openpyxl.reader.iter_worksheet` -- Optimized reader
 
 .. autoclass:: openpyxl.reader.iter_worksheet.RawCell
     :members:
-   	 
+
 Module :mod:`openpyxl.cell` -- Worksheet Cell
 =============================================================
 
 .. autoclass:: openpyxl.cell.Cell
-   	:members: 
+       :members:
 
 Module :mod:`openpyxl.reader.excel` -- Filesystem reader
 =============================================================
@@ -35,3 +35,17 @@ Module :mod:`openpyxl.writer.dump_worksheet` -- Optimized writer
 
 .. autoclass:: openpyxl.writer.dump_worksheet.DumpWorksheet
     :members:
+
+Module :mod:`openpyxl.datavalidation`
+=====================================
+
+.. autoclass:: openpyxl.datavalidation.DataValidation
+    :members:
+
+.. autoclass:: openpyxl.datavalidation.ValidationType
+    :members:
+
+.. autoclass:: openpyxl.datavalidation.ValidationOperator
+    :members:
+
+

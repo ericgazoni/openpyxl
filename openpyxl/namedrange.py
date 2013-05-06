@@ -29,10 +29,11 @@
 import re
 
 # package imports
+from openpyxl.shared.compat import unicode
 from openpyxl.shared.exc import NamedRangeException
 
 # constants
-NAMED_RANGE_RE = re.compile("^(('(?P<quoted>([^']|'')*)')|(?P<notquoted>[^']*))!(?P<range>(\$([A-Za-z]+))?\$([0-9]+)(:(\$([A-Za-z]+))?(\$([0-9]+)))?)")
+NAMED_RANGE_RE = re.compile("^(('(?P<quoted>([^']|'')*)')|(?P<notquoted>[^']*))!(?P<range>(\$([A-Za-z]+))?(\$([0-9]+))?(:(\$([A-Za-z]+))?(\$([0-9]+))?)?)")
 SPLIT_NAMED_RANGE_RE = re.compile(r"((?:[^,']|'(?:[^']|'')*')+)")
 
 class NamedRange(object):
@@ -42,16 +43,19 @@ class NamedRange(object):
     """
     __slots__ = ('name', 'destinations', 'scope')
 
+    str_format = unicode('%s!%s')
+    repr_format = unicode('<%s "%s">')
+
     def __init__(self, name, destinations, scope=None):
         self.name = name
         self.destinations = destinations
         self.scope = scope
 
     def __str__(self):
-        return  ','.join([u'%s!%s' % (sheet, name) for sheet, name in self.destinations])
+        return  ','.join([self.str_format % (sheet, name) for sheet, name in self.destinations])
 
     def __repr__(self):
-	return '<%s "%s">' % (self.__class__.__name__, str(self))
+        return  self.repr_format % (self.__class__.__name__, str(self))
 
 class NamedRangeContainingValue(object):
     """A named value"""

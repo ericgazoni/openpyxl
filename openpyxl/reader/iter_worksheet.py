@@ -27,22 +27,20 @@
 *Still very raw*
 """
 
-from StringIO import StringIO
 import warnings
 import operator
-from itertools import ifilter, groupby
+from itertools import  groupby
 from openpyxl.worksheet import Worksheet
-from openpyxl.cell import coordinate_from_string, get_column_letter, Cell
-from openpyxl.reader.excel import get_sheet_ids
-from openpyxl.reader.strings import read_string_table
-from openpyxl.reader.style import read_style_table, NumberFormat
+from openpyxl.cell import (coordinate_from_string, get_column_letter, Cell,
+                            column_index_from_string)
+from openpyxl.reader.style import read_style_table
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
+from openpyxl.shared.compat import unicode
 from openpyxl.shared.ooxml import (MIN_COLUMN, MAX_COLUMN, PACKAGE_WORKSHEETS,
-    MAX_ROW, MIN_ROW, ARC_SHARED_STRINGS, ARC_APP, ARC_STYLE)
-from openpyxl.shared.compat import iterparse
+    MAX_ROW, MIN_ROW, ARC_STYLE)
+from openpyxl.shared.compat import iterparse, xrange
 from zipfile import ZipFile
-import openpyxl.cell
 import re
 import tempfile
 import zlib
@@ -308,14 +306,14 @@ class IterableWorksheet(Worksheet):
         return self._dimensions
 
     def get_highest_column(self):
-        return self._max_column
+        return column_index_from_string(self._max_column)
 
     def get_highest_row(self):
         return self._max_row
 
 def unpack_worksheet(archive, filename):
 
-    temp_file = tempfile.TemporaryFile(mode='r+', prefix='openpyxl.', suffix='.unpack.temp')
+    temp_file = tempfile.TemporaryFile(mode='rb+', prefix='openpyxl.', suffix='.unpack.temp')
 
     zinfo = archive.getinfo(filename)
 
@@ -337,9 +335,6 @@ def unpack_worksheet(archive, filename):
         if decoder:
             buff = decoder.decompress(buff)
         temp_file.write(buff)
-
-    if decoder:
-        temp_file.write(decoder.decompress('Z'))
 
     return temp_file
 

@@ -50,7 +50,7 @@ class TestCreateStyle(object):
         cls.worksheet.cell(coordinate='A1').value = '12.34%'
         cls.worksheet.cell(coordinate='B4').value = now
         cls.worksheet.cell(coordinate='B5').value = now
-        cls.worksheet.cell(coordinate='C14').value = u'This is a test'
+        cls.worksheet.cell(coordinate='C14').value = 'This is a test'
         cls.worksheet.cell(coordinate='D9').value = '31.31415'
         cls.worksheet.cell(coordinate='D9').style.number_format.format_code = \
                 NumberFormat.FORMAT_NUMBER_00
@@ -99,8 +99,11 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.font.bold = True
         w = StyleWriter(self.workbook)
         w._write_fonts()
-        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u val="none" /></font></fonts></styleSheet>')
+        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /></font></fonts></styleSheet>')
 
+    def test_fonts_with_underline(self):
+        self.worksheet.cell('A1').style.font.size = 12
+        self.worksheet.cell('A1').style.font.bold = True
         self.worksheet.cell('A1').style.font.underline = Font.UNDERLINE_SINGLE
         w = StyleWriter(self.workbook)
         w._write_fonts()
@@ -120,7 +123,7 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.borders.top.color.index = Color.DARKYELLOW
         w = StyleWriter(self.workbook)
         w._write_borders()
-        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><borders count="2"><border><left /><right /><top /><bottom /><diagonal /></border><border><left style="none"><color rgb="FF000000" /></left><right style="none"><color rgb="FF000000" /></right><top style="thin"><color rgb="FF808000" /></top><bottom style="none"><color rgb="FF000000" /></bottom><diagonal style="none"><color rgb="FF000000" /></diagonal></border></borders></styleSheet>')
+        eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><borders count="2"><border><left /><right /><top /><bottom /><diagonal /></border><border><left /><right /><top style="thin"><color rgb="FF808000" /></top><bottom /><diagonal /></border></borders></styleSheet>')
 
     def test_write_cell_xfs_1(self):
 
@@ -151,12 +154,29 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.alignment.text_rotation = 90
         self.worksheet.cell('A2').style.alignment.vertical = 'center'
         self.worksheet.cell('A2').style.alignment.text_rotation = 135
+        self.worksheet.cell('A3').style.alignment.text_rotation = -34
         w = StyleWriter(self.workbook)
         nft = w._write_number_formats()
         w._write_cell_xfs(nft, {}, {}, {})
         xml = get_xml(w._root)
         ok_('textRotation="90"' in xml)
         ok_('textRotation="135"' in xml)
+        ok_('textRotation="124"' in xml)
+
+    def test_alignment_indent(self):
+        self.worksheet.cell('A1').style.alignment.indent = 1
+        self.worksheet.cell('A2').style.alignment.indent = 4
+        self.worksheet.cell('A3').style.alignment.indent = 0
+        self.worksheet.cell('A3').style.alignment.indent = -1
+        w = StyleWriter(self.workbook)
+        nft = w._write_number_formats()
+        w._write_cell_xfs(nft, {}, {}, {})
+        xml = get_xml(w._root)
+        ok_('indent="1"' in xml)
+        ok_('indent="4"' in xml)
+        #Indents not greater than zero are ignored when writing
+        ok_('indent="0"' not in xml)
+        ok_('indent="-1"' not in xml)
 
 
 #def test_format_comparisions():

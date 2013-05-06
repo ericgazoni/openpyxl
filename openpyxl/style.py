@@ -266,6 +266,7 @@ class NumberFormat(HashableObject):
     FORMAT_DATE_TIME6 = 'h:mm:ss'
     FORMAT_DATE_TIME7 = 'i:s.S'
     FORMAT_DATE_TIME8 = 'h:mm:ss@'
+    FORMAT_DATE_TIMEDELTA = '[hh]:mm:ss'
     FORMAT_DATE_YYYYMMDDSLASH = 'yy/mm/dd@'
     FORMAT_CURRENCY_USD_SIMPLE = '"$"#,##0.00_-'
     FORMAT_CURRENCY_USD = '$#,##0_-'
@@ -308,7 +309,7 @@ class NumberFormat(HashableObject):
         48: '##0.0E+0',
         49: '@', }
     _BUILTIN_FORMATS_REVERSE = dict(
-            [(value, key) for key, value in _BUILTIN_FORMATS.iteritems()])
+            [(value, key) for key, value in _BUILTIN_FORMATS.items()])
 
     __fields__ = ('_format_code',
                   '_format_index')
