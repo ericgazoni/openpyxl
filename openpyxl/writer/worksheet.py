@@ -175,7 +175,6 @@ def write_worksheet_cols(doc, worksheet):
                 iteritems(worksheet.column_dimensions):
             col_index = column_index_from_string(column_string)
             col_def = {}
-            col_def['style'] = str(columndimension.style_index)
             col_def['min'] = str(col_index)
             col_def['max'] = str(col_index)
             if columndimension.width != \
@@ -189,6 +188,8 @@ def write_worksheet_cols(doc, worksheet):
                 col_def['collapsed'] = 'true'
             if columndimension.auto_size:
                 col_def['bestFit'] = 'true'
+            if columndimension.style_index:
+                col_def['style'] = str(columndimension.style_index)
             if columndimension.width > 0:
                 col_def['width'] = str(columndimension.width)
             else:

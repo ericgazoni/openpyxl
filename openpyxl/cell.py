@@ -71,14 +71,13 @@ def absolute_coordinate(coord_string):
     """Convert a coordinate to an absolute coordinate string (B12 -> $B$12)"""
     m = ABSOLUTE_RE.match(coord_string)
     if m:
-	parts = m.groups()
-
-	if all(parts[-2:]):
-		return '$%s$%s:$%s$%s' % (parts[0], parts[1], parts[3], parts[4])
-	else:
-		return '$%s$%s' % (parts[0], parts[1])
+        parts = m.groups()
+        if all(parts[-2:]):
+            return '$%s$%s:$%s$%s' % (parts[0], parts[1], parts[3], parts[4])
+        else:
+            return '$%s$%s' % (parts[0], parts[1])
     else:
-    	return coord_string
+        return coord_string
 
 
 def column_index_from_string(column, fast=False):

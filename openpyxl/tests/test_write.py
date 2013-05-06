@@ -130,6 +130,7 @@ def test_write_style():
     wb = Workbook()
     ws = wb.create_sheet()
     ws.cell('F1').value = '13%'
+    ws.column_dimensions['F'].style_index = 2
     style_id_by_hash = StyleWriter(wb).get_style_by_hash()
     content = write_worksheet(ws, {}, style_id_by_hash)
     assert_equals_file_content(os.path.join(DATADIR, 'writer', 'expected', \

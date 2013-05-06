@@ -28,14 +28,13 @@ import os.path
 import datetime
 
 # 3rd party imports
-from nose.tools import eq_, assert_false, ok_
+from nose.tools import eq_, ok_
 
 # package imports
 from openpyxl.reader.excel import load_workbook
 from openpyxl.tests.helper import DATADIR, assert_equals_file_content, get_xml
 from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
-from openpyxl.style import NumberFormat
 from openpyxl.writer.styles import StyleWriter
 from openpyxl.style import NumberFormat, Border, Color, Font
 
@@ -52,8 +51,7 @@ class TestCreateStyle(object):
         cls.worksheet.cell(coordinate='B5').value = now
         cls.worksheet.cell(coordinate='C14').value = 'This is a test'
         cls.worksheet.cell(coordinate='D9').value = '31.31415'
-        cls.worksheet.cell(coordinate='D9').style.number_format.format_code = \
-                NumberFormat.FORMAT_NUMBER_00
+        cls.worksheet.cell(coordinate='D9').style.number_format.format_code = NumberFormat.FORMAT_NUMBER_00
         cls.writer = StyleWriter(cls.workbook)
 
     def test_create_style_table(self):
@@ -62,6 +60,7 @@ class TestCreateStyle(object):
     def test_write_style_table(self):
         reference_file = os.path.join(DATADIR, 'writer', 'expected', 'simple-styles.xml')
         assert_equals_file_content(reference_file, self.writer.write_table())
+
 
 class TestStyleWriter(object):
 
@@ -193,9 +192,9 @@ class TestStyleWriter(object):
 
 
 def test_builtin_format():
-    format = NumberFormat()
-    format.format_code = '0.00'
-    eq_(format.builtin_format_code(2), format._format_code)
+    nFormat = NumberFormat()
+    nFormat.format_code = '0.00'
+    eq_(nFormat.builtin_format_code(2), nFormat._format_code)
 
 
 def test_read_style():
@@ -208,8 +207,7 @@ def test_read_style():
         handle.close()
     style_table = read_style_table(content)
     eq_(4, len(style_table))
-    eq_(NumberFormat._BUILTIN_FORMATS[9],
-            style_table[1].number_format.format_code)
+    eq_(NumberFormat._BUILTIN_FORMATS[9], style_table[1].number_format.format_code)
     eq_('yyyy-mm-dd', style_table[2].number_format.format_code)
 
 
@@ -234,37 +232,37 @@ def test_read_complex_style():
     eq_(ws.cell('A6').style.font.color.index, 'theme:9:')
     eq_(ws.cell('A7').style.fill.start_color.index, 'FFFFFF66')
     eq_(ws.cell('A8').style.fill.start_color.index, 'theme:8:')
-    eq_(ws.cell('A9').style.alignment.horizontal,'left')
-    eq_(ws.cell('A10').style.alignment.horizontal,'right')
-    eq_(ws.cell('A11').style.alignment.horizontal,'center')
-    eq_(ws.cell('A12').style.alignment.vertical,'top')
-    eq_(ws.cell('A13').style.alignment.vertical,'center')
-    eq_(ws.cell('A14').style.alignment.vertical,'bottom')
-    eq_(ws.cell('A15').style.number_format._format_code,'0.00')
-    eq_(ws.cell('A16').style.number_format._format_code,'mm-dd-yy')
-    eq_(ws.cell('A17').style.number_format._format_code,'0.00%')
+    eq_(ws.cell('A9').style.alignment.horizontal, 'left')
+    eq_(ws.cell('A10').style.alignment.horizontal, 'right')
+    eq_(ws.cell('A11').style.alignment.horizontal, 'center')
+    eq_(ws.cell('A12').style.alignment.vertical, 'top')
+    eq_(ws.cell('A13').style.alignment.vertical, 'center')
+    eq_(ws.cell('A14').style.alignment.vertical, 'bottom')
+    eq_(ws.cell('A15').style.number_format._format_code, '0.00')
+    eq_(ws.cell('A16').style.number_format._format_code, 'mm-dd-yy')
+    eq_(ws.cell('A17').style.number_format._format_code, '0.00%')
     eq_('A18:B18' in ws._merged_cells, True)
-    eq_(ws.cell('B18').merged,True)
-    eq_(ws.cell('A19').style.borders.top.color.index,'FF006600')
-    eq_(ws.cell('A19').style.borders.bottom.color.index,'FF006600')
-    eq_(ws.cell('A19').style.borders.left.color.index,'FF006600')
-    eq_(ws.cell('A19').style.borders.right.color.index,'FF006600')
-    eq_(ws.cell('A21').style.borders.top.color.index,'theme:7:')
-    eq_(ws.cell('A21').style.borders.bottom.color.index,'theme:7:')
-    eq_(ws.cell('A21').style.borders.left.color.index,'theme:7:')
-    eq_(ws.cell('A21').style.borders.right.color.index,'theme:7:')
-    eq_(ws.cell('A23').style.fill.start_color.index,'FFCCCCFF')
-    eq_(ws.cell('A23').style.borders.top.color.index,'theme:6:')
+    eq_(ws.cell('B18').merged, True)
+    eq_(ws.cell('A19').style.borders.top.color.index, 'FF006600')
+    eq_(ws.cell('A19').style.borders.bottom.color.index, 'FF006600')
+    eq_(ws.cell('A19').style.borders.left.color.index, 'FF006600')
+    eq_(ws.cell('A19').style.borders.right.color.index, 'FF006600')
+    eq_(ws.cell('A21').style.borders.top.color.index, 'theme:7:')
+    eq_(ws.cell('A21').style.borders.bottom.color.index, 'theme:7:')
+    eq_(ws.cell('A21').style.borders.left.color.index, 'theme:7:')
+    eq_(ws.cell('A21').style.borders.right.color.index, 'theme:7:')
+    eq_(ws.cell('A23').style.fill.start_color.index, 'FFCCCCFF')
+    eq_(ws.cell('A23').style.borders.top.color.index, 'theme:6:')
     eq_('A23:B24' in ws._merged_cells, True)
-    eq_(ws.cell('A24').merged,True)
-    eq_(ws.cell('B23').merged,True)
-    eq_(ws.cell('B24').merged,True)
-    eq_(ws.cell('A25').style.alignment.wrap_text,True)
-    eq_(ws.cell('A26').style.alignment.shrink_to_fit,True)
+    eq_(ws.cell('A24').merged, True)
+    eq_(ws.cell('B23').merged, True)
+    eq_(ws.cell('B24').merged, True)
+    eq_(ws.cell('A25').style.alignment.wrap_text, True)
+    eq_(ws.cell('A26').style.alignment.shrink_to_fit, True)
+
 
 def test_read_cell_style():
-    reference_file = os.path.join(
-            DATADIR, 'reader', 'empty-workbook-styles.xml')
+    reference_file = os.path.join(DATADIR, 'reader', 'empty-workbook-styles.xml')
     handle = open(reference_file, 'r')
     try:
         content = handle.read()
