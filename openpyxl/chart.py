@@ -272,12 +272,18 @@ class Chart(object):
 
         # the containing drawing
         self.drawing = Drawing()
+        self.drawing.left = 10
+        self.drawing.top = 400
+        self.drawing.height = 400
+        self.drawing.width = 800
 
         # the offset for the plot part in percentage of the drawing size
         self.width = .6
         self.height = .6
         self.margin_top = self._get_max_margin_top()
+        self._margin_top = 0
         self.margin_left = 0
+        self._margin_left = 0
 
         # the user defined shapes
         self._shapes = []
