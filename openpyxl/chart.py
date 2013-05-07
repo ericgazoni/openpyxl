@@ -402,6 +402,16 @@ class Chart(object):
 
         return max(self._get_min_margin_left(), self.margin_left)
 
+    @property
+    def y_labels(self):
+        """Labels for the y-axis"""
+        return []
+
+    @property
+    def x_labels(self):
+        """Labels for the x-axis"""
+        return []
+
 class BarChart(Chart):
     def __init__(self):
         super(BarChart, self).__init__(Chart.BAR_CHART, Chart.GROUPING_CLUSTERED)
