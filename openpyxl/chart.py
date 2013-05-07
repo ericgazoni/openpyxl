@@ -28,6 +28,7 @@ from openpyxl.drawing import Drawing, Shape
 from openpyxl.shared.units import pixels_to_EMU, short_color
 from openpyxl.cell import get_column_letter
 
+
 class Axis(object):
 
     POSITION_BOTTOM = 'b'
@@ -76,6 +77,7 @@ class Axis(object):
         ax.auto = False
         ax.cross_between = 'between'
         return ax
+
 
 class Reference(object):
     """ a simple wrapper around a serie of reference data """
@@ -133,7 +135,6 @@ class Reference(object):
     def _get_cache(self):
         """ legacy method """
         return self.values
-
 
 
 class Serie(object):
@@ -208,12 +209,14 @@ class Serie(object):
 
         return len(self.values)
 
+
 class Legend(object):
 
     def __init__(self):
 
         self.position = 'r'
         self.layout = None
+
 
 class ErrorBar(object):
 
@@ -241,6 +244,7 @@ class ErrorBar(object):
         else:
             self._values = None
         self.reference = reference
+
 
 class Chart(object):
     """ raw chart class """
@@ -412,16 +416,17 @@ class Chart(object):
         """Labels for the x-axis"""
         return []
 
+
 class BarChart(Chart):
     def __init__(self):
         super(BarChart, self).__init__(Chart.BAR_CHART, Chart.GROUPING_CLUSTERED)
+
 
 class LineChart(Chart):
     def __init__(self):
         super(LineChart, self).__init__(Chart.LINE_CHART, Chart.GROUPING_STANDARD)
 
+
 class ScatterChart(Chart):
     def __init__(self):
         super(ScatterChart, self).__init__(Chart.SCATTER_CHART, Chart.GROUPING_STANDARD)
-
-
