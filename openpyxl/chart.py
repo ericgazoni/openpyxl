@@ -284,7 +284,8 @@ class Chart(object):
         # the offset for the plot part in percentage of the drawing size
         self.width = .6
         self.height = .6
-        self.margin_top = 0
+        self._margin_top = 1
+        self._margin_top = self.margin_top
         self._margin_left = 0
 
         # the user defined shapes
@@ -384,28 +385,31 @@ class Chart(object):
         self.x_axis.max = maxi
         self.x_axis.unit = unit
 
-    def _get_max_margin_top(self, value):
+    def _get_max_margin_top(self):
 
         mb = Shape.FONT_HEIGHT + Shape.MARGIN_BOTTOM
         plot_height = self.drawing.height * self.height
-        self._margin_top = float(self.drawing.height - plot_height - mb) / self.drawing.height
-        return self._margin_top
+        return float(self.drawing.height - plot_height - mb) / self.drawing.height
 
     def _get_min_margin_left(self):
 
         ml = (self.get_y_chars() * Shape.FONT_WIDTH) + Shape.MARGIN_LEFT
         return float(ml) / self.drawing.width
 
-    def _get_margin_top(self):
+    @property
+    def margin_top(self):
         """ get margin in percent """
 
         return min(self._margin_top, self._get_max_margin_top())
 
-    margin_top = property(_get_margin_top, _get_max_margin_top)
+    @margin_top.setter
+    def margin_top(self, value):
+        """ set base top margin"""
+        self._margin_top = value
 
     def _get_margin_left(self):
 
-        return max(self._get_min_margin_left(), self._margin_left())
+        return max(self._get_min_margin_left(), self._margin_left)
 
     def _set_margin_left(self, value):
         self._margin_left = value

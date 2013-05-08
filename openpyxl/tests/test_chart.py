@@ -227,7 +227,7 @@ class TestChart(object):
 
     def test_set_margin_top(self):
         c = Chart(None, None)
-        c.margin_top = 0
+        c.margin_top = 1
         eq_(c.margin_top, 0.31)
 
     def test_set_margin_left(self):
