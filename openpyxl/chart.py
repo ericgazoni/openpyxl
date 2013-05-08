@@ -399,13 +399,13 @@ class Chart(object):
     def _get_margin_top(self):
         """ get margin in percent """
 
-        return min(self._margin_top, self._get_max_margin_top)
+        return min(self._margin_top, self._get_max_margin_top())
 
     margin_top = property(_get_margin_top, _get_max_margin_top)
 
     def _get_margin_left(self):
 
-        return max(self._get_min_margin_left(), self._margin_left)
+        return max(self._get_min_margin_left(), self._margin_left())
 
     def _set_margin_left(self, value):
         self._margin_left = value
