@@ -407,14 +407,14 @@ class Chart(object):
         """ set base top margin"""
         self._margin_top = value
 
-    def _get_margin_left(self):
+    @property
+    def margin_left(self):
 
         return max(self._get_min_margin_left(), self._margin_left)
 
-    def _set_margin_left(self, value):
+    @margin_left.setter
+    def margin_left(self, value):
         self._margin_left = value
-
-    margin_left = property(_get_margin_left, _set_margin_left)
 
     @property
     def y_labels(self):
