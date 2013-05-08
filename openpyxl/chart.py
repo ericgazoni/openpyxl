@@ -385,17 +385,6 @@ class Chart(object):
         self.x_axis.max = maxi
         self.x_axis.unit = unit
 
-    def _get_max_margin_top(self):
-
-        mb = Shape.FONT_HEIGHT + Shape.MARGIN_BOTTOM
-        plot_height = self.drawing.height * self.height
-        return float(self.drawing.height - plot_height - mb) / self.drawing.height
-
-    def _get_min_margin_left(self):
-
-        ml = (self.get_y_chars() * Shape.FONT_WIDTH) + Shape.MARGIN_LEFT
-        return float(ml) / self.drawing.width
-
     @property
     def margin_top(self):
         """ get margin in percent """
@@ -407,6 +396,12 @@ class Chart(object):
         """ set base top margin"""
         self._margin_top = value
 
+    def _get_max_margin_top(self):
+
+        mb = Shape.FONT_HEIGHT + Shape.MARGIN_BOTTOM
+        plot_height = self.drawing.height * self.height
+        return float(self.drawing.height - plot_height - mb) / self.drawing.height
+
     @property
     def margin_left(self):
 
@@ -415,6 +410,11 @@ class Chart(object):
     @margin_left.setter
     def margin_left(self, value):
         self._margin_left = value
+
+    def _get_min_margin_left(self):
+
+        ml = (self.get_y_chars() * Shape.FONT_WIDTH) + Shape.MARGIN_LEFT
+        return float(ml) / self.drawing.width
 
     @property
     def y_labels(self):
