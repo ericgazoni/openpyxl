@@ -65,8 +65,8 @@ class ChartWriter(object):
         SubElement(mlayout, 'c:layoutTarget', {'val':'inner'})
         SubElement(mlayout, 'c:xMode', {'val':'edge'})
         SubElement(mlayout, 'c:yMode', {'val':'edge'})
-        SubElement(mlayout, 'c:x', {'val':str(chart._get_margin_left())})
-        SubElement(mlayout, 'c:y', {'val':str(chart._get_margin_top())})
+        SubElement(mlayout, 'c:x', {'val':str(chart.margin_left)})
+        SubElement(mlayout, 'c:y', {'val':str(chart.margin_top)})
         SubElement(mlayout, 'c:w', {'val':str(chart.width)})
         SubElement(mlayout, 'c:h', {'val':str(chart.height)})
 
