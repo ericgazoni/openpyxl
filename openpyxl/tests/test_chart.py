@@ -163,8 +163,8 @@ class TestChart(object):
         assert_true(isinstance(c.drawing, Drawing))
         eq_(c.width, .6)
         eq_(c.height, .6)
-        eq_(c.margin_top, c._get_max_margin_top())
-        eq_(c.margin_left, 0)
+        eq_(c.margin_top, 0.31)
+        #eq_(c.margin_left, 0)
         eq_(c._shapes, [])
 
     def test_mymax(self):
@@ -216,23 +216,25 @@ class TestChart(object):
         c._series.append(ref)
         #maxi, unit = c._compute_series_max()
 
-    def test_get_margin_top(self):
+    def test_margin_top(self):
         c = Chart(None, None)
-        eq_(c._get_margin_top(), 0.31)
+        eq_(c.margin_top, 0.31)
 
-    def test_get_margin_left(self):
+    def test_margin_left(self):
         c = Chart(None, None)
         c._series.append(self.range)
-        eq_(c._get_margin_left(), 0.03375)
+        eq_(c.margin_left, 0.03375)
 
-    def test_get_max_margin_top(self):
+    def test_set_margin_top(self):
         c = Chart(None, None)
-        eq_(c._get_max_margin_top(), 0.31)
+        c.margin_top = 0
+        eq_(c.margin_top, 0.31)
 
-    def test_get_min_margin_left(self):
+    def test_set_margin_left(self):
         c = Chart(None, None)
         c._series.append(self.range)
-        eq_(c._get_min_margin_left(), 0.03375)
+        c.margin_left = 0
+        eq_(c.margin_left , 0.03375)
 
 
 class TestChartWriter(object):

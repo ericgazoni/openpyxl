@@ -284,9 +284,7 @@ class Chart(object):
         # the offset for the plot part in percentage of the drawing size
         self.width = .6
         self.height = .6
-        self.margin_top = self._get_max_margin_top()
-        self._margin_top = 0
-        self.margin_left = 0
+        self.margin_top = 0
         self._margin_left = 0
 
         # the user defined shapes
@@ -386,11 +384,12 @@ class Chart(object):
         self.x_axis.max = maxi
         self.x_axis.unit = unit
 
-    def _get_max_margin_top(self):
+    def _get_max_margin_top(self, value):
 
         mb = Shape.FONT_HEIGHT + Shape.MARGIN_BOTTOM
         plot_height = self.drawing.height * self.height
-        return float(self.drawing.height - plot_height - mb) / self.drawing.height
+        self._margin_top = float(self.drawing.height - plot_height - mb) / self.drawing.height
+        return self._margin_top
 
     def _get_min_margin_left(self):
 
@@ -400,11 +399,18 @@ class Chart(object):
     def _get_margin_top(self):
         """ get margin in percent """
 
-        return min(self.margin_top, self._get_max_margin_top())
+        return min(self._margin_top, self._get_max_margin_top)
+
+    margin_top = property(_get_margin_top, _get_max_margin_top)
 
     def _get_margin_left(self):
 
-        return max(self._get_min_margin_left(), self.margin_left)
+        return max(self._get_min_margin_left(), self._margin_left)
+
+    def _set_margin_left(self, value):
+        self._margin_left = value
+
+    margin_left = property(_get_margin_left, _set_margin_left)
 
     @property
     def y_labels(self):
