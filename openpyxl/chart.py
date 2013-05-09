@@ -262,14 +262,15 @@ def less_than_one(value):
 
 def scale_axis(value):
     """
-    Calculate max values for axes taking the length of characters into consideration and adding some padding
+    Calculate max values for axes taking the length of characters into consideration and adding some padding.
+    Units are always a tenth of the maximum value
     """
     # coerce float and expand
     value = math.ceil(value * 1.1)
     # calculate length in characters
-    sz = len(str(int(value))) - 1
+    sz = int(math.log(abs(value), 10))
     # calculate tick
-    unit = math.ceil(math.ceil(float(value) / pow(10.0, sz)) * pow(10.0, sz - 1))
+    unit = math.ceil(math.ceil(value / pow(10.0, sz)) * pow(10.0, sz - 1))
     # recalculate max
     value = math.ceil(value / unit) * unit
     return value, unit

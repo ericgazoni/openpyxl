@@ -248,6 +248,10 @@ class TestChart(object):
         eq_(maxi, 6.0)
         eq_(unit, 1.0)
 
+        maxi, unit = scale_axis(50000)
+        eq_(maxi, 60000.0)
+        eq_(unit, 6000.0)
+
     def test_margin_top(self):
         c = Chart(None, None)
         eq_(c.margin_top, 0.31)
