@@ -265,13 +265,13 @@ def scale_axis(value):
     Calculate max values for axes taking the length of characters into consideration and adding some padding
     """
     # coerce float and expand
-    value = math.ceil(float(value) * 1.1)
+    value = math.ceil(value * 1.1)
     # calculate length in characters
     sz = len(str(int(value))) - 1
     # calculate tick
     unit = math.ceil(math.ceil(float(value) / pow(10.0, sz)) * pow(10.0, sz - 1))
     # recalculate max
-    value = math.ceil(float(value) / unit) * unit
+    value = math.ceil(value / unit) * unit
     return value, unit
 
 class Chart(object):
