@@ -244,6 +244,10 @@ class TestChart(object):
         eq_(maxi, 12.0)
         eq_(unit, 2.0)
 
+        maxi, unit = scale_axis(5)
+        eq_(maxi, 6.0)
+        eq_(unit, 1.0)
+
     def test_margin_top(self):
         c = Chart(None, None)
         eq_(c.margin_top, 0.31)
