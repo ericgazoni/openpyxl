@@ -260,6 +260,20 @@ def less_than_one(value):
     return value, mul
 
 
+def scale_axis(value):
+    """
+    Calculate max values for axes taking the length of characters into consideration and adding some padding
+    """
+    # coerce float and expand
+    value = math.ceil(float(value) * 1.1)
+    # calculate length in characters
+    sz = len(str(int(value))) - 1
+    # calculate tick
+    unit = math.ceil(math.ceil(float(value) / pow(10.0, sz)) * pow(10.0, sz - 1))
+    # recalculate max
+    value = math.ceil(float(value) / unit) * unit
+    return value, unit
+
 class Chart(object):
     """ raw chart class """
 
@@ -357,14 +371,16 @@ class Chart(object):
         if abs(maxi) < 1:
             maxi, mul = less_than_one(maxi)
 
-        # coerce float and expand
-        maxi = math.ceil(float(maxi) * 1.1)
-        # calculate length in characters
-        sz = len(str(int(maxi))) - 1
-        # calculate tick
-        unit = math.ceil(math.ceil(float(maxi) / pow(10.0, sz)) * pow(10.0, sz - 1))
-        # recalculate max
-        maxi = math.ceil(float(maxi) / unit) * unit
+        ## coerce float and expand
+        #maxi = math.ceil(float(maxi) * 1.1)
+        ## calculate length in characters
+        #sz = len(str(int(maxi))) - 1
+        ## calculate tick
+        #unit = math.ceil(math.ceil(float(maxi) / pow(10.0, sz)) * pow(10.0, sz - 1))
+        ## recalculate max
+        #maxi = math.ceil(float(maxi) / unit) * unit
+
+        maxi, unit = scale_axis(maxi)
 
         # recalibrate for 0 < x < 1
         if mul is not None:
