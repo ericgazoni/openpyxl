@@ -371,15 +371,6 @@ class Chart(object):
         if abs(maxi) < 1:
             maxi, mul = less_than_one(maxi)
 
-        ## coerce float and expand
-        #maxi = math.ceil(float(maxi) * 1.1)
-        ## calculate length in characters
-        #sz = len(str(int(maxi))) - 1
-        ## calculate tick
-        #unit = math.ceil(math.ceil(float(maxi) / pow(10.0, sz)) * pow(10.0, sz - 1))
-        ## recalculate max
-        #maxi = math.ceil(float(maxi) / unit) * unit
-
         maxi, unit = scale_axis(maxi)
 
         # recalibrate for 0 < x < 1
