@@ -258,7 +258,8 @@ def less_than_one(value):
                 mul *= 10.0
             else:
                 break
-        return value * mul, mul
+        value = value * mul
+    return value, mul
 
 
 class Chart(object):
@@ -356,8 +357,8 @@ class Chart(object):
 
         # ugh! handle values 0 < x < 1
         mul = None
-        if maxi < 1:
-            maxi, mul = less_than_one(maxi)
+        #if maxi < 1:
+        maxi, mul = less_than_one(maxi)
             #s = str(maxi).split('.')[1]
             #mul = 10.0
             #for x in s:
