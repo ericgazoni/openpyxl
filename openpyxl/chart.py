@@ -251,7 +251,7 @@ def less_than_one(value):
     by scaling by powers of 10 until is greater than 1
     """
 
-    mul = math.log(value, 10)
+    mul = math.log(abs(value), 10)
     if mul < 0:
         mul = 10**(int(abs(mul)) + 1)
         value = value * mul

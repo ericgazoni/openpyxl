@@ -230,6 +230,14 @@ class TestChart(object):
         eq_(maxi, 9.0)
         eq_(mul, 100.0)
 
+        maxi, mul = less_than_one(-5)
+        eq_(maxi, -5)
+        eq_(mul, None)
+
+        maxi, mul = less_than_one(-0.09)
+        eq_(maxi, -9.0)
+        eq_(mul, 100.0)
+
     def test_margin_top(self):
         c = Chart(None, None)
         eq_(c.margin_top, 0.31)
