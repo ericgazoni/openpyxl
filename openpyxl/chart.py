@@ -247,18 +247,16 @@ class ErrorBar(object):
 
 
 def less_than_one(value):
-    """Recalculate the maximum for a series if it is less than one"""
+    """Recalculate the maximum for a series if it is less than one
+    by scaling by powers of 10 until is greater than 1
+    """
 
-    mul = None
-    if value < 1:
-        s = str(value).split('.')[1]
-        mul = 10.0
-        for x in s:
-            if x == '0':
-                mul *= 10.0
-            else:
-                break
+    mul = math.log(value, 10)
+    if mul < 0:
+        mul = 10**(int(abs(mul)) + 1)
         value = value * mul
+    else:
+        mul = None
     return value, mul
 
 
@@ -355,18 +353,9 @@ class Chart(object):
                 series_max.append(m)
         maxi = max(series_max)
 
-        # ugh! handle values 0 < x < 1
         mul = None
-        #if maxi < 1:
-        maxi, mul = less_than_one(maxi)
-            #s = str(maxi).split('.')[1]
-            #mul = 10.0
-            #for x in s:
-                #if x == '0':
-                    #mul *= 10.0
-                #else:
-                    #break
-            #maxi = maxi * mul
+        if abs(maxi) < 1:
+            maxi, mul = less_than_one(maxi)
 
         # coerce float and expand
         maxi = math.ceil(float(maxi) * 1.1)
