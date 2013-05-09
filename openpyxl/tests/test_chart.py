@@ -238,6 +238,12 @@ class TestChart(object):
         eq_(maxi, -9.0)
         eq_(mul, 100.0)
 
+    def test_scale_axis(self):
+        from openpyxl.chart import scale_axis
+        maxi, unit = scale_axis(10)
+        eq_(maxi, 12.0)
+        eq_(unit, 2.0)
+
     def test_margin_top(self):
         c = Chart(None, None)
         eq_(c.margin_top, 0.31)
