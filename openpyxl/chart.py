@@ -274,6 +274,9 @@ def scale_axis(value):
     unit = math.ceil(math.ceil(10**mant) * 10**(exp-1))
     # recalculate max
     value = math.ceil(value / unit) * unit
+    if value / unit > 9:
+        # no more that 10 ticks
+        unit *= 2
     return value, unit
 
 class Chart(object):
@@ -380,9 +383,6 @@ class Chart(object):
             maxi = maxi / mul
             unit = unit / mul
 
-        if maxi / unit > 9:
-            # no more that 10 ticks
-            unit *= 2
         return maxi, unit
 
     def _compute_ymin_ymax(self):

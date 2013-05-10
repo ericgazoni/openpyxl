@@ -252,7 +252,7 @@ class TestChart(object):
 
         maxi, unit = scale_axis(50000)
         eq_(maxi, 60000.0)
-        eq_(unit, 6000.0)
+        eq_(unit, 12000.0)
         assert_true(maxi/unit < 10)
 
     def test_margin_top(self):
