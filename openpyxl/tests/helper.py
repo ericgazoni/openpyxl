@@ -72,7 +72,7 @@ def assert_equals_file_content(reference_file, fixture, filetype = 'xml'):
         expected_file.close()
     assert_equals_string(expected_content, expected_content, filetype)
 
-def assert_equals_string(expected_content, fixture_content, filetype='xml'):
+def assert_equals_string(expected_content, fixture_content, filetype=None):
 
     if filetype == 'xml':
         fixture_content = fromstring(fixture_content)
