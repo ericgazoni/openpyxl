@@ -218,24 +218,16 @@ class TestChart(object):
 
     def test_less_than_one(self):
         from openpyxl.chart import less_than_one
-        maxi, mul = less_than_one(1)
-        eq_(maxi, 1)
+        mul = less_than_one(1)
         eq_(mul, None)
 
-        maxi, mul = less_than_one(0.9)
-        eq_(maxi, 9.0)
+        mul = less_than_one(0.9)
         eq_(mul, 10.0)
 
-        maxi, mul = less_than_one(0.09)
-        eq_(maxi, 9.0)
+        mul = less_than_one(0.09)
         eq_(mul, 100.0)
 
-        maxi, mul = less_than_one(-5)
-        eq_(maxi, -5)
-        eq_(mul, None)
-
-        maxi, mul = less_than_one(-0.09)
-        eq_(maxi, -9.0)
+        mul = less_than_one(-0.09)
         eq_(mul, 100.0)
 
     def test_scale_axis(self):

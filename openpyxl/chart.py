@@ -250,30 +250,32 @@ def less_than_one(value):
     """Recalculate the maximum for a series if it is less than one
     by scaling by powers of 10 until is greater than 1
     """
-
-    mul = math.log10(abs(value))
-    if mul < 0:
-        mul = 10**(int(abs(mul)) + 1)
-        value = value * mul
-    else:
-        mul = None
-    return value, mul
-
+    value = abs(value)
+    if value < 1:
+        exp = int(math.log10(value))
+        return 10**((abs(exp)) + 1)
 
 def scale_axis(value):
     """
     Calculate max values for axes taking the length of characters into consideration and adding some padding.
     Units are always a tenth of the maximum value
     """
-    # coerce float and expand
+
     value = math.ceil(value * 1.1)
     # calculate tick
     l = math.log10(abs(value))
     exp = int(l)
+
+    # scale to > 1 if necessary
+    scale = less_than_one(value) or 1
+
+    #print scale, exp
     mant = l - exp
     unit = math.ceil(math.ceil(10**mant) * 10**(exp-1))
     # recalculate max
-    value = math.ceil(value / unit) * unit
+    value = math.ceil(value / unit) * unit / scale
+    unit = unit / scale
+
     if value / unit > 9:
         # no more that 10 ticks
         unit *= 2
@@ -372,16 +374,7 @@ class Chart(object):
                 series_max.append(m)
         maxi = max(series_max)
 
-        mul = None
-        if abs(maxi) < 1:
-            maxi, mul = less_than_one(maxi)
-
         maxi, unit = scale_axis(maxi)
-
-        # recalibrate for 0 < x < 1
-        if mul is not None:
-            maxi = maxi / mul
-            unit = unit / mul
 
         return maxi, unit
 
