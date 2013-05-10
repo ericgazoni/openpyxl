@@ -251,7 +251,7 @@ def less_than_one(value):
     by scaling by powers of 10 until is greater than 1
     """
 
-    mul = math.log(abs(value), 10)
+    mul = math.log10(abs(value))
     if mul < 0:
         mul = 10**(int(abs(mul)) + 1)
         value = value * mul
@@ -268,7 +268,7 @@ def scale_axis(value):
     # coerce float and expand
     value = math.ceil(value * 1.1)
     # calculate length in characters
-    sz = int(math.log(abs(value), 10))
+    sz = int(math.log10(abs(value)))
     # calculate tick
     unit = math.ceil(math.ceil(value / pow(10.0, sz)) * pow(10.0, sz - 1))
     # recalculate max
