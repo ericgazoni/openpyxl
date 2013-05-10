@@ -27,6 +27,7 @@ import os
 
 from lxml.etree import ElementTree
 from lxml.etree import XMLSchema
+from lxml.etree import fromstring
 
 # Provide schema based validators, lxml required
 # use schema.validate(Element) or schema.assertValid(Element) for messages
