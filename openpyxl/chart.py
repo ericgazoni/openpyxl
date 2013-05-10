@@ -267,10 +267,11 @@ def scale_axis(value):
     """
     # coerce float and expand
     value = math.ceil(value * 1.1)
-    # calculate length in characters
-    sz = int(math.log10(abs(value)))
     # calculate tick
-    unit = math.ceil(math.ceil(value / pow(10.0, sz)) * pow(10.0, sz - 1))
+    l = math.log10(abs(value))
+    exp = int(l)
+    mant = l - exp
+    unit = math.ceil(math.ceil(10**mant) * 10**(exp-1))
     # recalculate max
     value = math.ceil(value / unit) * unit
     return value, unit
