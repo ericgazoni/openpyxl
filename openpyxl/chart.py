@@ -111,7 +111,11 @@ class Reference(object):
                     cell = self.sheet.cell(row=row, column=col)
                     if not self.data_type and cell.data_type:
                         self.data_type = cell.data_type
+                    #elif self.data_type and cell.data_type:
+                        #if cell.data_type != self.data_type:
+                            #raise ValueError("All values in a series must of the same type")
                     self._values.append(cell.excel_value)
+
             if self.data_type is None:
                 self.data_type = 'n'
 

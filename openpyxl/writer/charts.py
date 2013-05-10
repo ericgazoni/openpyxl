@@ -206,22 +206,20 @@ class ChartWriter(object):
         cache = reference.values
         typ = reference.data_type
 
+        mapping = {'n':{'ref':'numRef', 'cache':'numCache'},
+                   's':{'ref':'strRef', 'cache':'strCache'}}
 
         if not literal:
-            if typ == 'n':
-                ref = SubElement(node, 'c:numRef')
-            else:
-                ref = SubElement(node, 'c:strRef')
+            ref = SubElement(node, 'c:%s' % mapping[typ]['ref'])
+
             SubElement(ref, 'c:f').text = str(reference)
-            if typ == 'n':
-                data = SubElement(ref, 'c:numCache')
-            else:
-                data = SubElement(ref, 'c:strCache')
+            data = SubElement(ref, 'c:%s' % mapping[typ]['cache'])
         else:
             data = SubElement(node, 'c:numLit')
 
         if typ == 'n':
             SubElement(data, 'c:formatCode').text = 'General'
+
         if literal:
             values = (1,)
         else:
