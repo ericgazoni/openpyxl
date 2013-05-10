@@ -257,19 +257,20 @@ def less_than_one(value):
 
 def scale_axis(value):
     """
-    Calculate max values for axes taking the length of characters into consideration and adding some padding.
-    Units are always a tenth of the maximum value
+    Calculate max values for axes taking the length of characters into
+    consideration and adding some padding. Units are always a tenth of the
+    maximum value
     """
 
-    value = math.ceil(value * 1.1)
+    sign = value/value
+    scale = less_than_one(value) or 1
+    value = value * scale
+    ab = abs(value)
+    value = math.ceil(ab * 1.1) * sign
+
     # calculate tick
     l = math.log10(abs(value))
     exp = int(l)
-
-    # scale to > 1 if necessary
-    scale = less_than_one(value) or 1
-
-    #print scale, exp
     mant = l - exp
     unit = math.ceil(math.ceil(10**mant) * 10**(exp-1))
     # recalculate max
@@ -373,10 +374,7 @@ class Chart(object):
                 m = self.mymax(series)
                 series_max.append(m)
         maxi = max(series_max)
-
-        maxi, unit = scale_axis(maxi)
-
-        return maxi, unit
+        return scale_axis(maxi)
 
     def _compute_ymin_ymax(self):
         """ compute y axis limits and units """
