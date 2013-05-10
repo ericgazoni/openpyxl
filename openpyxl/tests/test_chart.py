@@ -205,7 +205,7 @@ class TestChart(object):
         c = Chart(None, None)
         ref = Reference(ws, (0, 0), (9, 0))
         c._series.append(ref)
-        #maxi, unit = c._compute_series_max()
+        maxi, unit = c._compute_series_max()
 
     def test_computer_series_max_strings(self):
         ws = self.make_worksheet()
