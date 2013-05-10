@@ -84,7 +84,7 @@ class ChartWriter(object):
 
         self._write_series(subchart)
 
-        SubElement(subchart, 'c:marker', {'val':'1'})
+        #SubElement(subchart, 'c:marker', {'val':'1'})
         SubElement(subchart, 'c:axId', {'val':str(chart.x_axis.id)})
         SubElement(subchart, 'c:axId', {'val':str(chart.y_axis.id)})
 
@@ -183,8 +183,8 @@ class ChartWriter(object):
             if serie.error_bar:
                 self._write_error_bar(ser, serie)
 
-            marker = SubElement(ser, 'c:marker')
-            SubElement(marker, 'c:symbol', {'val':serie.marker})
+            #marker = SubElement(ser, 'c:marker')
+            #SubElement(marker, 'c:symbol', {'val':serie.marker})
 
             if serie.labels:
                 cat = SubElement(ser, 'c:cat')
