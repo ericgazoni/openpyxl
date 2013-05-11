@@ -342,7 +342,7 @@ class TestChartWriter(object):
 
     def test_no_write_legend(self):
 
-        self.cw.chart.show_legend = False
+        self.chart.show_legend = False
         self.cw._write_legend(self.root)
         children = [e for e in self.root]
         eq_(len(children), 0)
