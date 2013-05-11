@@ -342,20 +342,10 @@ class TestChartWriter(object):
 
     def test_no_write_legend(self):
 
-        wb = Workbook()
-        ws = wb.get_active_sheet()
-        ws.title = 'data'
-        for i in range(10):
-            ws.cell(row=i, column=0).value = i
-            ws.cell(row=i, column=1).value = i
-        scatterchart = ScatterChart()
-        scatterchart.add_serie(Serie(Reference(ws, (0, 0), (10, 0)),
-                         xvalues=Reference(ws, (0, 1), (10, 1))))
-        cw = ChartWriter(scatterchart)
-        root = Element('test')
-        scatterchart.show_legend = False
-        cw._write_legend(root)
-        eq_(get_xml(root), """<?xml version='1.0' encoding='UTF-8'?><test />""")
+        self.cw.chart.show_legend = False
+        self.cw._write_legend(self.root)
+        children = self.root.getchildren()
+        eq_(len(children), 0)
 
     def test_write_print_settings(self):
 
