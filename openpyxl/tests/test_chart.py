@@ -344,13 +344,22 @@ class TestChartWriter(object):
 
         self.cw.chart.show_legend = False
         self.cw._write_legend(self.root)
-        children = self.root.getchildren()
+        children = [e for e in self.root]
         eq_(len(children), 0)
 
     def test_write_print_settings(self):
-
+        tagnames = ['test', 'c:printSettings', 'c:headerFooter',
+                    'c:pageMargins', 'c:pageSetup']
         self.cw._write_print_settings(self.root)
-        eq_(get_xml(self.root), """<?xml version='1.0' encoding='UTF-8'?><test><c:printSettings><c:headerFooter /><c:pageMargins b="0.75" footer="0.3" header="0.3" l="0.7" r="0.7" t="0.75" /><c:pageSetup /></c:printSettings></test>""")
+        for e in self.root.iter():
+            assert_true(e.tag in tagnames)
+            if e.tag == "c:pageMargins":
+                eq_(e.keys(), self.chart.print_margins.keys())
+                for k, v in e.items():
+                    eq_(float(v), self.chart.print_margins[k])
+            else:
+                eq_(e.text, None)
+                eq_(e.attrib, {})
 
     def test_write_chart(self):
 
