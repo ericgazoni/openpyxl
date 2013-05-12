@@ -175,6 +175,14 @@ class TestChart(object):
         eq_(c.mymax(range(-10, 1)), 0)
         eq_(c.mymax([""]*10), "")
 
+    def test_mymin(self):
+        c = Chart(None, None)
+        eq_(c.mymin(range(10)), 0)
+        from string import letters
+        eq_(c.mymin(list(letters)), "A")
+        eq_(c.mymin(range(-10, 1)), -10)
+        eq_(c.mymin([""]*10), "")
+
     def test_get_x_unit(self):
         c = Chart(None, None)
         c._series.append(self.range)
