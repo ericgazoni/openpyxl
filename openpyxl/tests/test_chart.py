@@ -37,6 +37,72 @@ from re import sub
 from openpyxl.drawing import Image
 
 
+def test_less_than_one():
+    from openpyxl.chart import less_than_one
+    mul = less_than_one(1)
+    eq_(mul, None)
+
+    mul = less_than_one(0.9)
+    eq_(mul, 10.0)
+
+    mul = less_than_one(0.09)
+    eq_(mul, 100.0)
+
+    mul = less_than_one(-0.09)
+    eq_(mul, 100.0)
+
+
+class TestAxis(object):
+
+    def setUp(self):
+        from openpyxl.chart import Axis
+        self.axis = Axis()
+
+    def test_scaling(self):
+        self.axis.max = 10
+        eq_(self.axis.min, 0.0)
+        eq_(self.axis.max, 12.0)
+        eq_(self.axis.unit, 2.0)
+
+        self.axis.max = 5
+        eq_(self.axis.min, 0.0)
+        eq_(self.axis.max, 6.0)
+        eq_(self.axis.unit, 1.0)
+
+        self.axis.max = 50000
+        eq_(self.axis.min, 0.0)
+        eq_(self.axis.max, 60000.0)
+        eq_(self.axis.unit, 12000.0)
+
+        self.axis.max = 1
+        eq_(self.axis.min, 0.0)
+        eq_(self.axis.max, 2.0)
+        eq_(self.axis.unit, 1.0)
+
+        self.axis.max = 0.9
+        eq_(self.axis.min, 0.0)
+        eq_(self.axis.max, 1.0)
+        eq_(self.axis.unit, 0.2)
+
+        self.axis.max = 0.09
+        eq_(self.axis.min, 0.0)
+        eq_(self.axis.max, 0.1)
+        eq_(self.axis.unit, 0.02)
+
+        self.axis.min = -0.09
+        self.axis.max = 0
+        eq_(self.axis.min, -0.1)
+        eq_(self.axis.max, 0.0)
+        eq_(self.axis.unit, 0.02)
+
+        self.axis.min = -2
+        self.axis.max = 8
+        eq_(self.axis.min, -3.0)
+        eq_(self.axis.max, 10.0)
+        eq_(self.axis.unit, 2.0)
+
+
+
 class TestReference(object):
 
     def setUp(self):
@@ -192,7 +258,7 @@ class TestChart(object):
         c = Chart(None, None)
         c._series.append(self.range)
         c.y_axis.max = 10
-        eq_(c.get_y_units(), 228600.0)
+        eq_(c.get_y_units(), 190500.0)
 
     def test_get_y_char(self):
         c = Chart(None, None)
@@ -225,70 +291,6 @@ class TestChart(object):
         c = Chart(None, None)
         c._series.append(ref)
         #maxi, unit = c._compute_series_max()
-
-    def test_less_than_one(self):
-        from openpyxl.chart import less_than_one
-        mul = less_than_one(1)
-        eq_(mul, None)
-
-        mul = less_than_one(0.9)
-        eq_(mul, 10.0)
-
-        mul = less_than_one(0.09)
-        eq_(mul, 100.0)
-
-        mul = less_than_one(-0.09)
-        eq_(mul, 100.0)
-
-    def test_scale_axis(self):
-        from openpyxl.chart import scale_axis
-        mini, maxi, unit = scale_axis(0, 10)
-        eq_(mini, 0.0)
-        eq_(maxi, 12.0)
-        eq_(unit, 2.0)
-        assert_true(maxi/unit < 10)
-
-        mini, maxi, unit = scale_axis(0, 5)
-        eq_(mini, 0.0)
-        eq_(maxi, 6.0)
-        eq_(unit, 1.0)
-        assert_true(maxi/unit < 10)
-
-        mini, maxi, unit = scale_axis(0, 50000)
-        eq_(mini, 0.0)
-        eq_(maxi, 60000.0)
-        eq_(unit, 12000.0)
-        assert_true(maxi/unit < 10)
-
-        mini, maxi, unit = scale_axis(0, 1)
-        eq_(mini, 0.0)
-        eq_(maxi, 2.0)
-        eq_(unit, 1.0)
-        assert_true(maxi/unit < 10)
-
-        mini, maxi, unit = scale_axis(0, 0.9)
-        eq_(mini, 0.0)
-        eq_(maxi, 1.0)
-        eq_(unit, 0.2)
-        assert_true(maxi/unit < 10)
-
-        mini, maxi, unit = scale_axis(0, 0.09)
-        eq_(mini, 0.0)
-        eq_(maxi, 0.1)
-        eq_(unit, 0.02)
-        assert_true(maxi/unit < 10)
-
-        mini, maxi, unit = scale_axis(-0.09, 0)
-        eq_(mini, -0.1)
-        eq_(maxi, 0.0)
-        eq_(unit, 0.02)
-        assert_true(maxi/unit < 10)
-
-        mini, maxi, unit = scale_axis(-2, 8)
-        eq_(mini, -3.0)
-        eq_(maxi, 10.0)
-        eq_(unit, 2.0)
-
 
     def test_margin_top(self):
         c = Chart(None, None)

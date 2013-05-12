@@ -29,6 +29,15 @@ from openpyxl.shared.units import pixels_to_EMU, short_color
 from openpyxl.cell import get_column_letter
 
 
+def less_than_one(value):
+    """Recalculate the maximum for a series if it is less than one
+    by scaling by powers of 10 until is greater than 1
+    """
+    value = abs(value)
+    if value < 1:
+        exp = int(math.log10(value))
+        return 10**((abs(exp)) + 1)
+
 class Axis(object):
 
     POSITION_BOTTOM = 'b'
@@ -44,14 +53,71 @@ class Axis(object):
             'auto', 'label_align', 'label_offset', 'cross_between'):
             setattr(self, attr, None)
         self.min = 0
-        self.max = None
+        self.max = 0
         self.unit = None
         self.title = ''
 
-    def set_values(self, mini, maxi, unit):
+    def set_values(self, mini, maxi):
         self.min = mini
         self.max = maxi
+
+    def _max_min(self):
+        """
+        Calculate minimum and maximum for the axis adding some padding.
+        There are always a maximum of ten units for the length of the axis.
+        """
+        value = length = self._max - self._min
+
+        sign = value/value
+        zoom = less_than_one(value) or 1
+        value = value * zoom
+        ab = abs(value)
+        value = math.ceil(ab * 1.1) * sign
+
+        # calculate tick
+        l = math.log10(abs(value))
+        exp = int(l)
+        mant = l - exp
+        unit = math.ceil(math.ceil(10**mant) * 10**(exp-1))
+        # recalculate max
+        value = math.ceil(value / unit) * unit
+        unit = unit / zoom
+
+        if value / unit > 9:
+            # no more that 10 ticks
+            unit *= 2
         self.unit = unit
+        scale = value / length
+        mini = math.floor(self._min * scale) / zoom
+        maxi = math.ceil(self._max * scale) / zoom
+        return mini, maxi
+
+    @property
+    def min(self):
+        mini, maxi = self._max_min()
+        return mini
+
+    @min.setter
+    def min(self, value):
+        self._min = value
+
+    @property
+    def max(self):
+        mini, maxi = self._max_min()
+        return maxi
+
+    @max.setter
+    def max(self, value):
+        self._max = value
+
+    @property
+    def unit(self):
+        self._max_min
+        return self._unit
+
+    @unit.setter
+    def unit(self, value):
+        self._unit = value
 
     @classmethod
     def default_category(cls):
@@ -255,46 +321,6 @@ class ErrorBar(object):
         self.reference = reference
 
 
-def less_than_one(value):
-    """Recalculate the maximum for a series if it is less than one
-    by scaling by powers of 10 until is greater than 1
-    """
-    value = abs(value)
-    if value < 1:
-        exp = int(math.log10(value))
-        return 10**((abs(exp)) + 1)
-
-def scale_axis(mini, maxi):
-    """
-    Calculate max values for axes taking the length of characters into
-    consideration and adding some padding. Units are always a tenth of the
-    maximum value
-    """
-    value = length = maxi - mini
-
-    sign = value/value
-    zoom = less_than_one(value) or 1
-    value = value * zoom
-    ab = abs(value)
-    value = math.ceil(ab * 1.1) * sign
-
-    # calculate tick
-    l = math.log10(abs(value))
-    exp = int(l)
-    mant = l - exp
-    unit = math.ceil(math.ceil(10**mant) * 10**(exp-1))
-    # recalculate max
-    value = math.ceil(value / unit) * unit
-    unit = unit / zoom
-
-    if value / unit > 9:
-        # no more that 10 ticks
-        unit *= 2
-    scale = value / length
-    mini = math.floor(mini * scale) / zoom
-    maxi = math.ceil(maxi * scale) / zoom
-    return mini, maxi, unit
-
 class Chart(object):
     """ raw chart class """
 
@@ -373,20 +399,17 @@ class Chart(object):
     def compute_axes(self):
         """Calculate maximum value and units for axes"""
         mini, maxi = self._compute_axis_extremes()
-        mini, maxi, unit = scale_axis(mini, maxi)
-        self.y_axis.set_values(mini, maxi, unit)
+        self.y_axis.set_values(mini, maxi)
 
         if not None in [s.xvalues for s in self._series]:
             mini, maxi = self._compute_axis_extremes('xvalues')
-            mini, maxi, unit = scale_axis(mini, maxi)
-            self.x_axis.set_values(mini, maxi, unit)
+            self.x_axis.set_values(mini, maxi)
 
     def _compute_axis_extremes(self, attr='values'):
         """Calculate the maximum and minimum values of all series for an axis
         'values' for columns
         'xvalues for rows
         """
-
         # calculate the maximum for all series
         series_max = []
         series_min = []
