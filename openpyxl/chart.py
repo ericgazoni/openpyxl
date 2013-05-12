@@ -383,12 +383,29 @@ class Chart(object):
         maxi = max(series_max)
         return scale_axis(maxi)
 
+    def _compute_series_min(self, attr='values'):
+        """Calculate the minimum value of all series for an axis
+        'values' for columns
+        'xvalues for rows
+        """
+
+        # calculate the minimum for all series
+        series_min = []
+        for s in self._series:
+            series = getattr(s, attr)
+            if series is not None:
+                m = self.mymin(series)
+                series_min.append(m)
+        mini = max(series_min)
+        return mini
+
     def _compute_ymin_ymax(self):
         """ compute y axis limits and units """
         maxi, unit = self._compute_series_max('values')
 
         self.y_axis.max = maxi
         self.y_axis.unit = unit
+        self.y_axis.min = self._compute_series_min('values')
 
     def _compute_xmin_xmax(self):
         """ compute x axis limits and units """
@@ -397,6 +414,7 @@ class Chart(object):
 
         self.x_axis.max = maxi
         self.x_axis.unit = unit
+        self.x_axis.min = self._compute_series_min('xvalues')
 
     @property
     def margin_top(self):
