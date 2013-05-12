@@ -420,7 +420,7 @@ class Chart(object):
                 series_max.append(maxi)
                 mini = self.mymin(series)
                 series_min.append(mini)
-        return min(series_min), max(series_max)
+        return min(series_min, 0), max(series_max)
 
     @property
     def margin_top(self):

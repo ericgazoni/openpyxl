@@ -269,7 +269,7 @@ class TestChart(object):
         c = Chart(None, None)
         c._series.append(self.range)
         mini, maxi = c._compute_axis_extremes()
-        eq_(mini, 1)
+        eq_(mini, 0)
         eq_(maxi, 1.0)
 
     def test_compute_series_max_dates(self):
@@ -280,7 +280,7 @@ class TestChart(object):
         ref = Reference(ws, (0, 0), (9, 0))
         c._series.append(ref)
         mini, maxi = c._compute_axis_extremes()
-        eq_(mini, 41275.0)
+        eq_(mini, 0)
         eq_(maxi, 41518.0)
 
     def test_computer_series_max_strings(self):
