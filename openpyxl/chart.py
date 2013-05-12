@@ -299,9 +299,6 @@ class Chart(object):
     def mymax(self, values):
         return max([x for x in values if x is not None])
 
-    def mymin(self, values):
-        return min([x for x in values if x is not None])
-
     def __init__(self, _type, grouping):
 
         self._series = []
