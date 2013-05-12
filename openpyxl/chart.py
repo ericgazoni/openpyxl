@@ -402,7 +402,7 @@ class Chart(object):
         self.y_axis.set_values(mini, maxi)
 
         if not None in [s.xvalues for s in self._series]:
-            mini, maxi = self._compute_axis_extremes('xvalues')
+            mini, maxi = self._get_extremes('xvalues')
             self.x_axis.set_values(mini, maxi)
 
     def _get_extremes(self, attr='values'):
