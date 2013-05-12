@@ -264,7 +264,7 @@ def less_than_one(value):
         exp = int(math.log10(value))
         return 10**((abs(exp)) + 1)
 
-def scale_axis(maxi=0, mini=0):
+def scale_axis(mini, maxi):
     """
     Calculate max values for axes taking the length of characters into
     consideration and adding some padding. Units are always a tenth of the
@@ -373,12 +373,12 @@ class Chart(object):
     def compute_axes(self):
         """Calculate maximum value and units for axes"""
         mini, maxi = self._compute_axis_extremes()
-        mini, maxi, unit = scale_axis(maxi, mini)
+        mini, maxi, unit = scale_axis(mini, maxi)
         self.y_axis.set_values(mini, maxi, unit)
 
         if not None in [s.xvalues for s in self._series]:
             mini, maxi = self._compute_axis_extremes('xvalues')
-            mini, maxi, unit = scale_axis(maxi, mini)
+            mini, maxi, unit = scale_axis(mini, maxi)
             self.x_axis.set_values(mini, maxi, unit)
 
     def _compute_axis_extremes(self, attr='values'):

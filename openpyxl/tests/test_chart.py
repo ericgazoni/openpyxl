@@ -242,49 +242,49 @@ class TestChart(object):
 
     def test_scale_axis(self):
         from openpyxl.chart import scale_axis
-        mini, maxi, unit = scale_axis(10)
+        mini, maxi, unit = scale_axis(0, 10)
         eq_(mini, 0.0)
         eq_(maxi, 12.0)
         eq_(unit, 2.0)
         assert_true(maxi/unit < 10)
 
-        mini, maxi, unit = scale_axis(5)
+        mini, maxi, unit = scale_axis(0, 5)
         eq_(mini, 0.0)
         eq_(maxi, 6.0)
         eq_(unit, 1.0)
         assert_true(maxi/unit < 10)
 
-        mini, maxi, unit = scale_axis(50000)
+        mini, maxi, unit = scale_axis(0, 50000)
         eq_(mini, 0.0)
         eq_(maxi, 60000.0)
         eq_(unit, 12000.0)
         assert_true(maxi/unit < 10)
 
-        mini, maxi, unit = scale_axis(1)
+        mini, maxi, unit = scale_axis(0, 1)
         eq_(mini, 0.0)
         eq_(maxi, 2.0)
         eq_(unit, 1.0)
         assert_true(maxi/unit < 10)
 
-        mini, maxi, unit = scale_axis(0.9)
+        mini, maxi, unit = scale_axis(0, 0.9)
         eq_(mini, 0.0)
         eq_(maxi, 1.0)
         eq_(unit, 0.2)
         assert_true(maxi/unit < 10)
 
-        mini, maxi, unit = scale_axis(0.09)
+        mini, maxi, unit = scale_axis(0, 0.09)
         eq_(mini, 0.0)
         eq_(maxi, 0.1)
         eq_(unit, 0.02)
         assert_true(maxi/unit < 10)
 
-        mini, maxi, unit = scale_axis(0, -0.09)
+        mini, maxi, unit = scale_axis(-0.09, 0)
         eq_(mini, -0.1)
         eq_(maxi, 0.0)
         eq_(unit, 0.02)
         assert_true(maxi/unit < 10)
 
-        mini, maxi, unit = scale_axis(8, -2)
+        mini, maxi, unit = scale_axis(-2, 8)
         eq_(mini, -3.0)
         eq_(maxi, 10.0)
         eq_(unit, 2.0)
