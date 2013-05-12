@@ -48,6 +48,11 @@ class Axis(object):
         self.unit = None
         self.title = ''
 
+    def set_values(self, mini, maxi, unit):
+        self.min = mini
+        self.max = maxi
+        self.unit = unit
+
     @classmethod
     def default_category(cls):
         """ default values for category axes """
@@ -259,16 +264,17 @@ def less_than_one(value):
         exp = int(math.log10(value))
         return 10**((abs(exp)) + 1)
 
-def scale_axis(value):
+def scale_axis(maxi=0, mini=0):
     """
     Calculate max values for axes taking the length of characters into
     consideration and adding some padding. Units are always a tenth of the
     maximum value
     """
+    value = length = maxi - mini
 
     sign = value/value
-    scale = less_than_one(value) or 1
-    value = value * scale
+    zoom = less_than_one(value) or 1
+    value = value * zoom
     ab = abs(value)
     value = math.ceil(ab * 1.1) * sign
 
@@ -278,13 +284,16 @@ def scale_axis(value):
     mant = l - exp
     unit = math.ceil(math.ceil(10**mant) * 10**(exp-1))
     # recalculate max
-    value = math.ceil(value / unit) * unit / scale
-    unit = unit / scale
+    value = math.ceil(value / unit) * unit
+    unit = unit / zoom
 
     if value / unit > 9:
         # no more that 10 ticks
         unit *= 2
-    return value, unit
+    scale = value / length
+    mini = math.floor(mini * scale) / zoom
+    maxi = math.ceil(maxi * scale) / zoom
+    return mini, maxi, unit
 
 class Chart(object):
     """ raw chart class """
@@ -363,59 +372,32 @@ class Chart(object):
 
     def compute_axes(self):
         """Calculate maximum value and units for axes"""
-        self._compute_ymin_ymax()
-        if not None in [s.xvalues for s in self._series]:
-            self._compute_xmin_xmax()
+        mini, maxi = self._compute_axis_extremes()
+        mini, maxi, unit = scale_axis(maxi, mini)
+        self.y_axis.set_values(mini, maxi, unit)
 
-    def _compute_series_max(self, attr='values'):
-        """Calculate the maximum value of all series for an axis
+        if not None in [s.xvalues for s in self._series]:
+            mini, maxi = self._compute_axis_extremes('xvalues')
+            mini, maxi, unit = scale_axis(maxi, mini)
+            self.x_axis.set_values(mini, maxi, unit)
+
+    def _compute_axis_extremes(self, attr='values'):
+        """Calculate the maximum and minimum values of all series for an axis
         'values' for columns
         'xvalues for rows
         """
 
         # calculate the maximum for all series
         series_max = []
-        for s in self._series:
-            series = getattr(s, attr)
-            if series is not None:
-                m = self.mymax(series)
-                series_max.append(m)
-        maxi = max(series_max)
-        return maxi
-
-    def _compute_series_min(self, attr='values'):
-        """Calculate the minimum value of all series for an axis
-        'values' for columns
-        'xvalues for rows
-        """
-
-        # calculate the minimum for all series
         series_min = []
         for s in self._series:
             series = getattr(s, attr)
             if series is not None:
-                m = self.mymin(series)
-                series_min.append(m)
-        mini = max(series_min)
-        return mini
-
-    def _compute_ymin_ymax(self):
-        """ compute y axis limits and units """
-        maxi = self._compute_series_max('values')
-        maxi, unit = scale_axis(maxi)
-
-        self.y_axis.max = maxi
-        self.y_axis.unit = unit
-        self.y_axis.min = self._compute_series_min('values')
-
-    def _compute_xmin_xmax(self):
-        """ compute x axis limits and units """
-
-        maxi, unit = self._compute_series_max('xvalues')
-
-        self.x_axis.max = maxi
-        self.x_axis.unit = unit
-        self.x_axis.min = self._compute_series_min('xvalues')
+                maxi = self.mymax(series)
+                series_max.append(maxi)
+                mini = self.mymin(series)
+                series_min.append(mini)
+        return min(series_min), max(series_max)
 
     @property
     def margin_top(self):
