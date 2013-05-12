@@ -398,14 +398,14 @@ class Chart(object):
 
     def compute_axes(self):
         """Calculate maximum value and units for axes"""
-        mini, maxi = self._compute_axis_extremes()
+        mini, maxi = self._get_extremes()
         self.y_axis.set_values(mini, maxi)
 
         if not None in [s.xvalues for s in self._series]:
             mini, maxi = self._compute_axis_extremes('xvalues')
             self.x_axis.set_values(mini, maxi)
 
-    def _compute_axis_extremes(self, attr='values'):
+    def _get_extremes(self, attr='values'):
         """Calculate the maximum and minimum values of all series for an axis
         'values' for columns
         'xvalues for rows
