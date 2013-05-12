@@ -202,9 +202,8 @@ class TestChart(object):
     def test_compute_series_max_numbers(self):
         c = Chart(None, None)
         c._series.append(self.range)
-        maxi, unit = c._compute_series_max()
-        eq_(maxi, 2.0)
-        eq_(unit, 1.0)
+        maxi = c._compute_series_max()
+        eq_(maxi, 1.0)
 
     def test_compute_series_max_dates(self):
         ws = self.make_worksheet()
@@ -213,7 +212,8 @@ class TestChart(object):
         c = Chart(None, None)
         ref = Reference(ws, (0, 0), (9, 0))
         c._series.append(ref)
-        maxi, unit = c._compute_series_max()
+        maxi = c._compute_series_max()
+        eq_(maxi, 41518.0)
 
     def test_computer_series_max_strings(self):
         ws = self.make_worksheet()

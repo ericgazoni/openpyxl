@@ -381,7 +381,7 @@ class Chart(object):
                 m = self.mymax(series)
                 series_max.append(m)
         maxi = max(series_max)
-        return scale_axis(maxi)
+        return maxi
 
     def _compute_series_min(self, attr='values'):
         """Calculate the minimum value of all series for an axis
@@ -401,7 +401,8 @@ class Chart(object):
 
     def _compute_ymin_ymax(self):
         """ compute y axis limits and units """
-        maxi, unit = self._compute_series_max('values')
+        maxi = self._compute_series_max('values')
+        maxi, unit = scale_axis(maxi)
 
         self.y_axis.max = maxi
         self.y_axis.unit = unit
