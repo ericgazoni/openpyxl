@@ -154,16 +154,26 @@ class Reference(object):
     """ a simple wrapper around a serie of reference data """
 
 
-    def __init__(self, sheet, pos1, pos2=None):
+    def __init__(self, sheet, pos1, pos2=None, data_type='n'):
 
         self.sheet = sheet
         self.pos1 = pos1
         self.pos2 = pos2
-        self.data_type = None
+        self.data_type = data_type
 
     def get_type(self):
         """Legacy method"""
         return self.data_type
+
+    @property
+    def data_type(self):
+        return self._data_type
+
+    @data_type.setter
+    def data_type(self, value):
+        if value not in ['n', 's']:
+            raise ValueError("References must be either numeric or strings")
+        self._data_type = value
 
     @property
     def values(self):
@@ -180,11 +190,9 @@ class Reference(object):
             for row in range(int(self.pos1[0]), int(self.pos2[0] + 1)):
                 for col in range(int(self.pos1[1]), int(self.pos2[1] + 1)):
                     cell = self.sheet.cell(row=row, column=col)
-                    if not self.data_type and cell.data_type:
-                        self.data_type = cell.data_type
-                    #elif self.data_type and cell.data_type:
-                        #if cell.data_type != self.data_type:
-                            #raise ValueError("All values in a series must of the same type")
+                    if cell.data_type is not None\
+                       and cell.datatype != self.data_type:
+                        raise ValueError("Data series values must be either typed or None")
                     self._values.append(cell.excel_value)
 
             if self.data_type is None:

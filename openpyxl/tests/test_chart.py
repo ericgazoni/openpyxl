@@ -124,11 +124,8 @@ class TestReference(object):
         eq_(self.range.pos1, (0, 0))
         eq_(self.range.pos2, (9, 0))
 
-    def test_get_type(self):
-        self.cell.values
-        eq_(self.cell.data_type, 'n')
-        self.range.values
-        eq_(self.range.data_type, 'n')
+    def test_type_validation(self):
+        pass
 
     def test_caching_cell(self):
         eq_(self.cell._get_cache(), [0])
