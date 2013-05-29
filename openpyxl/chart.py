@@ -351,7 +351,6 @@ class ErrorBar(object):
             self._values = reference.values
         else:
             self._values = None
-        self.reference = reference
 
 
 class Chart(object):
