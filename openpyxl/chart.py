@@ -277,6 +277,26 @@ class Serie(object):
     def mymax(self, values):
         return max([x for x in values])
 
+    def max(self):
+        """
+        Return the maximum value for numeric series.
+        NB None has a value of u'' which is ignored
+        """
+        if self.data_type == 'n':
+            cleaned = [v for v in self.values if v]
+            if cleaned:
+                return max(cleaned)
+
+    def min(self):
+        """
+        Return the minimum value for numeric series
+        NB None has a value of u'' which is ignored
+        """
+        if self.data_type == 'n':
+            cleaned = [v for v in self.values if v]
+            if cleaned:
+                return min(cleaned)
+
     def get_min_max(self):
 
         if self.error_bar:
