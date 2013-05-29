@@ -283,7 +283,7 @@ class Serie(object):
         NB None has a value of u'' which is ignored
         """
         if self.data_type == 'n':
-            cleaned = [v for v in self.values if v]
+            cleaned = [v for v in self.values if v != '']
             if cleaned:
                 return max(cleaned)
 
@@ -293,7 +293,7 @@ class Serie(object):
         NB None has a value of u'' which is ignored
         """
         if self.data_type == 'n':
-            cleaned = [v for v in self.values if v]
+            cleaned = [v for v in self.values if v != '']
             if cleaned:
                 return min(cleaned)
 

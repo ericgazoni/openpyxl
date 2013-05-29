@@ -193,6 +193,10 @@ class TestSerie(object):
         series = Serie(self.empty)
         eq_(series.get_min_max(), (0, 0))
 
+    def test_min(self):
+        series = Serie(self.cell)
+        eq_(series.min(), 0)
+
     def test_len(self):
         series = Serie(self.cell)
         eq_(len(series), 1)
