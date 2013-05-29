@@ -190,9 +190,6 @@ class Reference(object):
             for row in range(int(self.pos1[0]), int(self.pos2[0] + 1)):
                 for col in range(int(self.pos1[1]), int(self.pos2[1] + 1)):
                     cell = self.sheet.cell(row=row, column=col)
-                    if cell.data_type is not None\
-                       and cell.datatype != self.data_type:
-                        raise ValueError("Data series values must be either typed or None")
                     self._values.append(cell.excel_value)
 
             if self.data_type is None:
