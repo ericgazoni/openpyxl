@@ -195,11 +195,10 @@ class ChartWriter(object):
                     xval = SubElement(ser, 'c:xVal')
                     self._write_serial(xval, serie.xreference)
 
-                yval = SubElement(ser, 'c:yVal')
-                self._write_serial(yval, serie.reference)
+                val = SubElement(ser, 'c:yVal')
             else:
                 val = SubElement(ser, 'c:val')
-                self._write_serial(val, serie.reference)
+            self._write_serial(val, serie.reference)
 
     def _write_serial(self, node, reference, literal=False):
 
