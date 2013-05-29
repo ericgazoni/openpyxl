@@ -22,6 +22,7 @@
 # @author: see AUTHORS file
 
 import math
+from numbers import Number
 
 from openpyxl.style import NumberFormat
 from openpyxl.drawing import Drawing, Shape
@@ -274,31 +275,26 @@ class Serie(object):
             self._xvalues = None
         self.xreference = reference
 
-    def mymax(self, values):
-        return max([x for x in values])
-
-    @property
-    def max(self):
+    def max(self, attr='values'):
         """
         Return the maximum value for numeric series.
         NB None has a value of u'' which is ignored
         """
         if self.data_type == 'n':
-            values = self.values
+            values = getattr(self, attr)
             if self.error_bar:
                 values = self._error_bar_values
-            cleaned = [v for v in self.values if v != '']
+            cleaned = [v for v in values if v != '']
             if cleaned:
                 return max(cleaned)
 
-    @property
-    def min(self):
+    def min(self, attr='values'):
         """
         Return the minimum value for numeric series
         NB None has a value of u'' which is ignored
         """
         if self.data_type == 'n':
-            values = self.values
+            values = getattr(self, attr)
             if self.error_bar:
                 values = self._error_bar_values
             cleaned = [v for v in values if v != '']
@@ -315,7 +311,7 @@ class Serie(object):
 
     def get_min_max(self):
         """Legacy method. Replaced by properties"""
-        return self.min, self.max
+        return self.min(), self.max()
 
     def __len__(self):
 
@@ -418,8 +414,7 @@ class Chart(object):
 
     def get_x_units(self):
         """ calculate one unit for x axis in EMU """
-
-        return self.mymax([len(s.values) for s in self._series])
+        return max([len(s.values) for s in self._series])
 
     def get_y_units(self):
         """ calculate one unit for y axis in EMU """
@@ -429,8 +424,7 @@ class Chart(object):
 
     def get_y_chars(self):
         """ estimate nb of chars for y axis """
-
-        _max = max([self.mymax(s.values) for s in self._series])
+        _max = max([s.max() for s in self._series])
         return len(str(int(_max)))
 
     def compute_axes(self):
@@ -451,12 +445,9 @@ class Chart(object):
         series_max = [0]
         series_min = [0]
         for s in self._series:
-            series = getattr(s, attr)
-            if series is not None:
-                maxi = self.mymax(series)
-                series_max.append(maxi)
-                mini = self.mymin(series)
-                series_min.append(mini)
+            if s is not None:
+                series_max.append(s.max(attr))
+                series_min.append(s.min(attr))
         return min(series_min), max(series_max)
 
     @property

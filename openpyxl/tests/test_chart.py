@@ -195,19 +195,19 @@ class TestSerie(object):
 
     def test_min(self):
         series = Serie(self.cell)
-        eq_(series.min, 0)
+        eq_(series.min(), 0)
         series = Serie(self.range)
-        eq_(series.min, 0)
+        eq_(series.min(), 0)
         series = Serie(self.empty)
-        eq_(series.min, None)
+        eq_(series.min(), None)
 
     def test_max(self):
         series = Serie(self.cell)
-        eq_(series.max, 0)
+        eq_(series.max(), 0)
         series = Serie(self.range)
-        eq_(series.max, 9)
+        eq_(series.max(), 9)
         series = Serie(self.empty)
-        eq_(series.max, None)
+        eq_(series.max(), None)
 
     def test_len(self):
         series = Serie(self.cell)
@@ -227,7 +227,8 @@ class TestChart(object):
         ws = wb.get_active_sheet()
         for i in range(10):
             ws.cell(row=i, column=0).value = 1
-        self.range = Reference(ws, (0, 0), (0, 9))
+        values = Reference(ws, (0, 0), (0, 9))
+        self.range = Serie(values=values)
 
     def make_worksheet(self):
         wb = Workbook()
@@ -300,7 +301,8 @@ class TestChart(object):
             ws.append([date(2013, i, 1)])
         c = Chart(None, None)
         ref = Reference(ws, (0, 0), (9, 0))
-        c._series.append(ref)
+        series = Serie(ref)
+        c._series.append(series)
         mini, maxi = c._get_extremes()
         eq_(mini, 0)
         eq_(maxi, 41518.0)
