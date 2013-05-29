@@ -277,35 +277,45 @@ class Serie(object):
     def mymax(self, values):
         return max([x for x in values])
 
+    @property
     def max(self):
         """
         Return the maximum value for numeric series.
         NB None has a value of u'' which is ignored
         """
         if self.data_type == 'n':
+            values = self.values
+            if self.error_bar:
+                values = self._error_bar_values
             cleaned = [v for v in self.values if v != '']
             if cleaned:
                 return max(cleaned)
 
+    @property
     def min(self):
         """
         Return the minimum value for numeric series
         NB None has a value of u'' which is ignored
         """
         if self.data_type == 'n':
-            cleaned = [v for v in self.values if v != '']
+            values = self.values
+            if self.error_bar:
+                values = self._error_bar_values
+            cleaned = [v for v in values if v != '']
             if cleaned:
                 return min(cleaned)
 
-    def get_min_max(self):
+    @property
+    def _error_bar_values(self):
+        """Documentation required here"""
+        err_cache = self.error_bar.values
+        vals = [v + err_cache[i] \
+            for i, v in enumerate(self.values)]
+        return vals
 
-        if self.error_bar:
-            err_cache = self.error_bar.values
-            vals = [v + err_cache[i] \
-                for i, v in enumerate(self.values)]
-        else:
-            vals = self.values
-        return min(vals), self.mymax(vals)
+    def get_min_max(self):
+        """Legacy method. Replaced by properties"""
+        return self.min, self.max
 
     def __len__(self):
 
