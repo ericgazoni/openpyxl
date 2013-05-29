@@ -188,41 +188,40 @@ class ChartWriter(object):
 
             if serie.labels:
                 cat = SubElement(ser, 'c:cat')
-                self._write_serial(cat, serie.labels)
+                self._write_serial(cat, serie.labels,
+                                   number_format=serie.number_format)
 
             if self.chart.type == Chart.SCATTER_CHART:
                 if serie.xvalues:
                     xval = SubElement(ser, 'c:xVal')
-                    self._write_serial(xval, serie.xreference)
+                    self._write_serial(xval, serie.xreference,
+                                       serie.data_type, serie.number_format)
 
                 val = SubElement(ser, 'c:yVal')
             else:
                 val = SubElement(ser, 'c:val')
-            self._write_serial(val, serie.reference)
+            self._write_serial(val, serie.reference, serie.data_type)
 
-    def _write_serial(self, node, reference, literal=False):
+    def _write_serial(self, node, series_of_values, data_type='n',
+                      number_format=None, literal=False):
 
-        cache = reference.values
-        typ = reference.data_type
+        is_ref = hasattr(series_of_values, 'pos1')
 
         mapping = {'n':{'ref':'numRef', 'cache':'numCache'},
                    's':{'ref':'strRef', 'cache':'strCache'}}
 
-        if not literal:
-            ref = SubElement(node, 'c:%s' % mapping[typ]['ref'])
+        if is_ref:
+            ref = SubElement(node, 'c:%s' % mapping[data_type]['ref'])
 
-            SubElement(ref, 'c:f').text = str(reference)
-            data = SubElement(ref, 'c:%s' % mapping[typ]['cache'])
+            SubElement(ref, 'c:f').text = str(series_of_values)
+            data = SubElement(ref, 'c:%s' % mapping[data_type]['cache'])
+            values = series_of_values.values
         else:
             data = SubElement(node, 'c:numLit')
-
-        if typ == 'n':
-            SubElement(data, 'c:formatCode').text = 'General'
-
-        if literal:
             values = (1,)
-        else:
-            values = cache
+
+        if data_type == 'n':
+            SubElement(data, 'c:formatCode').text = number_format or 'General'
 
         SubElement(data, 'c:ptCount', {'val':str(len(values))})
         for j, val in enumerate(values):
