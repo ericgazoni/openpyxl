@@ -242,11 +242,13 @@ class ChartWriter(object):
         SubElement(eb, 'c:errValType', {'val':'cust'})
 
         plus = SubElement(eb, 'c:plus')
-        self._write_serial(plus, serie.error_bar.values,
+        # apart from setting the type of data series the following has
+        # no effect on the writer
+        self._write_serial(plus, serie.error_bar.reference,
             literal=(serie.error_bar.type == ErrorBar.MINUS))
 
         minus = SubElement(eb, 'c:minus')
-        self._write_serial(minus, serie.error_bar.values,
+        self._write_serial(minus, serie.error_bar.reference,
             literal=(serie.error_bar.type == ErrorBar.PLUS))
 
     def _write_legend(self, chart):
