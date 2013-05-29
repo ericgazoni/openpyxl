@@ -163,8 +163,11 @@ class TestSerie(object):
         ws = wb.get_active_sheet()
         for i in range(10):
             ws.cell(row=i, column=0).value = i
+        for i in range(10):
+            ws.cell(row=i, column=1).value = None
         self.cell = Reference(ws, (0, 0))
         self.range = Reference(ws, (0, 0), (9, 0))
+        self.empty = Reference(ws, (0, 1), (9, 1))
 
     def test_ctor(self):
         series = Serie(self.cell)
@@ -184,6 +187,10 @@ class TestSerie(object):
 
     def test_min_max(self):
         series = Serie(self.cell)
+        eq_(series.get_min_max(), (0, 0))
+        series = Serie(self.range)
+        eq_(series.get_min_max(), (0, 9))
+        series = Serie(self.empty)
         eq_(series.get_min_max(), (0, 0))
 
     def test_len(self):
