@@ -224,7 +224,7 @@ class Serie(object):
     MARKER_NONE = 'none'
 
     def __init__(self, values, labels=None, legend=None, color=None,
-                 xvalues=None, data_type='n'):
+                 xvalues=None, data_type='n', number_format=None):
 
         self.marker = Serie.MARKER_NONE
         self.values = values
@@ -233,6 +233,7 @@ class Serie(object):
         self.legend = legend
         self.error_bar = None
         self.data_type = data_type
+        self.number_format = number_format
 
     @property
     def color(self):
