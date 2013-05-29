@@ -167,7 +167,7 @@ class ChartWriter(object):
 
             if serie.legend:
                 tx = SubElement(ser, 'c:tx')
-                self._write_serial(tx, serie.legend)
+                self._write_serial(tx, serie.legend, data_type='s')
 
             if serie.color:
                 sppr = SubElement(ser, 'c:spPr')
