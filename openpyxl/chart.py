@@ -284,7 +284,7 @@ class Serie(object):
             values = getattr(self, attr)
             if self.error_bar:
                 values = self._error_bar_values
-            cleaned = [v for v in values if v != '']
+            cleaned = [v for v in values if isinstance(v, Number)]
             if cleaned:
                 return max(cleaned)
 
@@ -297,7 +297,7 @@ class Serie(object):
             values = getattr(self, attr)
             if self.error_bar:
                 values = self._error_bar_values
-            cleaned = [v for v in values if v != '']
+            cleaned = [v for v in values if isinstance(v, Number)]
             if cleaned:
                 return min(cleaned)
 
@@ -441,7 +441,7 @@ class Chart(object):
         'values' for columns
         'xvalues for rows
         """
-        # calculate the maximum for all series
+        # calculate the maximum and minimum for all series
         series_max = [0]
         series_min = [0]
         for s in self._series:
