@@ -307,15 +307,6 @@ class TestChart(object):
         eq_(mini, 0)
         eq_(maxi, 41518.0)
 
-    def test_computer_series_max_strings(self):
-        ws = self.make_worksheet()
-        for i in range(10):
-            ws.append(['a'])
-        ref = Reference(ws, (0, 0), (9, 0))
-        c = Chart(None, None)
-        c._series.append(ref)
-        #maxi, unit = c._compute_series_max()
-
     def test_margin_top(self):
         c = Chart(None, None)
         eq_(c.margin_top, 0.31)
