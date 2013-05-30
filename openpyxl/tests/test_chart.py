@@ -373,7 +373,7 @@ class TestChartWriter(object):
         wb = Workbook()
         ws = wb.get_active_sheet()
         ws.title = 'data'
-        ws.append(range(10))
+        ws.append(list(range(10)))
         return ws
 
     def test_write_title(self):
@@ -427,7 +427,7 @@ class TestChartWriter(object):
 
     def test_write_chart(self):
         from openpyxl.namespaces import CHART_NS, A_NS, REL_NS
-        from schema import chart_schema, fromstring
+        from .schema import chart_schema, fromstring
         CHART_NS.update(A_NS)
         root = Element('c:chartSpace', CHART_NS)
         self.cw._write_chart(root)
