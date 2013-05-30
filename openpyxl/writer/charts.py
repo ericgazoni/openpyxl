@@ -132,8 +132,8 @@ class ChartWriter(object):
         scaling = SubElement(ax, 'c:scaling')
         SubElement(scaling, 'c:orientation', {'val':axis.orientation})
         if label == 'c:valAx':
-            SubElement(scaling, 'c:max', {'val':safe_string(float(axis.max))})
-            SubElement(scaling, 'c:min', {'val':safe_string(float(axis.min))})
+            SubElement(scaling, 'c:max', {'val':str(float(axis.max))})
+            SubElement(scaling, 'c:min', {'val':str(float(axis.min))})
 
         SubElement(ax, 'c:axPos', {'val':axis.position})
         if label == 'c:valAx':
@@ -153,20 +153,20 @@ class ChartWriter(object):
             t = SubElement(r, 'a:t').text = axis.title
             SubElement(title, 'c:layout')
         SubElement(ax, 'c:tickLblPos', {'val':axis.tick_label_position})
-        SubElement(ax, 'c:crossAx', {'val':safe_string(axis.cross)})
+        SubElement(ax, 'c:crossAx', {'val':str(axis.cross)})
         SubElement(ax, 'c:crosses', {'val':axis.crosses})
         if axis.auto:
             SubElement(ax, 'c:auto', {'val':'1'})
         if axis.label_align:
             SubElement(ax, 'c:lblAlgn', {'val':axis.label_align})
         if axis.label_offset:
-            SubElement(ax, 'c:lblOffset', {'val':safe_string(axis.label_offset)})
+            SubElement(ax, 'c:lblOffset', {'val':str(axis.label_offset)})
         if label == 'c:valAx':
             if self.chart.type == Chart.SCATTER_CHART:
                 SubElement(ax, 'c:crossBetween', {'val':'midCat'})
             else:
                 SubElement(ax, 'c:crossBetween', {'val':'between'})
-            SubElement(ax, 'c:majorUnit', {'val':safe_string(float(axis.unit))})
+            SubElement(ax, 'c:majorUnit', {'val':str(float(axis.unit))})
 
     def _write_series(self, subchart):
 
