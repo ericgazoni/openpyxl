@@ -493,16 +493,6 @@ class Chart(object):
         ml = (self.get_y_chars() * Shape.FONT_WIDTH) + Shape.MARGIN_LEFT
         return float(ml) / self.drawing.width
 
-    @property
-    def y_labels(self):
-        """Labels for the y-axis"""
-        return []
-
-    @property
-    def x_labels(self):
-        """Labels for the x-axis"""
-        return []
-
 
 class BarChart(Chart):
     def __init__(self):
