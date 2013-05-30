@@ -22,6 +22,8 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+from numbers import Number
+
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
 from openpyxl.shared.compat.itertools import iteritems
 from openpyxl.chart import Chart, ErrorBar
@@ -32,6 +34,15 @@ try:
 except NameError:
     # Python 3
     basestring = str
+
+
+def safe_string(value):
+    """Safely and consistently format numeric values"""
+    if isinstance(value, Number):
+        value = "%.15g" % value
+    elif not isinstance(value, basestring):
+        value = str(value)
+    return value
 
 class ChartWriter(object):
 
@@ -65,14 +76,14 @@ class ChartWriter(object):
         SubElement(mlayout, 'c:layoutTarget', {'val':'inner'})
         SubElement(mlayout, 'c:xMode', {'val':'edge'})
         SubElement(mlayout, 'c:yMode', {'val':'edge'})
-        SubElement(mlayout, 'c:x', {'val':str(chart.margin_left)})
-        SubElement(mlayout, 'c:y', {'val':str(chart.margin_top)})
-        SubElement(mlayout, 'c:w', {'val':str(chart.width)})
-        SubElement(mlayout, 'c:h', {'val':str(chart.height)})
+        SubElement(mlayout, 'c:x', {'val':safe_string(chart.margin_left)})
+        SubElement(mlayout, 'c:y', {'val':safe_string(chart.margin_top)})
+        SubElement(mlayout, 'c:w', {'val':safe_string(chart.width)})
+        SubElement(mlayout, 'c:h', {'val':safe_string(chart.height)})
 
         if chart.type == Chart.SCATTER_CHART:
             subchart = SubElement(plot_area, 'c:scatterChart')
-            SubElement(subchart, 'c:scatterStyle', {'val':str('lineMarker')})
+            SubElement(subchart, 'c:scatterStyle', {'val':'lineMarker'})
         else:
             if chart.type == Chart.BAR_CHART:
                 subchart = SubElement(plot_area, 'c:barChart')
@@ -84,8 +95,8 @@ class ChartWriter(object):
 
         self._write_series(subchart)
 
-        SubElement(subchart, 'c:axId', {'val':str(chart.x_axis.id)})
-        SubElement(subchart, 'c:axId', {'val':str(chart.y_axis.id)})
+        SubElement(subchart, 'c:axId', {'val':safe_string(chart.x_axis.id)})
+        SubElement(subchart, 'c:axId', {'val':safe_string(chart.y_axis.id)})
 
         if chart.type == Chart.SCATTER_CHART:
             self._write_axis(plot_area, chart.x_axis, 'c:valAx')
@@ -116,13 +127,13 @@ class ChartWriter(object):
         self.chart.compute_axes()
 
         ax = SubElement(plot_area, label)
-        SubElement(ax, 'c:axId', {'val':str(axis.id)})
+        SubElement(ax, 'c:axId', {'val':safe_string(axis.id)})
 
         scaling = SubElement(ax, 'c:scaling')
         SubElement(scaling, 'c:orientation', {'val':axis.orientation})
         if label == 'c:valAx':
-            SubElement(scaling, 'c:max', {'val':str(float(axis.max))})
-            SubElement(scaling, 'c:min', {'val':str(float(axis.min))})
+            SubElement(scaling, 'c:max', {'val':safe_string(float(axis.max))})
+            SubElement(scaling, 'c:min', {'val':safe_string(float(axis.min))})
 
         SubElement(ax, 'c:axPos', {'val':axis.position})
         if label == 'c:valAx':
@@ -142,27 +153,27 @@ class ChartWriter(object):
             t = SubElement(r, 'a:t').text = axis.title
             SubElement(title, 'c:layout')
         SubElement(ax, 'c:tickLblPos', {'val':axis.tick_label_position})
-        SubElement(ax, 'c:crossAx', {'val':str(axis.cross)})
+        SubElement(ax, 'c:crossAx', {'val':safe_string(axis.cross)})
         SubElement(ax, 'c:crosses', {'val':axis.crosses})
         if axis.auto:
             SubElement(ax, 'c:auto', {'val':'1'})
         if axis.label_align:
             SubElement(ax, 'c:lblAlgn', {'val':axis.label_align})
         if axis.label_offset:
-            SubElement(ax, 'c:lblOffset', {'val':str(axis.label_offset)})
+            SubElement(ax, 'c:lblOffset', {'val':safe_string(axis.label_offset)})
         if label == 'c:valAx':
             if self.chart.type == Chart.SCATTER_CHART:
                 SubElement(ax, 'c:crossBetween', {'val':'midCat'})
             else:
                 SubElement(ax, 'c:crossBetween', {'val':'between'})
-            SubElement(ax, 'c:majorUnit', {'val':str(float(axis.unit))})
+            SubElement(ax, 'c:majorUnit', {'val':safe_string(float(axis.unit))})
 
     def _write_series(self, subchart):
 
         for i, serie in enumerate(self.chart._series):
             ser = SubElement(subchart, 'c:ser')
-            SubElement(ser, 'c:idx', {'val':str(i)})
-            SubElement(ser, 'c:order', {'val':str(i)})
+            SubElement(ser, 'c:idx', {'val':safe_string(i)})
+            SubElement(ser, 'c:order', {'val':safe_string(i)})
 
             if serie.legend:
                 tx = SubElement(ser, 'c:tx')
@@ -221,7 +232,7 @@ class ChartWriter(object):
         for j, val in enumerate(values):
             point = SubElement(data, 'c:pt', {'idx':str(j)})
             if not isinstance(val, basestring):
-                val = str(val)
+                val = safe_string(val)
             SubElement(point, 'c:v').text = val
 
     def _write_error_bar(self, node, serie):
@@ -262,7 +273,7 @@ class ChartWriter(object):
             # Python 3
             print_margins_items = self.chart.print_margins.items()
 
-        margins = dict([(k, str(v)) for (k, v) in print_margins_items])
+        margins = dict([(k, safe_string(v)) for (k, v) in print_margins_items])
         SubElement(settings, 'c:pageMargins', margins)
         SubElement(settings, 'c:pageSetup')
 

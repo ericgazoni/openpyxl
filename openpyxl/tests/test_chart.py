@@ -52,6 +52,21 @@ def test_less_than_one():
     eq_(mul, 100.0)
 
 
+def test_safe_string():
+    from openpyxl.writer.charts import safe_string
+    v = safe_string('s')
+    eq_(v, 's')
+
+    v = safe_string(2.0/3)
+    eq_(v, '0.666666666666667')
+
+    v = safe_string(1)
+    eq_(v, '1')
+
+    v = safe_string(None)
+    eq_(v, 'None')
+
+
 class TestAxis(object):
 
     def setUp(self):
@@ -436,6 +451,39 @@ class TestChartWriter(object):
         c = BarChart()
         c.add_serie(serie)
         cw = ChartWriter(c)
+
+    def test_label_no_number_format(self):
+        ws = self.make_worksheet()
+        for i in range(10):
+            ws.append([i, i])
+        labels = Reference(ws, (0,0), (0,9))
+        values = Reference(ws, (0,0), (0,9))
+        serie = Serie(values=values, labels=labels)
+        c = BarChart()
+        c.add_serie(serie)
+        cw = ChartWriter(c)
+        root = Element('test')
+        cw._write_serial(root, c._series[0].labels)
+        xml = get_xml(root)
+        eq_(xml, """<?xml version='1.0' encoding='UTF-8'?><test><c:numRef><c:f>'data'!$A$1:$J$1</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="10" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt></c:numCache></c:numRef></test>""")
+
+
+    def test_label_number_format(self):
+        ws = self.make_worksheet()
+        for i in range(10):
+            ws.append([i, i])
+        labels = Reference(ws, (0,0), (0,9))
+        labels.number_format = 'd-mmm'
+        values = Reference(ws, (0,0), (0,9))
+        serie = Serie(values=values, labels=labels)
+        c = BarChart()
+        c.add_serie(serie)
+        cw = ChartWriter(c)
+        root = Element('test')
+        cw._write_serial(root, c._series[0].labels)
+        xml = get_xml(root)
+        eq_(xml, """<?xml version='1.0' encoding='UTF-8'?><test><c:numRef><c:f>'data'!$A$1:$J$1</c:f><c:numCache><c:formatCode>d-mmm</c:formatCode><c:ptCount val="10" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt></c:numCache></c:numRef></test>""")
+
 
 
 class TestScatterChartWriter(object):
