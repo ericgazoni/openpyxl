@@ -246,7 +246,8 @@ class Serie(object):
         self.xvalues = xvalues
         self.labels = labels
         self.legend = legend
-        self.legend.data_type = 's'
+        if legend is not None:
+            self.legend.data_type = 's'
         self.error_bar = None
 
     @property
