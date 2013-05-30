@@ -39,6 +39,7 @@ def less_than_one(value):
         exp = int(math.log10(value))
         return 10**((abs(exp)) + 1)
 
+
 class Axis(object):
 
     POSITION_BOTTOM = 'b'
@@ -151,16 +152,20 @@ class Axis(object):
         return ax
 
 
+formatter = NumberFormat()
+
+
 class Reference(object):
     """ a simple wrapper around a serie of reference data """
 
 
-    def __init__(self, sheet, pos1, pos2=None, data_type='n'):
+    def __init__(self, sheet, pos1, pos2=None, data_type='n', number_format=None):
 
         self.sheet = sheet
         self.pos1 = pos1
         self.pos2 = pos2
         self.data_type = data_type
+        self.number_format = number_format
 
     def get_type(self):
         """Legacy method"""
@@ -175,6 +180,16 @@ class Reference(object):
         if value not in ['n', 's']:
             raise ValueError("References must be either numeric or strings")
         self._data_type = value
+
+    @property
+    def number_format(self):
+        return self._number_format
+
+    @number_format.setter
+    def number_format(self, value):
+        if not formatter.is_builtin(value):
+            raise ValueError("Invalid number format")
+        self._number_format = value
 
     @property
     def values(self):
@@ -224,16 +239,15 @@ class Serie(object):
     MARKER_NONE = 'none'
 
     def __init__(self, values, labels=None, legend=None, color=None,
-                 xvalues=None, data_type='n', number_format=None):
+                 xvalues=None):
 
         self.marker = Serie.MARKER_NONE
         self.values = values
         self.xvalues = xvalues
         self.labels = labels
         self.legend = legend
+        self.legend.data_type = 's'
         self.error_bar = None
-        self.data_type = data_type
-        self.number_format = number_format
 
     @property
     def color(self):
@@ -281,26 +295,24 @@ class Serie(object):
         Return the maximum value for numeric series.
         NB None has a value of u'' which is ignored
         """
-        if self.data_type == 'n':
-            values = getattr(self, attr)
-            if self.error_bar:
-                values = self._error_bar_values
-            cleaned = [v for v in values if isinstance(v, Number)]
-            if cleaned:
-                return max(cleaned)
+        values = getattr(self, attr)
+        if self.error_bar:
+            values = self._error_bar_values
+        cleaned = [v for v in values if isinstance(v, Number)]
+        if cleaned:
+            return max(cleaned)
 
     def min(self, attr='values'):
         """
         Return the minimum value for numeric series
         NB None has a value of u'' which is ignored
         """
-        if self.data_type == 'n':
-            values = getattr(self, attr)
-            if self.error_bar:
-                values = self._error_bar_values
-            cleaned = [v for v in values if isinstance(v, Number)]
-            if cleaned:
-                return min(cleaned)
+        values = getattr(self, attr)
+        if self.error_bar:
+            values = self._error_bar_values
+        cleaned = [v for v in values if isinstance(v, Number)]
+        if cleaned:
+            return min(cleaned)
 
     @property
     def _error_bar_values(self):

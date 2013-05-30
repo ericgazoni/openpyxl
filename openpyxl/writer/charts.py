@@ -167,7 +167,7 @@ class ChartWriter(object):
 
             if serie.legend:
                 tx = SubElement(ser, 'c:tx')
-                self._write_serial(tx, serie.legend, data_type='s')
+                self._write_serial(tx, serie.legend)
 
             if serie.color:
                 sppr = SubElement(ser, 'c:spPr')
@@ -188,34 +188,32 @@ class ChartWriter(object):
 
             if serie.labels:
                 cat = SubElement(ser, 'c:cat')
-                self._write_serial(cat, serie.labels,
-                                   number_format=serie.number_format)
+                self._write_serial(cat, serie.labels)
 
             if self.chart.type == Chart.SCATTER_CHART:
                 if serie.xvalues:
                     xval = SubElement(ser, 'c:xVal')
-                    self._write_serial(xval, serie.xreference,
-                                       serie.data_type, serie.number_format)
+                    self._write_serial(xval, serie.xreference)
 
                 val = SubElement(ser, 'c:yVal')
             else:
                 val = SubElement(ser, 'c:val')
-            self._write_serial(val, serie.reference, serie.data_type)
+            self._write_serial(val, serie.reference)
 
-    def _write_serial(self, node, series_of_values, data_type='n',
-                      number_format=None, literal=False):
+    def _write_serial(self, node, reference, literal=False):
 
-        is_ref = hasattr(series_of_values, 'pos1')
+        is_ref = hasattr(reference, 'pos1')
+        data_type = reference.data_type
+        number_format = getattr(reference, 'number_format')
 
         mapping = {'n':{'ref':'numRef', 'cache':'numCache'},
                    's':{'ref':'strRef', 'cache':'strCache'}}
 
         if is_ref:
             ref = SubElement(node, 'c:%s' % mapping[data_type]['ref'])
-
-            SubElement(ref, 'c:f').text = str(series_of_values)
+            SubElement(ref, 'c:f').text = str(reference)
             data = SubElement(ref, 'c:%s' % mapping[data_type]['cache'])
-            values = series_of_values.values
+            values = reference.values
         else:
             data = SubElement(node, 'c:numLit')
             values = (1,)
