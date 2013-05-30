@@ -283,7 +283,7 @@ class TestChart(object):
     def test_mymax(self):
         c = Chart(None, None)
         eq_(c.mymax(range(10)), 9)
-        from string import letters
+        from string import ascii_letters as letters
         eq_(c.mymax(list(letters)), "z")
         eq_(c.mymax(range(-10, 1)), 0)
         eq_(c.mymax([""]*10), "")
@@ -291,7 +291,7 @@ class TestChart(object):
     def test_mymin(self):
         c = Chart(None, None)
         eq_(c.mymin(range(10)), 0)
-        from string import letters
+        from string import ascii_letters as letters
         eq_(c.mymin(list(letters)), "A")
         eq_(c.mymin(range(-10, 1)), -10)
         eq_(c.mymin([""]*10), "")
@@ -418,7 +418,7 @@ class TestChartWriter(object):
         for e in self.root.iter():
             assert_true(e.tag in tagnames)
             if e.tag == "c:pageMargins":
-                eq_(e.keys(), self.chart.print_margins.keys())
+                eq_(e.keys(), list(self.chart.print_margins.keys()))
                 for k, v in e.items():
                     eq_(float(v), self.chart.print_margins[k])
             else:
