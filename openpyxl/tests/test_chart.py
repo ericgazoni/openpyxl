@@ -141,6 +141,15 @@ class TestReference(object):
         eq_(str(self.range), "'reference'!$A$1:$A$10")
         eq_(self.range._get_ref(), "'reference'!$A$1:$A$10")
 
+    def test_data_type(self):
+        assert_raises(ValueError, setattr, self.cell, 'data_type', 'f')
+        eq_(self.cell.data_type, 'n')
+        eq_(self.range.data_type, 'n')
+
+    def test_number_format(self):
+        assert_raises(ValueError, setattr, self.cell, 'number_format', 'YYYY')
+        self.cell.number_format = 'd-mmm'
+
 
 class TestErrorBar(object):
 
