@@ -22,6 +22,8 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+from numbers import Number
+
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
 from openpyxl.shared.compat.itertools import iteritems
 from openpyxl.chart import Chart, ErrorBar
@@ -32,6 +34,15 @@ try:
 except NameError:
     # Python 3
     basestring = str
+
+
+def safe_string(value):
+    """Safely and consistently format numeric values"""
+    if isinstance(value, Number):
+        value = "%.15g" % value
+    elif not isinstance(value, basestring):
+        value = str(value)
+    return value
 
 class ChartWriter(object):
 
@@ -65,14 +76,14 @@ class ChartWriter(object):
         SubElement(mlayout, 'c:layoutTarget', {'val':'inner'})
         SubElement(mlayout, 'c:xMode', {'val':'edge'})
         SubElement(mlayout, 'c:yMode', {'val':'edge'})
-        SubElement(mlayout, 'c:x', {'val':str(chart._get_margin_left())})
-        SubElement(mlayout, 'c:y', {'val':str(chart._get_margin_top())})
-        SubElement(mlayout, 'c:w', {'val':str(chart.width)})
-        SubElement(mlayout, 'c:h', {'val':str(chart.height)})
+        SubElement(mlayout, 'c:x', {'val':safe_string(chart.margin_left)})
+        SubElement(mlayout, 'c:y', {'val':safe_string(chart.margin_top)})
+        SubElement(mlayout, 'c:w', {'val':safe_string(chart.width)})
+        SubElement(mlayout, 'c:h', {'val':safe_string(chart.height)})
 
         if chart.type == Chart.SCATTER_CHART:
             subchart = SubElement(plot_area, 'c:scatterChart')
-            SubElement(subchart, 'c:scatterStyle', {'val':str('lineMarker')})
+            SubElement(subchart, 'c:scatterStyle', {'val':'lineMarker'})
         else:
             if chart.type == Chart.BAR_CHART:
                 subchart = SubElement(plot_area, 'c:barChart')
@@ -84,9 +95,8 @@ class ChartWriter(object):
 
         self._write_series(subchart)
 
-        SubElement(subchart, 'c:marker', {'val':'1'})
-        SubElement(subchart, 'c:axId', {'val':str(chart.x_axis.id)})
-        SubElement(subchart, 'c:axId', {'val':str(chart.y_axis.id)})
+        SubElement(subchart, 'c:axId', {'val':safe_string(chart.x_axis.id)})
+        SubElement(subchart, 'c:axId', {'val':safe_string(chart.y_axis.id)})
 
         if chart.type == Chart.SCATTER_CHART:
             self._write_axis(plot_area, chart.x_axis, 'c:valAx')
@@ -114,9 +124,10 @@ class ChartWriter(object):
             SubElement(title, 'c:layout')
 
     def _write_axis(self, plot_area, axis, label):
+        self.chart.compute_axes()
 
         ax = SubElement(plot_area, label)
-        SubElement(ax, 'c:axId', {'val':str(axis.id)})
+        SubElement(ax, 'c:axId', {'val':safe_string(axis.id)})
 
         scaling = SubElement(ax, 'c:scaling')
         SubElement(scaling, 'c:orientation', {'val':axis.orientation})
@@ -161,8 +172,8 @@ class ChartWriter(object):
 
         for i, serie in enumerate(self.chart._series):
             ser = SubElement(subchart, 'c:ser')
-            SubElement(ser, 'c:idx', {'val':str(i)})
-            SubElement(ser, 'c:order', {'val':str(i)})
+            SubElement(ser, 'c:idx', {'val':safe_string(i)})
+            SubElement(ser, 'c:order', {'val':safe_string(i)})
 
             if serie.legend:
                 tx = SubElement(ser, 'c:tx')
@@ -182,9 +193,6 @@ class ChartWriter(object):
             if serie.error_bar:
                 self._write_error_bar(ser, serie)
 
-            marker = SubElement(ser, 'c:marker')
-            SubElement(marker, 'c:symbol', {'val':serie.marker})
-
             if serie.labels:
                 cat = SubElement(ser, 'c:cat')
                 self._write_serial(cat, serie.labels)
@@ -194,45 +202,37 @@ class ChartWriter(object):
                     xval = SubElement(ser, 'c:xVal')
                     self._write_serial(xval, serie.xreference)
 
-                yval = SubElement(ser, 'c:yVal')
-                self._write_serial(yval, serie.reference)
+                val = SubElement(ser, 'c:yVal')
             else:
                 val = SubElement(ser, 'c:val')
-                self._write_serial(val, serie.reference)
+            self._write_serial(val, serie.reference)
 
     def _write_serial(self, node, reference, literal=False):
 
-        cache = reference.values
-        if isinstance(cache[0], basestring):
-            typ = 'str'
-        else:
-            typ = 'num'
+        is_ref = hasattr(reference, 'pos1')
+        data_type = reference.data_type
+        number_format = getattr(reference, 'number_format')
 
-        if not literal:
-            if typ == 'num':
-                ref = SubElement(node, 'c:numRef')
-            else:
-                ref = SubElement(node, 'c:strRef')
+        mapping = {'n':{'ref':'numRef', 'cache':'numCache'},
+                   's':{'ref':'strRef', 'cache':'strCache'}}
+
+        if is_ref:
+            ref = SubElement(node, 'c:%s' % mapping[data_type]['ref'])
             SubElement(ref, 'c:f').text = str(reference)
-            if typ == 'num':
-                data = SubElement(ref, 'c:numCache')
-            else:
-                data = SubElement(ref, 'c:strCache')
+            data = SubElement(ref, 'c:%s' % mapping[data_type]['cache'])
+            values = reference.values
         else:
             data = SubElement(node, 'c:numLit')
-
-        if typ == 'num':
-            SubElement(data, 'c:formatCode').text = 'General'
-        if literal:
             values = (1,)
-        else:
-            values = cache
+
+        if data_type == 'n':
+            SubElement(data, 'c:formatCode').text = number_format or 'General'
 
         SubElement(data, 'c:ptCount', {'val':str(len(values))})
         for j, val in enumerate(values):
             point = SubElement(data, 'c:pt', {'idx':str(j)})
             if not isinstance(val, basestring):
-                val = str(val)
+                val = safe_string(val)
             SubElement(point, 'c:v').text = val
 
     def _write_error_bar(self, node, serie):
@@ -246,11 +246,13 @@ class ChartWriter(object):
         SubElement(eb, 'c:errValType', {'val':'cust'})
 
         plus = SubElement(eb, 'c:plus')
-        self._write_serial(plus, serie.error_bar.values,
+        # apart from setting the type of data series the following has
+        # no effect on the writer
+        self._write_serial(plus, serie.error_bar.reference,
             literal=(serie.error_bar.type == ErrorBar.MINUS))
 
         minus = SubElement(eb, 'c:minus')
-        self._write_serial(minus, serie.error_bar.values,
+        self._write_serial(minus, serie.error_bar.reference,
             literal=(serie.error_bar.type == ErrorBar.PLUS))
 
     def _write_legend(self, chart):
@@ -271,7 +273,7 @@ class ChartWriter(object):
             # Python 3
             print_margins_items = self.chart.print_margins.items()
 
-        margins = dict([(k, str(v)) for (k, v) in print_margins_items])
+        margins = dict([(k, safe_string(v)) for (k, v) in print_margins_items])
         SubElement(settings, 'c:pageMargins', margins)
         SubElement(settings, 'c:pageSetup')
 

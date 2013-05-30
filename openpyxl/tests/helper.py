@@ -1,7 +1,7 @@
 # file openpyxl/tests/helper.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -70,6 +70,9 @@ def assert_equals_file_content(reference_file, fixture, filetype = 'xml'):
         expected_content = expected_file.read()
     finally:
         expected_file.close()
+    assert_equals_string(expected_content, expected_content, filetype)
+
+def assert_equals_string(expected_content, fixture_content, filetype=None):
 
     if filetype == 'xml':
         fixture_content = fromstring(fixture_content)
