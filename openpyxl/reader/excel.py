@@ -172,7 +172,7 @@ def _load_workbook(wb, archive, filename, use_iterators, show_debug_log):
     # get worksheets
     wb.worksheets = []  # remove preset worksheet
     content_types = iter_content_types(archive.read(ARC_CONTENT_TYPES))
-    sheet_types = [(sheet, type) for (sheet, type) in content_types if type in WORK_OR_CHART_TYPE]
+    sheet_types = [(sheet, contyp) for sheet, contyp in content_types if contyp in WORK_OR_CHART_TYPE]
     sheet_names = read_sheets_titles(archive.read(ARC_WORKBOOK))
     worksheet_names = [worksheet for worksheet, sheet_type in zip(sheet_names, sheet_types) if sheet_type[1] == VALID_WORKSHEET]
     for i, sheet_name in enumerate(worksheet_names):
