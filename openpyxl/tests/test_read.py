@@ -218,3 +218,18 @@ def test_read_no_theme():
     path = os.path.join(DATADIR, 'genuine', 'libreoffice_nrt.xlsx')
     wb = load_workbook(path)
     assert wb
+
+def test_read_contains_chartsheet():
+    # test data
+    correct_sheet_data = {'data': 'x', 'moredata': 'month'}
+    correct_sheet_names = sorted(correct_sheet_data.keys())
+    path = os.path.join(DATADIR, 'reader', 'contains_chartsheets.xlsx')
+    wb = load_workbook(path)
+    assert isinstance(wb, Workbook)  # load_workbook works
+    # workbook contains correct number of sheets and correct sheet names
+    sheet_names = sorted(wb.get_sheet_names())
+    assert len(sheet_names) == len(correct_sheet_names)
+    assert all([name == correct for (name, correct)in zip(sheet_names, correct_sheet_names)])
+    # workbook sheets contains correct data in cell "A1"
+    sheets = [wb.get_sheet_by_name(sheet_name) for sheet_name in correct_sheet_names]
+    assert all([sheet.cell('A1').value == correct_sheet_data[sheet.title] for sheet in sheets])
