@@ -39,7 +39,7 @@ from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
 from openpyxl.reader.workbook import (read_sheets_titles, read_named_ranges,
         read_properties_core, read_excel_base_date, get_sheet_ids,
-        read_content_types)
+        iter_content_types)
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
 # Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
@@ -171,7 +171,7 @@ def _load_workbook(wb, archive, filename, use_iterators, show_debug_log):
 
     # get worksheets
     wb.worksheets = []  # remove preset worksheet
-    content_types = read_content_types(archive.read(ARC_CONTENT_TYPES))
+    content_types = iter_content_types(archive.read(ARC_CONTENT_TYPES))
     sheet_types = [(sheet, type) for (sheet, type) in content_types if type in WORK_OR_CHART_TYPE]
     sheet_names = read_sheets_titles(archive.read(ARC_WORKBOOK))
     worksheet_names = [worksheet for worksheet, sheet_type in zip(sheet_names, sheet_types) if sheet_type[1] == VALID_WORKSHEET]
