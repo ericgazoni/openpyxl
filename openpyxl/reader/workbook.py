@@ -86,8 +86,8 @@ def read_excel_base_date(xml_source):
 
 
 # Mark Mikofski, 2013-06-03
-def iter_content_types(xml_source):
-    """Iterate content types."""
+def read_content_types(xml_source):
+    """Read content types."""
     root = fromstring(xml_source)
     contents_root = root.findall(QName('http://schemas.openxmlformats.org/package/2006/content-types',
             'Override').text)
