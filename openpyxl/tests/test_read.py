@@ -225,14 +225,14 @@ def test_read_contains_chartsheet():
 
     "contains_chartsheets.xlsx" has the following sheets:
     +---+------------+------------+
-    | # | name       | type       |
-    +---+------------+------------+
+    | # | Name       | Type       |
+    +===+============+============+
     | 1 | "data"     | worksheet  |
-    +---+------------+-+----------+
+    +---+------------+------------+
     | 2 | "chart"    | chartsheet |
-    +---+------------+-+----------+
+    +---+------------+------------+
     | 3 | "moredata" | worksheet  |
-    +---+------------+-+----------+
+    +---+------------+------------+
     """
     # test data
     path = os.path.join(DATADIR, 'reader', 'contains_chartsheets.xlsx')
