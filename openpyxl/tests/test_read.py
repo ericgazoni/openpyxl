@@ -220,16 +220,24 @@ def test_read_no_theme():
     assert wb
 
 def test_read_contains_chartsheet():
+    """
+    Test reading workbook containing chartsheet.
+
+    "contains_chartsheets.xlsx" has the following sheets:
+    +---+------------+------------+
+    | # | name       | type       |
+    +---+------------+------------+
+    | 1 | "data"     | worksheet  |
+    +---+------------+-+----------+
+    | 2 | "chart"    | chartsheet |
+    +---+------------+-+----------+
+    | 3 | "moredata" | worksheet  |
+    +---+------------+-+----------+
+    """
     # test data
-    correct_sheet_data = {'data': 'x', 'moredata': 'month'}
-    correct_sheet_names = sorted(correct_sheet_data.keys())
     path = os.path.join(DATADIR, 'reader', 'contains_chartsheets.xlsx')
     wb = load_workbook(path)
-    assert isinstance(wb, Workbook)  # load_workbook works
-    # workbook contains correct number of sheets and correct sheet names
-    sheet_names = sorted(wb.get_sheet_names())
-    assert len(sheet_names) == len(correct_sheet_names)
-    assert all([name == correct for (name, correct)in zip(sheet_names, correct_sheet_names)])
-    # workbook sheets contains correct data in cell "A1"
-    sheets = [wb.get_sheet_by_name(sheet_name) for sheet_name in correct_sheet_names]
-    assert all([sheet.cell('A1').value == correct_sheet_data[sheet.title] for sheet in sheets])
+    # workbook contains correct sheet names
+    sheet_names = wb.get_sheet_names()
+    eq_(sheet_names[0], 'data')
+    eq_(sheet_names[1], 'moredata')
