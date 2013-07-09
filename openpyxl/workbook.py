@@ -94,7 +94,7 @@ class Workbook(object):
         self.encoding = encoding
 
         if not optimized_write:
-            self.worksheets.append(self._worksheet_class(self))
+            self.worksheets.append(self._worksheet_class(parent_workbook=self))
 
     @property
     def _local_data(self):
