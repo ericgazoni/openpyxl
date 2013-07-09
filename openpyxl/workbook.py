@@ -74,7 +74,9 @@ class DocumentSecurity(object):
 class Workbook(object):
     """Workbook is the container for all other parts of the document."""
 
-    def __init__(self, optimized_write=False, encoding='utf-8'):
+    def __init__(self, optimized_write=False, encoding='utf-8',
+                 worksheet_class=Worksheet,
+                 optimized_worksheet_class=DumpWorksheet):
         self.worksheets = []
         self._active_sheet_index = 0
         self._named_ranges = []
@@ -86,11 +88,13 @@ class Workbook(object):
         self.__thread_local_data = threading.local()
         self.strings_table_builder = StringTableBuilder()
         self.loaded_theme = None
+        self._worksheet_class = worksheet_class
+        self._optimized_worksheet_class = optimized_worksheet_class
 
         self.encoding = encoding
 
         if not optimized_write:
-            self.worksheets.append(Worksheet(self))
+            self.worksheets.append(self._worksheet_class(self))
 
     @property
     def _local_data(self):
@@ -119,12 +123,14 @@ class Workbook(object):
             raise ReadOnlyWorkbookException('Cannot create new sheet in a read-only workbook')
 
         if self.__optimized_write :
-            new_ws = DumpWorksheet(parent_workbook=self, title=title)
+            new_ws = self._optimized_worksheet_class(
+                parent_workbook=self, title=title)
         else:
             if title is not None:                                          
-                new_ws = Worksheet(parent_workbook = self, title=title)    
+                new_ws = self._worksheet_class(
+                    parent_workbook=self, title=title)    
             else:                                                          
-                new_ws = Worksheet(parent_workbook=self)
+                new_ws = self._worksheet_class(parent_workbook=self)
 
         self.add_sheet(worksheet=new_ws, index=index)
         return new_ws
@@ -132,7 +138,7 @@ class Workbook(object):
     def add_sheet(self, worksheet, index=None):
         """Add an existing worksheet (at an optional index)."""
 
-        assert isinstance(worksheet, Worksheet), "The parameter you have given is not of the type 'Worksheet'"
+        assert isinstance(worksheet, self._worksheet_class), "The parameter you have given is not of the type '%s'" % self._worksheet_class.__name__
 
         if index is None:
             index = len(self.worksheets)
@@ -174,7 +180,7 @@ class Workbook(object):
 
     def create_named_range(self, name, worksheet, range):
         """Create a new named_range on a worksheet"""
-        assert isinstance(worksheet, Worksheet)
+        assert isinstance(worksheet, self._worksheet_class)
         named_range = NamedRange(name, [(worksheet, range)])
         self.add_named_range(named_range)
 
