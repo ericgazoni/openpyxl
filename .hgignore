@@ -13,3 +13,7 @@ syntax: glob
 *~
 *.orig
 .idea
+*.pstats
+*.png
+*.sh
+
