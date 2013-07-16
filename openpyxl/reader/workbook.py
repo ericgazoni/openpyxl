@@ -91,7 +91,7 @@ def read_sheets_titles(xml_source):
     titles_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
             'sheets').text)
 
-    return [sheet.get('name') for sheet in titles_root.getchildren()]
+    return [sheet.get('name') for sheet in list(titles_root)]
 
 def read_named_ranges(xml_source, workbook):
     """Read named ranges, excluding poorly defined ranges."""
@@ -101,7 +101,7 @@ def read_named_ranges(xml_source, workbook):
             'definedNames').text)
     if names_root is not None:
 
-        for name_node in names_root.getchildren():
+        for name_node in list(names_root):
             range_name = name_node.get('name')
 
             if name_node.get("hidden", '0') == '1':
