@@ -71,10 +71,15 @@ def pretty_indent(elem, level=0):
 def start_tag(doc, name, attr=None, body=None, namespace=None):
     """Wrapper to start an xml tag."""
     if attr is None:
-        attr = OrderedDict()
+        attr = {}
+        dct_type = dict
+    elif isinstance(attr, OrderedDict):
+        dct_type = OrderedDict
+    else:
+        dct_type = dict
 
-    attr_vals = OrderedDict()
-    attr_keys = OrderedDict()
+    attr_vals = dct_type()
+    attr_keys = dct_type()
     for key, val in attr.items():
         key_tuple = (namespace, key)
         attr_vals[key_tuple] = val

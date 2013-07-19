@@ -265,11 +265,11 @@ class TestWorksheet(object):
         ws.cell('A1').value = 'Cell A1'
         ws.cell('B1').value = 'Cell B1'
         xml_string = write_worksheet(ws, string_table, None)
-        assert '<c r="B1" t="s"><v>Cell B1</v></c>' in xml_string
+        assert '<v>Cell B1</v>' in xml_string
 
         ws.merge_cells('A1:B1')
         xml_string = write_worksheet(ws, string_table, None)
-        assert '<c r="B1" t="s"><v>Cell B1</v></c>' not in xml_string
+        assert '<v>Cell B1</v>' not in xml_string
         assert '<mergeCells count="1"><mergeCell ref="A1:B1"></mergeCell></mergeCells>' in xml_string
 
         ws.unmerge_cells('A1:B1')
