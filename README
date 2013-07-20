@@ -5,9 +5,11 @@ It was born from lack of existing library to read/write natively from Python the
 All kudos to the PHPExcel team as openpyxl is a Python port of PHPExcel http://www.phpexcel.net/
 
 == Mailing List ==
+
 Official user list can be found on http://groups.google.com/group/openpyxl-users
 
 == Official documentation ==
+
 The new homepage is now http://openpyxl.readthedocs.org
 You will find:
 
