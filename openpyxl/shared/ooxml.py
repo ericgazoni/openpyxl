@@ -49,6 +49,7 @@ ARC_WORKBOOK = PACKAGE_XL + '/workbook.xml'
 ARC_STYLE = PACKAGE_XL + '/styles.xml'
 ARC_THEME = PACKAGE_THEME + '/theme1.xml'
 ARC_SHARED_STRINGS = PACKAGE_XL + '/sharedStrings.xml'
+ARC_VBA = ('xl/vba', 'xl/activeX', 'xl/drawings', 'xl/media', 'xl/ctrlProps', 'xl/worksheets/_rels', 'customUI', '_rels')
 
 NAMESPACES = {
     'cp': 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',

@@ -45,11 +45,6 @@ from openpyxl.reader.iter_worksheet import unpack_worksheet
 # Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
 from sys import exc_info
 
-# add logging
-import logging
-logging.basicConfig(level=logging.DEBUG,
-                    format='[%(levelname)s] (%(threadName)-10s) %(message)s')
-
 VALID_WORKSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"
 VALID_CHARTSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml"
 WORK_OR_CHART_TYPE = [VALID_WORKSHEET, VALID_CHARTSHEET]
@@ -84,7 +79,7 @@ def repair_central_directory(zipFile, is_file_instance):
     return f
 
 
-def load_workbook(filename, use_iterators=False, show_debug_log=False):
+def load_workbook(filename, use_iterators=False, keep_vba=False):
     """Open the given filename and return the workbook
 
     :param filename: the path to open or a file-like object
@@ -92,9 +87,6 @@ def load_workbook(filename, use_iterators=False, show_debug_log=False):
 
     :param use_iterators: use lazy load for cells
     :type use_iterators: bool
-
-    :param show_debug_log: show debug log
-    :type show_debug_log: bool
 
     :rtype: :class:`openpyxl.workbook.Workbook`
 
@@ -138,17 +130,23 @@ def load_workbook(filename, use_iterators=False, show_debug_log=False):
         wb._set_optimized_read()
 
     try:
-        _load_workbook(wb, archive, filename, use_iterators, show_debug_log)
+        _load_workbook(wb, archive, filename, use_iterators, keep_vba=keep_vba)
     except KeyError:
         e = exc_info()[1]
         raise InvalidFileException(unicode(e))
 
-    archive.close()
+    if not keep_vba:
+        archive.close()
     return wb
 
-def _load_workbook(wb, archive, filename, use_iterators, show_debug_log):
+def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
 
     valid_files = archive.namelist()
+
+    # If are going to preserve the vba then attach the archive to the
+    # workbook so that is available for the save.
+    if keep_vba:
+        wb.vba_archive = archive
 
     # get workbook-level information
     try:
@@ -176,8 +174,6 @@ def _load_workbook(wb, archive, filename, use_iterators, show_debug_log):
     sheet_names = read_sheets_titles(archive.read(ARC_WORKBOOK))
     worksheet_names = [worksheet for worksheet, sheet_type in zip(sheet_names, sheet_types) if sheet_type[1] == VALID_WORKSHEET]
     for i, sheet_name in enumerate(worksheet_names):
-        if show_debug_log:
-            logging.debug(sheet_name)
 
         sheet_codename = 'sheet%d.xml' % (i + 1)
         worksheet_path = '%s/%s' % (PACKAGE_WORKSHEETS, sheet_codename)
@@ -186,7 +182,7 @@ def _load_workbook(wb, archive, filename, use_iterators, show_debug_log):
             continue
 
         if not use_iterators:
-            new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table)
+            new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table, keep_vba=keep_vba)
         else:
             xml_source = unpack_worksheet(archive, worksheet_path)
             new_ws = read_worksheet(xml_source, wb, sheet_name, string_table, style_table, filename, sheet_codename)

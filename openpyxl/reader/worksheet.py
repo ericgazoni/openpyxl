@@ -42,7 +42,7 @@ from openpyxl.shared.xmltools import fromstring, QName
 
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
-from openpyxl.worksheet import Worksheet, ColumnDimension
+from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
 
 def _get_xml_iter(xml_source):
 
@@ -163,6 +163,16 @@ def fast_parse(ws, xml_source, string_table, style_table):
                 if col.get('style') is not None:
                     ws.column_dimensions[column].style_index = col.get('style')
 
+    sheetData = root.find(QName(xmlns, 'sheetData').text)
+    if sheetData is not None:
+        rowNodes = sheetData.findall(QName(xmlns, 'row').text)
+        for row in rowNodes:
+            rowId = int(row.get('r'))
+            if rowId not in ws.row_dimensions:
+                ws.row_dimensions[rowId] = RowDimension(rowId)
+            if row.get('ht') is not None:
+                ws.row_dimensions[rowId].height = float(row.get('ht'))
+
     printOptions = root.find(QName(xmlns, 'printOptions').text)
     if printOptions is not None:
         if printOptions.get('horizontalCentered') is not None:
@@ -216,7 +226,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
 from openpyxl.reader.iter_worksheet import IterableWorksheet
 
 def read_worksheet(xml_source, parent, preset_title, string_table,
-                   style_table, workbook_name=None, sheet_codename=None):
+                   style_table, workbook_name=None, sheet_codename=None, keep_vba=False):
     """Read an xml worksheet"""
     if workbook_name and sheet_codename:
         ws = IterableWorksheet(parent, preset_title, workbook_name,
@@ -224,4 +234,6 @@ def read_worksheet(xml_source, parent, preset_title, string_table,
     else:
         ws = Worksheet(parent, preset_title)
         fast_parse(ws, xml_source, string_table, style_table)
+    if keep_vba:
+    	ws.xml_source = xml_source
     return ws

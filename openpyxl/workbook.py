@@ -90,6 +90,7 @@ class Workbook(object):
         self.loaded_theme = None
         self._worksheet_class = worksheet_class
         self._optimized_worksheet_class = optimized_worksheet_class
+        self.vba_archive = None
 
         self.encoding = encoding
 
@@ -178,10 +179,10 @@ class Workbook(object):
         """
         return [s.title for s in self.worksheets]
 
-    def create_named_range(self, name, worksheet, range):
+    def create_named_range(self, name, worksheet, range, scope=None):
         """Create a new named_range on a worksheet"""
         assert isinstance(worksheet, self._worksheet_class)
-        named_range = NamedRange(name, [(worksheet, range)])
+        named_range = NamedRange(name, [(worksheet, range)], scope)
         self.add_named_range(named_range)
 
     def get_named_ranges(self):

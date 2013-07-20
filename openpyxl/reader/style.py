@@ -138,6 +138,15 @@ def parse_color_index(root, xmlns):
             color_nodes = indexedColors.findall(QName(xmlns, 'rgbColor').text)
             for color_node in color_nodes:
                 color_index.append(color_node.get('rgb'))
+    if not color_index:
+        # Default Color Index as per http://dmcritchie.mvps.org/excel/colors.htm
+        color_index = ['FF000000', 'FFFFFFFF', 'FFFF0000', 'FF00FF00', 'FF0000FF', 'FFFFFF00', 'FFFF00FF', 'FF00FFFF',
+                       'FF800000', 'FF008000', 'FF000080', 'FF808000', 'FF800080', 'FF008080', 'FFC0C0C0', 'FF808080',
+                       'FF9999FF', 'FF993366', 'FFFFFFCC', 'FFCCFFFF', 'FF660066', 'FFFF8080', 'FF0066CC', 'FFCCCCFF',
+                       'FF000080', 'FFFF00FF', 'FFFFFF00', 'FF00FFFF', 'FF800080', 'FF800000', 'FF008080', 'FF0000FF',
+                       'FF00CCFF', 'FFCCFFFF', 'FFCCFFCC', 'FFFFFF99', 'FF99CCFF', 'FFFF99CC', 'FFCC99FF', 'FFFFCC99',
+                       'FF3366FF', 'FF33CCCC', 'FF99CC00', 'FFFFCC00', 'FFFF9900', 'FFFF6600', 'FF666699', 'FF969696',
+                       'FF003366', 'FF339966', 'FF003300', 'FF333300', 'FF993300', 'FF993366', 'FF333399', 'FF333333']
     return color_index
 
 def parse_fonts(root, xmlns, color_index):
@@ -177,16 +186,19 @@ def parse_fills(root, xmlns, color_index):
     if fills is not None:
         fillNodes = fills.findall(QName(xmlns, 'fill').text)
         for fill in fillNodes:
-            newFill = Fill()
             # Rotation is unset
             patternFill = fill.find(QName(xmlns, 'patternFill').text)
             if patternFill is not None:
+                newFill = Fill()
                 newFill.fill_type = patternFill.get('patternType')
 
                 fgColor = patternFill.find(QName(xmlns, 'fgColor').text)
                 if fgColor is not None:
                     if fgColor.get('indexed') is not None and 0 <= int(fgColor.get('indexed')) < len(color_index):
                         newFill.start_color.index = color_index[int(fgColor.get('indexed'))]
+                    elif fgColor.get('indexed') is not None:
+                        # Invalid color - out of range of color_index, set to white
+                        newFill.start_color.index = 'FFFFFFFF'
                     elif fgColor.get('theme') is not None:
                         if fgColor.get('tint') is not None:
                             newFill.start_color.index = 'theme:%s:%s' % (fgColor.get('theme'), fgColor.get('tint'))
@@ -199,6 +211,9 @@ def parse_fills(root, xmlns, color_index):
                 if bgColor is not None:
                     if bgColor.get('indexed') is not None and 0 <= int(bgColor.get('indexed')) < len(color_index):
                         newFill.end_color.index = color_index[int(bgColor.get('indexed'))]
+                    elif bgColor.get('indexed') is not None:
+                        # Invalid color - out of range of color_index, set to white
+                        newFill.end_color.index = 'FFFFFFFF'
                     elif bgColor.get('theme') is not None:
                         if bgColor.get('tint') is not None:
                             newFill.end_color.index = 'theme:%s:%s' % (bgColor.get('theme'), bgColor.get('tint'))
@@ -206,8 +221,8 @@ def parse_fills(root, xmlns, color_index):
                             newFill.end_color.index = 'theme:%s:' % bgColor.get('theme')  # prefix color with theme
                     elif bgColor.get('rgb'):
                         newFill.end_color.index = bgColor.get('rgb')
-            count += 1
-            fill_list.append(newFill)
+                count += 1
+                fill_list.append(newFill)
     return fill_list
 
 def parse_borders(root, xmlns, color_index):
