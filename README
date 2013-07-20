@@ -4,105 +4,14 @@ It was born from lack of existing library to read/write natively from Python the
 
 All kudos to the PHPExcel team as openpyxl is a Python port of PHPExcel http://www.phpexcel.net/
 
-== User List ==
+== Mailing List ==
 Official user list can be found on http://groups.google.com/group/openpyxl-users
 
-== Contribute ==
-Any help will be greatly appreciated, there are just a few requirements to get your code checked in the public repository:
-* Mercurial bundles are the preferred way of contributing code, compared to diffs written in a text file. Forks are encouraged, but don't forget to make a pull request if you want your code to be included :)
-* long diffs posted in the body of a tracker request will not be looked at (more than 30 rows of non-syntax highlighted code is simply unreadable). Please attach your bundle files to the issue instead.
-* every non-trivial change must come with at least a unit test (that tests the new behavior, obviously :p). There are plenty of examples in the /test directory if you lack know-how or inspiration.
+== Official documentation ==
+The new homepage is now http://openpyxl.readthedocs.org
+You will find:
 
-== Easy Install ==
-Releases are also packaged on PyPi, so all you have to type to get the latest version is:
-
-    $ easy_install openpyxl
-
-== Features ==
-
-** Supported data types **
-    * String (shared, Inline not currently supported)
-    * Integer
-    * Float
-    * Date
-
-** Supported Excel features **
-    * Names ranges
-    * Number formats (built-in and custom formats)
-
-** Handy features **
-    * Implicit conversion between Python types and Excel types:
-        * Dates
-        * Floats
-        * Percentages
-    * Optimized modes to read and write extremely large files
-
-== Python 3.x support ==
-
-Openpyxl supports python (even if some tests can fail on 2.4) from 2.4 to 3.2. 
-
-== Full documentation==
-With tutorial, examples, API documentation: http://packages.python.org/openpyxl/
-
-== Quick Examples ==
-
-=== Write a workbook ===
-
-    #!python
-    from openpyxl.workbook import Workbook
-    from openpyxl.writer.excel import ExcelWriter
-
-    from openpyxl.cell import get_column_letter
-
-    wb = Workbook()
-
-    dest_filename = r'empty_book.xlsx'
-
-    ws = wb.worksheets[0]
-
-    ws.title = "range names"
-
-    for col_idx in xrange(1, 40):
-        col = get_column_letter(col_idx)
-        for row in xrange(1, 600):
-            ws.cell('%s%s'%(col, row)).value = '%s%s' % (col, row)
-
-    ws = wb.create_sheet()
-
-    ws.title = 'Pi'
-
-    ws.cell('F5').value = 3.14
-
-    wb.save(filename = dest_filename)
-
-=== Read an existing workbook ===
-
-    #!python
-    from openpyxl.reader.excel import load_workbook
-
-    wb = load_workbook(filename = r'empty_book.xlsx')
-
-    sheet_ranges = wb.get_sheet_by_name(name = 'range names')
-
-    print sheet_ranges.cell('D18').value # D18
-
-=== Number Formats ===
-
-    #!python
-    import datetime
-    from openpyxl.workbook import Workbook
-
-    wb = Workbook()
-    ws = wb.worksheets[0]
-
-    # set date using a Python datetime
-    ws.cell('A1').value = datetime.datetime(2010, 7, 21)
-
-    print ws.cell('A1').style.number_format.format_code # returns 'yyyy-mm-dd'
-
-    # set percentage using a string followed by the percent sign
-    ws.cell('B1').value = '3.14%'
-
-    print ws.cell('B1').value # returns 0.031400000000000004
-
-    print ws.cell('B1').style.number_format.format_code # returns '0%'
+* every installation methods
+* the official documentation
+* code examples
+* instructions for contributing
