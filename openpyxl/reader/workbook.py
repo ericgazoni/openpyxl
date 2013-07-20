@@ -85,6 +85,15 @@ def read_excel_base_date(xml_source):
     return CALENDAR_WINDOWS_1900
 
 
+# Mark Mikofski, 2013-06-03
+def read_content_types(xml_source):
+    """Read content types."""
+    root = fromstring(xml_source)
+    contents_root = root.findall(QName('http://schemas.openxmlformats.org/package/2006/content-types',
+            'Override').text)
+    for type in contents_root:
+        yield type.get('PartName'), type.get('ContentType')
+
 def read_sheets_titles(xml_source):
     """Read titles for all sheets."""
     root = fromstring(xml_source)

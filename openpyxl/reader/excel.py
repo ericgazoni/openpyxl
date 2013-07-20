@@ -31,18 +31,30 @@ from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 # package imports
 from openpyxl.shared.exc import OpenModeError, InvalidFileException
 from openpyxl.shared.ooxml import (ARC_SHARED_STRINGS, ARC_CORE, ARC_WORKBOOK,
-                                   PACKAGE_WORKSHEETS, ARC_STYLE, ARC_THEME)
+                                   PACKAGE_WORKSHEETS, ARC_STYLE, ARC_THEME,
+                                   ARC_CONTENT_TYPES)
 from openpyxl.shared.compat import unicode, file
 from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
 from openpyxl.reader.workbook import (read_sheets_titles, read_named_ranges,
-        read_properties_core, read_excel_base_date, get_sheet_ids)
+        read_properties_core, read_excel_base_date, get_sheet_ids,
+        read_content_types)
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
 # Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
 from sys import exc_info
 
+# add logging
+import logging
+logging.basicConfig(level=logging.DEBUG,
+                    format='[%(levelname)s] (%(threadName)-10s) %(message)s')
+
+VALID_WORKSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"
+VALID_CHARTSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml"
+WORK_OR_CHART_TYPE = [VALID_WORKSHEET, VALID_CHARTSHEET]
+    
+                    
 try:
     # Python 2
     unicode
@@ -72,7 +84,7 @@ def repair_central_directory(zipFile, is_file_instance):
     return f
 
 
-def load_workbook(filename, use_iterators=False):
+def load_workbook(filename, use_iterators=False, show_debug_log=False):
     """Open the given filename and return the workbook
 
     :param filename: the path to open or a file-like object
@@ -80,6 +92,9 @@ def load_workbook(filename, use_iterators=False):
 
     :param use_iterators: use lazy load for cells
     :type use_iterators: bool
+
+    :param show_debug_log: show debug log
+    :type show_debug_log: bool
 
     :rtype: :class:`openpyxl.workbook.Workbook`
 
@@ -123,7 +138,7 @@ def load_workbook(filename, use_iterators=False):
         wb._set_optimized_read()
 
     try:
-        _load_workbook(wb, archive, filename, use_iterators)
+        _load_workbook(wb, archive, filename, use_iterators, show_debug_log)
     except KeyError:
         e = exc_info()[1]
         raise InvalidFileException(unicode(e))
@@ -131,7 +146,7 @@ def load_workbook(filename, use_iterators=False):
     archive.close()
     return wb
 
-def _load_workbook(wb, archive, filename, use_iterators):
+def _load_workbook(wb, archive, filename, use_iterators, show_debug_log):
 
     valid_files = archive.namelist()
 
@@ -156,8 +171,13 @@ def _load_workbook(wb, archive, filename, use_iterators):
 
     # get worksheets
     wb.worksheets = []  # remove preset worksheet
+    content_types = read_content_types(archive.read(ARC_CONTENT_TYPES))
+    sheet_types = [(sheet, contyp) for sheet, contyp in content_types if contyp in WORK_OR_CHART_TYPE]
     sheet_names = read_sheets_titles(archive.read(ARC_WORKBOOK))
-    for i, sheet_name in enumerate(sheet_names):
+    worksheet_names = [worksheet for worksheet, sheet_type in zip(sheet_names, sheet_types) if sheet_type[1] == VALID_WORKSHEET]
+    for i, sheet_name in enumerate(worksheet_names):
+        if show_debug_log:
+            logging.debug(sheet_name)
 
         sheet_codename = 'sheet%d.xml' % (i + 1)
         worksheet_path = '%s/%s' % (PACKAGE_WORKSHEETS, sheet_codename)

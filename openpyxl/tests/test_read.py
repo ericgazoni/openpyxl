@@ -218,3 +218,26 @@ def test_read_no_theme():
     path = os.path.join(DATADIR, 'genuine', 'libreoffice_nrt.xlsx')
     wb = load_workbook(path)
     assert wb
+
+def test_read_contains_chartsheet():
+    """
+    Test reading workbook containing chartsheet.
+
+    "contains_chartsheets.xlsx" has the following sheets:
+    +---+------------+------------+
+    | # | Name       | Type       |
+    +===+============+============+
+    | 1 | "data"     | worksheet  |
+    +---+------------+------------+
+    | 2 | "chart"    | chartsheet |
+    +---+------------+------------+
+    | 3 | "moredata" | worksheet  |
+    +---+------------+------------+
+    """
+    # test data
+    path = os.path.join(DATADIR, 'reader', 'contains_chartsheets.xlsx')
+    wb = load_workbook(path)
+    # workbook contains correct sheet names
+    sheet_names = wb.get_sheet_names()
+    eq_(sheet_names[0], 'data')
+    eq_(sheet_names[1], 'moredata')
