@@ -16,4 +16,5 @@ syntax: glob
 *.pstats
 *.png
 *.sh
-
+.git
+travis.yml
