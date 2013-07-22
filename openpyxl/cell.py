@@ -230,7 +230,7 @@ class Cell(object):
         try:
             return unicode(value)
         except:
-            return u'#N/A'
+            return unicode('#N/A')
 
     def set_value_explicit(self, value=None, data_type=TYPE_STRING):
         """Coerce values according to their explicit type"""
