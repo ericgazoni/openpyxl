@@ -48,8 +48,8 @@ from sys import exc_info
 VALID_WORKSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"
 VALID_CHARTSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml"
 WORK_OR_CHART_TYPE = [VALID_WORKSHEET, VALID_CHARTSHEET]
-    
-                    
+
+
 try:
     # Python 2
     unicode
@@ -79,7 +79,7 @@ def repair_central_directory(zipFile, is_file_instance):
     return f
 
 
-def load_workbook(filename, use_iterators=False, keep_vba=False):
+def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=True):
     """Open the given filename and return the workbook
 
     :param filename: the path to open or a file-like object
@@ -87,6 +87,12 @@ def load_workbook(filename, use_iterators=False, keep_vba=False):
 
     :param use_iterators: use lazy load for cells
     :type use_iterators: bool
+
+    :param keep_vba: preseve vba content (this does NOT mean you can use it)
+    :type keep_vba: bool
+
+    :param guess_types: guess cell content type and do not read it from the file
+    :type guess_types: bool
 
     :rtype: :class:`openpyxl.workbook.Workbook`
 
@@ -104,7 +110,6 @@ def load_workbook(filename, use_iterators=False, keep_vba=False):
         # Python 3
         from io import BufferedReader
         is_file_instance = isinstance(filename, BufferedReader)
-
 
     if is_file_instance:
         # fileobject must have been opened with 'rb' flag
@@ -124,13 +129,13 @@ def load_workbook(filename, use_iterators=False, keep_vba=False):
     except (BadZipfile, RuntimeError, IOError, ValueError):
         e = exc_info()[1]
         raise InvalidFileException(unicode(e))
-    wb = Workbook()
+    wb = Workbook(guess_types=guess_types)
 
     if use_iterators:
         wb._set_optimized_read()
 
     try:
-        _load_workbook(wb, archive, filename, use_iterators, keep_vba=keep_vba)
+        _load_workbook(wb, archive, filename, use_iterators, keep_vba)
     except KeyError:
         e = exc_info()[1]
         raise InvalidFileException(unicode(e))
@@ -138,6 +143,7 @@ def load_workbook(filename, use_iterators=False, keep_vba=False):
     if not keep_vba:
         archive.close()
     return wb
+
 
 def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
 

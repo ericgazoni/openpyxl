@@ -87,11 +87,11 @@ def read_dimension(xml_source):
             # those instead.
             col, row = coordinate_from_string(element.get('r'))
             if smin_row is None:
-                #initialize the observed max/min values
+                # initialize the observed max/min values
                 smin_col = smax_col = col
                 smin_row = smax_row = row
             else:
-                #Keep track of the seen max and min (fallback if there's no dimension)
+                # Keep track of the seen max and min (fallback if there's no dimension)
                 smin_col = min(smin_col, col)
                 smin_row = min(smin_row, row)
                 smax_col = max(smax_col, col)
@@ -110,6 +110,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
     xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
     root = fromstring(xml_source)
+    guess_types = ws.parent._guess_types
 
     mergeCells = root.find(QName(xmlns, 'mergeCells').text)
     if mergeCells is not None:
@@ -135,7 +136,11 @@ def fast_parse(ws, xml_source, string_table, style_table):
             if data_type == Cell.TYPE_STRING:
                 value = string_table.get(int(value))
 
-            ws.cell(coordinate).set_value_explicit(value=value, data_type=data_type)
+            if guess_types:
+                ws.cell(coordinate).value = value
+            else:
+                ws.cell(coordinate).set_value_explicit(value=value,
+                                                       data_type=data_type)
 
         # to avoid memory exhaustion, clear the item after use
         element.clear()

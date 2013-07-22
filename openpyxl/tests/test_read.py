@@ -48,6 +48,7 @@ def test_read_standalone_worksheet():
         encoding = 'utf-8'
 
         excel_base_date = CALENDAR_WINDOWS_1900
+        _guess_types = True
 
         def get_sheet_by_name(self, value):
             return None
@@ -219,6 +220,7 @@ def test_read_no_theme():
     wb = load_workbook(path)
     assert wb
 
+
 def test_read_contains_chartsheet():
     """
     Test reading workbook containing chartsheet.
@@ -241,3 +243,11 @@ def test_read_contains_chartsheet():
     sheet_names = wb.get_sheet_names()
     eq_(sheet_names[0], 'data')
     eq_(sheet_names[1], 'moredata')
+
+
+def test_guess_types():
+    filename = os.path.join(DATADIR, 'genuine', 'guess_types.xlsx')
+    for guess, dtype in ((True, float), (False, unicode)):
+        wb = load_workbook(filename, guess_types=guess)
+        ws = wb.get_active_sheet()
+        assert isinstance(ws.cell('D2').value, dtype), 'wrong dtype (%s) when guess type is: %s (%s instead)' % (dtype, guess, type(ws.cell('A1').value))

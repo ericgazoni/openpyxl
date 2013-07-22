@@ -78,7 +78,8 @@ class Workbook(object):
 
     def __init__(self, optimized_write=False, encoding='utf-8',
                  worksheet_class=Worksheet,
-                 optimized_worksheet_class=DumpWorksheet):
+                 optimized_worksheet_class=DumpWorksheet,
+                 guess_types=True):
         self.worksheets = []
         self._active_sheet_index = 0
         self._named_ranges = []
@@ -93,6 +94,7 @@ class Workbook(object):
         self._worksheet_class = worksheet_class
         self._optimized_worksheet_class = optimized_worksheet_class
         self.vba_archive = None
+        self._guess_types = guess_types
 
         self.encoding = encoding
 
@@ -136,10 +138,10 @@ class Workbook(object):
             new_ws = self._optimized_worksheet_class(
                 parent_workbook=self, title=title)
         else:
-            if title is not None:                                          
+            if title is not None:
                 new_ws = self._worksheet_class(
-                    parent_workbook=self, title=title)    
-            else:                                                          
+                    parent_workbook=self, title=title)
+            else:
                 new_ws = self._worksheet_class(parent_workbook=self)
 
         self.add_sheet(worksheet=new_ws, index=index)
@@ -216,11 +218,11 @@ class Workbook(object):
         self._named_ranges.remove(named_range)
 
     def save(self, filename):
-        """Save the current workbook under the given `filename`. 
+        """Save the current workbook under the given `filename`.
         Use this function instead of using an `ExcelWriter`.
-        
+
         .. warning::
-            When creating your workbook using `optimized_write` set to True, 
+            When creating your workbook using `optimized_write` set to True,
             you will only be able to call this function once. Subsequents attempts to
             modify or save the file will raise an :class:`openpyxl.shared.exc.WorkbookAlreadySaved` exception.
         """
