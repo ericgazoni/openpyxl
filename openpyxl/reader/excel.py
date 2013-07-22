@@ -151,6 +151,7 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
     # get workbook-level information
     try:
         wb.properties = read_properties_core(archive.read(ARC_CORE))
+        wb.read_workbook_settings(archive.read(ARC_WORKBOOK))
     except KeyError:
         wb.properties = DocumentProperties()
 
