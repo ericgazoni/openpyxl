@@ -44,6 +44,7 @@ from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
 # Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
 from sys import exc_info
+import warnings
 
 VALID_WORKSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"
 VALID_CHARTSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml"
@@ -133,6 +134,10 @@ def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=Tru
 
     if use_iterators:
         wb._set_optimized_read()
+        if not guess_types:
+            warnings.warn('please note that data types are not guessed '
+                          'when using iterator reader, so you do not need '
+                          'to use guess_types=False')
 
     try:
         _load_workbook(wb, archive, filename, use_iterators, keep_vba)
