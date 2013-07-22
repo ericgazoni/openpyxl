@@ -225,6 +225,13 @@ class Cell(object):
                 value = float(value)
         return value
 
+    def check_error(self, value):
+        """Tries to convert Error" else N/A"""
+        try:
+            return unicode(value)
+        except:
+            return u'#N/A'
+
     def set_value_explicit(self, value=None, data_type=TYPE_STRING):
         """Coerce values according to their explicit type"""
         type_coercion_map = {
@@ -232,7 +239,8 @@ class Cell(object):
             self.TYPE_STRING: self.check_string,
             self.TYPE_FORMULA: self.check_string,
             self.TYPE_NUMERIC: self.check_numeric,
-            self.TYPE_BOOL: bool, }
+            self.TYPE_BOOL: bool,
+            self.TYPE_ERROR: self.check_error}
         try:
             self._value = type_coercion_map[data_type](value)
         except KeyError:
