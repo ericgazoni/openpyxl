@@ -126,6 +126,16 @@ def write_worksheet(worksheet, string_table, style_table):
                   '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}controls'):
             for elem in vba_root.findall(t):
                 xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem)))
+                
+    breaks = worksheet.page_breaks
+    if breaks:
+        start_tag(doc, 'rowBreaks', {'count': str(len(breaks)), 'manualBreakCount': str(len(breaks))})
+        for b in breaks:
+            tag(doc, 'brk', {'id': str(b), 'man': 'true', 'max': '16383', 'min': '0'})
+        end_tag(doc, 'rowBreaks')
+
+                
+    
 
     end_tag(doc, 'worksheet')
     doc.endDocument()
@@ -228,11 +238,9 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             if cell.data_type != cell.TYPE_FORMULA:
                 attributes['t'] = cell.data_type
             if coordinate in worksheet._styles:
-                try:
-                    attributes['s'] = '%d' % style_id_by_hash[
-                            hash(worksheet._styles[coordinate])]
-                except:
-                    pass
+                attributes['s'] = '%d' % style_id_by_hash[
+                        hash(worksheet._styles[coordinate])]
+
             if value in ('', None):
                 tag(doc, 'c', attributes)
             else:

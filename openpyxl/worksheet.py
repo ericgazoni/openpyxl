@@ -440,6 +440,7 @@ class Worksheet(object):
             self.title = title
         self.row_dimensions = {}
         self.column_dimensions = {}
+        self.page_breaks = []
         self._cells = {}
         self._styles = {}
         self._charts = []
