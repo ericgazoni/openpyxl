@@ -6,4 +6,5 @@ python:
   - "3.2"
   - "3.3"
 install: "pip install pillow cElementTree"
+# command to run tests
 script: nosetests
