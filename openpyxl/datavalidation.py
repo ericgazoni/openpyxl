@@ -44,8 +44,8 @@ def collapse_cell_addresses(cells, input_ranges=()):
     raw_coords = [coordinate_from_string(cell) for cell in cells]
 
     # Group up as {column: [list of rows]}
-    grouped_coords = {k: [c[1] for c in g] for k, g in
-                      groupby(sorted(raw_coords, key=keyfunc), keyfunc)}
+    grouped_coords = dict((k, [c[1] for c in g]) for k, g in
+                          groupby(sorted(raw_coords, key=keyfunc), keyfunc))
 
     ranges = list(input_ranges)
 
