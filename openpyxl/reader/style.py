@@ -31,6 +31,15 @@ from openpyxl.shared.exc import MissingNumberFormat
 from openpyxl.style import Style, NumberFormat, Font, Fill, Borders, Protection
 from copy import deepcopy
 
+def copy_style(style):
+    new_style = Style()
+    new_style.font = deepcopy(style.font)
+    new_style.fill = deepcopy(style.fill)
+    new_style.borders = deepcopy(style.borders)
+    new_style.alignment = deepcopy(style.alignment)
+    new_style.number_format = deepcopy(style.number_format)
+    new_style.protection = deepcopy(style.protection)
+    return new_style
 
 def read_style_table(xml_source):
     """Read styles from the shared style table"""

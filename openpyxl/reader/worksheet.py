@@ -43,6 +43,7 @@ from openpyxl.shared.xmltools import fromstring, QName
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
+from openpyxl.reader.style import copy_style
 
 def _get_xml_iter(xml_source):
 
@@ -129,7 +130,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
         coordinate = element.get('r')
         style_id = element.get('s')
         if style_id is not None:
-            ws._styles[coordinate] = style_table.get(int(style_id))
+            ws._styles[coordinate] = copy_style(style_table.get(int(style_id)))
 
         if value is not None:
             data_type = element.get('t', 'n')
@@ -240,5 +241,5 @@ def read_worksheet(xml_source, parent, preset_title, string_table,
         ws = Worksheet(parent, preset_title)
         fast_parse(ws, xml_source, string_table, style_table)
     if keep_vba:
-    	ws.xml_source = xml_source
+        ws.xml_source = xml_source
     return ws
