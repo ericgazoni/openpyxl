@@ -31,16 +31,6 @@ from openpyxl.shared.exc import MissingNumberFormat
 from openpyxl.style import Style, NumberFormat, Font, Fill, Borders, Protection
 from copy import deepcopy
 
-def copy_style(style):
-    new_style = Style()
-    new_style.font = deepcopy(style.font)
-    new_style.fill = deepcopy(style.fill)
-    new_style.borders = deepcopy(style.borders)
-    new_style.alignment = deepcopy(style.alignment)
-    new_style.number_format = deepcopy(style.number_format)
-    new_style.protection = deepcopy(style.protection)
-    return new_style
-
 def read_style_table(xml_source):
     """Read styles from the shared style table"""
     table = {}
@@ -56,7 +46,7 @@ def read_style_table(xml_source):
     if cell_xfs is not None: # can happen on bad OOXML writers (e.g. Gnumeric)
         cell_xfs_nodes = cell_xfs.findall(QName(xmlns, 'xf').text)
         for index, cell_xfs_node in enumerate(cell_xfs_nodes):
-            new_style = Style()
+            new_style = Style(static=True)
             number_format_id = int(cell_xfs_node.get('numFmtId'))
             if number_format_id < 164:
                 new_style.number_format.format_code = \
