@@ -27,6 +27,14 @@
 import os.path
 import datetime
 
+try:
+    # Python 2
+    from StringIO import StringIO
+    BytesIO = StringIO
+except ImportError:
+    # Python 3
+    from io import BytesIO, StringIO
+
 # 3rd party imports
 from nose.tools import eq_, ok_
 
@@ -35,6 +43,7 @@ from openpyxl.reader.excel import load_workbook
 from openpyxl.tests.helper import DATADIR, assert_equals_file_content, get_xml
 from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
+from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.writer.styles import StyleWriter
 from openpyxl.style import NumberFormat, Border, Color, Font
 
@@ -259,6 +268,148 @@ def test_read_complex_style():
     eq_(ws.cell('B24').merged, True)
     eq_(ws.cell('A25').style.alignment.wrap_text, True)
     eq_(ws.cell('A26').style.alignment.shrink_to_fit, True)
+
+
+def test_change_existing_styles():
+    reference_file = os.path.join(DATADIR, 'reader', 'complex-styles.xlsx')
+    wb = load_workbook(reference_file)
+    ws = wb.get_active_sheet()
+
+    ws.column_dimensions['A'].width = 20
+    ws.cell('A2').style.font.name = 'Times New Roman'
+    ws.cell('A2').style.font.size = 12
+    ws.cell('A2').style.font.bold = True
+    ws.cell('A2').style.font.italic = True
+    ws.cell('A3').style.font.name = 'Times New Roman'
+    ws.cell('A3').style.font.size = 14
+    ws.cell('A3').style.font.bold = False
+    ws.cell('A3').style.font.italic = True
+    ws.cell('A4').style.font.name = 'Times New Roman'
+    ws.cell('A4').style.font.size = 16
+    ws.cell('A4').style.font.bold = True
+    ws.cell('A4').style.font.italic = False
+    ws.cell('A5').style.font.color.index = 'FF66FF66'
+    ws.cell('A6').style.font.color.index = 'theme:1:'
+    ws.cell('A7').style.fill.start_color.index = 'FF330066'
+    ws.cell('A8').style.fill.start_color.index = 'theme:2:'
+    ws.cell('A9').style.alignment.horizontal = 'center'
+    ws.cell('A10').style.alignment.horizontal = 'left'
+    ws.cell('A11').style.alignment.horizontal = 'right'
+    ws.cell('A12').style.alignment.vertical = 'bottom'
+    ws.cell('A13').style.alignment.vertical = 'top'
+    ws.cell('A14').style.alignment.vertical = 'center'
+    ws.cell('A15').style.number_format._format_code = '0.00%'
+    ws.cell('A16').style.number_format._format_code = '0.00'
+    ws.cell('A17').style.number_format._format_code = 'mm-dd-yy'
+    ws.unmerge_cells('A18:B18')
+    ws.cell('A19').style.borders.top.color.index = 'FF006600'
+    ws.cell('A19').style.borders.bottom.color.index = 'FF006600'
+    ws.cell('A19').style.borders.left.color.index = 'FF006600'
+    ws.cell('A19').style.borders.right.color.index = 'FF006600'
+    ws.cell('A21').style.borders.top.color.index = 'theme:7:'
+    ws.cell('A21').style.borders.bottom.color.index = 'theme:7:'
+    ws.cell('A21').style.borders.left.color.index = 'theme:7:'
+    ws.cell('A21').style.borders.right.color.index = 'theme:7:'
+    ws.cell('A23').style.fill.start_color.index = 'FFCCCCFF'
+    ws.cell('A23').style.borders.top.color.index = 'theme:6:'
+    ws.unmerge_cells('A23:B24')
+    ws.cell('A25').style.alignment.wrap_text = False
+    ws.cell('A26').style.alignment.shrink_to_fit = False
+
+    saved_wb = save_virtual_workbook(wb)
+    new_wb = load_workbook(BytesIO(saved_wb))
+    ws = new_wb.get_active_sheet()
+
+    eq_(ws.column_dimensions['A'].width, 20.0)
+    eq_(ws.cell('A2').style.font.name, 'Times New Roman')
+    eq_(ws.cell('A2').style.font.size, '12')
+    eq_(ws.cell('A2').style.font.bold, True)
+    eq_(ws.cell('A2').style.font.italic, True)
+    eq_(ws.cell('A3').style.font.name, 'Times New Roman')
+    eq_(ws.cell('A3').style.font.size, '14')
+    eq_(ws.cell('A3').style.font.bold, False)
+    eq_(ws.cell('A3').style.font.italic, True)
+    eq_(ws.cell('A4').style.font.name, 'Times New Roman')
+    eq_(ws.cell('A4').style.font.size, '16')
+    eq_(ws.cell('A4').style.font.bold, True)
+    eq_(ws.cell('A4').style.font.italic, False)
+    eq_(ws.cell('A5').style.font.color.index, 'FF66FF66')
+    eq_(ws.cell('A6').style.font.color.index, 'theme:1:')
+    eq_(ws.cell('A7').style.fill.start_color.index, 'FF330066')
+    eq_(ws.cell('A8').style.fill.start_color.index, 'theme:2:')
+    eq_(ws.cell('A9').style.alignment.horizontal, 'center')
+    eq_(ws.cell('A10').style.alignment.horizontal, 'left')
+    eq_(ws.cell('A11').style.alignment.horizontal, 'right')
+    eq_(ws.cell('A12').style.alignment.vertical, 'bottom')
+    eq_(ws.cell('A13').style.alignment.vertical, 'top')
+    eq_(ws.cell('A14').style.alignment.vertical, 'center')
+    eq_(ws.cell('A15').style.number_format._format_code, '0.00%')
+    eq_(ws.cell('A16').style.number_format._format_code, '0.00')
+    eq_(ws.cell('A17').style.number_format._format_code, 'mm-dd-yy')
+    eq_('A18:B18' in ws._merged_cells, False)
+    eq_(ws.cell('B18').merged, False)
+    eq_(ws.cell('A19').style.borders.top.color.index, 'FF006600')
+    eq_(ws.cell('A19').style.borders.bottom.color.index, 'FF006600')
+    eq_(ws.cell('A19').style.borders.left.color.index, 'FF006600')
+    eq_(ws.cell('A19').style.borders.right.color.index, 'FF006600')
+    eq_(ws.cell('A21').style.borders.top.color.index, 'theme:7:')
+    eq_(ws.cell('A21').style.borders.bottom.color.index, 'theme:7:')
+    eq_(ws.cell('A21').style.borders.left.color.index, 'theme:7:')
+    eq_(ws.cell('A21').style.borders.right.color.index, 'theme:7:')
+    eq_(ws.cell('A23').style.fill.start_color.index, 'FFCCCCFF')
+    eq_(ws.cell('A23').style.borders.top.color.index, 'theme:6:')
+    eq_('A23:B24' in ws._merged_cells, False)
+    eq_(ws.cell('A24').merged, False)
+    eq_(ws.cell('B23').merged, False)
+    eq_(ws.cell('B24').merged, False)
+    eq_(ws.cell('A25').style.alignment.wrap_text, False)
+    eq_(ws.cell('A26').style.alignment.shrink_to_fit, False)
+
+    # Verify that previously duplicate styles remain the same
+    eq_(ws.column_dimensions['C'].width, 31.1640625)
+    eq_(ws.cell('C2').style.font.name, 'Arial')
+    eq_(ws.cell('C2').style.font.size, '10')
+    eq_(ws.cell('C2').style.font.bold, False)
+    eq_(ws.cell('C2').style.font.italic, False)
+    eq_(ws.cell('C3').style.font.name, 'Arial')
+    eq_(ws.cell('C3').style.font.size, '12')
+    eq_(ws.cell('C3').style.font.bold, True)
+    eq_(ws.cell('C3').style.font.italic, False)
+    eq_(ws.cell('C4').style.font.name, 'Arial')
+    eq_(ws.cell('C4').style.font.size, '14')
+    eq_(ws.cell('C4').style.font.bold, False)
+    eq_(ws.cell('C4').style.font.italic, True)
+    eq_(ws.cell('C5').style.font.color.index, 'FF3300FF')
+    eq_(ws.cell('C6').style.font.color.index, 'theme:9:')
+    eq_(ws.cell('C7').style.fill.start_color.index, 'FFFFFF66')
+    eq_(ws.cell('C8').style.fill.start_color.index, 'theme:8:')
+    eq_(ws.cell('C9').style.alignment.horizontal, 'left')
+    eq_(ws.cell('C10').style.alignment.horizontal, 'right')
+    eq_(ws.cell('C11').style.alignment.horizontal, 'center')
+    eq_(ws.cell('C12').style.alignment.vertical, 'top')
+    eq_(ws.cell('C13').style.alignment.vertical, 'center')
+    eq_(ws.cell('C14').style.alignment.vertical, 'bottom')
+    eq_(ws.cell('C15').style.number_format._format_code, '0.00')
+    eq_(ws.cell('C16').style.number_format._format_code, 'mm-dd-yy')
+    eq_(ws.cell('C17').style.number_format._format_code, '0.00%')
+    eq_('C18:D18' in ws._merged_cells, True)
+    eq_(ws.cell('D18').merged, True)
+    eq_(ws.cell('C19').style.borders.top.color.index, 'FF006600')
+    eq_(ws.cell('C19').style.borders.bottom.color.index, 'FF006600')
+    eq_(ws.cell('C19').style.borders.left.color.index, 'FF006600')
+    eq_(ws.cell('C19').style.borders.right.color.index, 'FF006600')
+    eq_(ws.cell('C21').style.borders.top.color.index, 'theme:7:')
+    eq_(ws.cell('C21').style.borders.bottom.color.index, 'theme:7:')
+    eq_(ws.cell('C21').style.borders.left.color.index, 'theme:7:')
+    eq_(ws.cell('C21').style.borders.right.color.index, 'theme:7:')
+    eq_(ws.cell('C23').style.fill.start_color.index, 'FFCCCCFF')
+    eq_(ws.cell('C23').style.borders.top.color.index, 'theme:6:')
+    eq_('C23:D24' in ws._merged_cells, True)
+    eq_(ws.cell('C24').merged, True)
+    eq_(ws.cell('D23').merged, True)
+    eq_(ws.cell('D24').merged, True)
+    eq_(ws.cell('C25').style.alignment.wrap_text, True)
+    eq_(ws.cell('C26').style.alignment.shrink_to_fit, True)
 
 
 def test_read_cell_style():
