@@ -19,6 +19,12 @@ Module :mod:`openpyxl.reader.iter_worksheet` -- Optimized reader
 .. autoclass:: openpyxl.reader.iter_worksheet.RawCell
     :members:
 
+Module :mod:`openpyxl.style` -- Worksheet Style
+=============================================================
+
+.. autoclass:: openpyxl.cell.Style
+       :members:
+
 Module :mod:`openpyxl.cell` -- Worksheet Cell
 =============================================================
 

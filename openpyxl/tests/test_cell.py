@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_cell.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -27,7 +27,7 @@
 from datetime import time, datetime, timedelta
 
 # 3rd party imports
-from nose.tools import eq_, raises, assert_raises #pylint: disable=E0611
+from nose.tools import eq_, raises, assert_raises  # pylint: disable=E0611
 
 # package imports
 from openpyxl.worksheet import Worksheet
@@ -39,6 +39,7 @@ from openpyxl.cell import column_index_from_string, \
         coordinate_from_string, get_column_letter, Cell, absolute_coordinate
 
 import decimal
+from openpyxl.style import NumberFormat
 
 def build_dummy_worksheet():
 
@@ -252,6 +253,6 @@ def test_is_not_date_color_format():
     cell = Cell(ws, 'A', 1)
 
     cell.value = -13.5
-    cell.style.number_format.format_code = '0.00_);[Red]\(0.00\)'
+    cell.style = cell.style._replace(number_format=NumberFormat('0.00_);[Red]\(0.00\)'))
 
     eq_(cell.is_date(), False)
