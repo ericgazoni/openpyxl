@@ -352,6 +352,14 @@ class TestChart(object):
         eq_(c.margin_left , 0.03375)
 
 
+class TestLineChart(object):
+
+    def test_ctor(self):
+        from openpyxl.chart import LineChart
+        c = LineChart()
+        eq_(c.type, Chart.LINE_CHART)
+
+
 class TestChartWriter(object):
 
     def setUp(self):
