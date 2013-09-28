@@ -84,6 +84,9 @@ class ChartWriter(object):
         if chart.type == Chart.SCATTER_CHART:
             subchart = SubElement(plot_area, 'c:scatterChart')
             SubElement(subchart, 'c:scatterStyle', {'val':'lineMarker'})
+        elif chart.type == Chart.PIE_CHART:
+            subchart = SubElement(plot_area, 'c:pieChart')
+            SubElement(subchart, 'c:varyColors', {'val':'1'})
         else:
             if chart.type == Chart.BAR_CHART:
                 subchart = SubElement(plot_area, 'c:barChart')
@@ -95,12 +98,13 @@ class ChartWriter(object):
 
         self._write_series(subchart)
 
-        SubElement(subchart, 'c:axId', {'val':safe_string(chart.x_axis.id)})
-        SubElement(subchart, 'c:axId', {'val':safe_string(chart.y_axis.id)})
+        if chart.type != Chart.PIE_CHART:
+            SubElement(subchart, 'c:axId', {'val':safe_string(chart.x_axis.id)})
+            SubElement(subchart, 'c:axId', {'val':safe_string(chart.y_axis.id)})
 
         if chart.type == Chart.SCATTER_CHART:
             self._write_axis(plot_area, chart.x_axis, 'c:valAx')
-        else:
+        elif chart.type != Chart.PIE_CHART:
             self._write_axis(plot_area, chart.x_axis, 'c:catAx')
         self._write_axis(plot_area, chart.y_axis, 'c:valAx')
 
@@ -124,6 +128,9 @@ class ChartWriter(object):
             SubElement(title, 'c:layout')
 
     def _write_axis(self, plot_area, axis, label):
+        if self.chart.type == Chart.PIE_CHART:
+            return()
+
         self.chart.compute_axes()
 
         ax = SubElement(plot_area, label)
