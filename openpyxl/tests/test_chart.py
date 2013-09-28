@@ -25,13 +25,13 @@
 
 from datetime import date
 
-from nose.tools import eq_, assert_raises, assert_true
+from nose.tools import eq_, assert_raises, assert_true, assert_false
 
 from openpyxl.tests.helper import get_xml, assert_equals_string
 from openpyxl.shared.xmltools import Element
 from openpyxl.writer.charts import ChartWriter
 from openpyxl.workbook import Workbook
-from openpyxl.chart import Chart, BarChart, ScatterChart, Serie, Reference
+from openpyxl.chart import Chart, BarChart, ScatterChart, Serie, Reference, PieChart
 from openpyxl.style import Color
 from re import sub
 from openpyxl.drawing import Image
@@ -548,6 +548,29 @@ class TestScatterChartWriter(object):
         expected = """<?xml version='1.0' encoding='UTF-8'?><test><c:chart><c:plotArea><c:layout><c:manualLayout><c:layoutTarget val="inner" /><c:xMode val="edge" /><c:yMode val="edge" /><c:x val="0.0337" /><c:y val="0.31" /><c:w val="0.6" /><c:h val="0.6" /></c:manualLayout></c:layout><c:scatterChart><c:scatterStyle val="lineMarker" /><c:ser><c:idx val="0" /><c:order val="0" /><c:xVal><c:numRef><c:f>\'data\'!$B$1:$B$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:xVal><c:yVal><c:numRef><c:f>\'data\'!$A$1:$A$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:yVal></c:ser><c:axId val="60871424" /><c:axId val="60873344" /></c:scatterChart><c:valAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="b" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx></c:plotArea><c:legend><c:legendPos val="r" /><c:layout /></c:legend><c:plotVisOnly val="1" /></c:chart></test>"""
         eq_(test_xml, expected)
 
+class TestPieChartWriter(object):
+
+    def setUp(self):
+        """Setup a worksheet with one column of data and a pie chart"""
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        ws.title = 'data'
+        for i in range(10):
+            ws.cell(row=i, column=0).value = i
+        self.piechart = PieChart()
+        self.piechart.add_serie(Serie(Reference(ws, (0, 0), (10, 0))))
+        self.cw = ChartWriter(self.piechart)
+        self.root = Element('test')
+        
+    def test_write_chart(self):
+        """check if some characteristic tags of PieChart are there"""
+        self.cw._write_chart(self.root)
+        tagnames = ['test', 'c:pieChart', 'c:varyColors']
+        chart_tags = [e.tag for e in self.root.iter()]
+        for tag in tagnames:
+            assert_true(tag in chart_tags, tag)
+        
+        assert_false('c:catAx' in chart_tags)
 
 class TestAnchoring(object):
     def _get_dummy_class(self):
