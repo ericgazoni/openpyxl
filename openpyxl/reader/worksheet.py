@@ -223,7 +223,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
             ws.page_setup.useFirstPageNumber = pageSetup.get('useFirstPageNumber')
 
     headerFooter = root.find(QName(xmlns, 'headerFooter').text)
-    if oddHeader is not None and oddHeader.text is not None::
+    if oddHeader is not None and oddHeader.text is not None:
         oddHeader = headerFooter.find(QName(xmlns, 'oddHeader').text)
         if oddHeader is not None:
             ws.header_footer.setHeader(oddHeader.text)

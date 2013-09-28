@@ -48,6 +48,7 @@ def test_read_standalone_worksheet():
         encoding = 'utf-8'
 
         excel_base_date = CALENDAR_WINDOWS_1900
+        _guess_types = True
 
         def get_sheet_by_name(self, value):
             return None
