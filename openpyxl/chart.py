@@ -376,6 +376,7 @@ class Chart(object):
     BAR_CHART = 1
     LINE_CHART = 2
     SCATTER_CHART = 3
+    PIE_CHART = 4
 
     def mymax(self, values):
         return max([x for x in values if x is not None])
@@ -508,3 +509,8 @@ class LineChart(Chart):
 class ScatterChart(Chart):
     def __init__(self):
         super(ScatterChart, self).__init__(Chart.SCATTER_CHART, Chart.GROUPING_STANDARD)
+
+
+class PieChart(Chart):
+    def __init__(self):
+        super(PieChart, self).__init__(Chart.PIE_CHART, Chart.GROUPING_STANDARD)
