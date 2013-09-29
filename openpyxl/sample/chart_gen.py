@@ -1,7 +1,8 @@
 """Simple test charts"""
 from datetime import date
+import os
 from openpyxl import Workbook
-from openpyxl.chart import Chart, Serie, Reference, BarChart, PieChart
+from openpyxl.chart import Chart, Serie, Reference, BarChart, PieChart, LineChart
 
 wb = Workbook()
 ws = wb.get_active_sheet()
@@ -57,4 +58,14 @@ series = Serie(values, labels=values)
 chart.add_serie(series)
 ws.add_chart(chart)
 
-wb.save("files/charts_gen.xlsx")
+ws = wb.create_sheet(5, "Line")
+for i in range(1, 5):
+    ws.append([i])
+chart = LineChart()
+values = Reference(ws, (0, 0), (4,0))
+series = Serie(values)
+chart.add_serie(series)
+ws.add_chart(chart)
+
+folder = os.path.split(__file__)[0]
+wb.save(os.path.join(folder, "files", "charts_gen.xlsx"))

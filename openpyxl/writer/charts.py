@@ -297,6 +297,7 @@ class ChartWriter(object):
             'Target' : '../drawings/drawing%s.xml' % drawing_id }
         SubElement(root, 'Relationship', attrs)
         return get_document_content(root)
+
     
 class PieChartWriter(ChartWriter):
     
@@ -324,3 +325,40 @@ class PieChartWriter(ChartWriter):
         self._write_legend(ch)
 
         SubElement(ch, 'c:plotVisOnly', {'val':'1'})
+
+
+class LineChartWriter(ChartWriter):
+
+    def _write_chart(self, root):
+
+        chart = self.chart
+
+        ch = SubElement(root, 'c:chart')
+        self._write_title(ch)
+        plot_area = SubElement(ch, 'c:plotArea')
+        layout = SubElement(plot_area, 'c:layout')
+        mlayout = SubElement(layout, 'c:manualLayout')
+        SubElement(mlayout, 'c:layoutTarget', {'val':'inner'})
+        SubElement(mlayout, 'c:xMode', {'val':'edge'})
+        SubElement(mlayout, 'c:yMode', {'val':'edge'})
+        SubElement(mlayout, 'c:x', {'val':safe_string(chart.margin_left)})
+        SubElement(mlayout, 'c:y', {'val':safe_string(chart.margin_top)})
+        SubElement(mlayout, 'c:w', {'val':safe_string(chart.width)})
+        SubElement(mlayout, 'c:h', {'val':safe_string(chart.height)})
+
+        subchart = SubElement(plot_area, 'c:lineChart')
+
+        SubElement(subchart, 'c:grouping', {'val':chart.grouping})
+
+        self._write_series(subchart)
+
+        SubElement(subchart, 'c:axId', {'val':safe_string(chart.x_axis.id)})
+        SubElement(subchart, 'c:axId', {'val':safe_string(chart.y_axis.id)})
+
+        self._write_axis(plot_area, chart.x_axis, 'c:catAx')
+        self._write_axis(plot_area, chart.y_axis, 'c:valAx')
+
+        self._write_legend(ch)
+
+        SubElement(ch, 'c:plotVisOnly', {'val':'1'})
+
