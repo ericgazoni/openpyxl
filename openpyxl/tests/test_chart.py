@@ -24,14 +24,29 @@
 # @author: see AUTHORS file
 
 from datetime import date
+import os
 
 from nose.tools import eq_, assert_raises, assert_true, assert_false
 
-from openpyxl.tests.helper import get_xml, assert_equals_string
+from openpyxl.tests.helper import (get_xml,
+                                   assert_equals_string,
+                                   TMPDIR,
+                                   DATADIR,
+                                   assert_equals_file_content,
+                                   make_tmpdir
+                                   )
+
 from openpyxl.shared.xmltools import Element
-from openpyxl.writer.charts import ChartWriter
+from openpyxl.writer.charts import ChartWriter, LineChartWriter
 from openpyxl.workbook import Workbook
-from openpyxl.chart import Chart, BarChart, ScatterChart, Serie, Reference, PieChart
+from openpyxl.chart import (Chart,
+                            BarChart,
+                            ScatterChart,
+                            Serie,
+                            Reference,
+                            PieChart,
+                            LineChart
+                            )
 from openpyxl.style import Color
 from re import sub
 from openpyxl.drawing import Image
@@ -573,9 +588,38 @@ class TestPieChartWriter(object):
         assert_false('c:catAx' in chart_tags)
 
 
-class LineChartWriter(object):
+class TestLineChartWriter(object):
 
-    pass
+    def setUp(self):
+        """Setup a worksheet with one column of data and a line chart"""
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        ws.title = 'data'
+        for i in range(10):
+            ws.cell(row=i, column=0).value = i
+        self.piechart = LineChart()
+        self.piechart.add_serie(Serie(Reference(ws, (0, 0), (10, 0))))
+        self.cw = LineChartWriter(self.piechart)
+        self.root = Element('test')
+
+    def test_write_chart(self):
+        """check if some characteristic tags of LineChart are there"""
+        self.cw._write_chart(self.root)
+        tagnames = ['test', 'c:lineChart', 'c:valAx', 'c:catAx']
+        chart_tags = [e.tag for e in self.root.iter()]
+        for tag in tagnames:
+            assert_true(tag in chart_tags, tag)
+
+    def test_serialised(self):
+        """Check the serialised file against sample"""
+        make_tmpdir()
+        xml = self.cw.write()
+        fname = os.path.join(TMPDIR, "linechart.xml")
+        tmp = open(fname, "wb")
+        tmp.write(xml)
+        tmp.close()
+        assert_equals_file_content(os.path.join(DATADIR, "writer", "expected", "LineChart.xml"), fname)
+
 
 
 class TestAnchoring(object):
