@@ -37,7 +37,11 @@ from openpyxl.tests.helper import (get_xml,
                                    )
 
 from openpyxl.shared.xmltools import Element
-from openpyxl.writer.charts import ChartWriter, PieChartWriter, LineChartWriter
+from openpyxl.writer.charts import (ChartWriter,
+                                    PieChartWriter,
+                                    LineChartWriter,
+                                    BarChartWriter
+                                    )
 from openpyxl.workbook import Workbook
 from openpyxl.chart import (Chart,
                             BarChart,
@@ -631,8 +635,32 @@ class TestLineChartWriter(object):
 
 class TestBarChartWriter(object):
     """"""
-    pass
+    def setUp(self):
+        """Setup a worksheet with one column of data and a bar chart"""
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        ws.title = 'Numbers'
+        for i in range(10):
+            ws.append([i])
+        self.piechart = BarChart()
+        self.piechart.add_serie(Serie(Reference(ws, (0, 0), (9, 0))))
+        self.cw = BarChartWriter(self.piechart)
+        self.root = Element('test')
 
+    def test_write_chart(self):
+        """check if some characteristic tags of LineChart are there"""
+        self.cw._write_chart(self.root)
+        tagnames = ['test', 'c:barChart', 'c:valAx', 'c:catAx']
+        chart_tags = [e.tag for e in self.root.iter()]
+        for tag in tagnames:
+            assert_true(tag in chart_tags, tag)
+
+    def test_serialised(self):
+        """Check the serialised file against sample"""
+        xml = self.cw.write()
+        expected_file = os.path.join(DATADIR, "writer", "expected", "BarChart.xml")
+        with open(expected_file) as expected:
+            assert_equals_string(xml, expected.read())
 
 
 class TestAnchoring(object):
