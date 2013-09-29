@@ -3,11 +3,11 @@
 # License: PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2
 #          See http://www.opensource.org/licenses/Python-2.0 for full terms
 # Note: backport changes by Raymond were originally distributed under MIT
-#       license, but since the original license for Python is more
+#       license, but since the original license for Python is more 
 #       restrictive than MIT, code cannot be released under its terms and
 #       still adheres to the limitations of Python license.
 
-# # {{{ http://code.activestate.com/recipes/576693/ (r9)
+## {{{ http://code.activestate.com/recipes/576693/ (r9)
 # Backport of OrderedDict() class that runs on Python 2.4, 2.5, 2.6, 2.7 and pypy.
 # Passes Python2.7's test suite and incorporates all the latest updates.
 
@@ -45,7 +45,7 @@ class OrderedDict(dict):
         try:
             self.__root
         except AttributeError:
-            self.__root = root = []  # sentinel node
+            self.__root = root = []                     # sentinel node
             root[:] = [root, root, None]
             self.__map = {}
         self.__update(*args, **kwds)
@@ -266,4 +266,4 @@ class OrderedDict(dict):
     def viewitems(self):
         "od.viewitems() -> a set-like object providing a view on od's items"
         return ItemsView(self)
-# # end of http://code.activestate.com/recipes/576693/ }}}
+## end of http://code.activestate.com/recipes/576693/ }}}
