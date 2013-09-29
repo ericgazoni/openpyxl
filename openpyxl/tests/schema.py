@@ -38,5 +38,5 @@ SCHEMA_FOLDER = os.path.join(os.path.dirname(__file__), 'schemas')
 chart_src = os.path.join(SCHEMA_FOLDER, 'dml-chart.xsd')
 chart_schema = XMLSchema(ElementTree(file=chart_src))
 
-drawing_src = os.path.join(SCHEMA_FOLDER, 'dml-spreadSheetDrawing.xsd')
+drawing_src = os.path.join(SCHEMA_FOLDER, 'dml-spreadsheetDrawing.xsd')
 drawing_schema = XMLSchema(ElementTree(file=drawing_src))
