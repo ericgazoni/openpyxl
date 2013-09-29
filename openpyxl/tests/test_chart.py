@@ -629,6 +629,12 @@ class TestLineChartWriter(object):
             assert_equals_string(xml, expected.read())
 
 
+class TestBarChartWriter(object):
+    """"""
+    pass
+
+
+
 class TestAnchoring(object):
     def _get_dummy_class(self):
         class DummyImg(object):
