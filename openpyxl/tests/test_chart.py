@@ -561,7 +561,7 @@ class TestPieChartWriter(object):
         self.piechart.add_serie(Serie(Reference(ws, (0, 0), (10, 0))))
         self.cw = ChartWriter(self.piechart)
         self.root = Element('test')
-        
+
     def test_write_chart(self):
         """check if some characteristic tags of PieChart are there"""
         self.cw._write_chart(self.root)
@@ -569,8 +569,14 @@ class TestPieChartWriter(object):
         chart_tags = [e.tag for e in self.root.iter()]
         for tag in tagnames:
             assert_true(tag in chart_tags, tag)
-        
+
         assert_false('c:catAx' in chart_tags)
+
+
+class LineChartWriter(object):
+
+    pass
+
 
 class TestAnchoring(object):
     def _get_dummy_class(self):

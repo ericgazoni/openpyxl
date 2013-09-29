@@ -297,3 +297,8 @@ class ChartWriter(object):
             'Target' : '../drawings/drawing%s.xml' % drawing_id }
         SubElement(root, 'Relationship', attrs)
         return get_document_content(root)
+
+
+class LineChartWriter(ChartWriter):
+
+    pass
