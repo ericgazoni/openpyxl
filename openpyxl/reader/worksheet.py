@@ -42,7 +42,7 @@ from openpyxl.shared.xmltools import fromstring, QName
 
 # package imports
 from openpyxl.cell import Cell, coordinate_from_string
-from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
+from openpyxl.worksheet import Worksheet, ColumnDimension
 
 def _get_xml_iter(xml_source):
 
@@ -87,11 +87,11 @@ def read_dimension(xml_source):
             # those instead.
             col, row = coordinate_from_string(element.get('r'))
             if smin_row is None:
-                # initialize the observed max/min values
+                #initialize the observed max/min values
                 smin_col = smax_col = col
                 smin_row = smax_row = row
             else:
-                # Keep track of the seen max and min (fallback if there's no dimension)
+                #Keep track of the seen max and min (fallback if there's no dimension)
                 smin_col = min(smin_col, col)
                 smin_row = min(smin_row, row)
                 smax_col = max(smax_col, col)
@@ -110,7 +110,6 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
     xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
     root = fromstring(xml_source)
-    guess_types = ws.parent._guess_types
 
     mergeCells = root.find(QName(xmlns, 'mergeCells').text)
     if mergeCells is not None:
@@ -140,11 +139,6 @@ def fast_parse(ws, xml_source, string_table, style_table):
                 value = "=" + formula
             ws.cell(coordinate).value = value
 
-        if guess_types:
-            ws.cell(coordinate).value = value
-        else:
-            ws.cell(coordinate).set_value_explicit(value=value,                                         data_type=data_type)
-
         # to avoid memory exhaustion, clear the item after use
         element.clear()
 
@@ -170,16 +164,6 @@ def fast_parse(ws, xml_source, string_table, style_table):
                     ws.column_dimensions[column].collapsed = True
                 if col.get('style') is not None:
                     ws.column_dimensions[column].style_index = col.get('style')
-
-    sheetData = root.find(QName(xmlns, 'sheetData').text)
-    if sheetData is not None:
-        rowNodes = sheetData.findall(QName(xmlns, 'row').text)
-        for row in rowNodes:
-            rowId = int(row.get('r'))
-            if rowId not in ws.row_dimensions:
-                ws.row_dimensions[rowId] = RowDimension(rowId)
-            if row.get('ht') is not None:
-                ws.row_dimensions[rowId].height = float(row.get('ht'))
 
     printOptions = root.find(QName(xmlns, 'printOptions').text)
     if printOptions is not None:
@@ -223,18 +207,18 @@ def fast_parse(ws, xml_source, string_table, style_table):
             ws.page_setup.useFirstPageNumber = pageSetup.get('useFirstPageNumber')
 
     headerFooter = root.find(QName(xmlns, 'headerFooter').text)
-    if oddHeader is not None and oddHeader.text is not None::
+    if headerFooter is not None:
         oddHeader = headerFooter.find(QName(xmlns, 'oddHeader').text)
         if oddHeader is not None:
             ws.header_footer.setHeader(oddHeader.text)
         oddFooter = headerFooter.find(QName(xmlns, 'oddFooter').text)
-        if oddFooter is not None and oddFooter.text is not None:
+        if oddFooter is not None:
             ws.header_footer.setFooter(oddFooter.text)
 
 from openpyxl.reader.iter_worksheet import IterableWorksheet
 
 def read_worksheet(xml_source, parent, preset_title, string_table,
-                   style_table, workbook_name=None, sheet_codename=None, keep_vba=False):
+                   style_table, workbook_name=None, sheet_codename=None):
     """Read an xml worksheet"""
     if workbook_name and sheet_codename:
         ws = IterableWorksheet(parent, preset_title, workbook_name,
@@ -242,6 +226,4 @@ def read_worksheet(xml_source, parent, preset_title, string_table,
     else:
         ws = Worksheet(parent, preset_title)
         fast_parse(ws, xml_source, string_table, style_table)
-    if keep_vba:
-        ws.xml_source = xml_source
     return ws
