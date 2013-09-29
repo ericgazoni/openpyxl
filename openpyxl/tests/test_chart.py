@@ -589,13 +589,9 @@ class TestPieChartWriter(object):
             assert_true(tag in chart_tags, tag)
 
         assert_false('c:catAx' in chart_tags)
-        #print(self.cw.write())
-        #eq_(3,4)
-        
+
     def test_serialised(self):
-        from openpyxl.tests.helper import DATADIR
-        import os
-        # compare self.cw.write() with piechart.xml
+        """Check the serialised file against sample"""
         xml = self.cw.write()
         pie = open(os.path.join(DATADIR, 'writer', 'expected', 'piechart.xml'))
         compare_xml = pie.read()
@@ -609,11 +605,11 @@ class TestLineChartWriter(object):
         """Setup a worksheet with one column of data and a line chart"""
         wb = Workbook()
         ws = wb.get_active_sheet()
-        ws.title = 'data'
-        for i in range(10):
-            ws.cell(row=i, column=0).value = i
+        ws.title = 'Line'
+        for i in range(1, 5):
+            ws.append([i])
         self.piechart = LineChart()
-        self.piechart.add_serie(Serie(Reference(ws, (0, 0), (10, 0))))
+        self.piechart.add_serie(Serie(Reference(ws, (0, 0), (4, 0))))
         self.cw = LineChartWriter(self.piechart)
         self.root = Element('test')
 
@@ -627,14 +623,10 @@ class TestLineChartWriter(object):
 
     def test_serialised(self):
         """Check the serialised file against sample"""
-        make_tmpdir()
         xml = self.cw.write()
-        fname = os.path.join(TMPDIR, "linechart.xml")
-        tmp = open(fname, "wb")
-        tmp.write(xml)
-        tmp.close()
-        assert_equals_file_content(os.path.join(DATADIR, "writer", "expected", "LineChart.xml"), fname)
-
+        expected_file = os.path.join(DATADIR, "writer", "expected", "LineChart.xml")
+        with open(expected_file) as expected:
+            assert_equals_string(xml, expected.read())
 
 
 class TestAnchoring(object):
