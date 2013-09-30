@@ -444,11 +444,11 @@ class ChartWriter(object):
         if isinstance(chart, PieChart):
             self.cw = PieChartWriter(chart)
         elif isinstance(chart, LineChart):
-            self.cw = LineChartWriter
+            self.cw = LineChartWriter(chart)
         elif isinstance(chart, BarChart):
-            self.cw = BarChartWriter
+            self.cw = BarChartWriter(chart)
         elif isinstance(chart, ScatterChart):
-            self.cw = ScatterChartWriter
+            self.cw = ScatterChartWriter(chart)
         else:
             raise ValueError("Don't know how to handle %s", chart.__class__.__name__)
 
