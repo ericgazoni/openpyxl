@@ -26,7 +26,7 @@ from numbers import Number
 
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
 from openpyxl.shared.compat.itertools import iteritems
-from openpyxl.chart import Chart, ErrorBar
+from openpyxl.chart import Chart, ErrorBar, BarChart, LineChart, PieChart, ScatterChart
 
 try:
     # Python 2
@@ -44,7 +44,7 @@ def safe_string(value):
         value = str(value)
     return value
 
-class ChartWriter(object):
+class BaseChartWriter(object):
 
     def __init__(self, chart):
         self.chart = chart
@@ -299,7 +299,7 @@ class ChartWriter(object):
         return get_document_content(root)
 
 
-class PieChartWriter(ChartWriter):
+class PieChartWriter(BaseChartWriter):
 
     def _write_chart(self, root):
         chart = self.chart
@@ -327,7 +327,7 @@ class PieChartWriter(ChartWriter):
         SubElement(ch, 'c:plotVisOnly', {'val':'1'})
 
 
-class LineChartWriter(ChartWriter):
+class LineChartWriter(BaseChartWriter):
 
     def _write_chart(self, root):
 
@@ -363,7 +363,7 @@ class LineChartWriter(ChartWriter):
         SubElement(ch, 'c:plotVisOnly', {'val':'1'})
 
 
-class BarChartWriter(ChartWriter):
+class BarChartWriter(BaseChartWriter):
 
     def _write_chart(self, root):
 
@@ -399,3 +399,58 @@ class BarChartWriter(ChartWriter):
         self._write_legend(ch)
 
         SubElement(ch, 'c:plotVisOnly', {'val':'1'})
+
+
+class ScatterChartWriter(BaseChartWriter):
+
+    def _write_chart(self, root):
+
+        chart = self.chart
+
+        ch = SubElement(root, 'c:chart')
+        self._write_title(ch)
+        plot_area = SubElement(ch, 'c:plotArea')
+        layout = SubElement(plot_area, 'c:layout')
+        mlayout = SubElement(layout, 'c:manualLayout')
+        SubElement(mlayout, 'c:layoutTarget', {'val':'inner'})
+        SubElement(mlayout, 'c:xMode', {'val':'edge'})
+        SubElement(mlayout, 'c:yMode', {'val':'edge'})
+        SubElement(mlayout, 'c:x', {'val':safe_string(chart.margin_left)})
+        SubElement(mlayout, 'c:y', {'val':safe_string(chart.margin_top)})
+        SubElement(mlayout, 'c:w', {'val':safe_string(chart.width)})
+        SubElement(mlayout, 'c:h', {'val':safe_string(chart.height)})
+
+        if chart.type == Chart.SCATTER_CHART:
+            subchart = SubElement(plot_area, 'c:scatterChart')
+            SubElement(subchart, 'c:scatterStyle', {'val':'lineMarker'})
+
+        self._write_series(subchart)
+
+        if chart.type == Chart.SCATTER_CHART:
+            self._write_axis(plot_area, chart.x_axis, 'c:valAx')
+        self._write_axis(plot_area, chart.y_axis, 'c:valAx')
+
+        self._write_legend(ch)
+
+        SubElement(ch, 'c:plotVisOnly', {'val':'1'})
+
+
+class ChartWriter(object):
+    """
+    Preserve interface for chart writer
+    """
+
+    def __init__(self, chart):
+        if isinstance(chart, PieChart):
+            self.cw = PieChartWriter(chart)
+        elif isinstance(chart, LineChart):
+            self.cw = LineChartWriter
+        elif isinstance(chart, BarChart):
+            self.cw = BarChartWriter
+        elif isinstance(chart, ScatterChart):
+            self.cw = ScatterChartWriter
+        else:
+            raise ValueError("Don't know how to handle %s", chart.__class__.__name__)
+
+    def write(self):
+        return self.cw.write()

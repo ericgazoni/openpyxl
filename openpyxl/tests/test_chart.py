@@ -36,11 +36,12 @@ from openpyxl.tests.helper import (get_xml,
                                    make_tmpdir
                                    )
 
-from openpyxl.shared.xmltools import Element
+from openpyxl.shared.xmltools import Element, get_document_content
 from openpyxl.writer.charts import (ChartWriter,
                                     PieChartWriter,
                                     LineChartWriter,
-                                    BarChartWriter
+                                    BarChartWriter,
+                                    ScatterChartWriter
                                     )
 from openpyxl.workbook import Workbook
 from openpyxl.chart import (Chart,
@@ -392,7 +393,7 @@ class TestChartWriter(object):
         self.chart.title = 'TITLE'
         self.chart.add_serie(Serie(Reference(ws, (0, 0), (10, 0))))
         self.chart._series[-1].color = Color.GREEN
-        self.cw = ChartWriter(self.chart)
+        self.cw = BarChartWriter(self.chart)
         self.root = Element('test')
 
     def make_worksheet(self):
@@ -443,7 +444,7 @@ class TestChartWriter(object):
                     'c:pageMargins', 'c:pageSetup']
         self.cw._write_print_settings(self.root)
         for e in self.root.iter():
-            assert_true(e.tag in tagnames)
+            assert_true(e.tag in tagnames, "%s not found" % e.tag)
             if e.tag == "c:pageMargins":
                 eq_(e.keys(), list(self.chart.print_margins.keys()))
                 for k, v in e.items():
@@ -488,7 +489,7 @@ class TestChartWriter(object):
         serie = Serie(values=values, labels=labels)
         c = BarChart()
         c.add_serie(serie)
-        cw = ChartWriter(c)
+        cw = BarChartWriter(c)
         root = Element('test')
         cw._write_serial(root, c._series[0].labels)
         xml = get_xml(root)
@@ -505,7 +506,7 @@ class TestChartWriter(object):
         serie = Serie(values=values, labels=labels)
         c = BarChart()
         c.add_serie(serie)
-        cw = ChartWriter(c)
+        cw = BarChartWriter(c)
         root = Element('test')
         cw._write_serial(root, c._series[0].labels)
         xml = get_xml(root)
@@ -525,8 +526,8 @@ class TestScatterChartWriter(object):
             ws.cell(row=i, column=1).value = i
         self.scatterchart = ScatterChart()
         self.scatterchart.add_serie(Serie(Reference(ws, (0, 0), (10, 0)),
-                         xvalues=Reference(ws, (0, 1), (10, 1))))
-        self.cw = ChartWriter(self.scatterchart)
+                                          xvalues=Reference(ws, (0, 1), (10, 1))))
+        self.cw = ScatterChartWriter(self.scatterchart)
         self.root = Element('test')
 
     def test_write_xaxis(self):
@@ -562,10 +563,171 @@ class TestScatterChartWriter(object):
     def test_write_chart(self):
 
         self.cw._write_chart(self.root)
+        xml = get_document_content(self.root)
         # Truncate floats because results differ with Python >= 3.2 and <= 3.1
-        test_xml = sub('([0-9][.][0-9]{4})[0-9]*', '\\1', get_xml(self.root))
-        expected = """<?xml version='1.0' encoding='UTF-8'?><test><c:chart><c:plotArea><c:layout><c:manualLayout><c:layoutTarget val="inner" /><c:xMode val="edge" /><c:yMode val="edge" /><c:x val="0.0337" /><c:y val="0.31" /><c:w val="0.6" /><c:h val="0.6" /></c:manualLayout></c:layout><c:scatterChart><c:scatterStyle val="lineMarker" /><c:ser><c:idx val="0" /><c:order val="0" /><c:xVal><c:numRef><c:f>\'data\'!$B$1:$B$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:xVal><c:yVal><c:numRef><c:f>\'data\'!$A$1:$A$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:yVal></c:ser><c:axId val="60871424" /><c:axId val="60873344" /></c:scatterChart><c:valAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="b" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx></c:plotArea><c:legend><c:legendPos val="r" /><c:layout /></c:legend><c:plotVisOnly val="1" /></c:chart></test>"""
-        eq_(test_xml, expected)
+        xml = sub('([0-9][.][0-9]{4})[0-9]*', '\\1', xml)
+        expected = """<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <c:chart>
+    <c:plotArea>
+      <c:layout>
+        <c:manualLayout>
+          <c:layoutTarget val="inner" />
+          <c:xMode val="edge" />
+          <c:yMode val="edge" />
+          <c:x val="0.0337" />
+          <c:y val="0.31" />
+          <c:w val="0.6" />
+          <c:h val="0.6" />
+        </c:manualLayout>
+      </c:layout>
+      <c:scatterChart>
+        <c:scatterStyle val="lineMarker" />
+        <c:ser>
+          <c:idx val="0" />
+          <c:order val="0" />
+          <c:xVal>
+            <c:numRef>
+              <c:f>'data'!$B$1:$B$11</c:f>
+              <c:numCache>
+                <c:formatCode>General</c:formatCode>
+                <c:ptCount val="11" />
+                <c:pt idx="0">
+                  <c:v>0</c:v>
+                </c:pt>
+                <c:pt idx="1">
+                  <c:v>1</c:v>
+                </c:pt>
+                <c:pt idx="2">
+                  <c:v>2</c:v>
+                </c:pt>
+                <c:pt idx="3">
+                  <c:v>3</c:v>
+                </c:pt>
+                <c:pt idx="4">
+                  <c:v>4</c:v>
+                </c:pt>
+                <c:pt idx="5">
+                  <c:v>5</c:v>
+                </c:pt>
+                <c:pt idx="6">
+                  <c:v>6</c:v>
+                </c:pt>
+                <c:pt idx="7">
+                  <c:v>7</c:v>
+                </c:pt>
+                <c:pt idx="8">
+                  <c:v>8</c:v>
+                </c:pt>
+                <c:pt idx="9">
+                  <c:v>9</c:v>
+                </c:pt>
+                <c:pt idx="10">
+                  <c:v>None</c:v>
+                </c:pt>
+              </c:numCache>
+            </c:numRef>
+          </c:xVal>
+          <c:yVal>
+            <c:numRef>
+              <c:f>'data'!$A$1:$A$11</c:f>
+              <c:numCache>
+                <c:formatCode>General</c:formatCode>
+                <c:ptCount val="11" />
+                <c:pt idx="0">
+                  <c:v>0</c:v>
+                </c:pt>
+                <c:pt idx="1">
+                  <c:v>1</c:v>
+                </c:pt>
+                <c:pt idx="2">
+                  <c:v>2</c:v>
+                </c:pt>
+                <c:pt idx="3">
+                  <c:v>3</c:v>
+                </c:pt>
+                <c:pt idx="4">
+                  <c:v>4</c:v>
+                </c:pt>
+                <c:pt idx="5">
+                  <c:v>5</c:v>
+                </c:pt>
+                <c:pt idx="6">
+                  <c:v>6</c:v>
+                </c:pt>
+                <c:pt idx="7">
+                  <c:v>7</c:v>
+                </c:pt>
+                <c:pt idx="8">
+                  <c:v>8</c:v>
+                </c:pt>
+                <c:pt idx="9">
+                  <c:v>9</c:v>
+                </c:pt>
+                <c:pt idx="10">
+                  <c:v>None</c:v>
+                </c:pt>
+              </c:numCache>
+            </c:numRef>
+          </c:yVal>
+        </c:ser>
+        <c:axId val="60871424" />
+        <c:axId val="60873344" />
+      </c:scatterChart>
+      <c:valAx>
+        <c:axId val="60871424" />
+        <c:scaling>
+          <c:orientation val="minMax" />
+          <c:max val="10.0" />
+          <c:min val="0.0" />
+        </c:scaling>
+        <c:axPos val="b" />
+        <c:majorGridlines />
+        <c:numFmt formatCode="General" sourceLinked="1" />
+        <c:tickLblPos val="nextTo" />
+        <c:crossAx val="60873344" />
+        <c:crosses val="autoZero" />
+        <c:auto val="1" />
+        <c:lblAlgn val="ctr" />
+        <c:lblOffset val="100" />
+        <c:crossBetween val="midCat" />
+        <c:majorUnit val="2.0" />
+      </c:valAx>
+      <c:valAx>
+        <c:axId val="60873344" />
+        <c:scaling>
+          <c:orientation val="minMax" />
+          <c:max val="10.0" />
+          <c:min val="0.0" />
+        </c:scaling>
+        <c:axPos val="l" />
+        <c:majorGridlines />
+        <c:numFmt formatCode="General" sourceLinked="1" />
+        <c:tickLblPos val="nextTo" />
+        <c:crossAx val="60871424" />
+        <c:crosses val="autoZero" />
+        <c:crossBetween val="midCat" />
+        <c:majorUnit val="2.0" />
+      </c:valAx>
+    </c:plotArea>
+    <c:legend>
+      <c:legendPos val="r" />
+      <c:layout/>
+    </c:legend>
+    <c:plotVisOnly val="1" />
+  </c:chart>
+</test>"""
+        #eq_(test_xml, expected)
+        assert_equals_string(xml, expected)
+
+
+    def test_serialised(self):
+        return
+        xml = self.cw.write()
+        fname = os.path.join(DATADIR, "writer", "expected", "ScatterChart.xml")
+        with open(fname) as expected:
+            assert_equals_string(xml, expected.read())
+
 
 class TestPieChartWriter(object):
 
