@@ -434,6 +434,49 @@ class ScatterChartWriter(BaseChartWriter):
 
         SubElement(ch, 'c:plotVisOnly', {'val':'1'})
 
+    def _write_axis(self, plot_area, axis, label):
+        self.chart.compute_axes()
+
+        ax = SubElement(plot_area, label)
+        SubElement(ax, 'c:axId', {'val':safe_string(axis.id)})
+
+        scaling = SubElement(ax, 'c:scaling')
+        SubElement(scaling, 'c:orientation', {'val':axis.orientation})
+        if label == 'c:valAx':
+            SubElement(scaling, 'c:max', {'val':str(float(axis.max))})
+            SubElement(scaling, 'c:min', {'val':str(float(axis.min))})
+
+        SubElement(ax, 'c:axPos', {'val':axis.position})
+        if label == 'c:valAx':
+            SubElement(ax, 'c:majorGridlines')
+            SubElement(ax, 'c:numFmt', {'formatCode':"General", 'sourceLinked':'1'})
+        if axis.title != '':
+            title = SubElement(ax, 'c:title')
+            tx = SubElement(title, 'c:tx')
+            rich = SubElement(tx, 'c:rich')
+            SubElement(rich, 'a:bodyPr')
+            SubElement(rich, 'a:lstStyle')
+            p = SubElement(rich, 'a:p')
+            pPr = SubElement(p, 'a:pPr')
+            SubElement(pPr, 'a:defRPr')
+            r = SubElement(p, 'a:r')
+            SubElement(r, 'a:rPr', {'lang':self.chart.lang})
+            t = SubElement(r, 'a:t').text = axis.title
+            SubElement(title, 'c:layout')
+        SubElement(ax, 'c:tickLblPos', {'val':axis.tick_label_position})
+        SubElement(ax, 'c:crossAx', {'val':str(axis.cross)})
+        SubElement(ax, 'c:crosses', {'val':axis.crosses})
+        if axis.auto:
+            SubElement(ax, 'c:auto', {'val':'1'})
+        if axis.label_align:
+            SubElement(ax, 'c:lblAlgn', {'val':axis.label_align})
+        if axis.label_offset:
+            SubElement(ax, 'c:lblOffset', {'val':str(axis.label_offset)})
+        if label == 'c:valAx':
+            if self.chart.type == Chart.SCATTER_CHART:
+                SubElement(ax, 'c:crossBetween', {'val':'midCat'})
+            SubElement(ax, 'c:majorUnit', {'val':str(float(axis.unit))})
+
 
 class ChartWriter(object):
     """
