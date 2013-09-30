@@ -566,8 +566,8 @@ class TestScatterChartWriter(object):
         xml = get_document_content(self.root)
         # Truncate floats because results differ with Python >= 3.2 and <= 3.1
         xml = sub('([0-9][.][0-9]{4})[0-9]*', '\\1', xml)
-        expected = """<?xml version="1.0" encoding="UTF-8"?>
-<test>
+
+        expected = """<test>
   <c:chart>
     <c:plotArea>
       <c:layout>
@@ -671,8 +671,6 @@ class TestScatterChartWriter(object):
             </c:numRef>
           </c:yVal>
         </c:ser>
-        <c:axId val="60871424" />
-        <c:axId val="60873344" />
       </c:scatterChart>
       <c:valAx>
         <c:axId val="60871424" />
@@ -716,9 +714,10 @@ class TestScatterChartWriter(object):
     </c:legend>
     <c:plotVisOnly val="1" />
   </c:chart>
-</test>"""
+</test>
+"""
         #eq_(test_xml, expected)
-        assert_equals_string(xml, expected)
+        assert_equals_string(expected, xml)
 
 
     def test_serialised(self):
