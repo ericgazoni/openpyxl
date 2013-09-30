@@ -712,7 +712,7 @@ class TestScatterChartWriter(object):
     </c:plotArea>
     <c:legend>
       <c:legendPos val="r" />
-      <c:layout/>
+      <c:layout />
     </c:legend>
     <c:plotVisOnly val="1" />
   </c:chart>
