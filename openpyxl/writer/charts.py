@@ -382,9 +382,8 @@ class BarChartWriter(BaseChartWriter):
         SubElement(mlayout, 'c:w', {'val':safe_string(chart.width)})
         SubElement(mlayout, 'c:h', {'val':safe_string(chart.height)})
 
-        if chart.type == Chart.BAR_CHART:
-            subchart = SubElement(plot_area, 'c:barChart')
-            SubElement(subchart, 'c:barDir', {'val':'col'})
+        subchart = SubElement(plot_area, 'c:barChart')
+        SubElement(subchart, 'c:barDir', {'val':'col'})
 
         SubElement(subchart, 'c:grouping', {'val':chart.grouping})
 
@@ -420,14 +419,12 @@ class ScatterChartWriter(BaseChartWriter):
         SubElement(mlayout, 'c:w', {'val':safe_string(chart.width)})
         SubElement(mlayout, 'c:h', {'val':safe_string(chart.height)})
 
-        if chart.type == Chart.SCATTER_CHART:
-            subchart = SubElement(plot_area, 'c:scatterChart')
-            SubElement(subchart, 'c:scatterStyle', {'val':'lineMarker'})
+        subchart = SubElement(plot_area, 'c:scatterChart')
+        SubElement(subchart, 'c:scatterStyle', {'val':'lineMarker'})
 
         self._write_series(subchart)
 
-        if chart.type == Chart.SCATTER_CHART:
-            self._write_axis(plot_area, chart.x_axis, 'c:valAx')
+        self._write_axis(plot_area, chart.x_axis, 'c:valAx')
         self._write_axis(plot_area, chart.y_axis, 'c:valAx')
 
         self._write_legend(ch)
@@ -473,8 +470,7 @@ class ScatterChartWriter(BaseChartWriter):
         if axis.label_offset:
             SubElement(ax, 'c:lblOffset', {'val':str(axis.label_offset)})
         if label == 'c:valAx':
-            if self.chart.type == Chart.SCATTER_CHART:
-                SubElement(ax, 'c:crossBetween', {'val':'midCat'})
+            SubElement(ax, 'c:crossBetween', {'val':'midCat'})
             SubElement(ax, 'c:majorUnit', {'val':str(float(axis.unit))})
 
 
