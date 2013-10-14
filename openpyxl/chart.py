@@ -143,23 +143,21 @@ class Serie(object):
         self.legend = legend
         self.error_bar = None
 
-    @property
-    def color(self):
+    def _get_color(self):
         return getattr(self, "_color", None)
 
-    @color.setter
-    def color(self, color):
+    def _set_color(self, color):
         if color is None:
             raise ValueError("Colors must be strings of the format XXXXX")
         self._color = short_color(color)
 
-    @property
-    def values(self):
+    color = property(_get_color, _set_color)
+
+    def _get_values(self):
         """Return values from underlying reference"""
         return self._values
 
-    @values.setter
-    def values(self, reference):
+    def _set_values(self, reference):
         """Assign values from reference to serie"""
         if reference is not None:
             if not isinstance(reference, Reference):
@@ -169,13 +167,13 @@ class Serie(object):
             self._values = None
         self.reference = reference
 
-    @property
-    def xvalues(self):
+    values = property(_get_values, _set_values)
+
+    def _get_xvalues(self):
         """Return xvalues"""
         return self._xvalues
 
-    @xvalues.setter
-    def xvalues(self, reference):
+    def _set_xvalues(self, reference):
         if reference is not None:
             if not isinstance(reference, Reference):
                 raise TypeError("Series xvalues must be a Reference instance")
@@ -183,6 +181,8 @@ class Serie(object):
         else:
             self._xvalues = None
         self.xreference = reference
+
+    xvalues = property(_get_xvalues, _set_xvalues)
 
     def mymax(self, values):
         return max([x for x in values])
@@ -219,13 +219,11 @@ class ErrorBar(object):
         self.type = _type
         self.values = values
 
-    @property
-    def values(self):
+    def _get_values(self):
         """Return values from underlying reference"""
         return self._values
 
-    @values.setter
-    def values(self, reference):
+    def _set_values(self, reference):
         """Assign values from reference to serie"""
         if reference is not None:
             if not isinstance(reference, Reference):
@@ -234,6 +232,8 @@ class ErrorBar(object):
         else:
             self._values = None
         self.reference = reference
+
+    values = property(_get_values, _set_values)
 
 class Chart(object):
     """ raw chart class """
