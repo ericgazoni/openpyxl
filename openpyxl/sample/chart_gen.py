@@ -69,10 +69,10 @@ ws.add_chart(chart)
 
 ws = wb.create_sheet(6, "Scatter")
 for i in range(10):
-    ws.append([i, i*i])
+    ws.append([i, i])
 chart = ScatterChart()
-xvalues = Reference(ws, (0, 0), (9, 0))
-values = Reference(ws, (0, 1), (9, 1))
+xvalues = Reference(ws, (0, 1), (10, 1))
+values = Reference(ws, (0, 0), (10, 0))
 series = Serie(values, xvalues=xvalues)
 chart.add_serie(series)
 ws.add_chart(chart)
