@@ -4,7 +4,7 @@
 #          See http://www.opensource.org/licenses/Python-2.0 for full terms
 
 import sys
-from xml.sax.saxutils import XMLGenerator as _XMLGenerator
+from xml.sax.saxutils import XMLGenerator
 
 
 def quoteattr(data):
@@ -33,8 +33,9 @@ if sys.version_info < (2, 5):
     except ImportError:
         _error_handling = "strict"
 
-    class CompatXMLGenerator(_XMLGenerator):
-
+    
+    class XMLGenerator(XMLGenerator):
+        
         def _qname(self, name):
             """Builds a qualified name from a (ns_url, localname) pair"""
             if name[0]:
@@ -45,25 +46,21 @@ if sys.version_info < (2, 5):
                     return prefix + ":" + name[1]
             # Return the unqualified name
             return name[1]
-
+        
         def endElementNS(self, name, qname):
             self._write('</%s>' % self._qname(name))
-
-
-else:
-    CompatXMLGenerator = _XMLGenerator
-    from xml.sax.saxutils import _error_handling
-
-
-class XMLGenerator(CompatXMLGenerator):
-
-    def startElementNS(self, name, qname, attrs):
-        self._write('<' + self._qname(name))
-
-        for (name, value) in attrs.items():
-            self._write(' %s=%s' % (self._qname(name), quoteattr(value)))
-        self._write('>')
-
-    def _write(self, text):
-        self._out.write(text.encode(self._encoding, _error_handling))
+        
+        def startElementNS(self, name, qname, attrs):
+            self._write('<' + self._qname(name))
+            
+            for (name, value) in attrs.items():
+                self._write(' %s=%s' % (self._qname(name), quoteattr(value)))
+            self._write('>')
+        
+        def _write(self, text):
+            if isinstance(text, str):
+                
+                self._out.write(text)
+            else:
+                self._out.write(text.encode(self._encoding, _error_handling))
 
