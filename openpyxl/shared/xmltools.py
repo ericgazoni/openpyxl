@@ -36,7 +36,7 @@ from openpyxl.shared.compat.sax import XMLGenerator
 from openpyxl.shared.compat import OrderedDict
 try:
     from xml.etree.ElementTree import ElementTree, Element, SubElement, \
-            QName, fromstring, tostring
+            QName, fromstring, tostring, register_namespace
 except ImportError:
     from cElementTree import ElementTree, Element, SubElement, \
             QName, fromstring, tostring
@@ -44,6 +44,9 @@ except ImportError:
 # package imports
 from openpyxl import __name__ as prefix
 
+register_namespace('c', "http://schemas.openxmlformats.org/drawingml/2006/chart")
+register_namespace('a', "http://schemas.openxmlformats.org/drawingml/2006/main")
+register_namespace('r', "http://schemas.openxmlformats.org/officeDocument/2006/relationships")
 
 def get_document_content(xml_node):
     """Print nicely formatted xml to a string."""
