@@ -423,6 +423,8 @@ class ScatterChartWriter(BaseChartWriter):
         SubElement(subchart, 'c:scatterStyle', {'val':'lineMarker'})
 
         self._write_series(subchart)
+        SubElement(subchart, 'c:axId', {'val':safe_string(chart.x_axis.id)})
+        SubElement(subchart, 'c:axId', {'val':safe_string(chart.y_axis.id)})
 
         self._write_axis(plot_area, chart.x_axis, 'c:valAx')
         self._write_axis(plot_area, chart.y_axis, 'c:valAx')
