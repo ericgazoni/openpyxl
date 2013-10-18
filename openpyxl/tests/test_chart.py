@@ -428,9 +428,7 @@ class TestChartWriter(object):
                 eq_(e.attrib, {})
 
     def test_write_chart(self):
-        from openpyxl.namespaces import CHART_NS, A_NS, REL_NS
         from .schema import chart_schema, fromstring
-        CHART_NS.update(A_NS)
         root = Element('{http://schemas.openxmlformats.org/drawingml/2006/chart}chartSpace')
         self.cw._write_chart(root)
         tree = fromstring(get_xml(root))
