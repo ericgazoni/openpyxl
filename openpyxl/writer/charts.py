@@ -64,54 +64,6 @@ class BaseChartWriter(object):
 
         return get_document_content(root)
 
-    #def _write_chart(self, root):
-
-        #chart = self.chart
-
-        #ch = SubElement(root, 'c:chart')
-        #self._write_title(ch)
-        #plot_area = SubElement(ch, 'c:plotArea')
-        #layout = SubElement(plot_area, 'c:layout')
-        #mlayout = SubElement(layout, 'c:manualLayout')
-        #SubElement(mlayout, 'c:layoutTarget', {'val':'inner'})
-        #SubElement(mlayout, 'c:xMode', {'val':'edge'})
-        #SubElement(mlayout, 'c:yMode', {'val':'edge'})
-        #SubElement(mlayout, 'c:x', {'val':safe_string(chart.margin_left)})
-        #SubElement(mlayout, 'c:y', {'val':safe_string(chart.margin_top)})
-        #SubElement(mlayout, 'c:w', {'val':safe_string(chart.width)})
-        #SubElement(mlayout, 'c:h', {'val':safe_string(chart.height)})
-
-        #if chart.type == Chart.SCATTER_CHART:
-            #subchart = SubElement(plot_area, 'c:scatterChart')
-            #SubElement(subchart, 'c:scatterStyle', {'val':'lineMarker'})
-        #elif chart.type == Chart.PIE_CHART:
-            #subchart = SubElement(plot_area, 'c:pieChart')
-            #SubElement(subchart, 'c:varyColors', {'val':'1'})
-        #else:
-            #if chart.type == Chart.BAR_CHART:
-                #subchart = SubElement(plot_area, 'c:barChart')
-                #SubElement(subchart, 'c:barDir', {'val':'col'})
-            #else:
-                #subchart = SubElement(plot_area, 'c:lineChart')
-
-            #SubElement(subchart, 'c:grouping', {'val':chart.grouping})
-
-        #self._write_series(subchart)
-
-        #if chart.type != Chart.PIE_CHART:
-            #SubElement(subchart, 'c:axId', {'val':safe_string(chart.x_axis.id)})
-            #SubElement(subchart, 'c:axId', {'val':safe_string(chart.y_axis.id)})
-
-        #if chart.type == Chart.SCATTER_CHART:
-            #self._write_axis(plot_area, chart.x_axis, 'c:valAx')
-        #elif chart.type != Chart.PIE_CHART:
-            #self._write_axis(plot_area, chart.x_axis, 'c:catAx')
-        #self._write_axis(plot_area, chart.y_axis, 'c:valAx')
-
-        #self._write_legend(ch)
-
-        #SubElement(ch, 'c:plotVisOnly', {'val':'1'})
-
     def _write_title(self, chart):
         if self.chart.title != '':
             title = SubElement(chart, 'c:title')
