@@ -27,7 +27,7 @@ from datetime import date
 
 from nose.tools import eq_, assert_raises, assert_true
 
-from openpyxl.tests.helper import get_xml, assert_equals_string
+from openpyxl.tests.helper import get_xml, assert_equals_string, compare_xml
 from openpyxl.shared.xmltools import Element
 from openpyxl.writer.charts import ChartWriter
 from openpyxl.workbook import Workbook
@@ -35,23 +35,6 @@ from openpyxl.chart import Chart, BarChart, ScatterChart, Serie, Reference
 from openpyxl.style import Color
 from re import sub
 from openpyxl.drawing import Image
-
-from lxml.doctestcompare import LXMLOutputChecker, PARSE_XML
-
-def compare_xml(source, expected):
-    """Use doctest checking from lxml for comparing XML trees"""
-    checker = LXMLOutputChecker()
-
-    class DummyDocTest():
-        pass
-
-    ob = DummyDocTest()
-    ob.want = source
-
-    check = checker.check_output(source, expected, PARSE_XML)
-    if check is False:
-        diff = checker.output_difference(ob, expected, PARSE_XML)
-        return diff
 
 
 def test_less_than_one():

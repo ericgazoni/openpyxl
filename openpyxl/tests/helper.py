@@ -107,3 +107,20 @@ def get_xml(xml_node):
         ret = io.getvalue()
     io.close()
     return ret.replace('\n', '')
+
+from lxml.doctestcompare import LXMLOutputChecker, PARSE_XML
+
+def compare_xml(source, expected):
+    """Use doctest checking from lxml for comparing XML trees"""
+    checker = LXMLOutputChecker()
+
+    class DummyDocTest():
+        pass
+
+    ob = DummyDocTest()
+    ob.want = source
+
+    check = checker.check_output(source, expected, PARSE_XML)
+    if check is False:
+        diff = checker.output_difference(ob, expected, PARSE_XML)
+        return diff
