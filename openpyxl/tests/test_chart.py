@@ -36,6 +36,23 @@ from openpyxl.style import Color
 from re import sub
 from openpyxl.drawing import Image
 
+from lxml.doctestcompare import LXMLOutputChecker, PARSE_XML
+
+def compare_xml(source, expected):
+    """Use doctest checking from lxml for comparing XML trees"""
+    checker = LXMLOutputChecker()
+
+    class DummyDocTest():
+        pass
+
+    ob = DummyDocTest()
+    ob.want = source
+
+    check = checker.check_output(source, expected, PARSE_XML)
+    if check is False:
+        diff = checker.output_difference(ob, expected, PARSE_XML)
+        return diff
+
 
 def test_less_than_one():
     from openpyxl.chart import less_than_one
@@ -481,17 +498,12 @@ class TestChartWriter(object):
         cw = ChartWriter(c)
         root = Element('test')
         cw._write_serial(root, c._series[0].labels)
-        from lxml.doctestcompare import LXMLOutputChecker, PARSE_XML
-        checker = LXMLOutputChecker()
+
         expected = """<?xml version='1.0' encoding='UTF-8'?><test xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:numRef><c:f>'data'!$A$1:$J$1</c:f><c:numCache><c:formatCode>d-mmm</c:formatCode><c:ptCount val="10" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt></c:numCache></c:numRef></test>"""
 
-        class Object():
-            pass
-
-        ob = Object()
-        ob.want = get_xml(root)
-        assert_true(checker.check_output(ob.want, expected, PARSE_XML), checker.output_difference(ob, expected, PARSE_XML))
         xml = get_xml(root)
+        compared = compare_xml(xml, expected)
+        eq_(compared, None, compared)
         eq_(xml, expected)
 
 
@@ -516,14 +528,18 @@ class TestScatterChartWriter(object):
         self.scatterchart.x_axis.title = 'test x axis title'
         self.cw._write_axis(self.root, self.scatterchart.x_axis, '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx')
         expected = """<?xml version='1.0' encoding='UTF-8'?><test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:valAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="b" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:title><c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr /></a:pPr><a:r><a:rPr lang="en-GB" /><a:t>test x axis title</a:t></a:r></a:p></c:rich></c:tx><c:layout /></c:title><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx></test>"""
-        eq_(get_xml(self.root), expected)
+        xml = get_xml(self.root)
+        compared = compare_xml(xml, expected)
+        eq_(compared, None, compared)
 
     def test_write_yaxis(self):
 
         self.scatterchart.y_axis.title = 'test y axis title'
         self.cw._write_axis(self.root, self.scatterchart.y_axis, '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx')
         expected = """<?xml version='1.0' encoding='UTF-8'?><test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:title><c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr /></a:pPr><a:r><a:rPr lang="en-GB" /><a:t>test y axis title</a:t></a:r></a:p></c:rich></c:tx><c:layout /></c:title><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx></test>"""
-        eq_(get_xml(self.root), expected)
+        xml = get_xml(self.root)
+        compared = compare_xml(xml, expected)
+        eq_(compared, None, compared)
 
     def test_write_series(self):
 
