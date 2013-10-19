@@ -35,7 +35,9 @@ except NameError:
     # Python 3
     basestring = str
 
-CHART_TAG = "{http://schemas.openxmlformats.org/drawingml/2006/chart}"
+CHART_TAG = "http://schemas.openxmlformats.org/drawingml/2006/chart"
+DRAWING_TAG = "http://schemas.openxmlformats.org/drawingml/2006/main"
+REL_TAG = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
 def safe_string(value):
     """Safely and consistently format numeric values"""
@@ -52,9 +54,9 @@ class ChartWriter(object):
 
     def write(self):
         """ write a chart """
-        root = Element("{http://schemas.openxmlformats.org/drawingml/2006/chart}chartSpace")
+        root = Element("{%s}chartSpace" % CHART_TAG)
 
-        SubElement(root, '{http://schemas.openxmlformats.org/drawingml/2006/chart}langc', {'val':self.chart.lang})
+        SubElement(root, '{%s}langc' % CHART_TAG, {'val':self.chart.lang})
         self._write_chart(root)
         self._write_print_settings(root)
         self._write_shapes(root)
@@ -65,143 +67,143 @@ class ChartWriter(object):
 
         chart = self.chart
 
-        ch = SubElement(root, '{http://schemas.openxmlformats.org/drawingml/2006/chart}chart')
+        ch = SubElement(root, '{%s}chart' % CHART_TAG)
         self._write_title(ch)
-        plot_area = SubElement(ch, '{http://schemas.openxmlformats.org/drawingml/2006/chart}plotArea')
-        layout = SubElement(plot_area, '{http://schemas.openxmlformats.org/drawingml/2006/chart}layout')
-        mlayout = SubElement(layout, '{http://schemas.openxmlformats.org/drawingml/2006/chart}manualLayout')
-        SubElement(mlayout, '{http://schemas.openxmlformats.org/drawingml/2006/chart}layoutTarget', {'val':'inner'})
-        SubElement(mlayout, '{http://schemas.openxmlformats.org/drawingml/2006/chart}xMode', {'val':'edge'})
-        SubElement(mlayout, '{http://schemas.openxmlformats.org/drawingml/2006/chart}yMode', {'val':'edge'})
-        SubElement(mlayout, '{http://schemas.openxmlformats.org/drawingml/2006/chart}x', {'val':safe_string(chart.margin_left)})
-        SubElement(mlayout, '{http://schemas.openxmlformats.org/drawingml/2006/chart}y', {'val':safe_string(chart.margin_top)})
-        SubElement(mlayout, '{http://schemas.openxmlformats.org/drawingml/2006/chart}w', {'val':safe_string(chart.width)})
-        SubElement(mlayout, '{http://schemas.openxmlformats.org/drawingml/2006/chart}h', {'val':safe_string(chart.height)})
+        plot_area = SubElement(ch, '{%s}plotArea' % CHART_TAG)
+        layout = SubElement(plot_area, '{%s}layout' % CHART_TAG)
+        mlayout = SubElement(layout, '{%s}manualLayout' % CHART_TAG)
+        SubElement(mlayout, '{%s}layoutTarget' % CHART_TAG, {'val':'inner'})
+        SubElement(mlayout, '{%s}xMode' % CHART_TAG, {'val':'edge'})
+        SubElement(mlayout, '{%s}yMode' % CHART_TAG, {'val':'edge'})
+        SubElement(mlayout, '{%s}x' % CHART_TAG, {'val':safe_string(chart.margin_left)})
+        SubElement(mlayout, '{%s}y' % CHART_TAG, {'val':safe_string(chart.margin_top)})
+        SubElement(mlayout, '{%s}w' % CHART_TAG, {'val':safe_string(chart.width)})
+        SubElement(mlayout, '{%s}h' % CHART_TAG, {'val':safe_string(chart.height)})
 
         if chart.type == Chart.SCATTER_CHART:
-            subchart = SubElement(plot_area, '{http://schemas.openxmlformats.org/drawingml/2006/chart}scatterChart')
-            SubElement(subchart, '{http://schemas.openxmlformats.org/drawingml/2006/chart}scatterStyle', {'val':'lineMarker'})
+            subchart = SubElement(plot_area, '{%s}scatterChart' % CHART_TAG)
+            SubElement(subchart, '{%s}scatterStyle' % CHART_TAG, {'val':'lineMarker'})
         else:
             if chart.type == Chart.BAR_CHART:
-                subchart = SubElement(plot_area, '{http://schemas.openxmlformats.org/drawingml/2006/chart}barChart')
-                SubElement(subchart, '{http://schemas.openxmlformats.org/drawingml/2006/chart}barDir', {'val':'col'})
+                subchart = SubElement(plot_area, '{%s}barChart' % CHART_TAG)
+                SubElement(subchart, '{%s}barDir' % CHART_TAG, {'val':'col'})
             else:
-                subchart = SubElement(plot_area, '{http://schemas.openxmlformats.org/drawingml/2006/chart}lineChart')
+                subchart = SubElement(plot_area, '{%s}lineChart' % CHART_TAG)
 
-            SubElement(subchart, '{http://schemas.openxmlformats.org/drawingml/2006/chart}grouping', {'val':chart.grouping})
+            SubElement(subchart, '{%s}grouping' % CHART_TAG, {'val':chart.grouping})
 
         self._write_series(subchart)
 
-        SubElement(subchart, '{http://schemas.openxmlformats.org/drawingml/2006/chart}axId', {'val':safe_string(chart.x_axis.id)})
-        SubElement(subchart, '{http://schemas.openxmlformats.org/drawingml/2006/chart}axId', {'val':safe_string(chart.y_axis.id)})
+        SubElement(subchart, '{%s}axId' % CHART_TAG, {'val':safe_string(chart.x_axis.id)})
+        SubElement(subchart, '{%s}axId' % CHART_TAG, {'val':safe_string(chart.y_axis.id)})
 
         if chart.type == Chart.SCATTER_CHART:
-            self._write_axis(plot_area, chart.x_axis, '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx')
+            self._write_axis(plot_area, chart.x_axis, '{%s}valAx' % CHART_TAG)
         else:
-            self._write_axis(plot_area, chart.x_axis, '{http://schemas.openxmlformats.org/drawingml/2006/chart}catAx')
-        self._write_axis(plot_area, chart.y_axis, '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx')
+            self._write_axis(plot_area, chart.x_axis, '{%s}catAx' % CHART_TAG)
+        self._write_axis(plot_area, chart.y_axis, '{%s}valAx' % CHART_TAG)
 
         self._write_legend(ch)
 
-        SubElement(ch, '{http://schemas.openxmlformats.org/drawingml/2006/chart}plotVisOnly', {'val':'1'})
+        SubElement(ch, '{%s}plotVisOnly' % CHART_TAG, {'val':'1'})
 
     def _write_title(self, chart):
         if self.chart.title != '':
-            title = SubElement(chart, '{http://schemas.openxmlformats.org/drawingml/2006/chart}title')
-            tx = SubElement(title, '{http://schemas.openxmlformats.org/drawingml/2006/chart}tx')
-            rich = SubElement(tx, '{http://schemas.openxmlformats.org/drawingml/2006/chart}rich')
-            SubElement(rich, '{http://schemas.openxmlformats.org/drawingml/2006/main}bodyPr')
-            SubElement(rich, '{http://schemas.openxmlformats.org/drawingml/2006/main}lstStyle')
-            p = SubElement(rich, '{http://schemas.openxmlformats.org/drawingml/2006/main}p')
-            pPr = SubElement(p, '{http://schemas.openxmlformats.org/drawingml/2006/main}pPr')
-            SubElement(pPr, '{http://schemas.openxmlformats.org/drawingml/2006/main}defRPr')
-            r = SubElement(p, '{http://schemas.openxmlformats.org/drawingml/2006/main}r')
-            SubElement(r, '{http://schemas.openxmlformats.org/drawingml/2006/main}rPr', {'lang':self.chart.lang})
-            t = SubElement(r, '{http://schemas.openxmlformats.org/drawingml/2006/main}t').text = self.chart.title
-            SubElement(title, '{http://schemas.openxmlformats.org/drawingml/2006/chart}layout')
+            title = SubElement(chart, '{%s}title' % CHART_TAG)
+            tx = SubElement(title, '{%s}tx' % CHART_TAG)
+            rich = SubElement(tx, '{%s}rich' % CHART_TAG)
+            SubElement(rich, '{%s}bodyPr' % DRAWING_TAG)
+            SubElement(rich, '{%s}lstStyle' % DRAWING_TAG)
+            p = SubElement(rich, '{%s}p' % DRAWING_TAG)
+            pPr = SubElement(p, '{%s}pPr' % DRAWING_TAG)
+            SubElement(pPr, '{%s}defRPr' % DRAWING_TAG)
+            r = SubElement(p, '{%s}r' % DRAWING_TAG)
+            SubElement(r, '{%s}rPr' % DRAWING_TAG, {'lang':self.chart.lang})
+            t = SubElement(r, '{%s}t' % DRAWING_TAG).text = self.chart.title
+            SubElement(title, '{%s}layout' % CHART_TAG)
 
     def _write_axis(self, plot_area, axis, label):
         self.chart.compute_axes()
 
         ax = SubElement(plot_area, label)
-        SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}axId', {'val':safe_string(axis.id)})
+        SubElement(ax, '{%s}axId' % CHART_TAG, {'val':safe_string(axis.id)})
 
-        scaling = SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}scaling')
-        SubElement(scaling, '{http://schemas.openxmlformats.org/drawingml/2006/chart}orientation', {'val':axis.orientation})
-        if label == '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx':
-            SubElement(scaling, '{http://schemas.openxmlformats.org/drawingml/2006/chart}max', {'val':str(float(axis.max))})
-            SubElement(scaling, '{http://schemas.openxmlformats.org/drawingml/2006/chart}min', {'val':str(float(axis.min))})
+        scaling = SubElement(ax, '{%s}scaling' % CHART_TAG)
+        SubElement(scaling, '{%s}orientation' % CHART_TAG, {'val':axis.orientation})
+        if label == '{%s}valAx' % CHART_TAG:
+            SubElement(scaling, '{%s}max' % CHART_TAG, {'val':str(float(axis.max))})
+            SubElement(scaling, '{%s}min' % CHART_TAG, {'val':str(float(axis.min))})
 
-        SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}axPos', {'val':axis.position})
-        if label == '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx':
-            SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}majorGridlines')
-            SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}numFmt', {'formatCode':"General", 'sourceLinked':'1'})
+        SubElement(ax, '{%s}axPos' % CHART_TAG, {'val':axis.position})
+        if label == '{%s}valAx' % CHART_TAG:
+            SubElement(ax, '{%s}majorGridlines' % CHART_TAG)
+            SubElement(ax, '{%s}numFmt' % CHART_TAG, {'formatCode':"General", 'sourceLinked':'1'})
         if axis.title != '':
-            title = SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}title')
-            tx = SubElement(title, '{http://schemas.openxmlformats.org/drawingml/2006/chart}tx')
-            rich = SubElement(tx, '{http://schemas.openxmlformats.org/drawingml/2006/chart}rich')
-            SubElement(rich, '{http://schemas.openxmlformats.org/drawingml/2006/main}bodyPr')
-            SubElement(rich, '{http://schemas.openxmlformats.org/drawingml/2006/main}lstStyle')
-            p = SubElement(rich, '{http://schemas.openxmlformats.org/drawingml/2006/main}p')
-            pPr = SubElement(p, '{http://schemas.openxmlformats.org/drawingml/2006/main}pPr')
-            SubElement(pPr, '{http://schemas.openxmlformats.org/drawingml/2006/main}defRPr')
-            r = SubElement(p, '{http://schemas.openxmlformats.org/drawingml/2006/main}r')
-            SubElement(r, '{http://schemas.openxmlformats.org/drawingml/2006/main}rPr', {'lang':self.chart.lang})
-            t = SubElement(r, '{http://schemas.openxmlformats.org/drawingml/2006/main}t').text = axis.title
-            SubElement(title, '{http://schemas.openxmlformats.org/drawingml/2006/chart}layout')
-        SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}tickLblPos', {'val':axis.tick_label_position})
-        SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}crossAx', {'val':str(axis.cross)})
-        SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}crosses', {'val':axis.crosses})
+            title = SubElement(ax, '{%s}title' % CHART_TAG)
+            tx = SubElement(title, '{%s}tx' % CHART_TAG)
+            rich = SubElement(tx, '{%s}rich' % CHART_TAG)
+            SubElement(rich, '{%s}bodyPr' % DRAWING_TAG)
+            SubElement(rich, '{%s}lstStyle' % DRAWING_TAG)
+            p = SubElement(rich, '{%s}p' % DRAWING_TAG)
+            pPr = SubElement(p, '{%s}pPr' % DRAWING_TAG)
+            SubElement(pPr, '{%s}defRPr' % DRAWING_TAG)
+            r = SubElement(p, '{%s}r' % DRAWING_TAG)
+            SubElement(r, '{%s}rPr' % DRAWING_TAG, {'lang':self.chart.lang})
+            t = SubElement(r, '{%s}t' % DRAWING_TAG).text = axis.title
+            SubElement(title, '{%s}layout' % CHART_TAG)
+        SubElement(ax, '{%s}tickLblPos' % CHART_TAG, {'val':axis.tick_label_position})
+        SubElement(ax, '{%s}crossAx' % CHART_TAG, {'val':str(axis.cross)})
+        SubElement(ax, '{%s}crosses' % CHART_TAG, {'val':axis.crosses})
         if axis.auto:
-            SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}auto', {'val':'1'})
+            SubElement(ax, '{%s}auto' % CHART_TAG, {'val':'1'})
         if axis.label_align:
-            SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}lblAlgn', {'val':axis.label_align})
+            SubElement(ax, '{%s}lblAlgn' % CHART_TAG, {'val':axis.label_align})
         if axis.label_offset:
-            SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}lblOffset', {'val':str(axis.label_offset)})
-        if label == '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx':
+            SubElement(ax, '{%s}lblOffset' % CHART_TAG, {'val':str(axis.label_offset)})
+        if label == '{%s}valAx' % CHART_TAG:
             if self.chart.type == Chart.SCATTER_CHART:
-                SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}crossBetween', {'val':'midCat'})
+                SubElement(ax, '{%s}crossBetween' % CHART_TAG, {'val':'midCat'})
             else:
-                SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}crossBetween', {'val':'between'})
-            SubElement(ax, '{http://schemas.openxmlformats.org/drawingml/2006/chart}majorUnit', {'val':str(float(axis.unit))})
+                SubElement(ax, '{%s}crossBetween' % CHART_TAG, {'val':'between'})
+            SubElement(ax, '{%s}majorUnit' % CHART_TAG, {'val':str(float(axis.unit))})
 
     def _write_series(self, subchart):
 
         for i, serie in enumerate(self.chart._series):
-            ser = SubElement(subchart, '{http://schemas.openxmlformats.org/drawingml/2006/chart}ser')
-            SubElement(ser, '{http://schemas.openxmlformats.org/drawingml/2006/chart}idx', {'val':safe_string(i)})
-            SubElement(ser, '{http://schemas.openxmlformats.org/drawingml/2006/chart}order', {'val':safe_string(i)})
+            ser = SubElement(subchart, '{%s}ser' % CHART_TAG)
+            SubElement(ser, '{%s}idx' % CHART_TAG, {'val':safe_string(i)})
+            SubElement(ser, '{%s}order' % CHART_TAG, {'val':safe_string(i)})
 
             if serie.legend:
-                tx = SubElement(ser, '{http://schemas.openxmlformats.org/drawingml/2006/chart}tx')
+                tx = SubElement(ser, '{%s}tx' % CHART_TAG)
                 self._write_serial(tx, serie.legend)
 
             if serie.color:
-                sppr = SubElement(ser, '{http://schemas.openxmlformats.org/drawingml/2006/chart}spPr')
+                sppr = SubElement(ser, '{%s}spPr' % CHART_TAG)
                 if self.chart.type == Chart.BAR_CHART:
                     # fill color
-                    fillc = SubElement(sppr, '{http://schemas.openxmlformats.org/drawingml/2006/main}solidFill')
-                    SubElement(fillc, '{http://schemas.openxmlformats.org/drawingml/2006/main}srgbClr', {'val':serie.color})
+                    fillc = SubElement(sppr, '{%s}solidFill' % DRAWING_TAG)
+                    SubElement(fillc, '{%s}srgbClr' % DRAWING_TAG, {'val':serie.color})
                 # edge color
-                ln = SubElement(sppr, '{http://schemas.openxmlformats.org/drawingml/2006/main}ln')
-                fill = SubElement(ln, '{http://schemas.openxmlformats.org/drawingml/2006/main}solidFill')
-                SubElement(fill, '{http://schemas.openxmlformats.org/drawingml/2006/main}srgbClr', {'val':serie.color})
+                ln = SubElement(sppr, '{%s}ln' % DRAWING_TAG)
+                fill = SubElement(ln, '{%s}solidFill' % DRAWING_TAG)
+                SubElement(fill, '{%s}srgbClr' % DRAWING_TAG, {'val':serie.color})
 
             if serie.error_bar:
                 self._write_error_bar(ser, serie)
 
             if serie.labels:
-                cat = SubElement(ser, '{http://schemas.openxmlformats.org/drawingml/2006/chart}cat')
+                cat = SubElement(ser, '{%s}cat' % CHART_TAG)
                 self._write_serial(cat, serie.labels)
 
             if self.chart.type == Chart.SCATTER_CHART:
                 if serie.xvalues:
-                    xval = SubElement(ser, '{http://schemas.openxmlformats.org/drawingml/2006/chart}xVal')
+                    xval = SubElement(ser, '{%s}xVal' % CHART_TAG)
                     self._write_serial(xval, serie.xreference)
 
-                val = SubElement(ser, '{http://schemas.openxmlformats.org/drawingml/2006/chart}yVal')
+                val = SubElement(ser, '{%s}yVal' % CHART_TAG)
             else:
-                val = SubElement(ser, '{http://schemas.openxmlformats.org/drawingml/2006/chart}val')
+                val = SubElement(ser, '{%s}val' % CHART_TAG)
             self._write_serial(val, serie.reference)
 
     def _write_serial(self, node, reference, literal=False):
@@ -214,23 +216,23 @@ class ChartWriter(object):
                    's':{'ref':'strRef', 'cache':'strCache'}}
 
         if is_ref:
-            ref = SubElement(node, '{http://schemas.openxmlformats.org/drawingml/2006/chart}%s' % mapping[data_type]['ref'])
-            SubElement(ref, '{http://schemas.openxmlformats.org/drawingml/2006/chart}f').text = str(reference)
-            data = SubElement(ref, '{http://schemas.openxmlformats.org/drawingml/2006/chart}%s' % mapping[data_type]['cache'])
+            ref = SubElement(node, '{%s}%s' %(CHART_TAG, mapping[data_type]['ref']))
+            SubElement(ref, '{%s}f' % CHART_TAG).text = str(reference)
+            data = SubElement(ref, '{%s}%s' %(CHART_TAG, mapping[data_type]['cache']))
             values = reference.values
         else:
-            data = SubElement(node, '{http://schemas.openxmlformats.org/drawingml/2006/chart}numLit')
+            data = SubElement(node, '{%s}numLit' % CHART_TAG)
             values = (1,)
 
         if data_type == 'n':
-            SubElement(data, '{http://schemas.openxmlformats.org/drawingml/2006/chart}formatCode').text = number_format or 'General'
+            SubElement(data, '{%s}formatCode' % CHART_TAG).text = number_format or 'General'
 
-        SubElement(data, '{http://schemas.openxmlformats.org/drawingml/2006/chart}ptCount', {'val':str(len(values))})
+        SubElement(data, '{%s}ptCount' % CHART_TAG, {'val':str(len(values))})
         for j, val in enumerate(values):
-            point = SubElement(data, '{http://schemas.openxmlformats.org/drawingml/2006/chart}pt', {'idx':str(j)})
+            point = SubElement(data, '{%s}pt' % CHART_TAG, {'idx':str(j)})
             if not isinstance(val, basestring):
                 val = safe_string(val)
-            SubElement(point, '{http://schemas.openxmlformats.org/drawingml/2006/chart}v').text = val
+            SubElement(point, '{%s}v' % CHART_TAG).text = val
 
     def _write_error_bar(self, node, serie):
 
@@ -238,31 +240,31 @@ class ChartWriter(object):
                 ErrorBar.PLUS:'plus',
                 ErrorBar.MINUS:'minus'}
 
-        eb = SubElement(node, '{http://schemas.openxmlformats.org/drawingml/2006/chart}errBars')
-        SubElement(eb, '{http://schemas.openxmlformats.org/drawingml/2006/chart}errBarType', {'val':flag[serie.error_bar.type]})
-        SubElement(eb, '{http://schemas.openxmlformats.org/drawingml/2006/chart}errValType', {'val':'cust'})
+        eb = SubElement(node, '{%s}errBars' % CHART_TAG)
+        SubElement(eb, '{%s}errBarType' % CHART_TAG, {'val':flag[serie.error_bar.type]})
+        SubElement(eb, '{%s}errValType' % CHART_TAG, {'val':'cust'})
 
-        plus = SubElement(eb, '{http://schemas.openxmlformats.org/drawingml/2006/chart}plus')
+        plus = SubElement(eb, '{%s}plus' % CHART_TAG)
         # apart from setting the type of data series the following has
         # no effect on the writer
         self._write_serial(plus, serie.error_bar.reference,
             literal=(serie.error_bar.type == ErrorBar.MINUS))
 
-        minus = SubElement(eb, '{http://schemas.openxmlformats.org/drawingml/2006/chart}minus')
+        minus = SubElement(eb, '{%s}minus' % CHART_TAG)
         self._write_serial(minus, serie.error_bar.reference,
             literal=(serie.error_bar.type == ErrorBar.PLUS))
 
     def _write_legend(self, chart):
 
         if self.chart.show_legend:
-            legend = SubElement(chart, '{http://schemas.openxmlformats.org/drawingml/2006/chart}legend')
-            SubElement(legend, '{http://schemas.openxmlformats.org/drawingml/2006/chart}legendPos', {'val':self.chart.legend.position})
-            SubElement(legend, '{http://schemas.openxmlformats.org/drawingml/2006/chart}layout')
+            legend = SubElement(chart, '{%s}legend' % CHART_TAG)
+            SubElement(legend, '{%s}legendPos' % CHART_TAG, {'val':self.chart.legend.position})
+            SubElement(legend, '{%s}layout' % CHART_TAG)
 
     def _write_print_settings(self, root):
 
-        settings = SubElement(root, '{http://schemas.openxmlformats.org/drawingml/2006/chart}printSettings')
-        SubElement(settings, '{http://schemas.openxmlformats.org/drawingml/2006/chart}headerFooter')
+        settings = SubElement(root, '{%s}printSettings' % CHART_TAG)
+        SubElement(settings, '{%s}headerFooter' % CHART_TAG)
         try:
             # Python 2
             print_margins_items = iteritems(self.chart.print_margins)
@@ -271,19 +273,19 @@ class ChartWriter(object):
             print_margins_items = self.chart.print_margins.items()
 
         margins = dict([(k, safe_string(v)) for (k, v) in print_margins_items])
-        SubElement(settings, '{http://schemas.openxmlformats.org/drawingml/2006/chart}pageMargins', margins)
-        SubElement(settings, '{http://schemas.openxmlformats.org/drawingml/2006/chart}pageSetup')
+        SubElement(settings, '{%s}pageMargins' % CHART_TAG, margins)
+        SubElement(settings, '{%s}pageSetup' % CHART_TAG)
 
     def _write_shapes(self, root):
 
         if self.chart._shapes:
-            SubElement(root, '{http://schemas.openxmlformats.org/drawingml/2006/chart}userShapes', {'{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id':'rId1'})
+            SubElement(root, '{%s}userShapes' % CHART_TAG, {'{%s}id' % REL_TAG:'rId1'})
 
     def write_rels(self, drawing_id):
+        root = Element("{%s}relationships" % REL_TAG)
 
-        root = Element('Relationships', {'xmlns' : 'http://schemas.openxmlformats.org/package/2006/relationships'})
         attrs = {'Id' : 'rId1',
-            'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartUserShapes',
+            'Type' : '%s/chartUserShapes' % REL_TAG,
             'Target' : '../drawings/drawing%s.xml' % drawing_id }
         SubElement(root, 'Relationship', attrs)
         return get_document_content(root)
