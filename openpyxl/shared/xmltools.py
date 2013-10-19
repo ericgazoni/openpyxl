@@ -34,6 +34,9 @@ Shortcut functions taken from:
 from xml.sax.xmlreader import AttributesNSImpl
 from openpyxl.shared.compat.sax import XMLGenerator
 from openpyxl.shared.compat import OrderedDict
+from openpyxl.shared.ooxml import (
+    CHART_NS, DRAWING_NS, SHEET_MAIN_NS, REL_NS, VTYPES_NS,
+    COREPROPS_NS, DCTERMS_NS, DCTERMS_PREFIX)
 try:
     from xml.etree.ElementTree import ElementTree, Element, SubElement, \
             QName, fromstring, tostring, register_namespace
@@ -44,9 +47,15 @@ except ImportError:
 # package imports
 from openpyxl import __name__ as prefix
 
-register_namespace('c', "http://schemas.openxmlformats.org/drawingml/2006/chart")
-register_namespace('a', "http://schemas.openxmlformats.org/drawingml/2006/main")
-register_namespace('r', "http://schemas.openxmlformats.org/officeDocument/2006/relationships")
+register_namespace(DCTERMS_PREFIX, DCTERMS_NS)
+register_namespace('dcmitype', 'http://purl.org/dc/dcmitype/')
+register_namespace('cp', COREPROPS_NS)
+register_namespace('c', CHART_NS)
+register_namespace('a', DRAWING_NS)
+register_namespace('s', SHEET_MAIN_NS)
+register_namespace('r', REL_NS)
+register_namespace('vt', VTYPES_NS)
+
 
 def get_document_content(xml_node):
     """Print nicely formatted xml to a string."""
