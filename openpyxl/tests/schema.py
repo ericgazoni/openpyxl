@@ -43,7 +43,7 @@ chart_schema = XMLSchema(file=chart_src)
 drawing_src = os.path.join(SCHEMA_FOLDER, 'dml-spreadsheetDrawing.xsd')
 drawing_schema = XMLSchema(file=drawing_src)
 
-sml_files = ['xl/styles.xsd']  # , 'xl/workbook.xml']
+sml_files = ['xl/styles.xml']  # , 'xl/workbook.xml']
 
 
 def validate_archive(file_path):
@@ -53,7 +53,7 @@ def validate_archive(file_path):
             filename = entry.filename
             f = zipfile.open(entry)
             root = parse(f).getroot()
-            if filename in sml_files or filename.startswith('xl/sheet'):
+            if filename in sml_files or filename.startswith('xl/worksheets/sheet'):
                 if root.get('{http://www.w3.org/XML/1998/namespace}space'):
                     # not allowed by schema
                     del root.attrib['{http://www.w3.org/XML/1998/namespace}space']
