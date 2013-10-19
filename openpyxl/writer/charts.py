@@ -35,6 +35,7 @@ except NameError:
     # Python 3
     basestring = str
 
+CHART_TAG = "{http://schemas.openxmlformats.org/drawingml/2006/chart}"
 
 def safe_string(value):
     """Safely and consistently format numeric values"""
@@ -51,12 +52,6 @@ class ChartWriter(object):
 
     def write(self):
         """ write a chart """
-
-        root = Element('{http://schemas.openxmlformats.org/drawingml/2006/chart}chartSpace',
-            {'xmlns:c':"http://schemas.openxmlformats.org/drawingml/2006/chart",
-             'xmlns:a':"http://schemas.openxmlformats.org/drawingml/2006/main",
-             'xmlns:r':"http://schemas.openxmlformats.org/officeDocument/2006/relationships"})
-
         root = Element("{http://schemas.openxmlformats.org/drawingml/2006/chart}chartSpace")
 
         SubElement(root, '{http://schemas.openxmlformats.org/drawingml/2006/chart}langc', {'val':self.chart.lang})
