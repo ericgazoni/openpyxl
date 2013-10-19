@@ -114,8 +114,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
     mergeCells = root.find(QName(xmlns, 'mergeCells').text)
     if mergeCells is not None:
-        mergeCellNodes = mergeCells.findall(QName(xmlns, 'mergeCell').text)
-        for mergeCell in mergeCellNodes:
+        for mergeCell in mergeCells.iterfind(QName(xmlns, 'mergeCell').text):
             ws.merge_cells(mergeCell.get('ref'))
 
     source = _get_xml_iter(xml_source)

@@ -49,17 +49,10 @@ def read_properties_core(xml_source):
     """Read assorted file properties."""
     properties = DocumentProperties()
     root = fromstring(xml_source)
-    creator_node = root.find(QName(NAMESPACES['dc'], 'creator').text)
-    if creator_node is not None:
-        properties.creator = creator_node.text
-    else:
-        properties.creator = ''
-    last_modified_by_node = root.find(
-            QName(NAMESPACES['cp'], 'lastModifiedBy').text)
-    if last_modified_by_node is not None:
-        properties.last_modified_by = last_modified_by_node.text
-    else:
-        properties.last_modified_by = ''
+    properties.creator = root.findtext(
+        QName(NAMESPACES['dc'], 'creator').text, '')
+    properties.last_modified_by = root.findtext(
+        QName(NAMESPACES['cp'], 'lastModifiedBy').text, '')
 
     created_node = root.find(QName(NAMESPACES['dcterms'], 'created').text)
     if created_node is not None:
@@ -79,7 +72,7 @@ def read_properties_core(xml_source):
 def read_excel_base_date(xml_source):
     root = fromstring(text = xml_source)
     wbPr = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'workbookPr').text)
-    if ('date1904' in wbPr.keys() and wbPr.attrib['date1904'] in ('1', 'true')):
+    if wbPr is not None and wbPr.get('date1904') in ('1', 'true'):
         return CALENDAR_MAC_1904
 
     return CALENDAR_WINDOWS_1900
@@ -100,7 +93,7 @@ def read_sheets_titles(xml_source):
     titles_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
             'sheets').text)
 
-    return [sheet.get('name') for sheet in list(titles_root)]
+    return [sheet.get('name') for sheet in titles_root]
 
 def read_named_ranges(xml_source, workbook):
     """Read named ranges, excluding poorly defined ranges."""
@@ -109,9 +102,9 @@ def read_named_ranges(xml_source, workbook):
     names_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
             'definedNames').text)
     if names_root is not None:
-
-        for name_node in list(names_root):
+        for name_node in names_root:
             range_name = name_node.get('name')
+            node_text = name_node.text or ''
 
             if name_node.get("hidden", '0') == '1':
                 continue
@@ -123,12 +116,12 @@ def read_named_ranges(xml_source, workbook):
                     valid = False
 
             for bad_range in BUGGY_NAMED_RANGES:
-                if bad_range in name_node.text:
+                if bad_range in node_text:
                     valid = False
 
             if valid:
-                if refers_to_range(name_node.text):
-                    destinations = split_named_range(name_node.text)
+                if refers_to_range(node_text):
+                    destinations = split_named_range(node_text)
 
                     new_destinations = []
                     for worksheet, cells_range in destinations:
@@ -143,7 +136,7 @@ def read_named_ranges(xml_source, workbook):
 
                     named_range = NamedRange(range_name, new_destinations)
                 else:
-                    named_range = NamedRangeContainingValue(range_name, name_node.text)
+                    named_range = NamedRangeContainingValue(range_name, node_text)
 
                 location_id = name_node.get("localSheetId")
                 if location_id:
