@@ -71,7 +71,7 @@ def read_properties_core(xml_source):
 
 def read_excel_base_date(xml_source):
     root = fromstring(text = xml_source)
-    wbPr = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'workbookPr').text)
+    wbPr = root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}workbookPr')
     if wbPr is not None and wbPr.get('date1904') in ('1', 'true'):
         return CALENDAR_MAC_1904
 
@@ -82,16 +82,14 @@ def read_excel_base_date(xml_source):
 def read_content_types(xml_source):
     """Read content types."""
     root = fromstring(xml_source)
-    contents_root = root.findall(QName('http://schemas.openxmlformats.org/package/2006/content-types',
-            'Override').text)
+    contents_root = root.findall('{http://schemas.openxmlformats.org/package/2006/content-types}Override')
     for type in contents_root:
         yield type.get('PartName'), type.get('ContentType')
 
 def read_sheets_titles(xml_source):
     """Read titles for all sheets."""
     root = fromstring(xml_source)
-    titles_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
-            'sheets').text)
+    titles_root = root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}sheets')
 
     return [sheet.get('name') for sheet in titles_root]
 
@@ -99,8 +97,7 @@ def read_named_ranges(xml_source, workbook):
     """Read named ranges, excluding poorly defined ranges."""
     named_ranges = []
     root = fromstring(xml_source)
-    names_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
-            'definedNames').text)
+    names_root = root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}definedNames')
     if names_root is not None:
         for name_node in names_root:
             range_name = name_node.get('name')
