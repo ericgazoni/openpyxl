@@ -88,7 +88,7 @@ def test_safe_string():
 
 class TestAxis(object):
 
-    def setUp(self):
+    def setup(self):
         from openpyxl.chart import Axis
         self.axis = Axis()
 
@@ -139,7 +139,7 @@ class TestAxis(object):
 
 class TestReference(object):
 
-    def setUp(self):
+    def setup(self):
 
         wb = Workbook()
         ws = wb.get_active_sheet()
@@ -187,7 +187,7 @@ class TestReference(object):
 
 class TestErrorBar(object):
 
-    def setUp(self):
+    def setup(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
         for i in range(10):
@@ -201,7 +201,7 @@ class TestErrorBar(object):
 
 class TestSerie(object):
 
-    def setUp(self):
+    def setup(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
         for i in range(10):
@@ -265,7 +265,7 @@ class TestSerie(object):
 
 class TestChart(object):
 
-    def setUp(self):
+    def setup(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
         for i in range(10):
@@ -381,7 +381,7 @@ class TestLineChart(object):
 
 class TestChartWriter(object):
 
-    def setUp(self):
+    def setup(self):
 
         wb = Workbook()
         ws = wb.get_active_sheet()
@@ -531,7 +531,7 @@ class TestChartWriter(object):
 
 class TestScatterChartWriter(object):
 
-    def setUp(self):
+    def setup(self):
 
         wb = Workbook()
         ws = wb.get_active_sheet()
@@ -608,7 +608,7 @@ class TestScatterChartWriter(object):
 
 class TestPieChartWriter(object):
 
-    def setUp(self):
+    def setup(self):
         """Setup a worksheet with one column of data and a pie chart"""
         wb = Workbook()
         ws = wb.get_active_sheet()
@@ -644,7 +644,7 @@ class TestPieChartWriter(object):
 
 class TestLineChartWriter(object):
 
-    def setUp(self):
+    def setup(self):
         """Setup a worksheet with one column of data and a line chart"""
         wb = Workbook()
         ws = wb.get_active_sheet()
@@ -675,7 +675,7 @@ class TestLineChartWriter(object):
 
 class TestBarChartWriter(object):
     """"""
-    def setUp(self):
+    def setup(self):
         """Setup a worksheet with one column of data and a bar chart"""
         wb = Workbook()
         ws = wb.get_active_sheet()
