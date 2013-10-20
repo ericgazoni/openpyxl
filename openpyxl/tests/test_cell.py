@@ -158,12 +158,12 @@ class TestCellValueTypes(object):
 
     def test_error_codes(self):
 
-        def check_error():
-            eq_(self.cell.TYPE_ERROR, self.cell.data_type)
+        def check_error(cell):
+            eq_(cell.TYPE_ERROR, cell.data_type)
 
         for error_string in self.cell.ERROR_CODES.keys():
             self.cell.value = error_string
-            yield check_error
+            yield check_error, self.cell
 
 
 def test_data_type_check():
