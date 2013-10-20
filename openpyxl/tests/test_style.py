@@ -65,7 +65,7 @@ class TestCreateStyle(object):
 
 class TestStyleWriter(object):
 
-    def setUp(self):
+    def setup(self):
 
         self.workbook = Workbook()
         self.worksheet = self.workbook.create_sheet()
