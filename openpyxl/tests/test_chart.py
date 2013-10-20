@@ -37,7 +37,7 @@ from openpyxl.drawing import Image
 
 class TestReference(object):
 
-    def setUp(self):
+    def setup(self):
 
         wb = Workbook()
         ws = wb.get_active_sheet()
@@ -76,7 +76,7 @@ class TestReference(object):
 
 class TestErrorBar(object):
 
-    def setUp(self):
+    def setup(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
         for i in range(10):
@@ -90,7 +90,7 @@ class TestErrorBar(object):
 
 class TestSerie(object):
 
-    def setUp(self):
+    def setup(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
         for i in range(10):
@@ -131,7 +131,7 @@ class TestSerie(object):
 
 class TestChart(object):
 
-    def setUp(self):
+    def setup(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
         for i in range(10):
@@ -220,7 +220,7 @@ class TestChart(object):
 
 class TestChartWriter(object):
 
-    def setUp(self):
+    def setup(self):
 
         wb = Workbook()
         ws = wb.get_active_sheet()
@@ -290,7 +290,7 @@ class TestChartWriter(object):
 
 class TestScatterChartWriter(object):
 
-    def setUp(self):
+    def setup(self):
 
         wb = Workbook()
         ws = wb.get_active_sheet()
