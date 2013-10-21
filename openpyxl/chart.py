@@ -370,13 +370,8 @@ class ErrorBar(object):
 class Chart(object):
     """ raw chart class """
 
-    GROUPING_CLUSTERED = 'clustered'
-    GROUPING_STANDARD = 'standard'
-
-    BAR_CHART = 1
-    LINE_CHART = 2
-    SCATTER_CHART = 3
-    PIE_CHART = 4
+    GROUPING = 'standard'
+    TYPE = None
 
     def mymax(self, values):
         return max([x for x in values if x is not None])
@@ -384,13 +379,13 @@ class Chart(object):
     def mymin(self, values):
         return min([x for x in values if x is not None])
 
-    def __init__(self, _type, grouping):
+    def __init__(self):
 
         self._series = []
 
         # public api
-        self.type = _type
-        self.grouping = grouping
+        self.grouping = self.GROUPING
+        self.type = self.TYPE
         self.x_axis = Axis.default_category()
         self.y_axis = Axis.default_value()
         self.legend = Legend()
@@ -497,22 +492,22 @@ class Chart(object):
 
 
 class BarChart(Chart):
-    def __init__(self):
-        super(BarChart, self).__init__(Chart.BAR_CHART, Chart.GROUPING_CLUSTERED)
+
+
+    TYPE = "barChart"
+    GROUPING = "clustered"
 
 
 class LineChart(Chart):
-    def __init__(self):
-        super(LineChart, self).__init__(Chart.LINE_CHART, Chart.GROUPING_STANDARD)
+
+    TYPE = "lineChart"
 
 
 class ScatterChart(Chart):
-    def __init__(self):
-        super(ScatterChart, self).__init__(Chart.SCATTER_CHART, Chart.GROUPING_STANDARD)
+
+    TYPE = "scatterChart"
 
 
 class PieChart(Chart):
 
     TYPE = "pieChart"
-    def __init__(self):
-        super(PieChart, self).__init__(Chart.PIE_CHART, Chart.GROUPING_STANDARD)

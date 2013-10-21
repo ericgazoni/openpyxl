@@ -105,8 +105,6 @@ class BaseChartWriter(object):
             SubElement(title, '{%s}layout' % CHART_NS)
 
     def _write_axis(self, plot_area, axis, label):
-        if self.chart.type == Chart.PIE_CHART:
-            return()
 
         self.chart.compute_axes()
 
@@ -146,7 +144,7 @@ class BaseChartWriter(object):
         if axis.label_offset:
             SubElement(ax, '{%s}lblOffset' % CHART_NS, {'val':str(axis.label_offset)})
         if label == '{%s}valAx' % CHART_NS:
-            if self.chart.type == Chart.SCATTER_CHART:
+            if self.chart.type == "scatterChart":
                 SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'midCat'})
             else:
                 SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'between'})
@@ -165,7 +163,7 @@ class BaseChartWriter(object):
 
             if serie.color:
                 sppr = SubElement(ser, '{%s}spPr' % CHART_NS)
-                if self.chart.type == Chart.BAR_CHART:
+                if self.chart.type == "barChart":
                     # fill color
                     fillc = SubElement(sppr, '{%s}solidFill' % DRAWING_NS)
                     SubElement(fillc, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
@@ -181,7 +179,7 @@ class BaseChartWriter(object):
                 cat = SubElement(ser, '{%s}cat' % CHART_NS)
                 self._write_serial(cat, serie.labels)
 
-            if self.chart.type == Chart.SCATTER_CHART:
+            if self.chart.type == "scatterChart":
                 if serie.xvalues:
                     xval = SubElement(ser, '{%s}xVal' % CHART_NS)
                     self._write_serial(xval, serie.xreference)

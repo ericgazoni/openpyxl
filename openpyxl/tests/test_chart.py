@@ -280,9 +280,9 @@ class TestChart(object):
     def test_ctor(self):
         from openpyxl.chart import Axis, Legend
         from openpyxl.drawing import Drawing
-        c = Chart(None, None)
+        c = Chart()
         eq_(c.type, None)
-        eq_(c.grouping, None)
+        eq_(c.grouping, "standard")
         assert_true(isinstance(c.x_axis, Axis))
         assert_true(isinstance(c.y_axis, Axis))
         assert_true(isinstance(c.legend, Legend))
@@ -300,7 +300,7 @@ class TestChart(object):
         eq_(c._shapes, [])
 
     def test_mymax(self):
-        c = Chart(None, None)
+        c = Chart()
         eq_(c.mymax(range(10)), 9)
         from string import ascii_letters as letters
         eq_(c.mymax(list(letters)), "z")
@@ -308,7 +308,7 @@ class TestChart(object):
         eq_(c.mymax([""]*10), "")
 
     def test_mymin(self):
-        c = Chart(None, None)
+        c = Chart()
         eq_(c.mymin(range(10)), 0)
         from string import ascii_letters as letters
         eq_(c.mymin(list(letters)), "A")
@@ -316,23 +316,23 @@ class TestChart(object):
         eq_(c.mymin([""]*10), "")
 
     def test_get_x_unit(self):
-        c = Chart(None, None)
+        c = Chart()
         c._series.append(self.range)
         eq_(c.get_x_units(), 10)
 
     def test_get_y_unit(self):
-        c = Chart(None, None)
+        c = Chart()
         c._series.append(self.range)
         c.y_axis.max = 10
         eq_(c.get_y_units(), 190500.0)
 
     def test_get_y_char(self):
-        c = Chart(None, None)
+        c = Chart()
         c._series.append(self.range)
         eq_(c.get_y_chars(), 1)
 
     def test_compute_series_extremes(self):
-        c = Chart(None, None)
+        c = Chart()
         c._series.append(self.range)
         mini, maxi = c._get_extremes()
         eq_(mini, 0)
@@ -342,7 +342,7 @@ class TestChart(object):
         ws = self.make_worksheet()
         for i in range(1, 10):
             ws.append([date(2013, i, 1)])
-        c = Chart(None, None)
+        c = Chart()
         ref = Reference(ws, (0, 0), (9, 0))
         series = Serie(ref)
         c._series.append(series)
@@ -351,21 +351,21 @@ class TestChart(object):
         eq_(maxi, 41518.0)
 
     def test_margin_top(self):
-        c = Chart(None, None)
+        c = Chart()
         eq_(c.margin_top, 0.31)
 
     def test_margin_left(self):
-        c = Chart(None, None)
+        c = Chart()
         c._series.append(self.range)
         eq_(c.margin_left, 0.03375)
 
     def test_set_margin_top(self):
-        c = Chart(None, None)
+        c = Chart()
         c.margin_top = 1
         eq_(c.margin_top, 0.31)
 
     def test_set_margin_left(self):
-        c = Chart(None, None)
+        c = Chart()
         c._series.append(self.range)
         c.margin_left = 0
         eq_(c.margin_left , 0.03375)
@@ -376,7 +376,7 @@ class TestLineChart(object):
     def test_ctor(self):
         from openpyxl.chart import LineChart
         c = LineChart()
-        eq_(c.type, Chart.LINE_CHART)
+        eq_(c.type, "lineChart")
 
 
 class TestChartWriter(object):
