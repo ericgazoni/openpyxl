@@ -304,41 +304,11 @@ class LineChartWriter(BaseChartWriter):
         super(LineChartWriter, self)._write_axis(plotarea, chart.y_axis, '{%s}valAx' % CHART_NS)
 
 
-class BarChartWriter(BaseChartWriter):
+class BarChartWriter(LineChartWriter):
 
-    def _write_chart(self, root):
-
-        chart = self.chart
-
-        ch = SubElement(root, '{%s}chart' % CHART_NS)
-        self._write_title(ch)
-        plot_area = SubElement(ch, '{%s}plotArea' % CHART_NS)
-        layout = SubElement(plot_area, '{%s}layout' % CHART_NS)
-        mlayout = SubElement(layout, '{%s}manualLayout' % CHART_NS)
-        SubElement(mlayout, '{%s}layoutTarget' % CHART_NS, {'val':'inner'})
-        SubElement(mlayout, '{%s}xMode' % CHART_NS, {'val':'edge'})
-        SubElement(mlayout, '{%s}yMode' % CHART_NS, {'val':'edge'})
-        SubElement(mlayout, '{%s}x' % CHART_NS, {'val':safe_string(chart.margin_left)})
-        SubElement(mlayout, '{%s}y' % CHART_NS, {'val':safe_string(chart.margin_top)})
-        SubElement(mlayout, '{%s}w' % CHART_NS, {'val':safe_string(chart.width)})
-        SubElement(mlayout, '{%s}h' % CHART_NS, {'val':safe_string(chart.height)})
-
-        subchart = SubElement(plot_area, '{%s}barChart' % CHART_NS)
+    def _write_options(self, subchart):
         SubElement(subchart, '{%s}barDir' % CHART_NS, {'val':'col'})
-
-        SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':chart.GROUPING})
-
-        self._write_series(subchart)
-
-        SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
-        SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
-
-        self._write_axis(plot_area, chart.x_axis, '{%s}catAx' % CHART_NS) # varies from other charts
-        self._write_axis(plot_area, chart.y_axis, '{%s}valAx' % CHART_NS)
-
-        self._write_legend(ch)
-
-        SubElement(ch, '{%s}plotVisOnly' % CHART_NS, {'val':'1'})
+        SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':self.chart.GROUPING})
 
 
 class ScatterChartWriter(BaseChartWriter):
