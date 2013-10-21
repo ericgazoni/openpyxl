@@ -105,7 +105,7 @@ class BaseChartWriter(object):
             t = SubElement(r, '{%s}t' % DRAWING_NS).text = self.chart.title
             SubElement(title, '{%s}layout' % CHART_NS)
 
-    def _write_axis_title(self, axis):
+    def _write_axis_title(self, axis, ax):
 
         if axis.title != '':
             title = SubElement(ax, '{%s}title' % CHART_NS)
@@ -138,7 +138,7 @@ class BaseChartWriter(object):
         if label == '{%s}valAx' % CHART_NS:
             SubElement(ax, '{%s}majorGridlines' % CHART_NS)
             SubElement(ax, '{%s}numFmt' % CHART_NS, {'formatCode':"General", 'sourceLinked':'1'})
-        self._write_axis_title(axis)
+        self._write_axis_title(axis, ax)
         SubElement(ax, '{%s}tickLblPos' % CHART_NS, {'val':axis.tick_label_position})
         SubElement(ax, '{%s}crossAx' % CHART_NS, {'val':str(axis.cross)})
         SubElement(ax, '{%s}crosses' % CHART_NS, {'val':axis.crosses})
@@ -313,36 +313,17 @@ class BarChartWriter(LineChartWriter):
 
 class ScatterChartWriter(BaseChartWriter):
 
-    def _write_chart(self, root):
-
-        chart = self.chart
-
-        ch = SubElement(root, '{%s}chart' % CHART_NS)
-        self._write_title(ch)
-        plot_area = SubElement(ch, '{%s}plotArea' % CHART_NS)
-        layout = SubElement(plot_area, '{%s}layout' % CHART_NS)
-        mlayout = SubElement(layout, '{%s}manualLayout' % CHART_NS)
-        SubElement(mlayout, '{%s}layoutTarget' % CHART_NS, {'val':'inner'})
-        SubElement(mlayout, '{%s}xMode' % CHART_NS, {'val':'edge'})
-        SubElement(mlayout, '{%s}yMode' % CHART_NS, {'val':'edge'})
-        SubElement(mlayout, '{%s}x' % CHART_NS, {'val':safe_string(chart.margin_left)})
-        SubElement(mlayout, '{%s}y' % CHART_NS, {'val':safe_string(chart.margin_top)})
-        SubElement(mlayout, '{%s}w' % CHART_NS, {'val':safe_string(chart.width)})
-        SubElement(mlayout, '{%s}h' % CHART_NS, {'val':safe_string(chart.height)})
-
-        subchart = SubElement(plot_area, '{%s}scatterChart' % CHART_NS)
+    def _write_options(self, subchart):
         SubElement(subchart, '{%s}scatterStyle' % CHART_NS, {'val':'lineMarker'})
 
-        self._write_series(subchart)
+    def _write_layout(self, root):
+        subchart, plotarea = super(ScatterChartWriter, self)._write_layout(root)
+        chart = self.chart
         SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
         SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
 
-        self._write_axis(plot_area, chart.x_axis, '{%s}valAx' % CHART_NS)
-        self._write_axis(plot_area, chart.y_axis, '{%s}valAx' % CHART_NS)
-
-        self._write_legend(ch)
-
-        SubElement(ch, '{%s}plotVisOnly' % CHART_NS, {'val':'1'})
+        self._write_axis(plotarea, chart.x_axis, '{%s}valAx' % CHART_NS)
+        self._write_axis(plotarea, chart.y_axis, '{%s}valAx' % CHART_NS)
 
     def _write_axis(self, plot_area, axis, label):
         self.chart.compute_axes()
@@ -358,19 +339,8 @@ class ScatterChartWriter(BaseChartWriter):
         SubElement(ax, '{%s}axPos' % CHART_NS, {'val':axis.position})
         SubElement(ax, '{%s}majorGridlines' % CHART_NS)
         SubElement(ax, '{%s}numFmt' % CHART_NS, {'formatCode':"General", 'sourceLinked':'1'})
-        if axis.title != '':
-            title = SubElement(ax, '{%s}title' % CHART_NS)
-            tx = SubElement(title, '{%s}tx' % CHART_NS)
-            rich = SubElement(tx, '{%s}rich' % CHART_NS)
-            SubElement(rich, '{%s}bodyPr' % DRAWING_NS)
-            SubElement(rich, '{%s}lstStyle' % DRAWING_NS)
-            p = SubElement(rich, '{%s}p' % DRAWING_NS)
-            pPr = SubElement(p, '{%s}pPr' % DRAWING_NS)
-            SubElement(pPr, '{%s}defRPr' % DRAWING_NS)
-            r = SubElement(p, '{%s}r' % DRAWING_NS)
-            SubElement(r, '{%s}rPr' % DRAWING_NS, {'lang':self.chart.lang})
-            t = SubElement(r, '{%s}t' % DRAWING_NS).text = axis.title
-            SubElement(title, '{%s}layout' % CHART_NS)
+        self._write_axis_title(axis, ax)
+
         SubElement(ax, '{%s}tickLblPos' % CHART_NS, {'val':axis.tick_label_position})
         SubElement(ax, '{%s}crossAx' % CHART_NS, {'val':str(axis.cross)})
         SubElement(ax, '{%s}crosses' % CHART_NS, {'val':axis.crosses})
