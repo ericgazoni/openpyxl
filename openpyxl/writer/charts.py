@@ -316,34 +316,6 @@ class ScatterChartWriter(LineChartWriter):
     def _write_options(self, subchart):
         SubElement(subchart, '{%s}scatterStyle' % CHART_NS, {'val':'lineMarker'})
 
-    def _write_axis(self, plot_area, axis, label):
-        self.chart.compute_axes()
-
-        ax = SubElement(plot_area, label)
-        SubElement(ax, '{%s}axId' % CHART_NS, {'val':safe_string(axis.id)})
-
-        scaling = SubElement(ax, '{%s}scaling' % CHART_NS)
-        SubElement(scaling, '{%s}orientation' % CHART_NS, {'val':axis.orientation})
-        SubElement(scaling, '{%s}max' % CHART_NS, {'val':str(float(axis.max))})
-        SubElement(scaling, '{%s}min' % CHART_NS, {'val':str(float(axis.min))})
-
-        SubElement(ax, '{%s}axPos' % CHART_NS, {'val':axis.position})
-        SubElement(ax, '{%s}majorGridlines' % CHART_NS)
-        SubElement(ax, '{%s}numFmt' % CHART_NS, {'formatCode':"General", 'sourceLinked':'1'})
-        self._write_axis_title(axis, ax)
-
-        SubElement(ax, '{%s}tickLblPos' % CHART_NS, {'val':axis.tick_label_position})
-        SubElement(ax, '{%s}crossAx' % CHART_NS, {'val':str(axis.cross)})
-        SubElement(ax, '{%s}crosses' % CHART_NS, {'val':axis.crosses})
-        if axis.auto:
-            SubElement(ax, '{%s}auto' % CHART_NS, {'val':'1'})
-        if axis.label_align:
-            SubElement(ax, '{%s}lblAlgn' % CHART_NS, {'val':axis.label_align})
-        if axis.label_offset:
-            SubElement(ax, '{%s}lblOffset' % CHART_NS, {'val':str(axis.label_offset)})
-        SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'midCat'})
-        SubElement(ax, '{%s}majorUnit' % CHART_NS, {'val':str(float(axis.unit))})
-
 
 class ChartWriter(object):
     """
