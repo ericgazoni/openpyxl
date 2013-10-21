@@ -659,7 +659,10 @@ class TestLineChartWriter(object):
     def test_write_chart(self):
         """check if some characteristic tags of LineChart are there"""
         self.cw._write_chart(self.root)
-        tagnames = ['test', '{http://schemas.openxmlformats.org/drawingml/2006/chart}lineChart', '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx', '{http://schemas.openxmlformats.org/drawingml/2006/chart}catAx']
+        tagnames = ['test',
+                    '{http://schemas.openxmlformats.org/drawingml/2006/chart}lineChart',
+                    '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx',
+                    '{http://schemas.openxmlformats.org/drawingml/2006/chart}catAx']
         chart_tags = [e.tag for e in self.root.iter()]
         for tag in tagnames:
             assert_true(tag in chart_tags, tag)
