@@ -134,6 +134,7 @@ class Axis(object):
         ax.auto = True
         ax.label_align = 'ctr'
         ax.label_offset = 100
+        ax.type = "catAx"
         return ax
 
     @classmethod
@@ -149,6 +150,7 @@ class Axis(object):
         ax.crosses = 'autoZero'
         ax.auto = False
         ax.cross_between = 'between'
+        ax.type= "valAx"
         return ax
 
 
@@ -504,6 +506,11 @@ class LineChart(Chart):
 class ScatterChart(Chart):
 
     TYPE = "scatterChart"
+
+    def __init__(self):
+        super(ScatterChart, self).__init__()
+        self.y_axis.type = "valAx"
+        self.x_axis.type = "valAx"
 
 
 class PieChart(Chart):

@@ -300,8 +300,8 @@ class LineChartWriter(BaseChartWriter):
 
         SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
         SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
-        super(LineChartWriter, self)._write_axis(plotarea, chart.x_axis, '{%s}catAx' % CHART_NS)
-        super(LineChartWriter, self)._write_axis(plotarea, chart.y_axis, '{%s}valAx' % CHART_NS)
+        super(LineChartWriter, self)._write_axis(plotarea, chart.x_axis, '{%s}%s' % (CHART_NS, chart.x_axis.type))
+        super(LineChartWriter, self)._write_axis(plotarea, chart.y_axis, '{%s}%s' % (CHART_NS, chart.y_axis.type))
 
 
 class BarChartWriter(LineChartWriter):
@@ -311,19 +311,10 @@ class BarChartWriter(LineChartWriter):
         SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':self.chart.GROUPING})
 
 
-class ScatterChartWriter(BaseChartWriter):
+class ScatterChartWriter(LineChartWriter):
 
     def _write_options(self, subchart):
         SubElement(subchart, '{%s}scatterStyle' % CHART_NS, {'val':'lineMarker'})
-
-    def _write_layout(self, root):
-        subchart, plotarea = super(ScatterChartWriter, self)._write_layout(root)
-        chart = self.chart
-        SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
-        SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
-
-        self._write_axis(plotarea, chart.x_axis, '{%s}valAx' % CHART_NS)
-        self._write_axis(plotarea, chart.y_axis, '{%s}valAx' % CHART_NS)
 
     def _write_axis(self, plot_area, axis, label):
         self.chart.compute_axes()
