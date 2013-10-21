@@ -512,5 +512,7 @@ class ScatterChart(Chart):
 
 
 class PieChart(Chart):
+
+    TYPE = "pieChart"
     def __init__(self):
         super(PieChart, self).__init__(Chart.PIE_CHART, Chart.GROUPING_STANDARD)

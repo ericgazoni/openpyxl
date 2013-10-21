@@ -61,6 +61,34 @@ class BaseChartWriter(object):
 
         return get_document_content(root)
 
+    def _write_chart(self, root):
+        ch = SubElement(root, '{%s}chart' % CHART_NS)
+        self._write_title(ch)
+        self._write_layout(ch)
+        self._write_legend(ch)
+        SubElement(ch, '{%s}plotVisOnly' % CHART_NS, {'val':'1'})
+
+    def _write_layout(self, element):
+        chart = self.chart
+        plot_area = SubElement(element, '{%s}plotArea' % CHART_NS)
+        layout = SubElement(plot_area, '{%s}layout' % CHART_NS)
+        mlayout = SubElement(layout, '{%s}manualLayout' % CHART_NS)
+        SubElement(mlayout, '{%s}layoutTarget' % CHART_NS, {'val':'inner'})
+        SubElement(mlayout, '{%s}xMode' % CHART_NS, {'val':'edge'})
+        SubElement(mlayout, '{%s}yMode' % CHART_NS, {'val':'edge'})
+        SubElement(mlayout, '{%s}x' % CHART_NS, {'val':safe_string(chart.margin_left)})
+        SubElement(mlayout, '{%s}y' % CHART_NS, {'val':safe_string(chart.margin_top)})
+        SubElement(mlayout, '{%s}w' % CHART_NS, {'val':safe_string(chart.width)})
+        SubElement(mlayout, '{%s}h' % CHART_NS, {'val':safe_string(chart.height)})
+
+        chart_type = self.chart.TYPE
+        subchart = SubElement(plot_area, '{%s}%s' % (CHART_NS, chart_type))
+        self._write_options(subchart)
+        self._write_series(subchart)
+
+    def _write_options(self, subchart):
+        pass
+
     def _write_title(self, chart):
         if self.chart.title != '':
             title = SubElement(chart, '{%s}title' % CHART_NS)
@@ -250,30 +278,12 @@ class BaseChartWriter(object):
 
 class PieChartWriter(BaseChartWriter):
 
-    def _write_chart(self, root):
-        chart = self.chart
-
-        ch = SubElement(root, '{%s}chart' % CHART_NS)
-        self._write_title(ch)
-        plot_area = SubElement(ch, '{%s}plotArea' % CHART_NS)
-        layout = SubElement(plot_area, '{%s}layout' % CHART_NS)
-        mlayout = SubElement(layout, '{%s}manualLayout' % CHART_NS)
-        SubElement(mlayout, '{%s}layoutTarget' % CHART_NS, {'val':'inner'})
-        SubElement(mlayout, '{%s}xMode' % CHART_NS, {'val':'edge'})
-        SubElement(mlayout, '{%s}yMode' % CHART_NS, {'val':'edge'})
-        SubElement(mlayout, '{%s}x' % CHART_NS, {'val':safe_string(chart.margin_left)})
-        SubElement(mlayout, '{%s}y' % CHART_NS, {'val':safe_string(chart.margin_top)})
-        SubElement(mlayout, '{%s}w' % CHART_NS, {'val':safe_string(chart.width)})
-        SubElement(mlayout, '{%s}h' % CHART_NS, {'val':safe_string(chart.height)})
-
-        subchart = SubElement(plot_area, '{%s}pieChart' % CHART_NS)
+    def _write_options(self, subchart):
         SubElement(subchart, '{%s}varyColors' % CHART_NS, {'val':'1'})
 
-        self._write_series(subchart)
-
-        self._write_legend(ch)
-
-        SubElement(ch, '{%s}plotVisOnly' % CHART_NS, {'val':'1'})
+    def _write_axis(self, plot_area, axis, label):
+        """Pie Charts have no axes, do nothing"""
+        pass
 
 
 class LineChartWriter(BaseChartWriter):
@@ -341,7 +351,7 @@ class BarChartWriter(BaseChartWriter):
         SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
         SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
 
-        self._write_axis(plot_area, chart.x_axis, '{%s}catAx' % CHART_NS)
+        self._write_axis(plot_area, chart.x_axis, '{%s}catAx' % CHART_NS) # varies from other charts
         self._write_axis(plot_area, chart.y_axis, '{%s}valAx' % CHART_NS)
 
         self._write_legend(ch)
@@ -390,14 +400,12 @@ class ScatterChartWriter(BaseChartWriter):
 
         scaling = SubElement(ax, '{%s}scaling' % CHART_NS)
         SubElement(scaling, '{%s}orientation' % CHART_NS, {'val':axis.orientation})
-        if label == '{%s}valAx' % CHART_NS:
-            SubElement(scaling, '{%s}max' % CHART_NS, {'val':str(float(axis.max))})
-            SubElement(scaling, '{%s}min' % CHART_NS, {'val':str(float(axis.min))})
+        SubElement(scaling, '{%s}max' % CHART_NS, {'val':str(float(axis.max))})
+        SubElement(scaling, '{%s}min' % CHART_NS, {'val':str(float(axis.min))})
 
         SubElement(ax, '{%s}axPos' % CHART_NS, {'val':axis.position})
-        if label == '{%s}valAx' % CHART_NS:
-            SubElement(ax, '{%s}majorGridlines' % CHART_NS)
-            SubElement(ax, '{%s}numFmt' % CHART_NS, {'formatCode':"General", 'sourceLinked':'1'})
+        SubElement(ax, '{%s}majorGridlines' % CHART_NS)
+        SubElement(ax, '{%s}numFmt' % CHART_NS, {'formatCode':"General", 'sourceLinked':'1'})
         if axis.title != '':
             title = SubElement(ax, '{%s}title' % CHART_NS)
             tx = SubElement(title, '{%s}tx' % CHART_NS)
@@ -420,9 +428,8 @@ class ScatterChartWriter(BaseChartWriter):
             SubElement(ax, '{%s}lblAlgn' % CHART_NS, {'val':axis.label_align})
         if axis.label_offset:
             SubElement(ax, '{%s}lblOffset' % CHART_NS, {'val':str(axis.label_offset)})
-        if label == '{%s}valAx' % CHART_NS:
-            SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'midCat'})
-            SubElement(ax, '{%s}majorUnit' % CHART_NS, {'val':str(float(axis.unit))})
+        SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'midCat'})
+        SubElement(ax, '{%s}majorUnit' % CHART_NS, {'val':str(float(axis.unit))})
 
 
 class ChartWriter(object):
