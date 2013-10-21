@@ -85,6 +85,7 @@ class BaseChartWriter(object):
         subchart = SubElement(plot_area, '{%s}%s' % (CHART_NS, chart_type))
         self._write_options(subchart)
         self._write_series(subchart)
+        return subchart, plot_area
 
     def _write_options(self, subchart):
         pass
@@ -104,6 +105,22 @@ class BaseChartWriter(object):
             t = SubElement(r, '{%s}t' % DRAWING_NS).text = self.chart.title
             SubElement(title, '{%s}layout' % CHART_NS)
 
+    def _write_axis_title(self, axis):
+
+        if axis.title != '':
+            title = SubElement(ax, '{%s}title' % CHART_NS)
+            tx = SubElement(title, '{%s}tx' % CHART_NS)
+            rich = SubElement(tx, '{%s}rich' % CHART_NS)
+            SubElement(rich, '{%s}bodyPr' % DRAWING_NS)
+            SubElement(rich, '{%s}lstStyle' % DRAWING_NS)
+            p = SubElement(rich, '{%s}p' % DRAWING_NS)
+            pPr = SubElement(p, '{%s}pPr' % DRAWING_NS)
+            SubElement(pPr, '{%s}defRPr' % DRAWING_NS)
+            r = SubElement(p, '{%s}r' % DRAWING_NS)
+            SubElement(r, '{%s}rPr' % DRAWING_NS, {'lang':self.chart.lang})
+            t = SubElement(r, '{%s}t' % DRAWING_NS).text = axis.title
+            SubElement(title, '{%s}layout' % CHART_NS)
+
     def _write_axis(self, plot_area, axis, label):
 
         self.chart.compute_axes()
@@ -121,19 +138,7 @@ class BaseChartWriter(object):
         if label == '{%s}valAx' % CHART_NS:
             SubElement(ax, '{%s}majorGridlines' % CHART_NS)
             SubElement(ax, '{%s}numFmt' % CHART_NS, {'formatCode':"General", 'sourceLinked':'1'})
-        if axis.title != '':
-            title = SubElement(ax, '{%s}title' % CHART_NS)
-            tx = SubElement(title, '{%s}tx' % CHART_NS)
-            rich = SubElement(tx, '{%s}rich' % CHART_NS)
-            SubElement(rich, '{%s}bodyPr' % DRAWING_NS)
-            SubElement(rich, '{%s}lstStyle' % DRAWING_NS)
-            p = SubElement(rich, '{%s}p' % DRAWING_NS)
-            pPr = SubElement(p, '{%s}pPr' % DRAWING_NS)
-            SubElement(pPr, '{%s}defRPr' % DRAWING_NS)
-            r = SubElement(p, '{%s}r' % DRAWING_NS)
-            SubElement(r, '{%s}rPr' % DRAWING_NS, {'lang':self.chart.lang})
-            t = SubElement(r, '{%s}t' % DRAWING_NS).text = axis.title
-            SubElement(title, '{%s}layout' % CHART_NS)
+        self._write_axis_title(axis)
         SubElement(ax, '{%s}tickLblPos' % CHART_NS, {'val':axis.tick_label_position})
         SubElement(ax, '{%s}crossAx' % CHART_NS, {'val':str(axis.cross)})
         SubElement(ax, '{%s}crosses' % CHART_NS, {'val':axis.crosses})
@@ -286,38 +291,17 @@ class PieChartWriter(BaseChartWriter):
 
 class LineChartWriter(BaseChartWriter):
 
-    def _write_chart(self, root):
+    def _write_options(self, subchart):
+        SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':self.chart.GROUPING})
 
+    def _write_layout(self, root):
+        subchart, plotarea = super(LineChartWriter, self)._write_layout(root)
         chart = self.chart
-
-        ch = SubElement(root, '{%s}chart' % CHART_NS)
-        self._write_title(ch)
-        plot_area = SubElement(ch, '{%s}plotArea' % CHART_NS)
-        layout = SubElement(plot_area, '{%s}layout' % CHART_NS)
-        mlayout = SubElement(layout, '{%s}manualLayout' % CHART_NS)
-        SubElement(mlayout, '{%s}layoutTarget' % CHART_NS, {'val':'inner'})
-        SubElement(mlayout, '{%s}xMode' % CHART_NS, {'val':'edge'})
-        SubElement(mlayout, '{%s}yMode' % CHART_NS, {'val':'edge'})
-        SubElement(mlayout, '{%s}x' % CHART_NS, {'val':safe_string(chart.margin_left)})
-        SubElement(mlayout, '{%s}y' % CHART_NS, {'val':safe_string(chart.margin_top)})
-        SubElement(mlayout, '{%s}w' % CHART_NS, {'val':safe_string(chart.width)})
-        SubElement(mlayout, '{%s}h' % CHART_NS, {'val':safe_string(chart.height)})
-
-        subchart = SubElement(plot_area, '{%s}lineChart' % CHART_NS)
-
-        SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':chart.GROUPING})
-
-        self._write_series(subchart)
 
         SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
         SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
-
-        self._write_axis(plot_area, chart.x_axis, '{%s}catAx' % CHART_NS)
-        self._write_axis(plot_area, chart.y_axis, '{%s}valAx' % CHART_NS)
-
-        self._write_legend(ch)
-
-        SubElement(ch, '{%s}plotVisOnly' % CHART_NS, {'val':'1'})
+        super(LineChartWriter, self)._write_axis(plotarea, chart.x_axis, '{%s}catAx' % CHART_NS)
+        super(LineChartWriter, self)._write_axis(plotarea, chart.y_axis, '{%s}valAx' % CHART_NS)
 
 
 class BarChartWriter(BaseChartWriter):
