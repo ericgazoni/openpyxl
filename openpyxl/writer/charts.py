@@ -144,7 +144,7 @@ class BaseChartWriter(object):
         if axis.label_offset:
             SubElement(ax, '{%s}lblOffset' % CHART_NS, {'val':str(axis.label_offset)})
         if label == '{%s}valAx' % CHART_NS:
-            if self.chart.type == "scatterChart":
+            if self.chart.TYPE == "scatterChart":
                 SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'midCat'})
             else:
                 SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'between'})
@@ -163,7 +163,7 @@ class BaseChartWriter(object):
 
             if serie.color:
                 sppr = SubElement(ser, '{%s}spPr' % CHART_NS)
-                if self.chart.type == "barChart":
+                if self.chart.TYPE == "barChart":
                     # fill color
                     fillc = SubElement(sppr, '{%s}solidFill' % DRAWING_NS)
                     SubElement(fillc, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
@@ -179,7 +179,7 @@ class BaseChartWriter(object):
                 cat = SubElement(ser, '{%s}cat' % CHART_NS)
                 self._write_serial(cat, serie.labels)
 
-            if self.chart.type == "scatterChart":
+            if self.chart.TYPE == "scatterChart":
                 if serie.xvalues:
                     xval = SubElement(ser, '{%s}xVal' % CHART_NS)
                     self._write_serial(xval, serie.xreference)
@@ -305,7 +305,7 @@ class LineChartWriter(BaseChartWriter):
 
         subchart = SubElement(plot_area, '{%s}lineChart' % CHART_NS)
 
-        SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':chart.grouping})
+        SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':chart.GROUPING})
 
         self._write_series(subchart)
 
@@ -342,7 +342,7 @@ class BarChartWriter(BaseChartWriter):
         subchart = SubElement(plot_area, '{%s}barChart' % CHART_NS)
         SubElement(subchart, '{%s}barDir' % CHART_NS, {'val':'col'})
 
-        SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':chart.grouping})
+        SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':chart.GROUPING})
 
         self._write_series(subchart)
 

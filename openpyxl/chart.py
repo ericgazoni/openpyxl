@@ -384,8 +384,6 @@ class Chart(object):
         self._series = []
 
         # public api
-        self.grouping = self.GROUPING
-        self.type = self.TYPE
         self.x_axis = Axis.default_category()
         self.y_axis = Axis.default_value()
         self.legend = Legend()
