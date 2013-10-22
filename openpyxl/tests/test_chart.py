@@ -169,11 +169,9 @@ class TestReference(object):
 
     def test_ref_cell(self):
         eq_(str(self.cell), "'reference'!$A$1")
-        eq_(self.cell._get_ref(), "'reference'!$A$1")
 
     def test_ref_range(self):
         eq_(str(self.range), "'reference'!$A$1:$A$10")
-        eq_(self.range._get_ref(), "'reference'!$A$1:$A$10")
 
     def test_data_type(self):
         assert_raises(ValueError, setattr, self.cell, 'data_type', 'f')
@@ -220,6 +218,14 @@ class TestSerie(object):
         eq_(series.xvalues, None)
         eq_(series.labels, None)
         eq_(series.legend, None)
+
+    def test_invalid_values(self):
+        series = Serie(self.cell)
+        assert_raises(TypeError, setattr, series, "values", 0)
+
+    def test_invalid_xvalues(self):
+        series = Serie(self.cell)
+        assert_raises(TypeError, setattr, series, "xvalues", 0)
 
     def test_color(self):
         series = Serie(self.cell)

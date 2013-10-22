@@ -167,10 +167,6 @@ class Reference(object):
         self.data_type = data_type
         self.number_format = number_format
 
-    def get_type(self):
-        """Legacy method"""
-        return self.data_type
-
     @property
     def data_type(self):
         return self._data_type
@@ -212,10 +208,6 @@ class Reference(object):
                 self.data_type = 'n'
 
         return self._values
-
-    def _get_ref(self):
-        """ legace method """
-        return str(self)
 
     def __str__(self):
         """ format excel reference notation """
