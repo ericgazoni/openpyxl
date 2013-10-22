@@ -32,7 +32,7 @@ from openpyxl.shared.xmltools import get_document_content
 from openpyxl.shared.ooxml import (
     ARC_CORE, ARC_WORKBOOK, ARC_APP, ARC_THEME, ARC_STYLE, ARC_SHARED_STRINGS,
     COREPROPS_NS, VTYPES_NS, XPROPS_NS, DCORE_NS, DCTERMS_NS, DCTERMS_PREFIX,
-    XSI_NS, XML_NS, SHEET_MAIN_NS, CONTYPES_NS, PKG_REL_NS)
+    XSI_NS, XML_NS, SHEET_MAIN_NS, CONTYPES_NS, PKG_REL_NS, REL_NS)
 from openpyxl.shared.date_time import datetime_to_W3CDTF
 from openpyxl.namedrange import NamedRange, NamedRangeContainingValue
 
@@ -179,7 +179,7 @@ def write_workbook(workbook):
         sheet_node = SubElement(
             sheets, '{%s}sheet' % SHEET_MAIN_NS,
             {'name': sheet.title, 'sheetId': '%d' % (i + 1),
-             '{%s}id' % PKG_REL_NS: 'rId%d' % (i + 1)})
+             '{%s}id' % REL_NS: 'rId%d' % (i + 1)})
         if not sheet.sheet_state == sheet.SHEETSTATE_VISIBLE:
             sheet_node.set('state', sheet.sheet_state)
 
