@@ -503,11 +503,17 @@ class GraphChart(Chart):
 
 class BarChart(GraphChart):
 
+    x_axis = CategoryAxis()
+    y_axis = ValueAxis()
+
     TYPE = "barChart"
     GROUPING = "clustered"
 
 
 class LineChart(GraphChart):
+
+    x_axis = CategoryAxis()
+    y_axis = ValueAxis()
 
     TYPE = "lineChart"
 
