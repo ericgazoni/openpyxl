@@ -44,16 +44,20 @@ class Axis(object):
 
     POSITION_BOTTOM = 'b'
     POSITION_LEFT = 'l'
-
     ORIENTATION_MIN_MAX = "minMax"
+
+    position = None
+    tick_label_position = None
+    crosses = None
+    auto = None
+    label_align = None
+    label_offset = None
+    cross_between = None
+    orientation = ORIENTATION_MIN_MAX
+    number_format = NumberFormat()
 
     def __init__(self):
 
-        self.orientation = self.ORIENTATION_MIN_MAX
-        self.number_format = NumberFormat()
-        for attr in ('position', 'tick_label_position', 'crosses',
-            'auto', 'label_align', 'label_offset', 'cross_between'):
-            setattr(self, attr, None)
         self.min = 0
         self.max = 0
         self.unit = None
