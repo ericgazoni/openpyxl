@@ -154,6 +154,32 @@ class Axis(object):
         return ax
 
 
+class CategoryAxis(Axis):
+
+    id = 60871424
+    cross = 60873344
+    position = Axis.POSITION_BOTTOM
+    tick_label_position = 'nextTo'
+    crosses = "autoZero"
+    auto = True
+    label_align = 'ctr'
+    label_offset = 100
+    type = "catAx"
+
+
+class ValueAxis(Axis):
+
+    id = 60873344
+    cross = 60871424
+    position = Axis.POSITION_LEFT
+    major_gridlines = None
+    tick_label_position = 'nextTo'
+    crosses = 'autoZero'
+    auto = False
+    cross_between = 'between'
+    type= "valAx"
+
+
 formatter = NumberFormat()
 
 
@@ -491,8 +517,28 @@ class Chart(object):
         return float(ml) / self.drawing.width
 
 
-class BarChart(Chart):
+class PieChart(Chart):
 
+    TYPE = "pieChart"
+
+
+class GraphChart(Chart):
+    """Chart with axes"""
+
+    x_axis = Axis.default_category()
+    y_axis = Axis.default_value()
+
+    def compute_axes(self):
+        """Calculate maximum value and units for axes"""
+        mini, maxi = self._get_extremes()
+        self.y_axis.set_values(mini, maxi)
+
+        if not None in [s.xvalues for s in self._series]:
+            mini, maxi = self._get_extremes('xvalues')
+            self.x_axis.set_values(mini, maxi)
+
+
+class BarChart(Chart):
 
     TYPE = "barChart"
     GROUPING = "clustered"
@@ -511,8 +557,3 @@ class ScatterChart(Chart):
         super(ScatterChart, self).__init__()
         self.y_axis.type = "valAx"
         self.x_axis.type = "valAx"
-
-
-class PieChart(Chart):
-
-    TYPE = "pieChart"

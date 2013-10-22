@@ -283,8 +283,6 @@ class TestChart(object):
         c = Chart()
         eq_(c.TYPE, None)
         eq_(c.GROUPING, "standard")
-        assert_true(isinstance(c.x_axis, Axis))
-        assert_true(isinstance(c.y_axis, Axis))
         assert_true(isinstance(c.legend, Legend))
         eq_(c.show_legend, True)
         eq_(c.lang, 'en-GB')
@@ -314,22 +312,6 @@ class TestChart(object):
         eq_(c.mymin(list(letters)), "A")
         eq_(c.mymin(range(-10, 1)), -10)
         eq_(c.mymin([""]*10), "")
-
-    def test_get_x_unit(self):
-        c = Chart()
-        c._series.append(self.range)
-        eq_(c.get_x_units(), 10)
-
-    def test_get_y_unit(self):
-        c = Chart()
-        c._series.append(self.range)
-        c.y_axis.max = 10
-        eq_(c.get_y_units(), 190500.0)
-
-    def test_get_y_char(self):
-        c = Chart()
-        c._series.append(self.range)
-        eq_(c.get_y_chars(), 1)
 
     def test_compute_series_extremes(self):
         c = Chart()
@@ -371,12 +353,100 @@ class TestChart(object):
         eq_(c.margin_left , 0.03375)
 
 
+class TestGraphChart(object):
+
+    def setup(self):
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        for i in range(10):
+            ws.cell(row=i, column=0).value = 1
+        values = Reference(ws, (0, 0), (0, 9))
+        self.range = Serie(values=values)
+
+    def make_one(self):
+        from openpyxl.chart import GraphChart
+        return GraphChart()
+
+    def test_ctor(self):
+        from openpyxl.chart import Axis, Legend
+        from openpyxl.drawing import Drawing
+        c = self.make_one()
+        eq_(c.TYPE, None)
+        eq_(c.GROUPING, "standard")
+        assert_true(isinstance(c.x_axis, Axis))
+        assert_true(isinstance(c.y_axis, Axis))
+        assert_true(isinstance(c.legend, Legend))
+        eq_(c.show_legend, True)
+        eq_(c.lang, 'en-GB')
+        eq_(c.title, '')
+        eq_(c.print_margins,
+            {'b':.75, 'l':.7, 'r':.7, 't':.75, 'header':0.3, 'footer':.3}
+            )
+        assert_true(isinstance(c.drawing, Drawing))
+        eq_(c.width, .6)
+        eq_(c.height, .6)
+        eq_(c.margin_top, 0.31)
+        #eq_(c.margin_left, 0)
+        eq_(c._shapes, [])
+
+    def test_get_x_unit(self):
+        c = self.make_one()
+        c._series.append(self.range)
+        eq_(c.get_x_units(), 10)
+
+    def test_get_y_unit(self):
+        c = self.make_one()
+        c._series.append(self.range)
+        c.y_axis.max = 10
+        eq_(c.get_y_units(), 190500.0)
+
+    def test_get_y_char(self):
+        c = self.make_one()
+        c._series.append(self.range)
+        eq_(c.get_y_chars(), 1)
+
+
 class TestLineChart(object):
 
     def test_ctor(self):
         from openpyxl.chart import LineChart
         c = LineChart()
         eq_(c.TYPE, "lineChart")
+        eq_(c.x_axis.type, "catAx")
+        eq_(c.y_axis.type, "valAx")
+
+
+class TestPieChart(object):
+
+    def test_ctor(self):
+
+        from openpyxl.chart import PieChart
+        c = PieChart()
+        eq_(c.TYPE, "pieChart")
+        #assert_false(hasattr(c, "x_axis"))
+        #assert_false(hasattr(c, "y_axis"))
+
+
+class TestBarChart(object):
+
+    def test_ctor(self):
+
+        from openpyxl.chart import BarChart
+        c = BarChart()
+        eq_(c.TYPE, "barChart")
+        eq_(c.x_axis.type, "catAx")
+        eq_(c.y_axis.type, "valAx")
+
+
+class TestScatterChart(object):
+
+    def test_ctor(self):
+
+        from openpyxl.chart import ScatterChart
+        c = ScatterChart()
+        eq_(c.TYPE, "scatterChart")
+        eq_(c.x_axis.type, "valAx")
+        eq_(c.y_axis.type, "valAx")
 
 
 class TestChartWriter(object):
