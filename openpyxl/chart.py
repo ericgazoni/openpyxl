@@ -125,38 +125,6 @@ class Axis(object):
     def unit(self, value):
         self._unit = value
 
-    @classmethod
-    def default_category(cls):
-        """ default values for category axes """
-
-        ax = Axis()
-        ax.id = 60871424
-        ax.cross = 60873344
-        ax.position = Axis.POSITION_BOTTOM
-        ax.tick_label_position = 'nextTo'
-        ax.crosses = "autoZero"
-        ax.auto = True
-        ax.label_align = 'ctr'
-        ax.label_offset = 100
-        ax.type = "catAx"
-        return ax
-
-    @classmethod
-    def default_value(cls):
-        """ default values for value axes """
-
-        ax = Axis()
-        ax.id = 60873344
-        ax.cross = 60871424
-        ax.position = Axis.POSITION_LEFT
-        ax.major_gridlines = None
-        ax.tick_label_position = 'nextTo'
-        ax.crosses = 'autoZero'
-        ax.auto = False
-        ax.cross_between = 'between'
-        ax.type= "valAx"
-        return ax
-
 
 class CategoryAxis(Axis):
 
@@ -416,8 +384,6 @@ class Chart(object):
         self._series = []
 
         # public api
-        self.x_axis = Axis.default_category()
-        self.y_axis = Axis.default_value()
         self.legend = Legend()
         self.show_legend = True
         self.lang = 'en-GB'
@@ -466,14 +432,14 @@ class Chart(object):
         _max = max([s.max() for s in self._series])
         return len(str(int(_max)))
 
-    def compute_axes(self):
-        """Calculate maximum value and units for axes"""
-        mini, maxi = self._get_extremes()
-        self.y_axis.set_values(mini, maxi)
+    #def compute_axes(self):
+        #"""Calculate maximum value and units for axes"""
+        #mini, maxi = self._get_extremes()
+        #self.y_axis.set_values(mini, maxi)
 
-        if not None in [s.xvalues for s in self._series]:
-            mini, maxi = self._get_extremes('xvalues')
-            self.x_axis.set_values(mini, maxi)
+        #if not None in [s.xvalues for s in self._series]:
+            #mini, maxi = self._get_extremes('xvalues')
+            #self.x_axis.set_values(mini, maxi)
 
     def _get_extremes(self, attr='values'):
         """Calculate the maximum and minimum values of all series for an axis
@@ -529,8 +495,8 @@ class PieChart(Chart):
 class GraphChart(Chart):
     """Chart with axes"""
 
-    x_axis = Axis.default_category()
-    y_axis = Axis.default_value()
+    x_axis = CategoryAxis()
+    y_axis = ValueAxis()
 
     def compute_axes(self):
         """Calculate maximum value and units for axes"""
@@ -542,22 +508,21 @@ class GraphChart(Chart):
             self.x_axis.set_values(mini, maxi)
 
 
-class BarChart(Chart):
+class BarChart(GraphChart):
 
     TYPE = "barChart"
     GROUPING = "clustered"
 
 
-class LineChart(Chart):
+class LineChart(GraphChart):
 
     TYPE = "lineChart"
 
 
-class ScatterChart(Chart):
+class ScatterChart(GraphChart):
 
     TYPE = "scatterChart"
 
     def __init__(self):
         super(ScatterChart, self).__init__()
-        self.y_axis.type = "valAx"
         self.x_axis.type = "valAx"
