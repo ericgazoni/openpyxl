@@ -136,6 +136,7 @@ class CategoryAxis(Axis):
     auto = True
     label_align = 'ctr'
     label_offset = 100
+    cross_between = "midCat"
     type = "catAx"
 
 
@@ -518,3 +519,5 @@ class ScatterChart(GraphChart):
     def __init__(self):
         super(ScatterChart, self).__init__()
         self.x_axis.type = "valAx"
+        self.x_axis.cross_between = "midCat"
+        self.y_axis.cross_between = "midCat"

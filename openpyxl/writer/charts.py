@@ -153,10 +153,7 @@ class BaseChartWriter(object):
         if axis.label_offset:
             SubElement(ax, '{%s}lblOffset' % CHART_NS, {'val':str(axis.label_offset)})
         if axis.type == "valAx":
-            if self.chart.TYPE == "scatterChart":
-                SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'midCat'})
-            else:
-                SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'between'})
+            SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':axis.cross_between})
             SubElement(ax, '{%s}majorUnit' % CHART_NS, {'val':str(float(axis.unit))})
 
     def _write_series(self, subchart):
