@@ -130,12 +130,12 @@ class BaseChartWriter(object):
 
         scaling = SubElement(ax, '{%s}scaling' % CHART_NS)
         SubElement(scaling, '{%s}orientation' % CHART_NS, {'val':axis.orientation})
-        if label == '{%s}valAx' % CHART_NS:
+        if axis.type == "valAx":
             SubElement(scaling, '{%s}max' % CHART_NS, {'val':str(float(axis.max))})
             SubElement(scaling, '{%s}min' % CHART_NS, {'val':str(float(axis.min))})
 
         SubElement(ax, '{%s}axPos' % CHART_NS, {'val':axis.position})
-        if label == '{%s}valAx' % CHART_NS:
+        if axis.type == "valAx":
             SubElement(ax, '{%s}majorGridlines' % CHART_NS)
             SubElement(ax, '{%s}numFmt' % CHART_NS, {'formatCode':"General", 'sourceLinked':'1'})
         self._write_axis_title(axis, ax)
@@ -148,7 +148,7 @@ class BaseChartWriter(object):
             SubElement(ax, '{%s}lblAlgn' % CHART_NS, {'val':axis.label_align})
         if axis.label_offset:
             SubElement(ax, '{%s}lblOffset' % CHART_NS, {'val':str(axis.label_offset)})
-        if label == '{%s}valAx' % CHART_NS:
+        if axis.type == "valAx":
             if self.chart.TYPE == "scatterChart":
                 SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'midCat'})
             else:
