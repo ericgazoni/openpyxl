@@ -488,8 +488,13 @@ class PieChart(Chart):
 class GraphChart(Chart):
     """Chart with axes"""
 
-    x_axis = CategoryAxis()
-    y_axis = ValueAxis()
+    x_axis = CategoryAxis
+    y_axis = ValueAxis
+
+    def __init__(self):
+        super(GraphChart, self).__init__()
+        self.x_axis = getattr(self, "x_axis")()
+        self.y_axis = getattr(self, "y_axis")()
 
     def compute_axes(self):
         """Calculate maximum value and units for axes"""
@@ -503,8 +508,8 @@ class GraphChart(Chart):
 
 class BarChart(GraphChart):
 
-    x_axis = CategoryAxis()
-    y_axis = ValueAxis()
+    #x_axis = CategoryAxis()
+    #y_axis = ValueAxis()
 
     TYPE = "barChart"
     GROUPING = "clustered"
@@ -512,8 +517,8 @@ class BarChart(GraphChart):
 
 class LineChart(GraphChart):
 
-    x_axis = CategoryAxis()
-    y_axis = ValueAxis()
+    #x_axis = CategoryAxis()
+    #y_axis = ValueAxis()
 
     TYPE = "lineChart"
 
