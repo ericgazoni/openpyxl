@@ -27,7 +27,7 @@ from numbers import Number
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
 from openpyxl.shared.ooxml import CHART_NS, DRAWING_NS, REL_NS
 from openpyxl.shared.compat.itertools import iteritems
-from openpyxl.chart import Chart, ErrorBar, BarChart, LineChart, PieChart, ScatterChart
+from openpyxl.chart import Chart, ErrorBar, BarChart, LineChart, PieChart, ScatterChart, GraphChart
 
 try:
     # Python 2
@@ -85,7 +85,11 @@ class BaseChartWriter(object):
         subchart = SubElement(plot_area, '{%s}%s' % (CHART_NS, chart_type))
         self._write_options(subchart)
         self._write_series(subchart)
-        return subchart, plot_area
+        if isinstance(chart, GraphChart):
+            SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
+            SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
+            self._write_axis(plot_area, chart.x_axis, '{%s}%s' % (CHART_NS, chart.x_axis.type))
+            self._write_axis(plot_area, chart.y_axis, '{%s}%s' % (CHART_NS, chart.y_axis.type))
 
     def _write_options(self, subchart):
         pass
@@ -293,15 +297,6 @@ class LineChartWriter(BaseChartWriter):
 
     def _write_options(self, subchart):
         SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':self.chart.GROUPING})
-
-    def _write_layout(self, root):
-        subchart, plotarea = super(LineChartWriter, self)._write_layout(root)
-        chart = self.chart
-
-        SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
-        SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
-        super(LineChartWriter, self)._write_axis(plotarea, chart.x_axis, '{%s}%s' % (CHART_NS, chart.x_axis.type))
-        super(LineChartWriter, self)._write_axis(plotarea, chart.y_axis, '{%s}%s' % (CHART_NS, chart.y_axis.type))
 
 
 class BarChartWriter(LineChartWriter):
