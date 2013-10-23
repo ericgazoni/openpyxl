@@ -19,6 +19,14 @@ them here.
 
 """
 
+import sys
+import warnings
+
+if sys.version_info < (2, 5):
+    raise Exception("Python >= 2.6 is required.")
+elif sys.version_info[:2] == (2, 5):
+    warnings.warn("Support for Python 2.5 will be dropped in the next release.")
+
 from setuptools import setup, Extension, find_packages
 import openpyxl  # to fetch __version__ etc
 
