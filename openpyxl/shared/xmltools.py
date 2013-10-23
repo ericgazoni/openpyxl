@@ -61,15 +61,10 @@ Shortcut functions taken from:
 # Python stdlib imports
 from openpyxl import __name__ as prefix
 from openpyxl.shared.compat import OrderedDict
-from openpyxl.shared.compat.sax import XMLGenerator
-import re
+from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesNSImpl
-try:
-    from xml.etree.ElementTree import (ElementTree, Element, SubElement, QName,
+from xml.etree.ElementTree import (ElementTree, Element, SubElement, QName,
                                        fromstring, tostring)
-except ImportError:
-    from cElementTree import (ElementTree, Element, SubElement,
-                              QName, fromstring, tostring)
 
 try:
     from xml.etree.ElementTree import register_namespace
