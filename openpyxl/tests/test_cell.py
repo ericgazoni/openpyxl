@@ -47,6 +47,7 @@ def build_dummy_worksheet():
             excel_base_date = CALENDAR_WINDOWS_1900
         encoding = 'utf-8'
         parent = Wb()
+        title = "Dummy Worksheet"
 
     return Ws()
 
