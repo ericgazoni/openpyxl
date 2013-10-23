@@ -71,27 +71,10 @@ except ImportError:
     from cElementTree import (ElementTree, Element, SubElement,
                               QName, fromstring, tostring)
 
-
-def register_namespace(prefix, uri):
-    if re.match("ns\d+$", prefix):
-        raise ValueError("Prefix format reserved for internal use")
-    for k, v in _namespace_map.items():
-        if k == uri or v == prefix:
-            del _namespace_map[k]
-    _namespace_map[uri] = prefix
-
-_namespace_map = {
-    # "well-known" namespace prefixes
-    "http://www.w3.org/XML/1998/namespace": "xml",
-    "http://www.w3.org/1999/xhtml": "html",
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns#": "rdf",
-    "http://schemas.xmlsoap.org/wsdl/": "wsdl",
-    # xml schema
-    "http://www.w3.org/2001/XMLSchema": "xs",
-    "http://www.w3.org/2001/XMLSchema-instance": "xsi",
-    # dublin core
-    "http://purl.org/dc/elements/1.1/": "dc",
-}
+try:
+    from xml.etree.ElementTree import register_namespace
+except:
+    from openpyxl.shared.compat.elementtree import register_namespace
 
 
 def get_document_content(xml_node):
