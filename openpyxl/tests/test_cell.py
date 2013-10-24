@@ -146,6 +146,8 @@ class TestCellValueTypes(object):
     def test_formula(self):
         self.cell.value = '=42'
         eq_(self.cell.TYPE_FORMULA, self.cell.data_type)
+        self.cell.value = '=if(A1<4;-1;1)'
+        eq_(self.cell.TYPE_FORMULA, self.cell.data_type)
 
     def test_boolean(self):
         self.cell.value = True
