@@ -30,28 +30,24 @@ from openpyxl.shared.xmltools import Element, SubElement
 from openpyxl.shared.xmltools import get_document_content
 from openpyxl import style
 
-class StyleWriter(object):
 
+class StyleWriter(object):
     def __init__(self, workbook):
         self._style_list = self._get_style_list(workbook)
         self._root = Element('styleSheet',
-            {'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'})
+            {'xmlns': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'})
 
     def _get_style_list(self, workbook):
-        crc = {}
+        styles = set()
         for worksheet in workbook.worksheets:
-            uniqueStyles = dict((id(style), style) for style in worksheet._styles.values()).values()
-            for style in uniqueStyles:
-                crc[hash(style)] = style
-        self.style_table = dict([(style, i + 1) \
-            for i, style in enumerate(crc.values())])
-        sorted_styles = sorted(self.style_table.items(), \
-            key=lambda pair:pair[1])
-        return [s[0] for s in sorted_styles]
+            styles = styles.union(set(worksheet._styles.values()))
+        self.style_table = dict([(style, i)
+                                 for i, style in enumerate(styles,
+                                                           start=1)])
+        return styles
 
     def get_style_by_hash(self):
-        return dict([(hash(style), id) \
-            for style, id in self.style_table.items()])
+        return self.style_table
 
     def write_table(self):
         number_format_table = self._write_number_formats()
@@ -89,7 +85,7 @@ class StyleWriter(object):
                 table[hash(st.font)] = str(index)
                 font_node = SubElement(fonts, 'font')
                 SubElement(font_node, 'sz', {'val':str(st.font.size)})
-                if str(st.font.color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
+                if str(st.font.color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such
                     if str(st.font.color.index).split(':')[2]:
                         SubElement(font_node, 'color', {'theme':str(st.font.color.index).split(':')[1],
                                                         'tint':str(st.font.color.index).split(':')[2]})
@@ -101,7 +97,7 @@ class StyleWriter(object):
                 SubElement(font_node, 'family', {'val':'2'})
                 # Don't write the 'scheme' element because it appears to prevent
                 # the font name from being applied in Excel.
-                #SubElement(font_node, 'scheme', {'val':'minor'})
+                # SubElement(font_node, 'scheme', {'val':'minor'})
                 if st.font.bold:
                     SubElement(font_node, 'b')
                 if st.font.italic:
@@ -130,7 +126,7 @@ class StyleWriter(object):
                 if hash(st.fill.fill_type) != hash(style.DEFAULTS.fill.fill_type):
                     node = SubElement(fill, 'patternFill', {'patternType':st.fill.fill_type})
                     if hash(st.fill.start_color) != hash(style.DEFAULTS.fill.start_color):
-                        if str(st.fill.start_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
+                        if str(st.fill.start_color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such
                             if str(st.fill.start_color.index).split(':')[2]:
                                 SubElement(node, 'fgColor', {'theme':str(st.fill.start_color.index).split(':')[1],
                                                              'tint':str(st.fill.start_color.index).split(':')[2]})
@@ -139,7 +135,7 @@ class StyleWriter(object):
                         else:
                             SubElement(node, 'fgColor', {'rgb':str(st.fill.start_color.index)})
                     if hash(st.fill.end_color) != hash(style.DEFAULTS.fill.end_color):
-                        if str(st.fill.end_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
+                        if str(st.fill.end_color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such
                             if str(st.fill.end_color.index).split(':')[2]:
                                 SubElement(node, 'bgColor', {'theme':str(st.fill.end_color.index).split(':')[1],
                                                              'tint':str(st.fill.end_color.index).split(':')[2]})
@@ -178,7 +174,7 @@ class StyleWriter(object):
                         attrs = {}
                     else:
                         node = SubElement(border, side, {'style':obj.border_style})
-                        if str(obj.color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
+                        if str(obj.color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such
                             if str(obj.color.index).split(':')[2]:
                                 SubElement(node, 'color', {'theme':str(obj.color.index).split(':')[1],
                                                                 'tint':str(obj.color.index).split(':')[2]})
@@ -246,7 +242,7 @@ class StyleWriter(object):
 
                     if st.alignment.indent > 0:
                         alignments['indent'] = '%s' % st.alignment.indent
-                    
+
                     if st.alignment.text_rotation > 0:
                         alignments['textRotation'] = '%s' % st.alignment.text_rotation
                     elif st.alignment.text_rotation < 0:
@@ -275,7 +271,7 @@ class StyleWriter(object):
 
         number_format_list = []
         exceptions_list = []
-        num_fmt_id = 165 # start at a greatly higher value as any builtin can go
+        num_fmt_id = 165  # start at a greatly higher value as any builtin can go
         num_fmt_offset = 0
 
         for style in self._style_list:

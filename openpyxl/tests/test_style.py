@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_style.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -36,7 +36,8 @@ from openpyxl.tests.helper import DATADIR, assert_equals_file_content, get_xml
 from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.style import NumberFormat, Border, Color, Font
+from openpyxl.style import NumberFormat, Border, Color, Font, Borders, Style, \
+    Alignment, Fill
 
 
 class TestCreateStyle(object):
@@ -51,7 +52,7 @@ class TestCreateStyle(object):
         cls.worksheet.cell(coordinate='B5').value = now
         cls.worksheet.cell(coordinate='C14').value = 'This is a test'
         cls.worksheet.cell(coordinate='D9').value = '31.31415'
-        cls.worksheet.cell(coordinate='D9').style.number_format.format_code = NumberFormat.FORMAT_NUMBER_00
+        cls.worksheet.cell(coordinate='D9').style = Style(number_format=NumberFormat(NumberFormat.FORMAT_NUMBER_00))
         cls.writer = StyleWriter(cls.workbook)
 
     def test_create_style_table(self):
@@ -77,56 +78,55 @@ class TestStyleWriter(object):
     def test_nb_style(self):
 
         for i in range(1, 6):
-            self.worksheet.cell(row=1, column=i).style.font.size += i
+            self.worksheet.cell(row=1, column=i).style = Style(font=Font(size=i))
         w = StyleWriter(self.workbook)
         eq_(5, len(w.style_table))
 
-        self.worksheet.cell('A10').style.borders.top = Border.BORDER_THIN
+        self.worksheet.cell('A10').style = Style(borders=Borders(top=Border(border_style=Border.BORDER_THIN)))
         w = StyleWriter(self.workbook)
         eq_(6, len(w.style_table))
 
     def test_style_unicity(self):
 
         for i in range(1, 6):
-            self.worksheet.cell(row=1, column=i).style.font.bold = True
+            self.worksheet.cell(row=1, column=i).style = Style(font=Font(bold=True))
         w = StyleWriter(self.workbook)
         eq_(1, len(w.style_table))
 
     def test_fonts(self):
 
-        self.worksheet.cell('A1').style.font.size = 12
-        self.worksheet.cell('A1').style.font.bold = True
+        self.worksheet.cell('A1').style = Style(font=Font(size=12, bold=True))
         w = StyleWriter(self.workbook)
         w._write_fonts()
         eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /></font></fonts></styleSheet>')
 
     def test_fonts_with_underline(self):
-        self.worksheet.cell('A1').style.font.size = 12
-        self.worksheet.cell('A1').style.font.bold = True
-        self.worksheet.cell('A1').style.font.underline = Font.UNDERLINE_SINGLE
+        self.worksheet.cell('A1').style = Style(font=Font(size=12,
+                                                          bold=True,
+                                                          underline=Font.UNDERLINE_SINGLE))
         w = StyleWriter(self.workbook)
         w._write_fonts()
         eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u /></font></fonts></styleSheet>')
 
     def test_fills(self):
 
-        self.worksheet.cell('A1').style.fill.fill_type = 'solid'
-        self.worksheet.cell('A1').style.fill.start_color.index = Color.DARKYELLOW
+        self.worksheet.cell('A1').style = Style(fill=Fill(fill_type='solid',
+                                                          start_color=Color(index=Color.DARKYELLOW)))
         w = StyleWriter(self.workbook)
         w._write_fills()
         eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fills count="3"><fill><patternFill patternType="none" /></fill><fill><patternFill patternType="gray125" /></fill><fill><patternFill patternType="solid"><fgColor rgb="FF808000" /></patternFill></fill></fills></styleSheet>')
 
     def test_borders(self):
-
-        self.worksheet.cell('A1').style.borders.top.border_style = Border.BORDER_THIN
-        self.worksheet.cell('A1').style.borders.top.color.index = Color.DARKYELLOW
+        style = Style(borders=Borders(top=Border(border_style=Border.BORDER_THIN,
+                                                 color=Color(index=Color.DARKYELLOW))))
+        self.worksheet.cell('A1').style = style
         w = StyleWriter(self.workbook)
         w._write_borders()
         eq_(get_xml(w._root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><borders count="2"><border><left /><right /><top /><bottom /><diagonal /></border><border><left /><right /><top style="thin"><color rgb="FF808000" /></top><bottom /><diagonal /></border></borders></styleSheet>')
 
     def test_write_cell_xfs_1(self):
 
-        self.worksheet.cell('A1').style.font.size = 12
+        self.worksheet.cell('A1').style = Style(font=Font(size=12))
         w = StyleWriter(self.workbook)
         ft = w._write_fonts()
         nft = w._write_number_formats()
@@ -138,8 +138,8 @@ class TestStyleWriter(object):
         ok_('applyAlignment="1"' not in xml)
 
     def test_alignment(self):
-        self.worksheet.cell('A1').style.alignment.horizontal = 'center'
-        self.worksheet.cell('A1').style.alignment.vertical = 'center'
+        self.worksheet.cell('A1').style = Style(alignment=Alignment(horizontal='center',
+                                                                    vertical='center'))
         w = StyleWriter(self.workbook)
         nft = w._write_number_formats()
         w._write_cell_xfs(nft, {}, {}, {})
@@ -149,11 +149,12 @@ class TestStyleWriter(object):
         ok_('vertical="center"' in xml)
 
     def test_alignment_rotation(self):
-        self.worksheet.cell('A1').style.alignment.vertical = 'center'
-        self.worksheet.cell('A1').style.alignment.text_rotation = 90
-        self.worksheet.cell('A2').style.alignment.vertical = 'center'
-        self.worksheet.cell('A2').style.alignment.text_rotation = 135
-        self.worksheet.cell('A3').style.alignment.text_rotation = -34
+        s1 = self.worksheet.cell('A1').style
+        self.worksheet.cell('A1').style = Style(alignment=Alignment(vertical='center',
+                                                                           text_rotation=90))
+        self.worksheet.cell('A2').style = Style(alignment=Alignment(vertical='center',
+                                                                            text_rotation=135))
+        self.worksheet.cell('A3').style = Style(alignment=Alignment(text_rotation= -34))
         w = StyleWriter(self.workbook)
         nft = w._write_number_formats()
         w._write_cell_xfs(nft, {}, {}, {})
@@ -163,38 +164,24 @@ class TestStyleWriter(object):
         ok_('textRotation="124"' in xml)
 
     def test_alignment_indent(self):
-        self.worksheet.cell('A1').style.alignment.indent = 1
-        self.worksheet.cell('A2').style.alignment.indent = 4
-        self.worksheet.cell('A3').style.alignment.indent = 0
-        self.worksheet.cell('A3').style.alignment.indent = -1
+        self.worksheet.cell('A2').style = Style(alignment=Alignment(indent=4))
+        self.worksheet.cell('A1').style = Style(alignment=Alignment(indent=1))
+        self.worksheet.cell('A3').style = Style(alignment=Alignment(indent=0))
+        self.worksheet.cell('A4').style = Style(alignment=Alignment(indent= -1))
         w = StyleWriter(self.workbook)
         nft = w._write_number_formats()
         w._write_cell_xfs(nft, {}, {}, {})
         xml = get_xml(w._root)
         ok_('indent="1"' in xml)
         ok_('indent="4"' in xml)
-        #Indents not greater than zero are ignored when writing
+        # Indents not greater than zero are ignored when writing
         ok_('indent="0"' not in xml)
         ok_('indent="-1"' not in xml)
 
 
-#def test_format_comparisions():
-#    format1 = NumberFormat()
-#    format2 = NumberFormat()
-#    format3 = NumberFormat()
-#    format1.format_code = 'm/d/yyyy'
-#    format2.format_code = 'm/d/yyyy'
-#    format3.format_code = 'mm/dd/yyyy'
-#    assert not format1 < format2
-#    assert format1 < format3
-#    assert format1 == format2
-#    assert format1 != format3
-
-
 def test_builtin_format():
-    nFormat = NumberFormat()
-    nFormat.format_code = '0.00'
-    eq_(nFormat.builtin_format_code(2), nFormat._format_code)
+    nFormat = NumberFormat(format_code='0.00')
+    eq_(nFormat.builtin_format_code(2), nFormat.format_code)
 
 
 def test_read_style():
@@ -238,9 +225,9 @@ def test_read_complex_style():
     eq_(ws.cell('A12').style.alignment.vertical, 'top')
     eq_(ws.cell('A13').style.alignment.vertical, 'center')
     eq_(ws.cell('A14').style.alignment.vertical, 'bottom')
-    eq_(ws.cell('A15').style.number_format._format_code, '0.00')
-    eq_(ws.cell('A16').style.number_format._format_code, 'mm-dd-yy')
-    eq_(ws.cell('A17').style.number_format._format_code, '0.00%')
+    eq_(ws.cell('A15').style.number_format.format_code, '0.00')
+    eq_(ws.cell('A16').style.number_format.format_code, 'mm-dd-yy')
+    eq_(ws.cell('A17').style.number_format.format_code, '0.00%')
     eq_('A18:B18' in ws._merged_cells, True)
     eq_(ws.cell('B18').merged, True)
     eq_(ws.cell('A19').style.borders.top.color.index, 'FF006600')
