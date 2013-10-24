@@ -37,12 +37,12 @@ try:
     from numbers import Number
 except ImportError:
     Number = False
-                
+
 
 def safe_string(value):
     """Safely and consistently format numeric values"""
     if Number is False:
-        # Python 2.5 
+        # Python 2.5
         if type(value) == int or type(value) == float:
             value = "%.15g" % value
         elif not isinstance(value, basestring):
