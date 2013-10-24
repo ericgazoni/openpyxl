@@ -27,11 +27,29 @@
 
 # Python stdlib imports
 import re
-from collections import namedtuple
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
+
 from openpyxl.shared.compat import any
 
+class HashableObject(object):
+    """Define how to hash property classes."""
+    __fields__ = None
+    __leaf__ = False
 
-class Color(namedtuple('Color', ('index',))):
+    def __repr__(self):
+
+        return ':'.join([repr(getattr(self, x)) for x in self.__fields__])
+
+    def __hash__(self):
+
+#        return int(md5(repr(self)).hexdigest(), 16)
+        return hash(repr(self))
+
+class Color(HashableObject):
+    """Named colors for use in styles."""
     BLACK = 'FF000000'
     WHITE = 'FFFFFFFF'
     RED = 'FFFF0000'
@@ -43,16 +61,16 @@ class Color(namedtuple('Color', ('index',))):
     YELLOW = 'FFFFFF00'
     DARKYELLOW = 'FF808000'
 
+    __fields__ = ('index',)
+    __slots__ = __fields__
+    __leaf__ = True
 
-class Font(namedtuple('Font', ('name',
-                               'size',
-                               'bold',
-                               'italic',
-                               'superscript',
-                               'subscript',
-                               'underline',
-                               'strikethrough',
-                               'color'))):
+    def __init__(self, index):
+        super(Color, self).__init__()
+        self.index = index
+
+
+class Font(HashableObject):
     """Font options used in styles."""
     UNDERLINE_NONE = 'none'
     UNDERLINE_DOUBLE = 'double'
@@ -60,27 +78,31 @@ class Font(namedtuple('Font', ('name',
     UNDERLINE_SINGLE = 'single'
     UNDERLINE_SINGLE_ACCOUNTING = 'singleAccounting'
 
-    def __new__(cls,
-                name='Calibri',
-                size=11,
-                bold=False,
-                italic=False,
-                superscript=False,
-                subscript=False,
-                underline=UNDERLINE_NONE,
-                strikethrough=False,
-                color=Color(Color.BLACK)
-                ):
-        return super(Font, cls).__new__(cls, name, size,
-                                        bold, italic, superscript,
-                                        subscript, underline,
-                                        strikethrough, color)
+    __fields__ = ('name',
+                  'size',
+                  'bold',
+                  'italic',
+                  'superscript',
+                  'subscript',
+                  'underline',
+                  'strikethrough',
+                  'color')
+    __slots__ = __fields__
+
+    def __init__(self):
+        super(Font, self).__init__()
+        self.name = 'Calibri'
+        self.size = 11
+        self.bold = False
+        self.italic = False
+        self.superscript = False
+        self.subscript = False
+        self.underline = self.UNDERLINE_NONE
+        self.strikethrough = False
+        self.color = Color(Color.BLACK)
 
 
-class Fill(namedtuple('Fill', ('fill_type',
-                               'rotation',
-                               'start_color',
-                               'end_color'))):
+class Fill(HashableObject):
     """Area fill patterns for use in styles."""
     FILL_NONE = 'none'
     FILL_SOLID = 'solid'
@@ -104,16 +126,21 @@ class Fill(namedtuple('Fill', ('fill_type',
     FILL_PATTERN_LIGHTVERTICAL = 'lightVertical'
     FILL_PATTERN_MEDIUMGRAY = 'mediumGray'
 
-    def __new__(cls,
-                fill_type=FILL_NONE,
-                rotation=0,
-                start_color=Color(Color.WHITE),
-                end_color=Color(Color.BLACK)):
-        return super(Fill, cls).__new__(cls, fill_type, rotation,
-                                        start_color, end_color)
+    __fields__ = ('fill_type',
+                  'rotation',
+                  'start_color',
+                  'end_color')
+    __slots__ = __fields__
+
+    def __init__(self):
+        super(Fill, self).__init__()
+        self.fill_type = self.FILL_NONE
+        self.rotation = 0
+        self.start_color = Color(Color.WHITE)
+        self.end_color = Color(Color.BLACK)
 
 
-class Border(namedtuple('Border', ('border_style', 'color'))):
+class Border(HashableObject):
     """Border options for use in styles."""
     BORDER_NONE = 'none'
     BORDER_DASHDOT = 'dashDot'
@@ -130,45 +157,53 @@ class Border(namedtuple('Border', ('border_style', 'color'))):
     BORDER_THICK = 'thick'
     BORDER_THIN = 'thin'
 
-    def __new__(cls, border_style=BORDER_NONE,
-                color=Color(Color.BLACK)):
-        return super(Border, cls).__new__(cls, border_style, color)
+    __fields__ = ('border_style',
+                  'color')
+    __slots__ = __fields__
+
+    def __init__(self):
+        super(Border, self).__init__()
+        self.border_style = self.BORDER_NONE
+        self.color = Color(Color.BLACK)
 
 
-class Borders(namedtuple('Borders', ('left',
-                                     'right',
-                                     'top',
-                                     'bottom',
-                                     'diagonal',
-                                     'diagonal_direction',
-                                     'all_borders',
-                                     'outline',
-                                     'inside',
-                                     'vertical',
-                                     'horizontal'))):
+class Borders(HashableObject):
     """Border positioning for use in styles."""
     DIAGONAL_NONE = 0
     DIAGONAL_UP = 1
     DIAGONAL_DOWN = 2
     DIAGONAL_BOTH = 3
 
-    def __new__(cls, left=Border(), right=Border(),
-                     top=Border(), bottom=Border(),
-                     diagonal=Border(), diagonal_direction=DIAGONAL_NONE,
-                     all_borders=Border(), outline=Border(),
-                     inside=Border(), vertical=Border(), horizontal=Border()):
-        return super(Borders, cls).__new__(cls, left, right, top, bottom,
-                                           diagonal, diagonal_direction,
-                                           all_borders, outline, inside,
-                                           vertical, horizontal)
+    __fields__ = ('left',
+                  'right',
+                  'top',
+                  'bottom',
+                  'diagonal',
+                  'diagonal_direction',
+                  'all_borders',
+                  'outline',
+                  'inside',
+                  'vertical',
+                  'horizontal')
+    __slots__ = __fields__
+
+    def __init__(self):
+        super(Borders, self).__init__()
+        self.left = Border()
+        self.right = Border()
+        self.top = Border()
+        self.bottom = Border()
+        self.diagonal = Border()
+        self.diagonal_direction = self.DIAGONAL_NONE
+
+        self.all_borders = Border()
+        self.outline = Border()
+        self.inside = Border()
+        self.vertical = Border()
+        self.horizontal = Border()
 
 
-class Alignment(namedtuple('Alignment', ('horizontal',
-                                         'vertical',
-                                         'text_rotation',
-                                         'wrap_text',
-                                         'shrink_to_fit',
-                                         'indent'))):
+class Alignment(HashableObject):
     """Alignment options for use in styles."""
     HORIZONTAL_GENERAL = 'general'
     HORIZONTAL_LEFT = 'left'
@@ -181,18 +216,26 @@ class Alignment(namedtuple('Alignment', ('horizontal',
     VERTICAL_CENTER = 'center'
     VERTICAL_JUSTIFY = 'justify'
 
-    def __new__(cls, horizontal=HORIZONTAL_GENERAL,
-                vertical=VERTICAL_BOTTOM,
-                text_rotation=0,
-                wrap_text=False,
-                shrink_to_fit=False,
-                indent=0):
-        return super(Alignment, cls).__new__(cls, horizontal, vertical,
-                                             text_rotation, wrap_text,
-                                             shrink_to_fit, indent)
+    __fields__ = ('horizontal',
+                  'vertical',
+                  'text_rotation',
+                  'wrap_text',
+                  'shrink_to_fit',
+                  'indent')
+    __slots__ = __fields__
+    __leaf__ = True
+
+    def __init__(self):
+        super(Alignment, self).__init__()
+        self.horizontal = self.HORIZONTAL_GENERAL
+        self.vertical = self.VERTICAL_BOTTOM
+        self.text_rotation = 0
+        self.wrap_text = False
+        self.shrink_to_fit = False
+        self.indent = 0
 
 
-class NumberFormat(namedtuple('NumberFormat', ('format_code',))):
+class NumberFormat(HashableObject):
     """Numer formatting for use in styles."""
     FORMAT_GENERAL = 'General'
     FORMAT_TEXT = '@'
@@ -268,75 +311,89 @@ class NumberFormat(namedtuple('NumberFormat', ('format_code',))):
     _BUILTIN_FORMATS_REVERSE = dict(
             [(value, key) for key, value in _BUILTIN_FORMATS.items()])
 
+    __fields__ = ('_format_code',
+                  '_format_index')
+    __slots__ = __fields__
+    __leaf__ = True
+
     DATE_INDICATORS = 'dmyhs'
     BAD_DATE_RE = re.compile(r'(\[|").*[dmhys].*(\]|")')
 
-    def __new__(cls, format_code=FORMAT_GENERAL):
-        return super(NumberFormat, cls).__new__(cls, format_code)
+    def __init__(self):
+        super(NumberFormat, self).__init__()
+        self._format_code = self.FORMAT_GENERAL
+        self._format_index = 0
 
-    @property
-    def _format_index(self):
-        return self.builtin_format_id(self.format_code)
+    def _set_format_code(self, format_code = FORMAT_GENERAL):
+        """Setter for the format_code property."""
+        self._format_code = format_code
+        self._format_index = self.builtin_format_id(format = format_code)
+
+    def _get_format_code(self):
+        """Getter for the format_code property."""
+        return self._format_code
+
+    format_code = property(_get_format_code, _set_format_code)
 
     def builtin_format_code(self, index):
         """Return one of the standard format codes by index."""
         return self._BUILTIN_FORMATS[index]
 
-    def is_builtin(self, format=None):
+    def is_builtin(self, format = None):
         """Check if a format code is a standard format code."""
         if format is None:
-            format = self.format_code
+            format = self._format_code
         return format in self._BUILTIN_FORMATS.values()
 
     def builtin_format_id(self, format):
         """Return the id of a standard style."""
         return self._BUILTIN_FORMATS_REVERSE.get(format, None)
 
-    def is_date_format(self, format=None):
+    def is_date_format(self, format = None):
         """Check if the number format is actually representing a date."""
         if format is None:
-            format = self.format_code
+            format = self._format_code
 
         if any([x in format for x in self.DATE_INDICATORS]):
             if self.BAD_DATE_RE.search(format) is None:
                 return True
-
+            
         return False
 
-
-class Protection(namedtuple('Protection', ('locked', 'hidden'))):
+class Protection(HashableObject):
     """Protection options for use in styles."""
     PROTECTION_INHERIT = 'inherit'
     PROTECTION_PROTECTED = 'protected'
     PROTECTION_UNPROTECTED = 'unprotected'
 
-    def __new__(cls, locked=PROTECTION_INHERIT, hidden=PROTECTION_INHERIT):
-        return super(Protection, cls).__new__(cls, locked, hidden)
+    __fields__ = ('locked',
+                  'hidden')
+    __slots__ = __fields__
+    __leaf__ = True
+
+    def __init__(self):
+        super(Protection, self).__init__()
+        self.locked = self.PROTECTION_INHERIT
+        self.hidden = self.PROTECTION_INHERIT
 
 
-class Style(namedtuple('Style', ('font', 'fill', 'borders', 'alignment',
-                                 'number_format', 'protection'))):
+class Style(HashableObject):
     """Style object containing all formatting details."""
+    __fields__ = ('font',
+                  'fill',
+                  'borders',
+                  'alignment',
+                  'number_format',
+                  'protection')
+    __slots__ = __fields__
 
-    def __new__(cls, font=Font(),
-                fill=Fill(),
-                borders=Borders(),
-                alignment=Alignment(),
-                number_format=NumberFormat(),
-                protection=Protection()):
-        return super(Style, cls).__new__(cls, font, fill, borders, alignment,
-                                         number_format, protection)
-
-    def copy(self, **kwargs):
-        """
-        returns a `openpyxl.style.Style` which inherits from the current style,
-        but takes alterations as kwargs.
-
-            >>> s = Style(font=Font(size=31))
-            >>> s2 = s.copy(font=Font(bold=True))
-            >>> print s2
-            Style(font=Font(size=31, bold=True, ...), ...)
-        """
-        return self._replace(**kwargs)
+    def __init__(self):
+        super(Style, self).__init__()
+        self.font = Font()
+        self.fill = Fill()
+        self.borders = Borders()
+        self.alignment = Alignment()
+        self.number_format = NumberFormat()
+        self.protection = Protection()
 
 DEFAULTS = Style()

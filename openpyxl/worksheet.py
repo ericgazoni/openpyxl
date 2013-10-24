@@ -716,11 +716,11 @@ class Worksheet(object):
             else:
                 return tuple(result)
 
-#     def get_style(self, coordinate):
-#         """Return the style object for the specified cell."""
-#         if not coordinate in self._styles:
-#             self._styles[coordinate] = Style()
-#         return self._styles[coordinate]
+    def get_style(self, coordinate):
+        """Return the style object for the specified cell."""
+        if not coordinate in self._styles:
+            self._styles[coordinate] = Style()
+        return self._styles[coordinate]
 
     def set_printer_settings(self, paper_size, orientation):
         """Set printer settings """
@@ -744,7 +744,7 @@ class Worksheet(object):
         """
         data_validation._sheet = self
         self._data_validations.append(data_validation)
-
+                
     def add_chart(self, chart):
         """ Add a chart to the sheet """
 

@@ -232,15 +232,3 @@ def test_add_invalid_worksheet_class_instance():
     wb = Workbook()
     ws = AlternativeWorksheet(parent_workbook=wb)
     wb.add_sheet(worksheet=ws)
-
-def test_copy_valid_worksheet():
-    wb = Workbook()
-    new_sheet = wb.create_sheet()
-    copied_sheet = wb.copy_sheet(new_sheet)
-    assert copied_sheet is not new_sheet
-    assert copied_sheet in wb.worksheets
-    
-@raises(AssertionError)
-def test_copy_invalid_worksheet():
-    wb = Workbook()
-    wb.copy_sheet("Test")

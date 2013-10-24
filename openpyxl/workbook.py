@@ -31,7 +31,6 @@ __docformat__ = "restructuredtext en"
 import datetime
 import os
 import threading
-import copy
 
 # package imports
 from openpyxl.worksheet import Worksheet
@@ -156,27 +155,7 @@ class Workbook(object):
         if index is None:
             index = len(self.worksheets)
         self.worksheets.insert(index, worksheet)
-        
-    def copy_sheet(self, worksheet, title = None, index = None):
-        """Create a copy of an existing worksheet (with optional title and index)
-        
-        :param worksheet: worksheet to be copied
-        :param title: optional title for the new sheet
-        :type index: string        
-        :param index: optional position at which the sheet will be inserted
-        :type index: int
-        :returns: copied worksheet
-        
-        """
-        
-        assert isinstance(worksheet, self._worksheet_class), "The parameter you have given is not of the type '%s'" % self._worksheet_class.__name__
-        new_ws = copy.deepcopy(worksheet)
-        if title is None:
-            title = worksheet._get_title()
-        new_ws._set_title(title) #Will auto increment if no title was given
-        self.add_sheet(new_ws, index)
-        return new_ws
-        
+
     def remove_sheet(self, worksheet):
         """Remove a worksheet from this workbook."""
         self.worksheets.remove(worksheet)

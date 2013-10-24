@@ -41,7 +41,7 @@ from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.exc import (CellCoordinatesException,
     ColumnStringIndexException, DataTypeException)
 from openpyxl.shared.units import points_to_pixels
-from openpyxl.style import NumberFormat, Style
+from openpyxl.style import NumberFormat
 import datetime
 import re
 
@@ -374,22 +374,17 @@ class Cell(object):
 
     def _set_number_format(self, format_code):
         """Set a new formatting code for numeric values"""
-        self.parent._styles[self.get_coordinate()] = self.style._replace(number_format=NumberFormat(format_code))
+        self.style.number_format.format_code = format_code
 
     @property
     def has_style(self):
         """Check if the parent worksheet has a style for this cell"""
         return self.get_coordinate() in self.parent._styles  # pylint: disable=W0212
 
-    def _get_style(self):
-        return self.parent._styles.get(self.get_coordinate(), Style())
-
-    def _set_style(self, value):
-        assert isinstance(value, Style), '.style can only contain Style objects'
-        self.parent._styles[self.get_coordinate()] = value
-
-    style = property(_get_style, _set_style,
-                     doc="Returns the :class:`openpyxl.style.Style` object for this cell")
+    @property
+    def style(self):
+        """Returns the :class:`openpyxl.style.Style` object for this cell"""
+        return self.parent.get_style(self.get_coordinate())
 
     @property
     def data_type(self):

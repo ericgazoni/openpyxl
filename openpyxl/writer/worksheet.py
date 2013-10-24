@@ -58,7 +58,7 @@ def write_etree(doc, element):
     for e in element.getchildren():
         write_etree(doc, e)
     end_tag(doc, element.tag)
-
+	
 def write_worksheet(worksheet, string_table, style_table):
     """Write a worksheet to an xml file."""
     if worksheet.xml_source:
@@ -126,7 +126,7 @@ def write_worksheet(worksheet, string_table, style_table):
                   '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}controls'):
             for elem in vba_root.findall(t):
                 xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem)))
-
+                
     breaks = worksheet.page_breaks
     if breaks:
         start_tag(doc, 'rowBreaks', {'count': str(len(breaks)), 'manualBreakCount': str(len(breaks))})
@@ -134,8 +134,8 @@ def write_worksheet(worksheet, string_table, style_table):
             tag(doc, 'brk', {'id': str(b), 'man': 'true', 'max': '16383', 'min': '0'})
         end_tag(doc, 'rowBreaks')
 
-
-
+                
+    
 
     end_tag(doc, 'worksheet')
     doc.endDocument()
@@ -238,7 +238,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
             if cell.data_type != cell.TYPE_FORMULA:
                 attributes['t'] = cell.data_type
             if coordinate in worksheet._styles:
-                attributes['s'] = '%d' % style_id_by_hash[worksheet._styles[coordinate]]
+                attributes['s'] = '%d' % style_id_by_hash[
+                        hash(worksheet._styles[coordinate])]
 
             if value in ('', None):
                 tag(doc, 'c', attributes)
