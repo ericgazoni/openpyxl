@@ -9,6 +9,6 @@ python:
 script: nosetests
 
 notifications:
-	email:
-		recipients:
-			- charlie.clark@clark-consulting.eu
+  email:
+    recipients:
+      - charlie.clark@clark-consulting.eu
