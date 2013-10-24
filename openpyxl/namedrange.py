@@ -86,4 +86,4 @@ def split_named_range(range_string):
     return destinations
 
 def refers_to_range(range_string):
-    return bool(NAMED_RANGE_RE.match(range_string))
+    return range_string and bool(NAMED_RANGE_RE.match(range_string))

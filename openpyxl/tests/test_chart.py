@@ -35,9 +35,25 @@ from re import sub
 from openpyxl.drawing import Image
 
 
+def test_safe_string():
+
+    from openpyxl.writer.charts import safe_string
+    v = safe_string('s')
+    eq_(v, 's')
+
+    v = safe_string(2.0/3)
+    eq_(v, '0.666666666666667')
+
+    v = safe_string(1)
+    eq_(v, '1')
+
+    v = safe_string(None)
+    eq_(v, 'None')
+
+
 class TestReference(object):
 
-    def setUp(self):
+    def setup(self):
 
         wb = Workbook()
         ws = wb.get_active_sheet()
@@ -76,7 +92,7 @@ class TestReference(object):
 
 class TestErrorBar(object):
 
-    def setUp(self):
+    def setup(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
         for i in range(10):
@@ -90,7 +106,7 @@ class TestErrorBar(object):
 
 class TestSerie(object):
 
-    def setUp(self):
+    def setup(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
         for i in range(10):
@@ -131,7 +147,7 @@ class TestSerie(object):
 
 class TestChart(object):
 
-    def setUp(self):
+    def setup(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
         for i in range(10):
@@ -220,7 +236,7 @@ class TestChart(object):
 
 class TestChartWriter(object):
 
-    def setUp(self):
+    def setup(self):
 
         wb = Workbook()
         ws = wb.get_active_sheet()
@@ -290,7 +306,7 @@ class TestChartWriter(object):
 
 class TestScatterChartWriter(object):
 
-    def setUp(self):
+    def setup(self):
 
         wb = Workbook()
         ws = wb.get_active_sheet()

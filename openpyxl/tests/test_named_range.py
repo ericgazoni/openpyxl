@@ -147,7 +147,7 @@ def test_print_titles():
 
 
 class TestNameRefersToValue(object):
-    def setUp(self):
+    def setup(self):
         self.wb = load_workbook(os.path.join(DATADIR, 'genuine', 'NameWithValueBug.xlsx'))
         self.ws = self.wb.get_sheet_by_name("Sheet1")
         make_tmpdir()
