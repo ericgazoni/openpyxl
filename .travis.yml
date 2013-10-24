@@ -7,3 +7,8 @@ python:
  # - "3.3"
 # command to run tests
 script: nosetests
+
+notifications:
+	email:
+		recipients:
+			- charlie.clark@clark-consulting.eu
