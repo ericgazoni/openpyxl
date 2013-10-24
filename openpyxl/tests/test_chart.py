@@ -35,6 +35,22 @@ from re import sub
 from openpyxl.drawing import Image
 
 
+def test_safe_string():
+
+    from openpyxl.writer.charts import safe_string
+    v = safe_string('s')
+    eq_(v, 's')
+
+    v = safe_string(2.0/3)
+    eq_(v, '0.666666666666667')
+
+    v = safe_string(1)
+    eq_(v, '1')
+
+    v = safe_string(None)
+    eq_(v, 'None')
+
+
 class TestReference(object):
 
     def setup(self):
