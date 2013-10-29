@@ -9,8 +9,8 @@ making the development process easier.
 Benchmarking
 -----------------
 
-As openpyxl does not include any internal memory benchmarking tools, the python `pympler` package was used
-during the testing of styles to profile the memory usage in :def:`openpyxl.reader.excel.read_style_table()`::
+As openpyxl does not include any internal memory benchmarking tools, the python *pympler* package was used
+during the testing of styles to profile the memory usage in :func:`openpyxl.reader.excel.read_style_table()`::
 
     # in openpyxl/reader/style.py
     from pympler import muppy, summary
@@ -27,6 +27,6 @@ during the testing of styles to profile the memory usage in :def:`openpyxl.reade
           summary.print_(diff)
 
 
-`pympler.summary` prints to the console a report of object memory usage, allowing the comparison of different
+*pympler.summary.print_()* prints to the console a report of object memory usage, allowing the comparison of different
 methods and examination of memory usage.  A useful future development would be to construct a benchmarking package to
 measure the performance of different components.
