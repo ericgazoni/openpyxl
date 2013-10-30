@@ -43,7 +43,7 @@ def test_create_string_table():
     ws.cell('B13').value = 'world'
     ws.cell('D28').value = 'hello'
     table = create_string_table(wb)
-    eq_({'hello': 1, 'world': 0}, table)
+    eq_({'hello': 0, 'world': 1}, table)
 
 
 def test_read_string_table():

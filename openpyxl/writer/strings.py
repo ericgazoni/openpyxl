@@ -39,7 +39,7 @@ def create_string_table(workbook):
         for cell in sheet.get_cell_collection():
             if cell.data_type == cell.TYPE_STRING and cell._value is not None:
                 strings.add(cell.value)
-    return dict((key, i) for i, key in enumerate(strings))
+    return dict((key, i) for i, key in enumerate(sorted(strings)))
 
 
 def write_string_table(string_table):
