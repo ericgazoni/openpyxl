@@ -26,6 +26,7 @@ import math
 from openpyxl.style import NumberFormat
 from openpyxl.drawing import Drawing, Shape
 from openpyxl.shared.units import pixels_to_EMU, short_color
+from openpyxl.shared.compat import basestring
 from openpyxl.cell import get_column_letter
 
 class Axis(object):
@@ -96,7 +97,7 @@ class Reference(object):
     @property
     def values(self):
         """ read data in sheet - to be used at writing time """
-        if hasattr(self, "values"):
+        if hasattr(self, "_values"):
             return self._values
         if self.pos2 is None:
             cell = self.sheet.cell(row=self.pos1[0], column=self.pos1[1])
