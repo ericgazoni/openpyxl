@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_strings.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -56,13 +56,13 @@ def test_read_string_table():
         handle.close()
 
 def test_empty_string():
-     handle = open(os.path.join(DATADIR, 'reader', 'sharedStrings-emptystring.xml'))
-     try:
-        content = handle.read()   
+    handle = open(os.path.join(DATADIR, 'reader', 'sharedStrings-emptystring.xml'))
+    try:
+        content = handle.read()
         string_table = read_string_table(content)
         eq_({0: 'Testing empty cell', 1:''}, string_table)
-     finally:
-         handle.close()
+    finally:
+        handle.close()
 
 def test_formatted_string_table():
     handle = open(os.path.join(DATADIR, 'reader', 'shared-strings-rich.xml'))
@@ -70,6 +70,6 @@ def test_formatted_string_table():
         content = handle.read()
         string_table = read_string_table(content)
         eq_({0: 'Welcome', 1: 'to the best shop in town',
-                2: "     let's play "}, string_table)
+             2: "     let's play "}, string_table)
     finally:
         handle.close()
