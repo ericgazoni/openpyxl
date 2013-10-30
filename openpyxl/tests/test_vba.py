@@ -28,7 +28,7 @@ import os.path
 import zipfile
 
 # compatibility imports
-from openpyxl.shared.compat import StringIO
+from openpyxl.shared.compat import BytesIO
 
 # package imports
 from openpyxl.tests.helper import DATADIR
@@ -41,7 +41,7 @@ def test_save_vba():
     wb = load_workbook(path, keep_vba=True)
     buf = save_virtual_workbook(wb)
     files1 = set(zipfile.ZipFile(path, 'r').namelist())
-    files2 = set(zipfile.ZipFile(StringIO.StringIO(buf), 'r').namelist())
+    files2 = set(zipfile.ZipFile(BytesIO(buf), 'r').namelist())
     assert files1.issubset(files2), "Missing files: %s" % ', '.join(files1 - files2)
 
 
@@ -57,6 +57,6 @@ def test_save_without_vba():
     wb = load_workbook(path, keep_vba=False)
     buf = save_virtual_workbook(wb)
     files1 = set(zipfile.ZipFile(path, 'r').namelist())
-    files2 = set(zipfile.ZipFile(StringIO.StringIO(buf), 'r').namelist())
+    files2 = set(zipfile.ZipFile(BytesIO(buf), 'r').namelist())
     difference = files1.difference(files2)
     assert difference.issubset(vbFiles), "Missing files: %s" % ', '.join(difference - vbFiles)
