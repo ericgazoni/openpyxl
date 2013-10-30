@@ -320,6 +320,15 @@ class NumberFormat(HashableObject):
     DATE_INDICATORS = 'dmyhs'
     BAD_DATE_RE = re.compile(r'(\[|").*[dmhys].*(\]|")')
 
+    def __eq__(self, other):
+        return self.format_code == other.format_code
+
+    def __ne__(self, other):
+        return self.format_code != other.format_code
+
+    def __hash__(self):
+        return super(NumberFormat, self).__hash__()
+
     def __init__(self):
         super(NumberFormat, self).__init__()
         self._format_code = self.FORMAT_GENERAL
@@ -358,7 +367,7 @@ class NumberFormat(HashableObject):
         if any([x in format for x in self.DATE_INDICATORS]):
             if self.BAD_DATE_RE.search(format) is None:
                 return True
-            
+
         return False
 
 class Protection(HashableObject):
