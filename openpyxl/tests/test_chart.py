@@ -179,8 +179,8 @@ class TestChart(object):
     def test_mymax(self):
         c = Chart(None, None)
         eq_(c.mymax(range(10)), 9)
-        from string import letters
-        eq_(c.mymax(list(letters)), "z")
+        from string import ascii_letters
+        eq_(c.mymax(list(ascii_letters)), "z")
         # eq_(c.mymax(range(-10, 1)), 0)
         # eq_(c.mymax([""]*10), None)
 
