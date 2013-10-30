@@ -25,6 +25,8 @@
 
 from itertools import groupby
 
+from openpyxl.shared.compat import OrderedDict
+
 from openpyxl.cell import coordinate_from_string
 
 
@@ -44,9 +46,8 @@ def collapse_cell_addresses(cells, input_ranges=()):
     raw_coords = [coordinate_from_string(cell) for cell in cells]
 
     # Group up as {column: [list of rows]}
-    grouped_coords = dict((k, [c[1] for c in g]) for k, g in
+    grouped_coords = OrderedDict((k, [c[1] for c in g]) for k, g in
                           groupby(sorted(raw_coords, key=keyfunc), keyfunc))
-
     ranges = list(input_ranges)
 
     # For each column, find contiguous ranges of rows
@@ -55,7 +56,6 @@ def collapse_cell_addresses(cells, input_ranges=()):
         grouped_rows = [[r[1] for r in list(g)] for k, g in
                         groupby(enumerate(rows),
                         lambda x: x[0] - x[1])]
-
         for rows in grouped_rows:
             if len(rows) == 0:
                 pass
