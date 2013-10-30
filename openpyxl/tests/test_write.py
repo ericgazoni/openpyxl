@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_write.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -23,16 +23,12 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-# Python stdlib imports
-try:
-    # Python 2
-    from StringIO import StringIO
-    BytesIO = StringIO
-except ImportError:
-    # Python 3
-    from io import BytesIO, StringIO
+# stdlib imports
 import decimal
 import os.path
+
+# compatibility imports
+from openpyxl.shared.compat import BytesIO, StringIO
 
 # 3rd party imports
 from nose.tools import eq_, with_setup, raises

@@ -25,14 +25,8 @@
 
 """Write the shared string table."""
 
-# Python stdlib imports
-try:
-    # Python 2
-    from StringIO import StringIO
-    BytesIO = StringIO
-except ImportError:
-    # Python 3
-    from io import BytesIO, StringIO
+# compatibility imports
+from openpyxl.shared.compat import BytesIO, StringIO
 
 # package imports
 from openpyxl.shared.xmltools import start_tag, end_tag, tag, XMLGenerator
