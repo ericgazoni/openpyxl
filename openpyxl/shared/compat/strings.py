@@ -21,32 +21,21 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-try:
-    # Python 2
-    basestring = basestring
-except NameError:
-    # Python 3
+import sys
+VER = sys.version_info
+
+if VER[0] == 3:
     basestring = str
-
-try:
-    # Python 2
-    unicode = unicode
-except NameError:
-    # Python 3
     unicode = str
+    from io import BufferedReader
+    file = BufferedReader    
+else:
+    basestring = basestring
+    unicode = unicode
+    file = file
 
-try:
-    # Python 3
+if VER[0] == 3:
     from io import BytesIO, StringIO
-except:
-    # Python 2
+else:
     from StringIO import StringIO
     BytesIO = StringIO
-
-try:
-    # Python 2
-    file = file
-except:
-    # Python 3
-    from io import BufferedReader
-    file = BufferedReader

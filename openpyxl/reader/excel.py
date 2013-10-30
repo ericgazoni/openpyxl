@@ -33,7 +33,7 @@ from openpyxl.shared.exc import OpenModeError, InvalidFileException
 from openpyxl.shared.ooxml import (ARC_SHARED_STRINGS, ARC_CORE, ARC_WORKBOOK,
                                    PACKAGE_WORKSHEETS, ARC_STYLE, ARC_THEME,
                                    ARC_CONTENT_TYPES)
-from openpyxl.shared.compat import unicode, file
+from openpyxl.shared.compat import unicode, file, BytesIO, StringIO
 from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
@@ -51,23 +51,17 @@ VALID_CHARTSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.
 WORK_OR_CHART_TYPE = [VALID_WORKSHEET, VALID_CHARTSHEET]
 
 
-try:
-    # Python 2
-    unicode
-except NameError:
-    # Python 3
-    unicode = str
-
 CENTRAL_DIRECTORY_SIGNATURE = '\x50\x4b\x05\x06'
 
 def repair_central_directory(zipFile, is_file_instance):
     ''' trims trailing data from the central directory
     code taken from http://stackoverflow.com/a/7457686/570216, courtesy of Uri Cohen
     '''
-    from StringIO import StringIO
 
     f = zipFile if is_file_instance else open(zipFile, 'r+b')
-    data = f.read().decode("utf-8")
+    data = f.read()
+    if hasattr(data, "decode"):
+        data = data.decode("utf-8")
     pos = data.find(CENTRAL_DIRECTORY_SIGNATURE)  # End of central directory signature
     if (pos > 0):
         sio = StringIO(data)
