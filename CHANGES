@@ -1,0 +1,53 @@
+1.7.0 (2013-10-31)
+==================
+
+
+Major changes
+-------------
+
+Drops support for Python < 2.5 and last version to support Python 2.5
+
+
+Compatibility
+-------------
+
+Tests run on Python 2.5, 2.6, 2.7, 3.2, 3.3
+
+
+Merged pull requests
+--------------------
+
+#27 Include more metadata
+#41 Able to read files with chart sheets
+#45 Configurable Worksheet classes
+#3 Correct serialisation of Decimal
+#36 Preserve VBA macros when reading files
+#44 Handle empty oddheader and oddFooter tags
+#43 Fixed issue that the reader never set the active sheet
+#33 Reader set value and type explicitly and TYPE_ERROR checking
+#22 added page breaks, fixed formula serialization
+#39 Fix Python 2.6 compatibility
+#47 Improvements in styling
+
+
+Known bugfixes
+--------------
+
+#109
+#165
+#179
+#209
+#112
+#166
+#109
+#223
+#124
+#157
+
+
+Miscellaneous
+-------------
+
+Performance improvements in optimised writer
+
+Docs updated
