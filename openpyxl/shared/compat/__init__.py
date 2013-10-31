@@ -20,16 +20,20 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
-import sys
+from tempfile import NamedTemporaryFile
 
 from openpyxl.shared.compat.elementtree import iterparse
-from openpyxl.shared.compat.tempnamedfile import NamedTemporaryFile
-from openpyxl.shared.compat.allany import all, any
 from openpyxl.shared.compat.strings import basestring, unicode, StringIO, file, BytesIO
 from openpyxl.shared.compat.numbers import long
-from openpyxl.shared.compat.itertools import ifilter, xrange
+from openpyxl.shared.compat.itertools import xrange, ifilter
 
+# Python 2.6
 try:
     from collections import OrderedDict
 except ImportError:
     from openpyxl.shared.compat.odict import OrderedDict
+
+try:
+    from xml.etree.ElementTree import register_namespace
+except ImportError:
+    from openpyxl.shared.compat.elementtree import register_namespace

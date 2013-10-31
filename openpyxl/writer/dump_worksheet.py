@@ -27,6 +27,7 @@
 
 import datetime
 import os
+from tempfile import NamedTemporaryFile
 
 from openpyxl.shared.compat import OrderedDict
 
@@ -37,7 +38,6 @@ from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.ooxml import MAX_COLUMN, MAX_ROW
 from openpyxl.shared import NUMERIC_TYPES
 from openpyxl.shared.exc import WorkbookAlreadySaved
-from openpyxl.shared.compat import NamedTemporaryFile
 from openpyxl.writer.excel import ExcelWriter
 from openpyxl.writer.strings import write_string_table
 from openpyxl.writer.styles import StyleWriter
@@ -72,7 +72,7 @@ class DumpWorksheet(Worksheet):
     """
     .. warning::
 
-        You shouldn't initialize this yourself, use :class:`openpyxl.workbook.Workbook` constructor instead, 
+        You shouldn't initialize this yourself, use :class:`openpyxl.workbook.Workbook` constructor instead,
         with `optimized_write = True`.
     """
     def __init__(self, parent_workbook, title):
@@ -189,7 +189,7 @@ class DumpWorksheet(Worksheet):
             return '%s%d' % (get_column_letter(self._max_col), (self._max_row))
 
     def _get_content_generator(self):
-        """ XXX: this is ugly, but it allows to resume writing the file 
+        """ XXX: this is ugly, but it allows to resume writing the file
         even after the handle is closed"""
 
         # when I'll recreate the XMLGenerator, it will start writing at the

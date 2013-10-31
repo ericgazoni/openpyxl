@@ -33,7 +33,6 @@ except ImportError:
     from md5 import md5
 
 from copy import deepcopy
-from openpyxl.shared.compat import any
 
 class HashableObject(object):
     """Define how to hash property classes."""
