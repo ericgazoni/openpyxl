@@ -27,13 +27,9 @@
 
 # Python stdlib imports
 from zipfile import ZipFile, ZIP_DEFLATED
-try:
-    # Python 2
-    from StringIO import StringIO
-    BytesIO = StringIO
-except ImportError:
-    # Python 3
-    from io import BytesIO, StringIO
+
+# compatibility imports
+from openpyxl.shared.compat import BytesIO, StringIO
 
 # package imports
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, \

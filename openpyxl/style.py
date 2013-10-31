@@ -32,6 +32,7 @@ try:
 except ImportError:
     from md5 import md5
 
+from copy import deepcopy
 from openpyxl.shared.compat import any
 
 class HashableObject(object):
@@ -319,6 +320,15 @@ class NumberFormat(HashableObject):
     DATE_INDICATORS = 'dmyhs'
     BAD_DATE_RE = re.compile(r'(\[|").*[dmhys].*(\]|")')
 
+    #def __eq__(self, other):
+        #return self.format_code == other.format_code
+
+    #def __ne__(self, other):
+        #return self.format_code != other.format_code
+
+    #def __hash__(self):
+        #return super(NumberFormat, self).__hash__()
+
     def __init__(self):
         super(NumberFormat, self).__init__()
         self._format_code = self.FORMAT_GENERAL
@@ -357,7 +367,7 @@ class NumberFormat(HashableObject):
         if any([x in format for x in self.DATE_INDICATORS]):
             if self.BAD_DATE_RE.search(format) is None:
                 return True
-            
+
         return False
 
 class Protection(HashableObject):
@@ -387,13 +397,24 @@ class Style(HashableObject):
                   'protection')
     __slots__ = __fields__
 
-    def __init__(self):
+    def __init__(self, static=False):
         super(Style, self).__init__()
+        self.static = static
         self.font = Font()
         self.fill = Fill()
         self.borders = Borders()
         self.alignment = Alignment()
         self.number_format = NumberFormat()
         self.protection = Protection()
+
+    def copy(self):
+        new_style = Style()
+        new_style.font = deepcopy(self.font)
+        new_style.fill = deepcopy(self.fill)
+        new_style.borders = deepcopy(self.borders)
+        new_style.alignment = deepcopy(self.alignment)
+        new_style.number_format = deepcopy(self.number_format)
+        new_style.protection = deepcopy(self.protection)
+        return new_style
 
 DEFAULTS = Style()

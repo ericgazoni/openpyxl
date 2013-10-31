@@ -26,13 +26,11 @@
 """Write worksheets to xml representations."""
 
 # Python stdlib imports
-try:
-    # Python 2
-    from StringIO import StringIO  # cStringIO doesn't handle unicode
-    BytesIO = StringIO
-except ImportError:
-    # Python 3
-    from io import BytesIO, StringIO
+import decimal, re
+
+# compatibility imports
+
+from openpyxl.shared.compat import BytesIO, StringIO
 
 try:
     # Python 2
@@ -42,7 +40,6 @@ except NameError:
     long = int
 
 # package imports
-import decimal, re
 from openpyxl.cell import coordinate_from_string, column_index_from_string
 from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, ElementTree, \
         get_document_content, start_tag, end_tag, tag, fromstring, tostring, register_namespace
@@ -58,7 +55,7 @@ def write_etree(doc, element):
     for e in element.getchildren():
         write_etree(doc, e)
     end_tag(doc, element.tag)
-	
+
 def write_worksheet(worksheet, string_table, style_table):
     """Write a worksheet to an xml file."""
     if worksheet.xml_source:
@@ -125,8 +122,8 @@ def write_worksheet(worksheet, string_table, style_table):
         for t in ('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}legacyDrawing',
                   '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}controls'):
             for elem in vba_root.findall(t):
-                xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem)))
-                
+                xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem).decode("utf-8")))
+
     breaks = worksheet.page_breaks
     if breaks:
         start_tag(doc, 'rowBreaks', {'count': str(len(breaks)), 'manualBreakCount': str(len(breaks))})
@@ -134,8 +131,8 @@ def write_worksheet(worksheet, string_table, style_table):
             tag(doc, 'brk', {'id': str(b), 'man': 'true', 'max': '16383', 'min': '0'})
         end_tag(doc, 'rowBreaks')
 
-                
-    
+
+
 
     end_tag(doc, 'worksheet')
     doc.endDocument()

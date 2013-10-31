@@ -27,13 +27,19 @@
 
 # Python stdlib imports
 from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
+from sys import exc_info
+import warnings
+
+# compatibility imports
+
+from openpyxl.shared.compat import file
 
 # package imports
 from openpyxl.shared.exc import OpenModeError, InvalidFileException
 from openpyxl.shared.ooxml import (ARC_SHARED_STRINGS, ARC_CORE, ARC_WORKBOOK,
                                    PACKAGE_WORKSHEETS, ARC_STYLE, ARC_THEME,
                                    ARC_CONTENT_TYPES)
-from openpyxl.shared.compat import unicode, file
+from openpyxl.shared.compat import unicode, file, BytesIO, StringIO
 from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
@@ -43,20 +49,12 @@ from openpyxl.reader.workbook import (read_sheets_titles, read_named_ranges,
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
 # Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
-from sys import exc_info
-import warnings
+
 
 VALID_WORKSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"
 VALID_CHARTSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml"
 WORK_OR_CHART_TYPE = [VALID_WORKSHEET, VALID_CHARTSHEET]
 
-
-try:
-    # Python 2
-    unicode
-except NameError:
-    # Python 3
-    unicode = str
 
 CENTRAL_DIRECTORY_SIGNATURE = '\x50\x4b\x05\x06'
 
@@ -64,10 +62,11 @@ def repair_central_directory(zipFile, is_file_instance):
     ''' trims trailing data from the central directory
     code taken from http://stackoverflow.com/a/7457686/570216, courtesy of Uri Cohen
     '''
-    from StringIO import StringIO
 
     f = zipFile if is_file_instance else open(zipFile, 'r+b')
-    data = f.read().decode("utf-8")
+    data = f.read()
+    if hasattr(data, "decode"):
+        data = data.decode("utf-8")
     pos = data.find(CENTRAL_DIRECTORY_SIGNATURE)  # End of central directory signature
     if (pos > 0):
         sio = StringIO(data)
@@ -104,13 +103,7 @@ def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=Tru
 
     """
 
-    try:
-        # Python 2
-        is_file_instance = isinstance(filename, file)
-    except NameError:
-        # Python 3
-        from io import BufferedReader
-        is_file_instance = isinstance(filename, BufferedReader)
+    is_file_instance = isinstance(filename, file)
 
     if is_file_instance:
         # fileobject must have been opened with 'rb' flag

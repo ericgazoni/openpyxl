@@ -31,7 +31,7 @@ from setuptools import setup, Extension, find_packages
 import openpyxl  # to fetch __version__ etc
 
 setup(name = 'openpyxl',
-    packages = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    packages = find_packages(),
     # metadata
     version = openpyxl.__version__,
     description = "A Python library to read/write Excel 2007 xlsx/xlsm files",
