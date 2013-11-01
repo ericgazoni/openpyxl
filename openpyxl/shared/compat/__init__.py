@@ -25,7 +25,7 @@ from tempfile import NamedTemporaryFile
 from openpyxl.shared.compat.elementtree import iterparse
 from openpyxl.shared.compat.strings import basestring, unicode, StringIO, file, BytesIO
 from openpyxl.shared.compat.numbers import long
-from openpyxl.shared.compat.itertools import xrange, ifilter
+from openpyxl.shared.compat.itertools import xrange, ifilter, iteritems
 
 # Python 2.6
 try:

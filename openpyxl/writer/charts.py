@@ -22,32 +22,16 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+from numbers import Number
+
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
-from openpyxl.shared.compat.itertools import iteritems
+from openpyxl.shared.compat import iteritems, basestring
 from openpyxl.chart import Chart, ErrorBar
-
-try:
-    # Python 2
-    basestring
-except NameError:
-    # Python 3
-    basestring = str
-
-try:
-    from numbers import Number
-except ImportError:
-    Number = False
 
 
 def safe_string(value):
     """Safely and consistently format numeric values"""
-    if Number is False:
-        # Python 2.5
-        if type(value) == int or type(value) == float:
-            value = "%.15g" % value
-        elif not isinstance(value, basestring):
-            value = str(value)
-    elif isinstance(value, Number):
+    if isinstance(value, Number):
         value = "%.15g" % value
     elif not isinstance(value, basestring):
         value = str(value)
@@ -55,29 +39,29 @@ def safe_string(value):
 
 
 class ChartWriter(object):
-    
+
     def __init__(self, chart):
         self.chart = chart
-    
+
     def write(self):
         """ write a chart """
-        
+
         root = Element('c:chartSpace',
             {'xmlns:c':"http://schemas.openxmlformats.org/drawingml/2006/chart",
              'xmlns:a':"http://schemas.openxmlformats.org/drawingml/2006/main",
              'xmlns:r':"http://schemas.openxmlformats.org/officeDocument/2006/relationships"})
-        
+
         SubElement(root, 'c:lang', {'val':self.chart.lang})
         self._write_chart(root)
         self._write_print_settings(root)
         self._write_shapes(root)
-        
+
         return get_document_content(root)
-    
+
     def _write_chart(self, root):
-        
+
         chart = self.chart
-        
+
         ch = SubElement(root, 'c:chart')
         self._write_title(ch)
         plot_area = SubElement(ch, 'c:plotArea')
@@ -90,7 +74,7 @@ class ChartWriter(object):
         SubElement(mlayout, 'c:y', {'val':str(chart._get_margin_top())})
         SubElement(mlayout, 'c:w', {'val':str(chart.width)})
         SubElement(mlayout, 'c:h', {'val':str(chart.height)})
-        
+
         if chart.type == Chart.SCATTER_CHART:
             subchart = SubElement(plot_area, 'c:scatterChart')
             SubElement(subchart, 'c:scatterStyle', {'val':str('lineMarker')})
@@ -100,25 +84,25 @@ class ChartWriter(object):
                 SubElement(subchart, 'c:barDir', {'val':'col'})
             else:
                 subchart = SubElement(plot_area, 'c:lineChart')
-            
+
             SubElement(subchart, 'c:grouping', {'val':chart.grouping})
-        
+
         self._write_series(subchart)
-        
+
         SubElement(subchart, 'c:marker', {'val':'1'})
         SubElement(subchart, 'c:axId', {'val':str(chart.x_axis.id)})
         SubElement(subchart, 'c:axId', {'val':str(chart.y_axis.id)})
-        
+
         if chart.type == Chart.SCATTER_CHART:
             self._write_axis(plot_area, chart.x_axis, 'c:valAx')
         else:
             self._write_axis(plot_area, chart.x_axis, 'c:catAx')
         self._write_axis(plot_area, chart.y_axis, 'c:valAx')
-        
+
         self._write_legend(ch)
-        
+
         SubElement(ch, 'c:plotVisOnly', {'val':'1'})
-    
+
     def _write_title(self, chart):
         if self.chart.title != '':
             title = SubElement(chart, 'c:title')
@@ -133,18 +117,18 @@ class ChartWriter(object):
             SubElement(r, 'a:rPr', {'lang':self.chart.lang})
             t = SubElement(r, 'a:t').text = self.chart.title
             SubElement(title, 'c:layout')
-    
+
     def _write_axis(self, plot_area, axis, label):
-        
+
         ax = SubElement(plot_area, label)
         SubElement(ax, 'c:axId', {'val':str(axis.id)})
-        
+
         scaling = SubElement(ax, 'c:scaling')
         SubElement(scaling, 'c:orientation', {'val':axis.orientation})
         if label == 'c:valAx':
             SubElement(scaling, 'c:max', {'val':str(float(axis.max))})
             SubElement(scaling, 'c:min', {'val':str(float(axis.min))})
-        
+
         SubElement(ax, 'c:axPos', {'val':axis.position})
         if label == 'c:valAx':
             SubElement(ax, 'c:majorGridlines')
@@ -177,18 +161,18 @@ class ChartWriter(object):
             else:
                 SubElement(ax, 'c:crossBetween', {'val':'between'})
             SubElement(ax, 'c:majorUnit', {'val':str(float(axis.unit))})
-    
+
     def _write_series(self, subchart):
-        
+
         for i, serie in enumerate(self.chart._series):
             ser = SubElement(subchart, 'c:ser')
             SubElement(ser, 'c:idx', {'val':str(i)})
             SubElement(ser, 'c:order', {'val':str(i)})
-            
+
             if serie.legend:
                 tx = SubElement(ser, 'c:tx')
                 self._write_serial(tx, serie.legend)
-            
+
             if serie.color:
                 sppr = SubElement(ser, 'c:spPr')
                 if self.chart.type == Chart.BAR_CHART:
@@ -199,36 +183,36 @@ class ChartWriter(object):
                 ln = SubElement(sppr, 'a:ln')
                 fill = SubElement(ln, 'a:solidFill')
                 SubElement(fill, 'a:srgbClr', {'val':serie.color})
-            
+
             if serie.error_bar:
                 self._write_error_bar(ser, serie)
-            
+
             marker = SubElement(ser, 'c:marker')
             SubElement(marker, 'c:symbol', {'val':serie.marker})
-            
+
             if serie.labels:
                 cat = SubElement(ser, 'c:cat')
                 self._write_serial(cat, serie.labels)
-            
+
             if self.chart.type == Chart.SCATTER_CHART:
                 if serie.xvalues:
                     xval = SubElement(ser, 'c:xVal')
                     self._write_serial(xval, serie.xreference)
-                
+
                 yval = SubElement(ser, 'c:yVal')
                 self._write_serial(yval, serie.reference)
             else:
                 val = SubElement(ser, 'c:val')
                 self._write_serial(val, serie.reference)
-    
+
     def _write_serial(self, node, reference, literal=False):
-        
+
         cache = reference.values
         if isinstance(cache[0], basestring):
             typ = 'str'
         else:
             typ = 'num'
-        
+
         if not literal:
             if typ == 'num':
                 ref = SubElement(node, 'c:numRef')
@@ -241,48 +225,48 @@ class ChartWriter(object):
                 data = SubElement(ref, 'c:strCache')
         else:
             data = SubElement(node, 'c:numLit')
-        
+
         if typ == 'num':
             SubElement(data, 'c:formatCode').text = 'General'
         if literal:
             values = (1,)
         else:
             values = cache
-        
+
         SubElement(data, 'c:ptCount', {'val':str(len(values))})
         for j, val in enumerate(values):
             point = SubElement(data, 'c:pt', {'idx':str(j)})
             if not isinstance(val, basestring):
                 val = safe_string(val)
             SubElement(point, 'c:v').text = val
-    
+
     def _write_error_bar(self, node, serie):
-        
+
         flag = {ErrorBar.PLUS_MINUS:'both',
                 ErrorBar.PLUS:'plus',
                 ErrorBar.MINUS:'minus'}
-        
+
         eb = SubElement(node, 'c:errBars')
         SubElement(eb, 'c:errBarType', {'val':flag[serie.error_bar.type]})
         SubElement(eb, 'c:errValType', {'val':'cust'})
-        
+
         plus = SubElement(eb, 'c:plus')
         self._write_serial(plus, serie.error_bar.values,
             literal=(serie.error_bar.type == ErrorBar.MINUS))
-        
+
         minus = SubElement(eb, 'c:minus')
         self._write_serial(minus, serie.error_bar.values,
             literal=(serie.error_bar.type == ErrorBar.PLUS))
-    
+
     def _write_legend(self, chart):
-        
+
         if self.chart.show_legend:
             legend = SubElement(chart, 'c:legend')
             SubElement(legend, 'c:legendPos', {'val':self.chart.legend.position})
             SubElement(legend, 'c:layout')
-    
+
     def _write_print_settings(self, root):
-        
+
         settings = SubElement(root, 'c:printSettings')
         SubElement(settings, 'c:headerFooter')
         try:
@@ -291,18 +275,18 @@ class ChartWriter(object):
         except AttributeError:
             # Python 3
             print_margins_items = self.chart.print_margins.items()
-        
+
         margins = dict([(k, str(v)) for (k, v) in print_margins_items])
         SubElement(settings, 'c:pageMargins', margins)
         SubElement(settings, 'c:pageSetup')
-    
+
     def _write_shapes(self, root):
-        
+
         if self.chart._shapes:
             SubElement(root, 'c:userShapes', {'r:id':'rId1'})
-    
+
     def write_rels(self, drawing_id):
-        
+
         root = Element('Relationships', {'xmlns' : 'http://schemas.openxmlformats.org/package/2006/relationships'})
         attrs = {'Id' : 'rId1',
             'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartUserShapes',

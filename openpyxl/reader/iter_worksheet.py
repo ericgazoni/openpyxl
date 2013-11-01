@@ -23,13 +23,23 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-""" Iterators-based worksheet reader 
+""" Iterators-based worksheet reader
 *Still very raw*
 """
-
-import warnings
+# stdlib
 import operator
-from itertools import  groupby
+from itertools import groupby
+import re
+import tempfile
+import zlib
+import zipfile
+import struct
+from collections import namedtuple
+
+# compatibility
+from openpyxl.shared.compat import iterparse, xrange
+
+# package
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import (coordinate_from_string, get_column_letter, Cell,
                             column_index_from_string)
@@ -39,13 +49,7 @@ from openpyxl.reader.worksheet import read_dimension
 from openpyxl.shared.compat import unicode
 from openpyxl.shared.ooxml import (MIN_COLUMN, MAX_COLUMN, PACKAGE_WORKSHEETS,
     MAX_ROW, MIN_ROW, ARC_STYLE)
-from openpyxl.shared.compat import iterparse, xrange
-from zipfile import ZipFile
-import re
-import tempfile
-import zlib
-import zipfile
-import struct
+
 
 TYPE_NULL = Cell.TYPE_NULL
 MISSING_VALUE = None
@@ -62,26 +66,8 @@ del _COL_CONVERSION_CACHE
 
 RAW_ATTRIBUTES = ['row', 'column', 'coordinate', 'internal_value', 'data_type', 'style_id', 'number_format']
 
-try:
-    from collections import namedtuple
-    BaseRawCell = namedtuple('RawCell', RAW_ATTRIBUTES)
-except ImportError:
 
-    warnings.warn("""Unable to import 'namedtuple' module, this may cause  memory issues when using optimized reader. Please upgrade your Python installation to 2.6+""")
-
-    class BaseRawCell(object):
-
-        def __init__(self, *args):
-            assert len(args) == len(RAW_ATTRIBUTES)
-
-            for attr, val in zip(RAW_ATTRIBUTES, args):
-                setattr(self, attr, val)
-
-        def _replace(self, **kwargs):
-
-            self.__dict__.update(kwargs)
-
-            return self
+BaseRawCell = namedtuple('RawCell', RAW_ATTRIBUTES)
 
 formatter = NumberFormat()
 
@@ -106,7 +92,7 @@ class RawCell(BaseRawCell):
     @property
     def is_date(self):
         return formatter.is_date_format(self.number_format)
-    
+
 def iter_rows(workbook_name, sheet_name, xml_source, shared_date, string_table, range_string='', row_offset=0, column_offset=0):
 
     archive = get_archive_file(workbook_name)
@@ -178,7 +164,7 @@ def get_range_boundaries(range_string, row=0, column=0):
 
 def get_archive_file(archive_name):
 
-    return ZipFile(archive_name, 'r')
+    return zipfile.ZipFile(archive_name, 'r')
 
 def get_xml_source(archive_file, sheet_name):
 
@@ -241,7 +227,7 @@ def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style
 
         yield tuple(full_row)
 
-#------------------------------------------------------------------------------ 
+#------------------------------------------------------------------------------
 
 class IterableWorksheet(Worksheet):
 
@@ -264,20 +250,20 @@ class IterableWorksheet(Worksheet):
 
 
     def iter_rows(self, range_string='', row_offset=0, column_offset=0):
-        """ Returns a squared range based on the `range_string` parameter, 
+        """ Returns a squared range based on the `range_string` parameter,
         using generators.
-        
+
         :param range_string: range of cells (e.g. 'A1:C4')
         :type range_string: string
-        
+
         :param row: row index of the cell (e.g. 4)
         :type row: int
 
         :param column: column index of the cell (e.g. 3)
         :type column: int
-        
+
         :rtype: generator
-        
+
         """
 
         return iter_rows(workbook_name=self._workbook_name,
