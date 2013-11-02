@@ -428,7 +428,7 @@ class TestChartWriter(object):
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}headerFooter',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}pageMargins', '{http://schemas.openxmlformats.org/drawingml/2006/chart}pageSetup']
         self.cw._write_print_settings(self.root)
-        for e in self.root.iter():
+        for e in self.root:
             assert_true(e.tag in tagnames)
             if e.tag == "{http://schemas.openxmlformats.org/drawingml/2006/chart}pageMargins":
                 eq_(e.keys(), list(self.chart.print_margins.keys()))
