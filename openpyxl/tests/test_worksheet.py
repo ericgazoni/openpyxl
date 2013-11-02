@@ -139,7 +139,7 @@ class TestWorksheet(object):
         ws.cell('B2').value = '0'
         ws.cell('C4').value = 0
         ws.garbage_collect()
-        eq_(list(ws.get_cell_collection()), [ws.cell('B2'), ws.cell('C4')])
+        eq_(set(ws.get_cell_collection()), set([ws.cell('B2'), ws.cell('C4')]))
 
     def test_hyperlink_relationships(self):
         ws = Worksheet(self.wb)
@@ -265,11 +265,11 @@ class TestWorksheet(object):
         ws.cell('A1').value = 'Cell A1'
         ws.cell('B1').value = 'Cell B1'
         xml_string = write_worksheet(ws, string_table, None)
-        assert '<c r="B1" t="s"><v>Cell B1</v></c>' in xml_string
+        assert '<v>Cell B1</v>' in xml_string
 
         ws.merge_cells('A1:B1')
         xml_string = write_worksheet(ws, string_table, None)
-        assert '<c r="B1" t="s"><v>Cell B1</v></c>' not in xml_string
+        assert '<v>Cell B1</v>' not in xml_string
         assert '<mergeCells count="1"><mergeCell ref="A1:B1"></mergeCell></mergeCells>' in xml_string
 
         ws.unmerge_cells('A1:B1')

@@ -30,6 +30,9 @@ from datetime import datetime, date
 # 3rd party imports
 from nose.tools import eq_, raises
 
+# compatibility imports
+from openpyxl.shared.compat import BytesIO, StringIO, unicode
+
 # package imports
 from openpyxl.tests.helper import DATADIR
 from openpyxl.worksheet import Worksheet
@@ -48,6 +51,7 @@ def test_read_standalone_worksheet():
         encoding = 'utf-8'
 
         excel_base_date = CALENDAR_WINDOWS_1900
+        _guess_types = True
 
         def get_sheet_by_name(self, value):
             return None
@@ -200,7 +204,6 @@ class TestReadBaseDateFormat(object):
 
 def test_repair_central_directory():
     from openpyxl.reader.excel import repair_central_directory, CENTRAL_DIRECTORY_SIGNATURE
-    from StringIO import StringIO
 
     data_a = "foobarbaz" + CENTRAL_DIRECTORY_SIGNATURE
     data_b = "bazbarfoo1234567890123456890"
@@ -245,3 +248,35 @@ class TestReadFormulae(object):
         a6 = self.ws.cell('A6')
         eq_(a6.data_type, 'f')
         eq_(a6.value, '=SUM(A4:A5)')
+
+
+def test_read_contains_chartsheet():
+    """
+    Test reading workbook containing chartsheet.
+
+    "contains_chartsheets.xlsx" has the following sheets:
+    +---+------------+------------+
+    | # | Name       | Type       |
+    +===+============+============+
+    | 1 | "data"     | worksheet  |
+    +---+------------+------------+
+    | 2 | "chart"    | chartsheet |
+    +---+------------+------------+
+    | 3 | "moredata" | worksheet  |
+    +---+------------+------------+
+    """
+    # test data
+    path = os.path.join(DATADIR, 'reader', 'contains_chartsheets.xlsx')
+    wb = load_workbook(path)
+    # workbook contains correct sheet names
+    sheet_names = wb.get_sheet_names()
+    eq_(sheet_names[0], 'data')
+    eq_(sheet_names[1], 'moredata')
+
+
+def test_guess_types():
+    filename = os.path.join(DATADIR, 'genuine', 'guess_types.xlsx')
+    for guess, dtype in ((True, float), (False, unicode)):
+        wb = load_workbook(filename, guess_types=guess)
+        ws = wb.get_active_sheet()
+        assert isinstance(ws.cell('D2').value, dtype), 'wrong dtype (%s) when guess type is: %s (%s instead)' % (dtype, guess, type(ws.cell('A1').value))

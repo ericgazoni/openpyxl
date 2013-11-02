@@ -25,6 +25,7 @@
 from numbers import Number
 
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
+from openpyxl.shared.ooxml import CHART_NS, DRAWING_NS, REL_NS
 from openpyxl.shared.compat.itertools import iteritems
 from openpyxl.chart import Chart, ErrorBar
 
@@ -51,13 +52,9 @@ class ChartWriter(object):
 
     def write(self):
         """ write a chart """
+        root = Element("{%s}chartSpace" % CHART_NS)
 
-        root = Element('c:chartSpace',
-            {'xmlns:c':"http://schemas.openxmlformats.org/drawingml/2006/chart",
-             'xmlns:a':"http://schemas.openxmlformats.org/drawingml/2006/main",
-             'xmlns:r':"http://schemas.openxmlformats.org/officeDocument/2006/relationships"})
-
-        SubElement(root, 'c:lang', {'val':self.chart.lang})
+        SubElement(root, '{%s}langc' % CHART_NS, {'val':self.chart.lang})
         self._write_chart(root)
         self._write_print_settings(root)
         self._write_shapes(root)
@@ -68,143 +65,143 @@ class ChartWriter(object):
 
         chart = self.chart
 
-        ch = SubElement(root, 'c:chart')
+        ch = SubElement(root, '{%s}chart' % CHART_NS)
         self._write_title(ch)
-        plot_area = SubElement(ch, 'c:plotArea')
-        layout = SubElement(plot_area, 'c:layout')
-        mlayout = SubElement(layout, 'c:manualLayout')
-        SubElement(mlayout, 'c:layoutTarget', {'val':'inner'})
-        SubElement(mlayout, 'c:xMode', {'val':'edge'})
-        SubElement(mlayout, 'c:yMode', {'val':'edge'})
-        SubElement(mlayout, 'c:x', {'val':safe_string(chart.margin_left)})
-        SubElement(mlayout, 'c:y', {'val':safe_string(chart.margin_top)})
-        SubElement(mlayout, 'c:w', {'val':safe_string(chart.width)})
-        SubElement(mlayout, 'c:h', {'val':safe_string(chart.height)})
+        plot_area = SubElement(ch, '{%s}plotArea' % CHART_NS)
+        layout = SubElement(plot_area, '{%s}layout' % CHART_NS)
+        mlayout = SubElement(layout, '{%s}manualLayout' % CHART_NS)
+        SubElement(mlayout, '{%s}layoutTarget' % CHART_NS, {'val':'inner'})
+        SubElement(mlayout, '{%s}xMode' % CHART_NS, {'val':'edge'})
+        SubElement(mlayout, '{%s}yMode' % CHART_NS, {'val':'edge'})
+        SubElement(mlayout, '{%s}x' % CHART_NS, {'val':safe_string(chart.margin_left)})
+        SubElement(mlayout, '{%s}y' % CHART_NS, {'val':safe_string(chart.margin_top)})
+        SubElement(mlayout, '{%s}w' % CHART_NS, {'val':safe_string(chart.width)})
+        SubElement(mlayout, '{%s}h' % CHART_NS, {'val':safe_string(chart.height)})
 
         if chart.type == Chart.SCATTER_CHART:
-            subchart = SubElement(plot_area, 'c:scatterChart')
-            SubElement(subchart, 'c:scatterStyle', {'val':'lineMarker'})
+            subchart = SubElement(plot_area, '{%s}scatterChart' % CHART_NS)
+            SubElement(subchart, '{%s}scatterStyle' % CHART_NS, {'val':'lineMarker'})
         else:
             if chart.type == Chart.BAR_CHART:
-                subchart = SubElement(plot_area, 'c:barChart')
-                SubElement(subchart, 'c:barDir', {'val':'col'})
+                subchart = SubElement(plot_area, '{%s}barChart' % CHART_NS)
+                SubElement(subchart, '{%s}barDir' % CHART_NS, {'val':'col'})
             else:
-                subchart = SubElement(plot_area, 'c:lineChart')
+                subchart = SubElement(plot_area, '{%s}lineChart' % CHART_NS)
 
-            SubElement(subchart, 'c:grouping', {'val':chart.grouping})
+            SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':chart.grouping})
 
         self._write_series(subchart)
 
-        SubElement(subchart, 'c:axId', {'val':safe_string(chart.x_axis.id)})
-        SubElement(subchart, 'c:axId', {'val':safe_string(chart.y_axis.id)})
+        SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
+        SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
 
         if chart.type == Chart.SCATTER_CHART:
-            self._write_axis(plot_area, chart.x_axis, 'c:valAx')
+            self._write_axis(plot_area, chart.x_axis, '{%s}valAx' % CHART_NS)
         else:
-            self._write_axis(plot_area, chart.x_axis, 'c:catAx')
-        self._write_axis(plot_area, chart.y_axis, 'c:valAx')
+            self._write_axis(plot_area, chart.x_axis, '{%s}catAx' % CHART_NS)
+        self._write_axis(plot_area, chart.y_axis, '{%s}valAx' % CHART_NS)
 
         self._write_legend(ch)
 
-        SubElement(ch, 'c:plotVisOnly', {'val':'1'})
+        SubElement(ch, '{%s}plotVisOnly' % CHART_NS, {'val':'1'})
 
     def _write_title(self, chart):
         if self.chart.title != '':
-            title = SubElement(chart, 'c:title')
-            tx = SubElement(title, 'c:tx')
-            rich = SubElement(tx, 'c:rich')
-            SubElement(rich, 'a:bodyPr')
-            SubElement(rich, 'a:lstStyle')
-            p = SubElement(rich, 'a:p')
-            pPr = SubElement(p, 'a:pPr')
-            SubElement(pPr, 'a:defRPr')
-            r = SubElement(p, 'a:r')
-            SubElement(r, 'a:rPr', {'lang':self.chart.lang})
-            t = SubElement(r, 'a:t').text = self.chart.title
-            SubElement(title, 'c:layout')
+            title = SubElement(chart, '{%s}title' % CHART_NS)
+            tx = SubElement(title, '{%s}tx' % CHART_NS)
+            rich = SubElement(tx, '{%s}rich' % CHART_NS)
+            SubElement(rich, '{%s}bodyPr' % DRAWING_NS)
+            SubElement(rich, '{%s}lstStyle' % DRAWING_NS)
+            p = SubElement(rich, '{%s}p' % DRAWING_NS)
+            pPr = SubElement(p, '{%s}pPr' % DRAWING_NS)
+            SubElement(pPr, '{%s}defRPr' % DRAWING_NS)
+            r = SubElement(p, '{%s}r' % DRAWING_NS)
+            SubElement(r, '{%s}rPr' % DRAWING_NS, {'lang':self.chart.lang})
+            t = SubElement(r, '{%s}t' % DRAWING_NS).text = self.chart.title
+            SubElement(title, '{%s}layout' % CHART_NS)
 
     def _write_axis(self, plot_area, axis, label):
         self.chart.compute_axes()
 
         ax = SubElement(plot_area, label)
-        SubElement(ax, 'c:axId', {'val':safe_string(axis.id)})
+        SubElement(ax, '{%s}axId' % CHART_NS, {'val':safe_string(axis.id)})
 
-        scaling = SubElement(ax, 'c:scaling')
-        SubElement(scaling, 'c:orientation', {'val':axis.orientation})
-        if label == 'c:valAx':
-            SubElement(scaling, 'c:max', {'val':str(float(axis.max))})
-            SubElement(scaling, 'c:min', {'val':str(float(axis.min))})
+        scaling = SubElement(ax, '{%s}scaling' % CHART_NS)
+        SubElement(scaling, '{%s}orientation' % CHART_NS, {'val':axis.orientation})
+        if label == '{%s}valAx' % CHART_NS:
+            SubElement(scaling, '{%s}max' % CHART_NS, {'val':str(float(axis.max))})
+            SubElement(scaling, '{%s}min' % CHART_NS, {'val':str(float(axis.min))})
 
-        SubElement(ax, 'c:axPos', {'val':axis.position})
-        if label == 'c:valAx':
-            SubElement(ax, 'c:majorGridlines')
-            SubElement(ax, 'c:numFmt', {'formatCode':"General", 'sourceLinked':'1'})
+        SubElement(ax, '{%s}axPos' % CHART_NS, {'val':axis.position})
+        if label == '{%s}valAx' % CHART_NS:
+            SubElement(ax, '{%s}majorGridlines' % CHART_NS)
+            SubElement(ax, '{%s}numFmt' % CHART_NS, {'formatCode':"General", 'sourceLinked':'1'})
         if axis.title != '':
-            title = SubElement(ax, 'c:title')
-            tx = SubElement(title, 'c:tx')
-            rich = SubElement(tx, 'c:rich')
-            SubElement(rich, 'a:bodyPr')
-            SubElement(rich, 'a:lstStyle')
-            p = SubElement(rich, 'a:p')
-            pPr = SubElement(p, 'a:pPr')
-            SubElement(pPr, 'a:defRPr')
-            r = SubElement(p, 'a:r')
-            SubElement(r, 'a:rPr', {'lang':self.chart.lang})
-            t = SubElement(r, 'a:t').text = axis.title
-            SubElement(title, 'c:layout')
-        SubElement(ax, 'c:tickLblPos', {'val':axis.tick_label_position})
-        SubElement(ax, 'c:crossAx', {'val':str(axis.cross)})
-        SubElement(ax, 'c:crosses', {'val':axis.crosses})
+            title = SubElement(ax, '{%s}title' % CHART_NS)
+            tx = SubElement(title, '{%s}tx' % CHART_NS)
+            rich = SubElement(tx, '{%s}rich' % CHART_NS)
+            SubElement(rich, '{%s}bodyPr' % DRAWING_NS)
+            SubElement(rich, '{%s}lstStyle' % DRAWING_NS)
+            p = SubElement(rich, '{%s}p' % DRAWING_NS)
+            pPr = SubElement(p, '{%s}pPr' % DRAWING_NS)
+            SubElement(pPr, '{%s}defRPr' % DRAWING_NS)
+            r = SubElement(p, '{%s}r' % DRAWING_NS)
+            SubElement(r, '{%s}rPr' % DRAWING_NS, {'lang':self.chart.lang})
+            t = SubElement(r, '{%s}t' % DRAWING_NS).text = axis.title
+            SubElement(title, '{%s}layout' % CHART_NS)
+        SubElement(ax, '{%s}tickLblPos' % CHART_NS, {'val':axis.tick_label_position})
+        SubElement(ax, '{%s}crossAx' % CHART_NS, {'val':str(axis.cross)})
+        SubElement(ax, '{%s}crosses' % CHART_NS, {'val':axis.crosses})
         if axis.auto:
-            SubElement(ax, 'c:auto', {'val':'1'})
+            SubElement(ax, '{%s}auto' % CHART_NS, {'val':'1'})
         if axis.label_align:
-            SubElement(ax, 'c:lblAlgn', {'val':axis.label_align})
+            SubElement(ax, '{%s}lblAlgn' % CHART_NS, {'val':axis.label_align})
         if axis.label_offset:
-            SubElement(ax, 'c:lblOffset', {'val':str(axis.label_offset)})
-        if label == 'c:valAx':
+            SubElement(ax, '{%s}lblOffset' % CHART_NS, {'val':str(axis.label_offset)})
+        if label == '{%s}valAx' % CHART_NS:
             if self.chart.type == Chart.SCATTER_CHART:
-                SubElement(ax, 'c:crossBetween', {'val':'midCat'})
+                SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'midCat'})
             else:
-                SubElement(ax, 'c:crossBetween', {'val':'between'})
-            SubElement(ax, 'c:majorUnit', {'val':str(float(axis.unit))})
+                SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'between'})
+            SubElement(ax, '{%s}majorUnit' % CHART_NS, {'val':str(float(axis.unit))})
 
     def _write_series(self, subchart):
 
         for i, serie in enumerate(self.chart._series):
-            ser = SubElement(subchart, 'c:ser')
-            SubElement(ser, 'c:idx', {'val':safe_string(i)})
-            SubElement(ser, 'c:order', {'val':safe_string(i)})
+            ser = SubElement(subchart, '{%s}ser' % CHART_NS)
+            SubElement(ser, '{%s}idx' % CHART_NS, {'val':safe_string(i)})
+            SubElement(ser, '{%s}order' % CHART_NS, {'val':safe_string(i)})
 
             if serie.legend:
-                tx = SubElement(ser, 'c:tx')
+                tx = SubElement(ser, '{%s}tx' % CHART_NS)
                 self._write_serial(tx, serie.legend)
 
             if serie.color:
-                sppr = SubElement(ser, 'c:spPr')
+                sppr = SubElement(ser, '{%s}spPr' % CHART_NS)
                 if self.chart.type == Chart.BAR_CHART:
                     # fill color
-                    fillc = SubElement(sppr, 'a:solidFill')
-                    SubElement(fillc, 'a:srgbClr', {'val':serie.color})
+                    fillc = SubElement(sppr, '{%s}solidFill' % DRAWING_NS)
+                    SubElement(fillc, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
                 # edge color
-                ln = SubElement(sppr, 'a:ln')
-                fill = SubElement(ln, 'a:solidFill')
-                SubElement(fill, 'a:srgbClr', {'val':serie.color})
+                ln = SubElement(sppr, '{%s}ln' % DRAWING_NS)
+                fill = SubElement(ln, '{%s}solidFill' % DRAWING_NS)
+                SubElement(fill, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
 
             if serie.error_bar:
                 self._write_error_bar(ser, serie)
 
             if serie.labels:
-                cat = SubElement(ser, 'c:cat')
+                cat = SubElement(ser, '{%s}cat' % CHART_NS)
                 self._write_serial(cat, serie.labels)
 
             if self.chart.type == Chart.SCATTER_CHART:
                 if serie.xvalues:
-                    xval = SubElement(ser, 'c:xVal')
+                    xval = SubElement(ser, '{%s}xVal' % CHART_NS)
                     self._write_serial(xval, serie.xreference)
 
-                val = SubElement(ser, 'c:yVal')
+                val = SubElement(ser, '{%s}yVal' % CHART_NS)
             else:
-                val = SubElement(ser, 'c:val')
+                val = SubElement(ser, '{%s}val' % CHART_NS)
             self._write_serial(val, serie.reference)
 
     def _write_serial(self, node, reference, literal=False):
@@ -217,23 +214,23 @@ class ChartWriter(object):
                    's':{'ref':'strRef', 'cache':'strCache'}}
 
         if is_ref:
-            ref = SubElement(node, 'c:%s' % mapping[data_type]['ref'])
-            SubElement(ref, 'c:f').text = str(reference)
-            data = SubElement(ref, 'c:%s' % mapping[data_type]['cache'])
+            ref = SubElement(node, '{%s}%s' %(CHART_NS, mapping[data_type]['ref']))
+            SubElement(ref, '{%s}f' % CHART_NS).text = str(reference)
+            data = SubElement(ref, '{%s}%s' %(CHART_NS, mapping[data_type]['cache']))
             values = reference.values
         else:
-            data = SubElement(node, 'c:numLit')
+            data = SubElement(node, '{%s}numLit' % CHART_NS)
             values = (1,)
 
         if data_type == 'n':
-            SubElement(data, 'c:formatCode').text = number_format or 'General'
+            SubElement(data, '{%s}formatCode' % CHART_NS).text = number_format or 'General'
 
-        SubElement(data, 'c:ptCount', {'val':str(len(values))})
+        SubElement(data, '{%s}ptCount' % CHART_NS, {'val':str(len(values))})
         for j, val in enumerate(values):
-            point = SubElement(data, 'c:pt', {'idx':str(j)})
+            point = SubElement(data, '{%s}pt' % CHART_NS, {'idx':str(j)})
             if not isinstance(val, basestring):
                 val = safe_string(val)
-            SubElement(point, 'c:v').text = val
+            SubElement(point, '{%s}v' % CHART_NS).text = val
 
     def _write_error_bar(self, node, serie):
 
@@ -241,31 +238,31 @@ class ChartWriter(object):
                 ErrorBar.PLUS:'plus',
                 ErrorBar.MINUS:'minus'}
 
-        eb = SubElement(node, 'c:errBars')
-        SubElement(eb, 'c:errBarType', {'val':flag[serie.error_bar.type]})
-        SubElement(eb, 'c:errValType', {'val':'cust'})
+        eb = SubElement(node, '{%s}errBars' % CHART_NS)
+        SubElement(eb, '{%s}errBarType' % CHART_NS, {'val':flag[serie.error_bar.type]})
+        SubElement(eb, '{%s}errValType' % CHART_NS, {'val':'cust'})
 
-        plus = SubElement(eb, 'c:plus')
+        plus = SubElement(eb, '{%s}plus' % CHART_NS)
         # apart from setting the type of data series the following has
         # no effect on the writer
         self._write_serial(plus, serie.error_bar.reference,
             literal=(serie.error_bar.type == ErrorBar.MINUS))
 
-        minus = SubElement(eb, 'c:minus')
+        minus = SubElement(eb, '{%s}minus' % CHART_NS)
         self._write_serial(minus, serie.error_bar.reference,
             literal=(serie.error_bar.type == ErrorBar.PLUS))
 
     def _write_legend(self, chart):
 
         if self.chart.show_legend:
-            legend = SubElement(chart, 'c:legend')
-            SubElement(legend, 'c:legendPos', {'val':self.chart.legend.position})
-            SubElement(legend, 'c:layout')
+            legend = SubElement(chart, '{%s}legend' % CHART_NS)
+            SubElement(legend, '{%s}legendPos' % CHART_NS, {'val':self.chart.legend.position})
+            SubElement(legend, '{%s}layout' % CHART_NS)
 
     def _write_print_settings(self, root):
 
-        settings = SubElement(root, 'c:printSettings')
-        SubElement(settings, 'c:headerFooter')
+        settings = SubElement(root, '{%s}printSettings' % CHART_NS)
+        SubElement(settings, '{%s}headerFooter' % CHART_NS)
         try:
             # Python 2
             print_margins_items = iteritems(self.chart.print_margins)
@@ -274,19 +271,19 @@ class ChartWriter(object):
             print_margins_items = self.chart.print_margins.items()
 
         margins = dict([(k, safe_string(v)) for (k, v) in print_margins_items])
-        SubElement(settings, 'c:pageMargins', margins)
-        SubElement(settings, 'c:pageSetup')
+        SubElement(settings, '{%s}pageMargins' % CHART_NS, margins)
+        SubElement(settings, '{%s}pageSetup' % CHART_NS)
 
     def _write_shapes(self, root):
 
         if self.chart._shapes:
-            SubElement(root, 'c:userShapes', {'r:id':'rId1'})
+            SubElement(root, '{%s}userShapes' % CHART_NS, {'{%s}id' % REL_NS:'rId1'})
 
     def write_rels(self, drawing_id):
+        root = Element("{%s}relationships" % REL_NS)
 
-        root = Element('Relationships', {'xmlns' : 'http://schemas.openxmlformats.org/package/2006/relationships'})
         attrs = {'Id' : 'rId1',
-            'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartUserShapes',
+            'Type' : '%s/chartUserShapes' % REL_NS,
             'Target' : '../drawings/drawing%s.xml' % drawing_id }
         SubElement(root, 'Relationship', attrs)
         return get_document_content(root)

@@ -244,6 +244,9 @@ class StyleWriter(object):
                     if hash(st.alignment.wrap_text) != hash(style.DEFAULTS.alignment.wrap_text):
                         alignments['wrapText'] = '1'
 
+                    if hash(st.alignment.shrink_to_fit) != hash(style.DEFAULTS.alignment.shrink_to_fit):
+                        alignments['shrinkToFit'] = '1'
+
                     if st.alignment.indent > 0:
                         alignments['indent'] = '%s' % st.alignment.indent
                     

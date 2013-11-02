@@ -26,6 +26,13 @@
 
 # 3rd party imports
 from nose.tools import eq_, with_setup, raises
+
+try:  # For Python 3.2 and later
+    from nose.tools import assert_is_instance
+except ImportError:
+    def assert_is_instance(a, b):
+        assert isinstance(a, b)
+
 import os.path as osp
 
 # package imports
@@ -34,6 +41,7 @@ from openpyxl.reader.excel import load_workbook
 from openpyxl.namedrange import NamedRange
 from openpyxl.shared.exc import ReadOnlyWorkbookException
 from openpyxl.tests.helper import TMPDIR, clean_tmpdir, make_tmpdir
+from openpyxl.tests.schema import validate_archive
 
 import datetime
 
@@ -157,6 +165,7 @@ def test_write_regular_date():
     dest_filename = osp.join(TMPDIR, 'date_read_write_issue.xlsx')
     book.save(dest_filename)
 
+    validate_archive(dest_filename)
     test_book = load_workbook(dest_filename)
     test_sheet = test_book.get_active_sheet()
 
@@ -172,6 +181,7 @@ def test_write_regular_float():
     dest_filename = osp.join(TMPDIR, 'float_read_write_issue.xlsx')
     book.save(dest_filename)
 
+    validate_archive(dest_filename)
     test_book = load_workbook(dest_filename)
     test_sheet = test_book.get_active_sheet()
 
@@ -207,3 +217,21 @@ def test_good_encoding():
     lat_sheet.cell('A1').value = test_string
 
 
+class AlternativeWorksheet(object):
+    def __init__(self, parent_workbook, title=None):
+        self.parent_workbook = parent_workbook
+        if not title:
+            title = 'AlternativeSheet'
+        self.title = title
+
+
+def test_worksheet_class():
+    wb = Workbook(worksheet_class=AlternativeWorksheet)
+    assert_is_instance(wb.worksheets[0], AlternativeWorksheet)
+
+
+@raises(AssertionError)
+def test_add_invalid_worksheet_class_instance():
+    wb = Workbook()
+    ws = AlternativeWorksheet(parent_workbook=wb)
+    wb.add_sheet(worksheet=ws)

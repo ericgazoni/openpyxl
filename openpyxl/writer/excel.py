@@ -27,18 +27,14 @@
 
 # Python stdlib imports
 from zipfile import ZipFile, ZIP_DEFLATED
-try:
-    # Python 2
-    from StringIO import StringIO
-    BytesIO = StringIO
-except ImportError:
-    # Python 3
-    from io import BytesIO, StringIO
+
+# compatibility imports
+from openpyxl.shared.compat import BytesIO, StringIO
 
 # package imports
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, \
         ARC_ROOT_RELS, ARC_WORKBOOK_RELS, ARC_APP, ARC_CORE, ARC_THEME, \
-        ARC_STYLE, ARC_WORKBOOK, \
+        ARC_STYLE, ARC_WORKBOOK, ARC_VBA,\
         PACKAGE_WORKSHEETS, PACKAGE_DRAWINGS, PACKAGE_CHARTS, PACKAGE_IMAGES
 from openpyxl.writer.strings import create_string_table, write_string_table
 from openpyxl.writer.workbook import write_content_types, write_root_rels, \
@@ -64,17 +60,25 @@ class ExcelWriter(object):
         shared_string_table = self._write_string_table(archive)
         
         archive.writestr(ARC_CONTENT_TYPES, write_content_types(self.workbook))
-        archive.writestr(ARC_ROOT_RELS, write_root_rels(self.workbook))
+        if not self.workbook.vba_archive:
+            archive.writestr(ARC_ROOT_RELS, write_root_rels(self.workbook))
         archive.writestr(ARC_WORKBOOK_RELS, write_workbook_rels(self.workbook))
         archive.writestr(ARC_APP, write_properties_app(self.workbook))
-        archive.writestr(ARC_CORE,
-                write_properties_core(self.workbook.properties))
+        archive.writestr(ARC_CORE, write_properties_core(self.workbook.properties))
         if self.workbook.loaded_theme:
             archive.writestr(ARC_THEME, self.workbook.loaded_theme)
         else:
             archive.writestr(ARC_THEME, write_theme())
         archive.writestr(ARC_STYLE, self.style_writer.write_table())
         archive.writestr(ARC_WORKBOOK, write_workbook(self.workbook))
+
+        if self.workbook.vba_archive:
+            vba_archive = self.workbook.vba_archive
+            for name in vba_archive.namelist():
+                for s in ARC_VBA:
+                    if name.startswith(s):
+                        archive.writestr(name, vba_archive.read(name))
+                        break
 
         self._write_worksheets(archive, shared_string_table, self.style_writer)
 

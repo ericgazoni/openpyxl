@@ -1,0 +1,14 @@
+Roadmap for next version
+========================
+
+[x] Drop Python 2.5 support
+
+[ ] lxml required for tests
+
+[ ] Always use qualified namespaces
+
+[ ] Merge chart improvements
+
+[ ] Add support for preserving formulae
+
+[ ] Harmonise cells for reader and optimised reader

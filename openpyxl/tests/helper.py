@@ -33,7 +33,7 @@ from tempfile import gettempdir
 from sys import version_info
 
 # package imports
-from openpyxl.shared.compat import BytesIO, unicode
+from openpyxl.shared.compat import BytesIO, unicode, StringIO
 from openpyxl.shared.xmltools import fromstring, ElementTree
 from openpyxl.shared.xmltools import pretty_indent
 
@@ -70,9 +70,6 @@ def assert_equals_file_content(reference_file, fixture, filetype = 'xml'):
         expected_content = expected_file.read()
     finally:
         expected_file.close()
-    assert_equals_string(expected_content, expected_content, filetype)
-
-def assert_equals_string(expected_content, fixture_content, filetype=None):
 
     if filetype == 'xml':
         fixture_content = fromstring(fixture_content)
@@ -91,7 +88,7 @@ def assert_equals_string(expected_content, fixture_content, filetype=None):
     expected_lines = unicode(expected_content).split('\n')
     differences = list(difflib.unified_diff(expected_lines, fixture_lines))
     if differences:
-        temp = BytesIO()
+        temp = StringIO()
         pprint(differences, stream = temp)
         assert False, 'Differences found : %s' % temp.getvalue()
 
@@ -107,3 +104,20 @@ def get_xml(xml_node):
         ret = io.getvalue()
     io.close()
     return ret.replace('\n', '')
+
+from lxml.doctestcompare import LXMLOutputChecker, PARSE_XML
+
+def compare_xml(generated, expected):
+    """Use doctest checking from lxml for comparing XML trees. Returns diff if the two are not the same"""
+    checker = LXMLOutputChecker()
+
+    class DummyDocTest():
+        pass
+
+    ob = DummyDocTest()
+    ob.want = generated
+
+    check = checker.check_output(generated, expected, PARSE_XML)
+    if check is False:
+        diff = checker.output_difference(ob, expected, PARSE_XML)
+        return diff

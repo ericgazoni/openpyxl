@@ -34,16 +34,18 @@ cells using Excel's 'A1' column/row nomenclature are also provided.
 __docformat__ = "restructuredtext en"
 
 # Python stdlib imports
+import datetime
+import re
+
 from openpyxl.shared import (NUMERIC_TYPES, DEFAULT_ROW_HEIGHT,
     DEFAULT_COLUMN_WIDTH)
-from openpyxl.shared.compat import all, unicode, basestring
+from openpyxl.shared.compat import unicode, basestring
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.exc import (CellCoordinatesException,
     ColumnStringIndexException, DataTypeException)
 from openpyxl.shared.units import points_to_pixels
 from openpyxl.style import NumberFormat
-import datetime
-import re
+
 
 # package imports
 
@@ -69,12 +71,15 @@ def coordinate_from_string(coord_string):
 
 def absolute_coordinate(coord_string):
     """Convert a coordinate to an absolute coordinate string (B12 -> $B$12)"""
-    parts = ABSOLUTE_RE.match(coord_string).groups()
-
-    if all(parts[-2:]):
-        return '$%s$%s:$%s$%s' % (parts[0], parts[1], parts[3], parts[4])
+    m = ABSOLUTE_RE.match(coord_string)
+    if m:
+        parts = m.groups()
+        if all(parts[-2:]):
+            return '$%s$%s:$%s$%s' % (parts[0], parts[1], parts[3], parts[4])
+        else:
+            return '$%s$%s' % (parts[0], parts[1])
     else:
-        return '$%s$%s' % (parts[0], parts[1])
+        return coord_string
 
 
 def column_index_from_string(column, fast=False):
@@ -222,6 +227,13 @@ class Cell(object):
                 value = float(value)
         return value
 
+    def check_error(self, value):
+        """Tries to convert Error" else N/A"""
+        try:
+            return unicode(value)
+        except:
+            return unicode('#N/A')
+
     def set_value_explicit(self, value=None, data_type=TYPE_STRING):
         """Coerce values according to their explicit type"""
         type_coercion_map = {
@@ -229,7 +241,8 @@ class Cell(object):
             self.TYPE_STRING: self.check_string,
             self.TYPE_FORMULA: self.check_string,
             self.TYPE_NUMERIC: self.check_numeric,
-            self.TYPE_BOOL: bool, }
+            self.TYPE_BOOL: bool,
+            self.TYPE_ERROR: self.check_error}
         try:
             self._value = type_coercion_map[data_type](value)
         except KeyError:
