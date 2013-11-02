@@ -33,13 +33,13 @@ Shortcut functions taken from:
 # Python stdlib imports
 from xml.sax.xmlreader import AttributesNSImpl
 from openpyxl.shared.compat.sax import XMLGenerator
-from openpyxl.shared.compat import OrderedDict
+from openpyxl.shared.compat import OrderedDict, register_namespace
 from openpyxl.shared.ooxml import (
     CHART_NS, DRAWING_NS, SHEET_MAIN_NS, REL_NS, VTYPES_NS,
     COREPROPS_NS, DCTERMS_NS, DCTERMS_PREFIX)
 try:
     from xml.etree.ElementTree import ElementTree, Element, SubElement, \
-            QName, fromstring, tostring, register_namespace
+            QName, fromstring, tostring
 except ImportError:
     from cElementTree import ElementTree, Element, SubElement, \
             QName, fromstring, tostring
