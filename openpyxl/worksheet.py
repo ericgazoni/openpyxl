@@ -209,7 +209,7 @@ class HeaderFooterItem(object):
                     try:
                         self.font_size = int(item)
                     except:
-                        pass
+                        textArray.append('&%s' % item)
         self.text = ''.join(textArray)
 
 class HeaderFooter(object):
@@ -440,6 +440,7 @@ class Worksheet(object):
             self.title = title
         self.row_dimensions = {}
         self.column_dimensions = {}
+        self.page_breaks = []
         self._cells = {}
         self._styles = {}
         self._charts = []
@@ -465,6 +466,7 @@ class Worksheet(object):
         self._freeze_panes = None
         self.paper_size = None
         self.orientation = None
+        self.xml_source = None
 
     def __repr__(self):
         return self.repr_format % self.title
@@ -549,6 +551,17 @@ class Worksheet(object):
 
     freeze_panes = property(_get_freeze_panes, _set_freeze_panes, doc=
                            "Get or set frozen panes")
+
+    def add_print_title(self, n, rows_or_cols='rows'):
+        """ Print Titles are rows or columns that are repeated on each printed sheet.
+        This adds n rows or columns at the top or left of the sheet
+        """
+        if rows_or_cols == 'cols':
+            r = '$A:$%s' % get_column_letter(n)
+        else:
+            r = '$1:$%d' % n
+
+        self.parent.create_named_range('_xlnm.Print_Titles', self, r, self)
 
     def cell(self, coordinate=None, row=None, column=None):
         """Returns a cell object based on the given coordinates.
@@ -707,6 +720,8 @@ class Worksheet(object):
         """Return the style object for the specified cell."""
         if not coordinate in self._styles:
             self._styles[coordinate] = Style()
+        elif self._styles[coordinate].static:
+            self._styles[coordinate] = self._styles[coordinate].copy()
         return self._styles[coordinate]
 
     def set_printer_settings(self, paper_size, orientation):

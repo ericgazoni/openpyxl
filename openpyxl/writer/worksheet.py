@@ -26,13 +26,11 @@
 """Write worksheets to xml representations."""
 
 # Python stdlib imports
-try:
-    # Python 2
-    from StringIO import StringIO  # cStringIO doesn't handle unicode
-    BytesIO = StringIO
-except ImportError:
-    # Python 3
-    from io import BytesIO, StringIO
+import decimal, re
+
+# compatibility imports
+
+from openpyxl.shared.compat import BytesIO, StringIO
 
 try:
     # Python 2
@@ -42,10 +40,9 @@ except NameError:
     long = int
 
 # package imports
-import decimal
 from openpyxl.cell import coordinate_from_string, column_index_from_string
-from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, \
-        get_document_content, start_tag, end_tag, tag
+from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, ElementTree, \
+        get_document_content, start_tag, end_tag, tag, fromstring, tostring, register_namespace
 from openpyxl.shared.compat.itertools import iteritems, iterkeys
 
 
@@ -53,16 +50,31 @@ def row_sort(cell):
     """Translate column names for sorting."""
     return column_index_from_string(cell.column)
 
+def write_etree(doc, element):
+    start_tag(doc, element.tag, element)
+    for e in element.getchildren():
+        write_etree(doc, e)
+    end_tag(doc, element.tag)
 
 def write_worksheet(worksheet, string_table, style_table):
     """Write a worksheet to an xml file."""
+    if worksheet.xml_source:
+        vba_root = fromstring(worksheet.xml_source)
+        register_namespace("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships")
+        register_namespace("", "http://schemas.openxmlformats.org/spreadsheetml/2006/main")
+    else:
+        vba_root = None
     xml_file = StringIO()
     doc = XMLGenerator(out=xml_file, encoding='utf-8')
     start_tag(doc, 'worksheet',
             {'xml:space': 'preserve',
             'xmlns': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
             'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
-    start_tag(doc, 'sheetPr')
+    if vba_root is not None:
+        codename = vba_root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}sheetPr').get('codeName', worksheet.title)
+        start_tag(doc, 'sheetPr', {"codeName": codename})
+    else:
+        start_tag(doc, 'sheetPr')
     tag(doc, 'outlinePr',
             {'summaryBelow': '%d' % (worksheet.show_summary_below),
             'summaryRight': '%d' % (worksheet.show_summary_right)})
@@ -102,6 +114,26 @@ def write_worksheet(worksheet, string_table, style_table):
 
     if worksheet._charts or worksheet._images:
         tag(doc, 'drawing', {'r:id':'rId1'})
+
+    # if the sheet has an xml_source field then the workbook must have
+    # been loaded with keep-vba true and we need to extract any control
+    # elements.
+    if vba_root is not None:
+        for t in ('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}legacyDrawing',
+                  '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}controls'):
+            for elem in vba_root.findall(t):
+                xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem).decode("utf-8")))
+
+    breaks = worksheet.page_breaks
+    if breaks:
+        start_tag(doc, 'rowBreaks', {'count': str(len(breaks)), 'manualBreakCount': str(len(breaks))})
+        for b in breaks:
+            tag(doc, 'brk', {'id': str(b), 'man': 'true', 'max': '16383', 'min': '0'})
+        end_tag(doc, 'rowBreaks')
+
+
+
+
     end_tag(doc, 'worksheet')
     doc.endDocument()
     xml_string = xml_file.getvalue()
@@ -150,7 +182,6 @@ def write_worksheet_cols(doc, worksheet):
                 iteritems(worksheet.column_dimensions):
             col_index = column_index_from_string(column_string)
             col_def = {}
-            col_def['collapsed'] = str(columndimension.style_index)
             col_def['min'] = str(col_index)
             col_def['max'] = str(col_index)
             if columndimension.width != \
@@ -164,6 +195,8 @@ def write_worksheet_cols(doc, worksheet):
                 col_def['collapsed'] = 'true'
             if columndimension.auto_size:
                 col_def['bestFit'] = 'true'
+            if columndimension.style_index:
+                col_def['style'] = str(columndimension.style_index)
             if columndimension.width > 0:
                 col_def['width'] = str(columndimension.width)
             else:

@@ -26,13 +26,17 @@
 """Write the workbook global settings to the archive."""
 
 # package imports
+
+from openpyxl.shared.compat import register_namespace
 from openpyxl.shared.xmltools import Element, SubElement
 from openpyxl.cell import absolute_coordinate
 from openpyxl.shared.xmltools import get_document_content
 from openpyxl.shared.ooxml import (
     ARC_CORE, ARC_WORKBOOK, ARC_APP, ARC_THEME, ARC_STYLE, ARC_SHARED_STRINGS,
+    ARC_CONTENT_TYPES,
     COREPROPS_NS, VTYPES_NS, XPROPS_NS, DCORE_NS, DCTERMS_NS, DCTERMS_PREFIX,
     XSI_NS, XML_NS, SHEET_MAIN_NS, CONTYPES_NS, PKG_REL_NS, REL_NS)
+from openpyxl.shared.xmltools import get_document_content, fromstring
 from openpyxl.shared.date_time import datetime_to_W3CDTF
 from openpyxl.namedrange import NamedRange, NamedRangeContainingValue
 
@@ -48,6 +52,11 @@ def write_properties_core(properties):
     SubElement(root, '{%s}modified' % DCTERMS_NS,
                {'{%s}type' % XSI_NS: '%s:W3CDTF' % DCTERMS_PREFIX}).text = \
                    datetime_to_W3CDTF(properties.modified)
+    SubElement(root, '{%s}title' % DCORE_NS).text = properties.title
+    SubElement(root, '{%s}description' % DCORE_NS).text = properties.description
+    SubElement(root, '{%s}subject' % DCORE_NS).text = properties.subject
+    SubElement(root, '{%s}keywords' % COREPROPS_NS).text = properties.keywords
+    SubElement(root, '{%s}category' % COREPROPS_NS).text = properties.category
     return get_document_content(root)
 
 
@@ -72,17 +81,23 @@ static_content_types_config = [
 
 def write_content_types(workbook):
     """Write the content-types xml."""
-    root = Element('{%s}Types' % CONTYPES_NS)
-
-    for setting_type, name, content_type in static_content_types_config:
-        if setting_type == 'Override':
-            tag = '{%s}Override' % CONTYPES_NS
-            attrib = {'PartName': '/' + name}
-        else:
-            tag = '{%s}Default' % CONTYPES_NS
-            attrib = {'Extension': name}
-        attrib['ContentType'] = content_type
-        SubElement(root, tag, attrib)
+    seen = set()
+    if workbook.vba_archive:
+        root = fromstring(workbook.vba_archive.read(ARC_CONTENT_TYPES))
+        register_namespace('', 'http://schemas.openxmlformats.org/package/2006/content-types')
+        for elem in root.findall('{http://schemas.openxmlformats.org/package/2006/content-types}Override'):
+            seen.add(elem.attrib['PartName'])
+    else:
+        root = Element('{%s}Types' % CONTYPES_NS)
+        for setting_type, name, content_type in static_content_types_config:
+            if setting_type == 'Override':
+                tag = '{%s}Override' % CONTYPES_NS
+                attrib = {'PartName': '/' + name}
+            else:
+                tag = '{%s}Default' % CONTYPES_NS
+                attrib = {'Extension': name}
+            attrib['ContentType'] = content_type
+            SubElement(root, tag, attrib)
 
     drawing_id = 1
     chart_id = 1
@@ -240,4 +255,8 @@ def write_workbook_rels(workbook):
     SubElement(root, '{%s}Relationship' % PKG_REL_NS,
                {'Id': 'rId%d' % (rid + 2), 'Target': 'theme/theme1.xml',
                 'Type': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme'})
+    if workbook.vba_archive:
+        SubElement(root, '{%s}Relationship' % PKG_REL_NS,
+                   {'Id': 'rId%d' % (rid + 3), 'Target': 'vbaProject.bin',
+                    'Type': 'http://schemas.microsoft.com/office/2006/relationships/vbaProject'})
     return get_document_content(root)

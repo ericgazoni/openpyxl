@@ -1,0 +1,20 @@
+syntax: regexp
+\.pyc$
+.coverage
+org.eclipse
+\.pytest
+(build|dist|openpyxl.egg-info)
+\.(dot|svg|pf)
+\.noseids
+\.*\.swp
+\.*\.DS_Store
+\.*\.~.*
+syntax: glob
+*~
+*.orig
+.idea
+*.pstats
+*.png
+*.sh
+.git
+travis.yml
