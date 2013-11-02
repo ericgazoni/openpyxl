@@ -531,7 +531,7 @@ class TestChartWriter(object):
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}headerFooter',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}pageMargins', '{http://schemas.openxmlformats.org/drawingml/2006/chart}pageSetup']
         self.cw._write_print_settings(self.root)
-        for e in self.root.iter():
+        for e in self.root:
             assert_true(e.tag in tagnames)
             if e.tag == "{http://schemas.openxmlformats.org/drawingml/2006/chart}pageMargins":
                 eq_(e.keys(), list(self.chart.print_margins.keys()))
@@ -703,7 +703,7 @@ class TestPieChartWriter(object):
         """check if some characteristic tags of PieChart are there"""
         self.cw._write_chart(self.root)
         tagnames = ['test', '{http://schemas.openxmlformats.org/drawingml/2006/chart}pieChart', '{http://schemas.openxmlformats.org/drawingml/2006/chart}varyColors']
-        chart_tags = [e.tag for e in self.root.iter()]
+        chart_tags = [e.tag for e in self.root]
         for tag in tagnames:
             assert_true(tag in chart_tags, tag)
 
@@ -739,7 +739,7 @@ class TestLineChartWriter(object):
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}lineChart',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}catAx']
-        chart_tags = [e.tag for e in self.root.iter()]
+        chart_tags = [e.tag for e in self.root]
         for tag in tagnames:
             assert_true(tag in chart_tags, tag)
 
@@ -773,7 +773,7 @@ class TestBarChartWriter(object):
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}barChart',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}catAx']
-        chart_tags = [e.tag for e in self.root.iter()]
+        chart_tags = [e.tag for e in self.root]
         for tag in tagnames:
             assert_true(tag in chart_tags, tag)
 
