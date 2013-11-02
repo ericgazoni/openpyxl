@@ -31,10 +31,9 @@
 from openpyxl.shared.compat import BytesIO, StringIO
 from openpyxl.shared.compat import iterparse
 
+# package imports
 from openpyxl.cell import get_column_letter
 from openpyxl.shared.xmltools import fromstring, QName
-
-# package imports
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
 
@@ -131,11 +130,12 @@ def fast_parse(ws, xml_source, string_table, style_table):
                 value = string_table.get(int(value))
             if formula is not None:
                 value = "=" + formula
-            elif guess_types:
-                ws.cell(coordinate).value = value
-            else:
+            if not guess_types and not formula:
                 ws.cell(coordinate).set_value_explicit(value=value,
                                                        data_type=data_type)
+            else:
+                ws.cell(coordinate).value = value
+
 
         # to avoid memory exhaustion, clear the item after use
         element.clear()
