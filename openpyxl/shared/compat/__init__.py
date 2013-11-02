@@ -22,7 +22,7 @@
 # @author: see AUTHORS file
 import sys
 
-from openpyxl.shared.compat.elementtree import iterparse
+from openpyxl.shared.compat.elementtree import iterparse, register_namespace
 from openpyxl.shared.compat.tempnamedfile import NamedTemporaryFile
 from openpyxl.shared.compat.allany import all, any
 from openpyxl.shared.compat.strings import basestring, unicode, StringIO, file, BytesIO
