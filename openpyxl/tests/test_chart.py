@@ -456,7 +456,7 @@ class TestChartWriter(object):
     def test_write_no_ascii(self):
 
         ws = self.make_worksheet()
-        ws.append([u"D\xfcsseldorf"]*10)
+        ws.append(["D\xc3\xbcsseldorf"]*10)
         serie = Serie(values=Reference(ws, (0,0), (0,9)),
                       legend=Reference(ws, (1,0), (1,9))
                       )
