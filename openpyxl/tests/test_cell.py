@@ -47,6 +47,7 @@ def build_dummy_worksheet():
             excel_base_date = CALENDAR_WINDOWS_1900
         encoding = 'utf-8'
         parent = Wb()
+        title = "Dummy Worksheet"
 
     return Ws()
 
@@ -144,6 +145,8 @@ class TestCellValueTypes(object):
 
     def test_formula(self):
         self.cell.value = '=42'
+        eq_(self.cell.TYPE_FORMULA, self.cell.data_type)
+        self.cell.value = '=if(A1<4;-1;1)'
         eq_(self.cell.TYPE_FORMULA, self.cell.data_type)
 
     def test_boolean(self):

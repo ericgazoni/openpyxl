@@ -25,15 +25,30 @@ User List
 
 Official user list can be found on http://groups.google.com/group/openpyxl-users
 
-Contribute
-----------
+How to Contribute Code
+----------------------
 
-Any help will be greatly appreciated, there are just a few requirements to get your code checked in the public repository:
+Any help will be greatly appreciated, just follow those steps:
 
-    * Forks are the now prefered way to contribute, but don't forget to make a pull request if you want your code to be included in the main branch :)
-    * long diffs posted in the body of a tracker request will not be looked at (more than 30 rows of non-syntax highlighted code is simply unreadable).     
-    * every non-trivial change must come with at least a unit test (that tests the new behavior, obviously :p). There are plenty of examples in the /test directory if you lack know-how or inspiration.
+    1. Please start a new fork (https://bitbucket.org/ericgazoni/openpyxl/fork) for each independant feature, don't try to fix all problems at the same time, it's easier for those who will review and merge your changes ;-)
+    2. Hack hack hack
+    3. Don't forget to add unit tests for your changes ! (YES, even if it's a one-liner, or there is a high probability your work will not be taken into consideration). There are plenty of examples in the /test directory if you lack know-how or inspiration.
+    4. If you added a whole new feature, or just improved something, you can be proud of it, so add yourself to the AUTHORS file :-)
+    5. Let people know about the shiny thing you just implemented, update the docs !
+    6. When it's done, just issue a pull request (click on the large "pull request" button on *your* repository) and wait for your code to be reviewed, and, if you followed all theses steps, merged into the main repository.
 
+.. note:
+
+This is an open-source project, maintained by volunteers on their spare time, so while we try to work on this project as often as possible, sometimes life gets in the way. Please be patient.
+
+Other ways to help
+------------------
+
+There are several ways to contribute, even if you can't code (or can't code well):
+
+- triaging bugs on the bug tracker: closing bugs that have already been closed, are not relevant, cannot be reproduced, ...
+- updating documentation in virtually every area: many large features have been added (mainly about charts and images at the moment) but without any documentation, it's pretty hard to do anything with it 
+- proposing compatibility fixes for different versions of Python: we try to support 2.5 to 3.3, so if it does not work on your environment, let us know :-)
 
 Installation
 ------------

@@ -33,7 +33,7 @@ from tempfile import gettempdir
 from sys import version_info
 
 # package imports
-from openpyxl.shared.compat import BytesIO, unicode
+from openpyxl.shared.compat import BytesIO, unicode, StringIO
 from openpyxl.shared.xmltools import fromstring, ElementTree
 from openpyxl.shared.xmltools import pretty_indent
 
@@ -88,7 +88,7 @@ def assert_equals_file_content(reference_file, fixture, filetype = 'xml'):
     expected_lines = unicode(expected_content).split('\n')
     differences = list(difflib.unified_diff(expected_lines, fixture_lines))
     if differences:
-        temp = BytesIO()
+        temp = StringIO()
         pprint(differences, stream = temp)
         assert False, 'Differences found : %s' % temp.getvalue()
 
