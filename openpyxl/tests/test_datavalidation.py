@@ -42,8 +42,14 @@ COLLAPSE_TEST_DATA = [
 
 
 def test_collapse_cell_addresses():
+
+    def check_address(data):
+        cells, expected = data
+        collapsed = collapse_cell_addresses(cells)
+        eq_(collapsed, expected)
+
     for data in COLLAPSE_TEST_DATA:
-        eq_(collapse_cell_addresses(data[0]), data[1])
+        yield check_address, data
 
 
 def test_list_validation():

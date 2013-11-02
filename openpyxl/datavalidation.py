@@ -56,7 +56,6 @@ def collapse_cell_addresses(cells, input_ranges=()):
         grouped_rows = [[r[1] for r in list(g)] for k, g in
                         groupby(enumerate(rows),
                         lambda x: x[0] - x[1])]
-
         for rows in grouped_rows:
             if len(rows) == 0:
                 pass

@@ -2,7 +2,7 @@
 # file openpyxl/tests/test_dump.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -26,6 +26,7 @@
 
 # Python stdlib imports
 from datetime import time, datetime
+from tempfile import NamedTemporaryFile
 
 # 3rd party imports
 from nose.tools import eq_, raises
@@ -38,7 +39,7 @@ from openpyxl.reader.excel import load_workbook
 
 from openpyxl.writer.strings import StringTableBuilder
 
-from openpyxl.shared.compat import NamedTemporaryFile, xrange
+from openpyxl.shared.compat import xrange
 from openpyxl.shared.exc import WorkbookAlreadySaved
 import os
 import os.path as osp
@@ -57,13 +58,13 @@ def test_dump_sheet_title():
     wb = Workbook(optimized_write=True)
 
     ws = wb.create_sheet(title='Test1')
-    
+
     wb.save(test_filename)
 
     wb2 = load_workbook(test_filename, True)
 
     ws = wb2.get_sheet_by_name('Test1')
-        
+
     eq_('Test1', ws.title)
 
 def test_dump_sheet():
@@ -137,7 +138,7 @@ def test_open_too_many_files():
 
     wb = Workbook(optimized_write=True)
 
-    for i in range(200): # over 200 worksheets should raise an OSError ('too many open files') 
+    for i in range(200): # over 200 worksheets should raise an OSError ('too many open files')
 
         wb.create_sheet()
 
