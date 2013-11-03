@@ -5,6 +5,8 @@ Roadmap for next version
 
 [x] lxml required for tests
 
+[ ] allow lxml as backend
+
 [ ] Always use qualified namespaces
 
 [x] Merge chart improvements

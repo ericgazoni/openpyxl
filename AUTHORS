@@ -5,10 +5,11 @@ found here: http://www.phpexcel.net/
 
 Kudos goes to the PHPExcel team, I'm only standing on their shoulders.
 
-I'd also like to greatly thank all those who participate in the project (in alphabetical order): 
+I'd also like to greatly thank all those who participate in the project (in alphabetical order):
 
 * Stephane Bard
 * Day Barr
+* Stefan Behnel
 * Bernt R. Brenna
 * Anders Chrigstrom
 * ccoacley
@@ -27,9 +28,10 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Heikki Junes
 * Chi Ho Kwok
 * Yingjie Lan
+* Detlef Lannert
 * Greg Lehmann
 * Adam Lofts
-* Marko Loparic 
+* Marko Loparic
 * Samuel Loretan
 * Amin Mirzaee
 * Adam Morris
@@ -38,7 +40,8 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Jun Omae
 * Waldemar Osuch
 * Jonathan Peirce
-* Ted Pollari 
+* Ted Pollari
+* Elias Rabel
 * Rick Rankin
 * ramn_se
 * Philip Roche
