@@ -5,7 +5,7 @@
     
     
     <meta http-equiv='X-UA-Compatible' content='IE=emulateIE7' />
-    <title>Coverage for openpyxl.writer.worksheet: 89%</title>
+    <title>Coverage for openpyxl.writer.worksheet: 88%</title>
     <link rel='stylesheet' href='style.css' type='text/css'>
     
     <script type='text/javascript' src='jquery.min.js'></script>
@@ -21,13 +21,13 @@
 <div id='header'>
     <div class='content'>
         <h1>Coverage for <b>openpyxl.writer.worksheet</b> :
-            <span class='pc_cov'>89%</span>
+            <span class='pc_cov'>88%</span>
         </h1>
         <img id='keyboard_icon' src='keybd_closed.png'>
         <h2 class='stats'>
             221 statements &nbsp;
-            <span class='run hide_run shortkey_r button_toggle_run'>197 run</span>
-            <span class='mis shortkey_m button_toggle_mis'>24 missing</span>
+            <span class='run hide_run shortkey_r button_toggle_run'>195 run</span>
+            <span class='mis shortkey_m button_toggle_mis'>26 missing</span>
             <span class='exc shortkey_x button_toggle_exc'>0 excluded</span>
             
         </h2>
@@ -98,9 +98,9 @@
 <p id='n35' class='stm run hide_run'><a href='#n35'>35</a></p>
 <p id='n36' class='pln'><a href='#n36'>36</a></p>
 <p id='n37' class='stm run hide_run'><a href='#n37'>37</a></p>
-<p id='n38' class='stm run hide_run'><a href='#n38'>38</a></p>
+<p id='n38' class='stm mis'><a href='#n38'>38</a></p>
 <p id='n39' class='pln'><a href='#n39'>39</a></p>
-<p id='n40' class='stm run hide_run'><a href='#n40'>40</a></p>
+<p id='n40' class='stm mis'><a href='#n40'>40</a></p>
 <p id='n41' class='pln'><a href='#n41'>41</a></p>
 <p id='n42' class='pln'><a href='#n42'>42</a></p>
 <p id='n43' class='stm run hide_run'><a href='#n43'>43</a></p>
@@ -425,9 +425,9 @@
 <p id='t35' class='stm run hide_run'><span class='key'>try</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t36' class='pln'>&nbsp; &nbsp; <span class='com'># Python 2</span><span class='strut'>&nbsp;</span></p>
 <p id='t37' class='stm run hide_run'>&nbsp; &nbsp; <span class='nam'>isinstance</span><span class='op'>(</span><span class='num'>1</span><span class='op'>,</span> <span class='nam'>long</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
-<p id='t38' class='stm run hide_run'><span class='key'>except</span> <span class='nam'>NameError</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
+<p id='t38' class='stm mis'><span class='key'>except</span> <span class='nam'>NameError</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t39' class='pln'>&nbsp; &nbsp; <span class='com'># Python 3, all ints are long</span><span class='strut'>&nbsp;</span></p>
-<p id='t40' class='stm run hide_run'>&nbsp; &nbsp; <span class='nam'>long</span> <span class='op'>=</span> <span class='nam'>int</span><span class='strut'>&nbsp;</span></p>
+<p id='t40' class='stm mis'>&nbsp; &nbsp; <span class='nam'>long</span> <span class='op'>=</span> <span class='nam'>int</span><span class='strut'>&nbsp;</span></p>
 <p id='t41' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t42' class='pln'><span class='com'># package imports</span><span class='strut'>&nbsp;</span></p>
 <p id='t43' class='stm run hide_run'><span class='key'>from</span> <span class='nam'>openpyxl</span><span class='op'>.</span><span class='nam'>cell</span> <span class='key'>import</span> <span class='nam'>coordinate_from_string</span><span class='op'>,</span> <span class='nam'>column_index_from_string</span><span class='strut'>&nbsp;</span></p>
@@ -453,14 +453,14 @@
 <p id='t63' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>register_namespace</span><span class='op'>(</span><span class='str'>&quot;r&quot;</span><span class='op'>,</span> <span class='str'>&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships&quot;</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t64' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>register_namespace</span><span class='op'>(</span><span class='str'>&quot;&quot;</span><span class='op'>,</span> <span class='str'>&quot;http://schemas.openxmlformats.org/spreadsheetml/2006/main&quot;</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t65' class='pln'>&nbsp; &nbsp; <span class='key'>else</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
-<p id='t66' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>vba_root</span> <span class='op'>=</span> <span class='key'>None</span><span class='strut'>&nbsp;</span></p>
+<p id='t66' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>vba_root</span> <span class='op'>=</span> <span class='nam'>None</span><span class='strut'>&nbsp;</span></p>
 <p id='t67' class='stm run hide_run'>&nbsp; &nbsp; <span class='nam'>xml_file</span> <span class='op'>=</span> <span class='nam'>StringIO</span><span class='op'>(</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t68' class='stm run hide_run'>&nbsp; &nbsp; <span class='nam'>doc</span> <span class='op'>=</span> <span class='nam'>XMLGenerator</span><span class='op'>(</span><span class='nam'>out</span><span class='op'>=</span><span class='nam'>xml_file</span><span class='op'>,</span> <span class='nam'>encoding</span><span class='op'>=</span><span class='str'>&#39;utf-8&#39;</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t69' class='stm run hide_run'>&nbsp; &nbsp; <span class='nam'>start_tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;worksheet&#39;</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
 <p id='t70' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='op'>{</span><span class='str'>&#39;xml:space&#39;</span><span class='op'>:</span> <span class='str'>&#39;preserve&#39;</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
 <p id='t71' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='str'>&#39;xmlns&#39;</span><span class='op'>:</span> <span class='str'>&#39;http://schemas.openxmlformats.org/spreadsheetml/2006/main&#39;</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
 <p id='t72' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='str'>&#39;xmlns:r&#39;</span><span class='op'>:</span> <span class='str'>&#39;http://schemas.openxmlformats.org/officeDocument/2006/relationships&#39;</span><span class='op'>}</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
-<p id='t73' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>vba_root</span> <span class='key'>is</span> <span class='key'>not</span> <span class='key'>None</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
+<p id='t73' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>vba_root</span> <span class='key'>is</span> <span class='key'>not</span> <span class='nam'>None</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t74' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>codename</span> <span class='op'>=</span> <span class='nam'>vba_root</span><span class='op'>.</span><span class='nam'>find</span><span class='op'>(</span><span class='str'>&#39;{http://schemas.openxmlformats.org/spreadsheetml/2006/main}sheetPr&#39;</span><span class='op'>)</span><span class='op'>.</span><span class='nam'>get</span><span class='op'>(</span><span class='str'>&#39;codeName&#39;</span><span class='op'>,</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>title</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t75' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>start_tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;sheetPr&#39;</span><span class='op'>,</span> <span class='op'>{</span><span class='str'>&quot;codeName&quot;</span><span class='op'>:</span> <span class='nam'>codename</span><span class='op'>}</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t76' class='pln'>&nbsp; &nbsp; <span class='key'>else</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
@@ -497,9 +497,9 @@
 <p id='t107' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>header_footer</span><span class='op'>.</span><span class='nam'>hasHeader</span><span class='op'>(</span><span class='op'>)</span> <span class='key'>or</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>header_footer</span><span class='op'>.</span><span class='nam'>hasFooter</span><span class='op'>(</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t108' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>start_tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;headerFooter&#39;</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t109' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>header_footer</span><span class='op'>.</span><span class='nam'>hasHeader</span><span class='op'>(</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
-<p id='t110' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;oddHeader&#39;</span><span class='op'>,</span> <span class='key'>None</span><span class='op'>,</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>header_footer</span><span class='op'>.</span><span class='nam'>getHeader</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
+<p id='t110' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;oddHeader&#39;</span><span class='op'>,</span> <span class='nam'>None</span><span class='op'>,</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>header_footer</span><span class='op'>.</span><span class='nam'>getHeader</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t111' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>header_footer</span><span class='op'>.</span><span class='nam'>hasFooter</span><span class='op'>(</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
-<p id='t112' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;oddFooter&#39;</span><span class='op'>,</span> <span class='key'>None</span><span class='op'>,</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>header_footer</span><span class='op'>.</span><span class='nam'>getFooter</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
+<p id='t112' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;oddFooter&#39;</span><span class='op'>,</span> <span class='nam'>None</span><span class='op'>,</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>header_footer</span><span class='op'>.</span><span class='nam'>getFooter</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t113' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>end_tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;headerFooter&#39;</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t114' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t115' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>_charts</span> <span class='key'>or</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>_images</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
@@ -508,7 +508,7 @@
 <p id='t118' class='pln'>&nbsp; &nbsp; <span class='com'># if the sheet has an xml_source field then the workbook must have</span><span class='strut'>&nbsp;</span></p>
 <p id='t119' class='pln'>&nbsp; &nbsp; <span class='com'># been loaded with keep-vba true and we need to extract any control</span><span class='strut'>&nbsp;</span></p>
 <p id='t120' class='pln'>&nbsp; &nbsp; <span class='com'># elements.</span><span class='strut'>&nbsp;</span></p>
-<p id='t121' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>vba_root</span> <span class='key'>is</span> <span class='key'>not</span> <span class='key'>None</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
+<p id='t121' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>vba_root</span> <span class='key'>is</span> <span class='key'>not</span> <span class='nam'>None</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t122' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>for</span> <span class='nam'>t</span> <span class='key'>in</span> <span class='op'>(</span><span class='str'>&#39;{http://schemas.openxmlformats.org/spreadsheetml/2006/main}legacyDrawing&#39;</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
 <p id='t123' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='str'>&#39;{http://schemas.openxmlformats.org/spreadsheetml/2006/main}controls&#39;</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t124' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>for</span> <span class='nam'>elem</span> <span class='key'>in</span> <span class='nam'>vba_root</span><span class='op'>.</span><span class='nam'>findall</span><span class='op'>(</span><span class='nam'>t</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
@@ -628,7 +628,7 @@
 <p id='t238' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>attributes</span><span class='op'>[</span><span class='str'>&#39;s&#39;</span><span class='op'>]</span> <span class='op'>=</span> <span class='str'>&#39;%d&#39;</span> <span class='op'>%</span> <span class='nam'>style_id_by_hash</span><span class='op'>[</span><span class='strut'>&nbsp;</span></p>
 <p id='t239' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>hash</span><span class='op'>(</span><span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>_styles</span><span class='op'>[</span><span class='nam'>coordinate</span><span class='op'>]</span><span class='op'>)</span><span class='op'>]</span><span class='strut'>&nbsp;</span></p>
 <p id='t240' class='pln'><span class='strut'>&nbsp;</span></p>
-<p id='t241' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>value</span> <span class='key'>in</span> <span class='op'>(</span><span class='str'>&#39;&#39;</span><span class='op'>,</span> <span class='key'>None</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
+<p id='t241' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>value</span> <span class='key'>in</span> <span class='op'>(</span><span class='str'>&#39;&#39;</span><span class='op'>,</span> <span class='nam'>None</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t242' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;c&#39;</span><span class='op'>,</span> <span class='nam'>attributes</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t243' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>else</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t244' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>start_tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;c&#39;</span><span class='op'>,</span> <span class='nam'>attributes</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
@@ -682,15 +682,15 @@
 <p id='t292' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t293' class='stm run hide_run'><span class='key'>def</span> <span class='nam'>write_worksheet_hyperlinks</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='nam'>worksheet</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t294' class='pln'>&nbsp; &nbsp; <span class='str'>&quot;&quot;&quot;Write worksheet hyperlinks to xml.&quot;&quot;&quot;</span><span class='strut'>&nbsp;</span></p>
-<p id='t295' class='stm run hide_run'>&nbsp; &nbsp; <span class='nam'>write_hyperlinks</span> <span class='op'>=</span> <span class='key'>False</span><span class='strut'>&nbsp;</span></p>
+<p id='t295' class='stm run hide_run'>&nbsp; &nbsp; <span class='nam'>write_hyperlinks</span> <span class='op'>=</span> <span class='nam'>False</span><span class='strut'>&nbsp;</span></p>
 <p id='t296' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>for</span> <span class='nam'>cell</span> <span class='key'>in</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>get_cell_collection</span><span class='op'>(</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
-<p id='t297' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>cell</span><span class='op'>.</span><span class='nam'>hyperlink_rel_id</span> <span class='key'>is</span> <span class='key'>not</span> <span class='key'>None</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
-<p id='t298' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>write_hyperlinks</span> <span class='op'>=</span> <span class='key'>True</span><span class='strut'>&nbsp;</span></p>
+<p id='t297' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>cell</span><span class='op'>.</span><span class='nam'>hyperlink_rel_id</span> <span class='key'>is</span> <span class='key'>not</span> <span class='nam'>None</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
+<p id='t298' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>write_hyperlinks</span> <span class='op'>=</span> <span class='nam'>True</span><span class='strut'>&nbsp;</span></p>
 <p id='t299' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>break</span><span class='strut'>&nbsp;</span></p>
 <p id='t300' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>write_hyperlinks</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t301' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>start_tag</span><span class='op'>(</span><span class='nam'>doc</span><span class='op'>,</span> <span class='str'>&#39;hyperlinks&#39;</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t302' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>for</span> <span class='nam'>cell</span> <span class='key'>in</span> <span class='nam'>worksheet</span><span class='op'>.</span><span class='nam'>get_cell_collection</span><span class='op'>(</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
-<p id='t303' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>cell</span><span class='op'>.</span><span class='nam'>hyperlink_rel_id</span> <span class='key'>is</span> <span class='key'>not</span> <span class='key'>None</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
+<p id='t303' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>cell</span><span class='op'>.</span><span class='nam'>hyperlink_rel_id</span> <span class='key'>is</span> <span class='key'>not</span> <span class='nam'>None</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t304' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>attrs</span> <span class='op'>=</span> <span class='op'>{</span><span class='str'>&#39;display&#39;</span><span class='op'>:</span> <span class='nam'>cell</span><span class='op'>.</span><span class='nam'>hyperlink</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
 <p id='t305' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='str'>&#39;ref&#39;</span><span class='op'>:</span> <span class='nam'>cell</span><span class='op'>.</span><span class='nam'>get_coordinate</span><span class='op'>(</span><span class='op'>)</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
 <p id='t306' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='str'>&#39;r:id&#39;</span><span class='op'>:</span> <span class='nam'>cell</span><span class='op'>.</span><span class='nam'>hyperlink_rel_id</span><span class='op'>}</span><span class='strut'>&nbsp;</span></p>
