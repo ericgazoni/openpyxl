@@ -36,6 +36,7 @@ from openpyxl.cell import get_column_letter
 from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
+from openpyxl.shared.ooxml import SHEET_MAIN_NS
 
 def _get_xml_iter(xml_source):
 
@@ -61,7 +62,7 @@ def read_dimension(xml_source):
 
     for event, element in it:
 
-        if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}dimension':
+        if element.tag == '{%s}dimension' % SHEET_MAIN_NS:
             ref = element.get('ref')
 
             if ':' in ref:
@@ -74,7 +75,7 @@ def read_dimension(xml_source):
 
             return min_col, min_row, max_col, max_row
 
-        if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c':
+        if element.tag == '{%s}c' % SHEET_MAIN_NS:
             # Supposedly the dimension is mandatory, but in practice it can be
             # left off sometimes, if so, observe the max/min extants and return
             # those instead.
@@ -97,17 +98,16 @@ def read_dimension(xml_source):
 def filter_cells(pair):
     (event, element) = pair
 
-    return element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c'
+    return element.tag == '{%s}c' % SHEET_MAIN_NS
 
 def fast_parse(ws, xml_source, string_table, style_table):
 
-    xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
     root = fromstring(xml_source)
     guess_types = ws.parent._guess_types
 
-    mergeCells = root.find(QName(xmlns, 'mergeCells').text)
+    mergeCells = root.find('{%s}mergeCells' % SHEET_MAIN_NS)
     if mergeCells is not None:
-        for mergeCell in mergeCells.findall(QName(xmlns, 'mergeCell').text):
+        for mergeCell in mergeCells.findall('{%s}mergeCell' % SHEET_MAIN_NS):
             ws.merge_cells(mergeCell.get('ref'))
 
     source = _get_xml_iter(xml_source)
@@ -116,8 +116,8 @@ def fast_parse(ws, xml_source, string_table, style_table):
 
     for event, element in filter(filter_cells, it):
 
-        value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
-        formula = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}f')
+        value = element.findtext('{%s}v' % SHEET_MAIN_NS)
+        formula = element.findtext('{%s}f' % SHEET_MAIN_NS)
 
         coordinate = element.get('r')
         style_id = element.get('s')
@@ -140,9 +140,9 @@ def fast_parse(ws, xml_source, string_table, style_table):
         # to avoid memory exhaustion, clear the item after use
         element.clear()
 
-    cols = root.find(QName(xmlns, 'cols').text)
+    cols = root.find('{%s}cols' % SHEET_MAIN_NS)
     if cols is not None:
-        colNodes = cols.findall(QName(xmlns, 'col').text)
+        colNodes = cols.findall('{%s}col' % SHEET_MAIN_NS)
         for col in colNodes:
             min = int(col.get('min')) if col.get('min') else 1
             max = int(col.get('max')) if col.get('max') else 1
@@ -163,9 +163,9 @@ def fast_parse(ws, xml_source, string_table, style_table):
                 if col.get('style') is not None:
                     ws.column_dimensions[column].style_index = col.get('style')
 
-    sheetData = root.find(QName(xmlns, 'sheetData').text)
+    sheetData = root.find('{%s}sheetData' % SHEET_MAIN_NS)
     if sheetData is not None:
-        rowNodes = sheetData.findall(QName(xmlns, 'row').text)
+        rowNodes = sheetData.findall('{%s}row' % SHEET_MAIN_NS)
         for row in rowNodes:
             rowId = int(row.get('r'))
             if rowId not in ws.row_dimensions:
@@ -173,14 +173,14 @@ def fast_parse(ws, xml_source, string_table, style_table):
             if row.get('ht') is not None:
                 ws.row_dimensions[rowId].height = float(row.get('ht'))
 
-    printOptions = root.find(QName(xmlns, 'printOptions').text)
+    printOptions = root.find('{%s}printOptions' % SHEET_MAIN_NS)
     if printOptions is not None:
         if printOptions.get('horizontalCentered') is not None:
             ws.page_setup.horizontalCentered = printOptions.get('horizontalCentered')
         if printOptions.get('verticalCentered') is not None:
             ws.page_setup.verticalCentered = printOptions.get('verticalCentered')
 
-    pageMargins = root.find(QName(xmlns, 'pageMargins').text)
+    pageMargins = root.find('{%s}pageMargins' % SHEET_MAIN_NS)
     if pageMargins is not None:
         if pageMargins.get('left') is not None:
             ws.page_margins.left = float(pageMargins.get('left'))
@@ -195,7 +195,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
         if pageMargins.get('footer') is not None:
             ws.page_margins.footer = float(pageMargins.get('footer'))
 
-    pageSetup = root.find(QName(xmlns, 'pageSetup').text)
+    pageSetup = root.find('{%s}pageSetup' % SHEET_MAIN_NS)
     if pageSetup is not None:
         if pageSetup.get('orientation') is not None:
             ws.page_setup.orientation = pageSetup.get('orientation')
@@ -214,12 +214,12 @@ def fast_parse(ws, xml_source, string_table, style_table):
         if pageSetup.get('useFirstPageNumber') is not None:
             ws.page_setup.useFirstPageNumber = pageSetup.get('useFirstPageNumber')
 
-    headerFooter = root.find(QName(xmlns, 'headerFooter').text)
+    headerFooter = root.find('{%s}headerFooter' % SHEET_MAIN_NS)
     if headerFooter is not None:
-        oddHeader = headerFooter.find(QName(xmlns, 'oddHeader').text)
+        oddHeader = headerFooter.find('{%s}oddHeader' % SHEET_MAIN_NS)
         if oddHeader is not None and oddHeader.text is not None:
             ws.header_footer.setHeader(oddHeader.text)
-        oddFooter = headerFooter.find(QName(xmlns, 'oddFooter').text)
+        oddFooter = headerFooter.find('{%s}oddFooter' % SHEET_MAIN_NS)
         if oddFooter is not None and oddFooter.text is not None:
             ws.header_footer.setFooter(oddFooter.text)
 
