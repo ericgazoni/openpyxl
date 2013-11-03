@@ -31,6 +31,7 @@ except ImportError:
 
 import re
 
+# Python 2.6 without lxml
 def register_namespace(prefix, uri):
     if re.match("ns\d+$", prefix):
         raise ValueError("Prefix format reserved for internal use")

@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_meta.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -27,7 +27,7 @@
 import os.path
 
 # package imports
-from openpyxl.tests.helper import DATADIR, assert_equals_file_content
+from openpyxl.tests.helper import DATADIR, compare_xml
 from openpyxl.writer.workbook import write_content_types, write_root_rels
 from openpyxl.workbook import Workbook
 
@@ -39,11 +39,15 @@ def test_write_content_types():
     content = write_content_types(wb)
     reference_file = os.path.join(DATADIR, 'writer', 'expected',
             '[Content_Types].xml')
-    assert_equals_file_content(reference_file, content)
+    with open(reference_file) as expected:
+        diff = compare_xml(content, expected.read())
+        assert diff is None
 
 
 def test_write_root_rels():
     wb = Workbook()
     content = write_root_rels(wb)
     reference_file = os.path.join(DATADIR, 'writer', 'expected', '.rels')
-    assert_equals_file_content(reference_file, content)
+    with open(reference_file) as expected:
+        diff = compare_xml(content, expected.read())
+        assert diff is None

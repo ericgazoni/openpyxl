@@ -61,17 +61,43 @@ Shortcut functions taken from:
 # Python stdlib imports
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesNSImpl
-from xml.etree.ElementTree import (ElementTree, Element, SubElement, QName,
-                                       fromstring, tostring)
+
+try:
+    from lxml.etree import (
+    Element,
+    ElementTree,
+    SubElement,
+    QName,
+    fromstring,
+    tostring,
+    register_namespace,
+    )
+
+except ImportError:
+    from xml.etree.ElementTree import (
+    ElementTree,
+    Element,
+    SubElement,
+    QName,
+    fromstring,
+    tostring
+    )
+    from openpyxl.shared.compat import register_namespace
 
 # compatibility
 from openpyxl.shared.compat import OrderedDict
-from openpyxl.shared.compat import register_namespace
 
 # package imports
 from openpyxl.shared.ooxml import (
-    CHART_NS, DRAWING_NS, SHEET_MAIN_NS, REL_NS, VTYPES_NS,
-    COREPROPS_NS, DCTERMS_NS, DCTERMS_PREFIX)
+    CHART_NS,
+    DRAWING_NS,
+    SHEET_MAIN_NS,
+    REL_NS,
+    VTYPES_NS,
+    COREPROPS_NS,
+    DCTERMS_NS,
+    DCTERMS_PREFIX
+)
 from openpyxl import __name__ as prefix
 
 
@@ -88,7 +114,7 @@ register_namespace('vt', VTYPES_NS)
 def get_document_content(xml_node):
     """Print nicely formatted xml to a string."""
     pretty_indent(xml_node)
-    return tostring(xml_node, 'utf-8')
+    return tostring(xml_node, encoding='utf-8')
 
 
 def pretty_indent(elem, level=0):
