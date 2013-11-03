@@ -25,6 +25,7 @@
 
 # Python stdlib imports
 import os
+import sys
 import os.path
 import shutil
 import difflib
@@ -96,7 +97,7 @@ def get_xml(xml_node):
 
     io = BytesIO()
     if version_info[0] >= 3 and version_info[1] >= 2:
-        ElementTree(xml_node).write(io, encoding='UTF-8', xml_declaration=True)
+        ElementTree(xml_node).write(io, encoding='UTF-8', xml_declaration=False)
         ret = str(io.getvalue(), 'utf-8')
         ret = ret.replace('utf-8', 'UTF-8', 1)
     else:
@@ -121,3 +122,9 @@ def compare_xml(generated, expected):
     if check is False:
         diff = checker.output_difference(ob, expected, PARSE_XML)
         return diff
+
+def safe_iterator(node):
+    """Return an iterator that is compatible with Python 2.6"""
+    if sys.version_info < (2, 7):
+        return node.getiterator()
+    return node.iter()

@@ -44,16 +44,20 @@ class Axis(object):
 
     POSITION_BOTTOM = 'b'
     POSITION_LEFT = 'l'
-
     ORIENTATION_MIN_MAX = "minMax"
+
+    position = None
+    tick_label_position = None
+    crosses = None
+    auto = None
+    label_align = None
+    label_offset = None
+    cross_between = None
+    orientation = ORIENTATION_MIN_MAX
+    number_format = NumberFormat()
 
     def __init__(self):
 
-        self.orientation = self.ORIENTATION_MIN_MAX
-        self.number_format = NumberFormat()
-        for attr in ('position', 'tick_label_position', 'crosses',
-            'auto', 'label_align', 'label_offset', 'cross_between'):
-            setattr(self, attr, None)
         self.min = 0
         self.max = 0
         self.unit = None
@@ -121,35 +125,32 @@ class Axis(object):
     def unit(self, value):
         self._unit = value
 
-    @classmethod
-    def default_category(cls):
-        """ default values for category axes """
 
-        ax = Axis()
-        ax.id = 60871424
-        ax.cross = 60873344
-        ax.position = Axis.POSITION_BOTTOM
-        ax.tick_label_position = 'nextTo'
-        ax.crosses = "autoZero"
-        ax.auto = True
-        ax.label_align = 'ctr'
-        ax.label_offset = 100
-        return ax
+class CategoryAxis(Axis):
 
-    @classmethod
-    def default_value(cls):
-        """ default values for value axes """
+    id = 60871424
+    cross = 60873344
+    position = Axis.POSITION_BOTTOM
+    tick_label_position = 'nextTo'
+    crosses = "autoZero"
+    auto = True
+    label_align = 'ctr'
+    label_offset = 100
+    cross_between = "midCat"
+    type = "catAx"
 
-        ax = Axis()
-        ax.id = 60873344
-        ax.cross = 60871424
-        ax.position = Axis.POSITION_LEFT
-        ax.major_gridlines = None
-        ax.tick_label_position = 'nextTo'
-        ax.crosses = 'autoZero'
-        ax.auto = False
-        ax.cross_between = 'between'
-        return ax
+
+class ValueAxis(Axis):
+
+    id = 60873344
+    cross = 60871424
+    position = Axis.POSITION_LEFT
+    major_gridlines = None
+    tick_label_position = 'nextTo'
+    crosses = 'autoZero'
+    auto = False
+    cross_between = 'between'
+    type= "valAx"
 
 
 formatter = NumberFormat()
@@ -166,10 +167,6 @@ class Reference(object):
         self.pos2 = pos2
         self.data_type = data_type
         self.number_format = number_format
-
-    def get_type(self):
-        """Legacy method"""
-        return self.data_type
 
     @property
     def data_type(self):
@@ -212,10 +209,6 @@ class Reference(object):
                 self.data_type = 'n'
 
         return self._values
-
-    def _get_ref(self):
-        """ legace method """
-        return str(self)
 
     def __str__(self):
         """ format excel reference notation """
@@ -370,12 +363,8 @@ class ErrorBar(object):
 class Chart(object):
     """ raw chart class """
 
-    GROUPING_CLUSTERED = 'clustered'
-    GROUPING_STANDARD = 'standard'
-
-    BAR_CHART = 1
-    LINE_CHART = 2
-    SCATTER_CHART = 3
+    GROUPING = 'standard'
+    TYPE = None
 
     def mymax(self, values):
         return max([x for x in values if x is not None])
@@ -383,15 +372,11 @@ class Chart(object):
     def mymin(self, values):
         return min([x for x in values if x is not None])
 
-    def __init__(self, _type, grouping):
+    def __init__(self):
 
         self._series = []
 
         # public api
-        self.type = _type
-        self.grouping = grouping
-        self.x_axis = Axis.default_category()
-        self.y_axis = Axis.default_value()
         self.legend = Legend()
         self.show_legend = True
         self.lang = 'en-GB'
@@ -440,15 +425,6 @@ class Chart(object):
         _max = max([s.max() for s in self._series])
         return len(str(int(_max)))
 
-    def compute_axes(self):
-        """Calculate maximum value and units for axes"""
-        mini, maxi = self._get_extremes()
-        self.y_axis.set_values(mini, maxi)
-
-        if not None in [s.xvalues for s in self._series]:
-            mini, maxi = self._get_extremes('xvalues')
-            self.x_axis.set_values(mini, maxi)
-
     def _get_extremes(self, attr='values'):
         """Calculate the maximum and minimum values of all series for an axis
         'values' for columns
@@ -495,16 +471,49 @@ class Chart(object):
         return float(ml) / self.drawing.width
 
 
-class BarChart(Chart):
+class PieChart(Chart):
+
+    TYPE = "pieChart"
+
+
+class GraphChart(Chart):
+    """Chart with axes"""
+
+    x_axis = CategoryAxis
+    y_axis = ValueAxis
+
     def __init__(self):
-        super(BarChart, self).__init__(Chart.BAR_CHART, Chart.GROUPING_CLUSTERED)
+        super(GraphChart, self).__init__()
+        self.x_axis = getattr(self, "x_axis")()
+        self.y_axis = getattr(self, "y_axis")()
+
+    def compute_axes(self):
+        """Calculate maximum value and units for axes"""
+        mini, maxi = self._get_extremes()
+        self.y_axis.set_values(mini, maxi)
+
+        if not None in [s.xvalues for s in self._series]:
+            mini, maxi = self._get_extremes('xvalues')
+            self.x_axis.set_values(mini, maxi)
 
 
-class LineChart(Chart):
+class BarChart(GraphChart):
+
+    TYPE = "barChart"
+    GROUPING = "clustered"
+
+
+class LineChart(GraphChart):
+
+    TYPE = "lineChart"
+
+
+class ScatterChart(GraphChart):
+
+    TYPE = "scatterChart"
+
     def __init__(self):
-        super(LineChart, self).__init__(Chart.LINE_CHART, Chart.GROUPING_STANDARD)
-
-
-class ScatterChart(Chart):
-    def __init__(self):
-        super(ScatterChart, self).__init__(Chart.SCATTER_CHART, Chart.GROUPING_STANDARD)
+        super(ScatterChart, self).__init__()
+        self.x_axis.type = "valAx"
+        self.x_axis.cross_between = "midCat"
+        self.y_axis.cross_between = "midCat"
