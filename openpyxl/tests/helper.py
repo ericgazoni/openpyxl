@@ -25,6 +25,7 @@
 
 # Python stdlib imports
 import os
+import sys
 import os.path
 import shutil
 import difflib
@@ -121,3 +122,9 @@ def compare_xml(generated, expected):
     if check is False:
         diff = checker.output_difference(ob, expected, PARSE_XML)
         return diff
+
+def safe_iterator(node):
+    """Return an iterator that is compatible with Python 2.6"""
+    if sys.version_info < (2, 7):
+        return node.getiterator()
+    return node.iter()

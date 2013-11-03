@@ -32,10 +32,11 @@ from openpyxl.tests.helper import (get_xml,
                                    TMPDIR,
                                    DATADIR,
                                    make_tmpdir,
-                                   compare_xml
+                                   compare_xml,
+                                   safe_iterator,
                                    )
 
-from openpyxl.shared.xmltools import Element, get_document_content
+from openpyxl.shared.xmltools import Element, get_document_content, CHART_NS
 from openpyxl.writer.charts import (ChartWriter,
                                     PieChartWriter,
                                     LineChartWriter,
@@ -530,7 +531,6 @@ class TestChartWriter(object):
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}printSettings',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}headerFooter',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}pageMargins', '{http://schemas.openxmlformats.org/drawingml/2006/chart}pageSetup']
-        self.cw._write_print_settings(self.root)
         for e in self.root:
             assert_true(e.tag in tagnames)
             if e.tag == "{http://schemas.openxmlformats.org/drawingml/2006/chart}pageMargins":
@@ -551,9 +551,9 @@ class TestChartWriter(object):
         # Truncate floats because results differ with Python >= 3.2 and <= 3.1
         expected = """<?xml version='1.0' ?><c:chartSpace xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:chart><c:title><c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr /></a:pPr><a:r><a:rPr lang="en-GB" /><a:t>TITLE</a:t></a:r></a:p></c:rich></c:tx><c:layout /></c:title><c:plotArea><c:layout><c:manualLayout><c:layoutTarget val="inner" /><c:xMode val="edge" /><c:yMode val="edge" /><c:x val="0.0337" /><c:y val="0.31" /><c:w val="0.6" /><c:h val="0.6" /></c:manualLayout></c:layout><c:barChart><c:barDir val="col" /><c:grouping val="clustered" /><c:ser><c:idx val="0" /><c:order val="0" /><c:spPr><a:solidFill><a:srgbClr val="00FF00" /></a:solidFill><a:ln><a:solidFill><a:srgbClr val="00FF00" /></a:solidFill></a:ln></c:spPr><c:val><c:numRef><c:f>'data'!$A$1:$A$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:val></c:ser><c:axId val="60871424" /><c:axId val="60873344" /></c:barChart><c:catAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /></c:scaling><c:axPos val="b" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /></c:catAx><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="between" /><c:majorUnit val="2.0" /></c:valAx></c:plotArea><c:legend><c:legendPos val="r" /><c:layout /></c:legend><c:plotVisOnly val="1" /></c:chart></c:chartSpace>"""
 
-
-        test_xml = sub('([0-9][.][0-9]{4})[0-9]*', '\\1', get_xml(root))
-        diff = compare_xml(test_xml, expected)
+        xml = get_xml(root)
+        xml = sub('([0-9][.][0-9]{4})[0-9]*', '\\1', xml)
+        diff = compare_xml(xml, expected)
         assert_false(diff, diff)
 
     def test_write_no_ascii(self):
@@ -700,14 +700,15 @@ class TestPieChartWriter(object):
 
     def test_write_chart(self):
         """check if some characteristic tags of PieChart are there"""
-        xml = get_xml(self.root)
-        #eq_(xml, "")
         self.cw._write_chart(self.root)
-        tagnames = ['test', '{http://schemas.openxmlformats.org/drawingml/2006/chart}pieChart', '{http://schemas.openxmlformats.org/drawingml/2006/chart}varyColors']
-        chart_tags = [e.tag for e in self.root]
+
+        tagnames = ['{http://schemas.openxmlformats.org/drawingml/2006/chart}pieChart',
+                    '{http://schemas.openxmlformats.org/drawingml/2006/chart}varyColors'
+                    ]
+        root = safe_iterator(self.root)
+        chart_tags = [e.tag for e in root]
         for tag in tagnames:
-            #assert_true(tag in chart_tags, tag)
-            pass
+            assert_true(tag in chart_tags, tag)
 
         assert_false('c:catAx' in chart_tags)
 
@@ -737,13 +738,14 @@ class TestLineChartWriter(object):
     def test_write_chart(self):
         """check if some characteristic tags of LineChart are there"""
         self.cw._write_chart(self.root)
-        tagnames = ['test',
-                    '{http://schemas.openxmlformats.org/drawingml/2006/chart}lineChart',
+        tagnames = ['{http://schemas.openxmlformats.org/drawingml/2006/chart}lineChart',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}catAx']
-        chart_tags = [e.tag for e in self.root]
-        #for tag in tagnames:
-            #assert_true(tag in chart_tags, tag)
+
+        root = safe_iterator(self.root)
+        chart_tags = [e.tag for e in root]
+        for tag in tagnames:
+            assert_true(tag in chart_tags, tag)
 
     def test_serialised(self):
         """Check the serialised file against sample"""
@@ -771,13 +773,13 @@ class TestBarChartWriter(object):
     def test_write_chart(self):
         """check if some characteristic tags of LineChart are there"""
         self.cw._write_chart(self.root)
-        tagnames = ['test',
-                    '{http://schemas.openxmlformats.org/drawingml/2006/chart}barChart',
+        tagnames = ['{http://schemas.openxmlformats.org/drawingml/2006/chart}barChart',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}valAx',
                     '{http://schemas.openxmlformats.org/drawingml/2006/chart}catAx']
-        chart_tags = [e.tag for e in self.root]
-        #for tag in tagnames:
-            #assert_true(tag in chart_tags, tag)
+        root = safe_iterator(self.root)
+        chart_tags = [e.tag for e in root]
+        for tag in tagnames:
+            assert_true(tag in chart_tags, tag)
 
     def test_serialised(self):
         """Check the serialised file against sample"""
