@@ -25,6 +25,7 @@
 # @author: see AUTHORS file
 
 # stdlib
+import datetime
 import os.path
 
 # package imports
@@ -38,7 +39,6 @@ from nose.tools import eq_, with_setup, raises
 from openpyxl.tests.helper import TMPDIR, clean_tmpdir, make_tmpdir
 from openpyxl.tests.schema import validate_archive
 
-import datetime
 
 def test_get_active_sheet():
     wb = Workbook()
