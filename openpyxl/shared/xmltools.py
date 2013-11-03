@@ -59,13 +59,30 @@ Shortcut functions taken from:
 """
 
 # Python stdlib imports
-from openpyxl import __name__ as prefix
-from openpyxl.shared.compat import OrderedDict
-from openpyxl.shared.compat import register_namespace
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesNSImpl
 from xml.etree.ElementTree import (ElementTree, Element, SubElement, QName,
                                        fromstring, tostring)
+
+# compatibility
+from openpyxl.shared.compat import OrderedDict
+from openpyxl.shared.compat import register_namespace
+
+# package imports
+from openpyxl.shared.ooxml import (
+    CHART_NS, DRAWING_NS, SHEET_MAIN_NS, REL_NS, VTYPES_NS,
+    COREPROPS_NS, DCTERMS_NS, DCTERMS_PREFIX)
+from openpyxl import __name__ as prefix
+
+
+register_namespace(DCTERMS_PREFIX, DCTERMS_NS)
+register_namespace('dcmitype', 'http://purl.org/dc/dcmitype/')
+register_namespace('cp', COREPROPS_NS)
+register_namespace('c', CHART_NS)
+register_namespace('a', DRAWING_NS)
+register_namespace('s', SHEET_MAIN_NS)
+register_namespace('r', REL_NS)
+register_namespace('vt', VTYPES_NS)
 
 
 def get_document_content(xml_node):

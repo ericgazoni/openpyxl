@@ -331,21 +331,25 @@ class Cell(object):
                 return True
         self.set_value_explicit(value, self._data_type)
 
-    def _get_value(self):
-        """Return the value, formatted as a date if needed"""
+    @property
+    def value(self):
+        """Get or set the value held in the cell.
+            ':rtype: depends on the value (string, float, int or '
+            ':class:`datetime.datetime`)'"""
         value = self._value
         if self.is_date():
             value = self._shared_date.from_julian(value)
         return value
 
-    def _set_value(self, value):
+    @value.setter
+    def value(self, value):
         """Set the value and infer type and display options."""
         self.bind_value(value)
 
-    value = property(_get_value, _set_value,
-            doc='Get or set the value held in the cell.\n\n'
-            ':rtype: depends on the value (string, float, int or '
-            ':class:`datetime.datetime`)')
+    @property
+    def excel_value(self):
+        """Always returns the value for excel."""
+        return self._value
 
     def _set_hyperlink(self, val):
         """Set value and display for hyperlinks in a cell"""

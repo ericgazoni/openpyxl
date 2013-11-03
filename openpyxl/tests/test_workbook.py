@@ -41,6 +41,7 @@ from openpyxl.reader.excel import load_workbook
 from openpyxl.namedrange import NamedRange
 from openpyxl.shared.exc import ReadOnlyWorkbookException
 from openpyxl.tests.helper import TMPDIR, clean_tmpdir, make_tmpdir
+from openpyxl.tests.schema import validate_archive
 
 import datetime
 
@@ -164,6 +165,7 @@ def test_write_regular_date():
     dest_filename = osp.join(TMPDIR, 'date_read_write_issue.xlsx')
     book.save(dest_filename)
 
+    validate_archive(dest_filename)
     test_book = load_workbook(dest_filename)
     test_sheet = test_book.get_active_sheet()
 
@@ -179,6 +181,7 @@ def test_write_regular_float():
     dest_filename = osp.join(TMPDIR, 'float_read_write_issue.xlsx')
     book.save(dest_filename)
 
+    validate_archive(dest_filename)
     test_book = load_workbook(dest_filename)
     test_sheet = test_book.get_active_sheet()
 

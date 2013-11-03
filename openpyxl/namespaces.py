@@ -1,4 +1,5 @@
-# Copyright (c) 2010-2011 openpyxl
+# coding=UTF-8
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,33 +22,8 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+# Namespace constants
 
-try:
-    from xml.etree.cElementTree import iterparse
-except ImportError:
-    import warnings
-    from xml.etree.ElementTree import iterparse
-    warnings.warn("""Unable to import 'xml.etree.cElementree'. Falling back on 'xml.etree.Elementree'""")
-
-import re
-
-def register_namespace(prefix, uri):
-    if re.match("ns\d+$", prefix):
-        raise ValueError("Prefix format reserved for internal use")
-    for k, v in _namespace_map.items():
-        if k == uri or v == prefix:
-            del _namespace_map[k]
-    _namespace_map[uri] = prefix
-
-_namespace_map = {
-    # "well-known" namespace prefixes
-    "http://www.w3.org/XML/1998/namespace": "xml",
-    "http://www.w3.org/1999/xhtml": "html",
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns#": "rdf",
-    "http://schemas.xmlsoap.org/wsdl/": "wsdl",
-    # xml schema
-    "http://www.w3.org/2001/XMLSchema": "xs",
-    "http://www.w3.org/2001/XMLSchema-instance": "xsi",
-    # dublin core
-    "http://purl.org/dc/elements/1.1/": "dc",
-}
+CHART_NS = {'xmlns:c':"http://schemas.openxmlformats.org/drawingml/2006/chart"}
+A_NS = {'xmlns:a':"http://schemas.openxmlformats.org/drawingml/2006/main"}
+REL_NS = {'xmlns:r':"http://schemas.openxmlformats.org/officeDocument/2006/relationships"}

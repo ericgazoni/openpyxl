@@ -71,6 +71,7 @@ BaseRawCell = namedtuple('RawCell', RAW_ATTRIBUTES)
 
 formatter = NumberFormat()
 
+formatter = NumberFormat()
 
 class RawCell(BaseRawCell):
     """Optimized version of the :class:`openpyxl.cell.Cell`, using named tuples.
@@ -133,14 +134,14 @@ def get_cells(p, min_row, min_col, max_row, max_col, _re_coordinate=RE_COORDINAT
             if min_col <= column <= max_col and min_row <= row <= max_row:
                 data_type = element.get('t', 'n')
                 style_id = element.get('s')
+                formula = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}f')
                 value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
+                if formula is not None:
+                    data_type = Cell.TYPE_FORMULA
+                    value = "=" + formula
                 yield RawCell(row, column_str, coord, value, data_type, style_id, None)
 
-        if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v':
-            continue
-        element.clear()
-
-
+            element.clear()
 
 def get_range_boundaries(range_string, row=0, column=0):
 

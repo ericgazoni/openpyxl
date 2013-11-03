@@ -51,13 +51,30 @@ ARC_THEME = PACKAGE_THEME + '/theme1.xml'
 ARC_SHARED_STRINGS = PACKAGE_XL + '/sharedStrings.xml'
 ARC_VBA = ('xl/vba', 'xl/activeX', 'xl/drawings', 'xl/media', 'xl/ctrlProps', 'xl/worksheets/_rels', 'customUI', '_rels')
 
+# namespaces
+CHART_NS = "http://schemas.openxmlformats.org/drawingml/2006/chart"
+DRAWING_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
+REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+PKG_REL_NS = 'http://schemas.openxmlformats.org/package/2006/relationships'
+VTYPES_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes'
+XPROPS_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties'
+COREPROPS_NS = 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties'
+CONTYPES_NS = 'http://schemas.openxmlformats.org/package/2006/content-types'
+DCORE_NS = 'http://purl.org/dc/elements/1.1/'
+DCTERMS_NS = 'http://purl.org/dc/terms/'
+DCTERMS_PREFIX = 'dcterms'
+XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance'
+XML_NS = 'http://www.w3.org/XML/1998/namespace'
+SHEET_MAIN_NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+
+
 NAMESPACES = {
-    'cp': 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
-    'dc': 'http://purl.org/dc/elements/1.1/',
-    'dcterms': 'http://purl.org/dc/terms/',
+    'cp': COREPROPS_NS,
+    'dc': DCORE_NS,
+    DCTERMS_PREFIX: DCTERMS_NS,
     'dcmitype': 'http://purl.org/dc/dcmitype/',
-    'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-    'vt': 'http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes',
-    'xml': 'http://www.w3.org/XML/1998/namespace',
-    'main': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+    'xsi': XSI_NS,
+    'vt': VTYPES_NS,
+    'xml': XML_NS,
+    'main': SHEET_MAIN_NS
 }
