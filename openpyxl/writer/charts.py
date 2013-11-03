@@ -27,7 +27,7 @@ from numbers import Number
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
 from openpyxl.shared.ooxml import CHART_NS, DRAWING_NS, REL_NS
 from openpyxl.shared.compat.itertools import iteritems
-from openpyxl.chart import Chart, ErrorBar
+from openpyxl.chart import Chart, ErrorBar, BarChart, LineChart, PieChart, ScatterChart, GraphChart
 
 try:
     # Python 2
@@ -45,7 +45,7 @@ def safe_string(value):
         value = str(value)
     return value
 
-class ChartWriter(object):
+class BaseChartWriter(object):
 
     def __init__(self, chart):
         self.chart = chart
@@ -54,7 +54,7 @@ class ChartWriter(object):
         """ write a chart """
         root = Element("{%s}chartSpace" % CHART_NS)
 
-        SubElement(root, '{%s}langc' % CHART_NS, {'val':self.chart.lang})
+        SubElement(root, '{%s}lang' % CHART_NS, {'val':self.chart.lang})
         self._write_chart(root)
         self._write_print_settings(root)
         self._write_shapes(root)
@@ -62,12 +62,15 @@ class ChartWriter(object):
         return get_document_content(root)
 
     def _write_chart(self, root):
-
-        chart = self.chart
-
         ch = SubElement(root, '{%s}chart' % CHART_NS)
         self._write_title(ch)
-        plot_area = SubElement(ch, '{%s}plotArea' % CHART_NS)
+        self._write_layout(ch)
+        self._write_legend(ch)
+        SubElement(ch, '{%s}plotVisOnly' % CHART_NS, {'val':'1'})
+
+    def _write_layout(self, element):
+        chart = self.chart
+        plot_area = SubElement(element, '{%s}plotArea' % CHART_NS)
         layout = SubElement(plot_area, '{%s}layout' % CHART_NS)
         mlayout = SubElement(layout, '{%s}manualLayout' % CHART_NS)
         SubElement(mlayout, '{%s}layoutTarget' % CHART_NS, {'val':'inner'})
@@ -78,32 +81,18 @@ class ChartWriter(object):
         SubElement(mlayout, '{%s}w' % CHART_NS, {'val':safe_string(chart.width)})
         SubElement(mlayout, '{%s}h' % CHART_NS, {'val':safe_string(chart.height)})
 
-        if chart.type == Chart.SCATTER_CHART:
-            subchart = SubElement(plot_area, '{%s}scatterChart' % CHART_NS)
-            SubElement(subchart, '{%s}scatterStyle' % CHART_NS, {'val':'lineMarker'})
-        else:
-            if chart.type == Chart.BAR_CHART:
-                subchart = SubElement(plot_area, '{%s}barChart' % CHART_NS)
-                SubElement(subchart, '{%s}barDir' % CHART_NS, {'val':'col'})
-            else:
-                subchart = SubElement(plot_area, '{%s}lineChart' % CHART_NS)
-
-            SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':chart.grouping})
-
+        chart_type = self.chart.TYPE
+        subchart = SubElement(plot_area, '{%s}%s' % (CHART_NS, chart_type))
+        self._write_options(subchart)
         self._write_series(subchart)
+        if isinstance(chart, GraphChart):
+            SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
+            SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
+            self._write_axis(plot_area, chart.x_axis, '{%s}%s' % (CHART_NS, chart.x_axis.type))
+            self._write_axis(plot_area, chart.y_axis, '{%s}%s' % (CHART_NS, chart.y_axis.type))
 
-        SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.x_axis.id)})
-        SubElement(subchart, '{%s}axId' % CHART_NS, {'val':safe_string(chart.y_axis.id)})
-
-        if chart.type == Chart.SCATTER_CHART:
-            self._write_axis(plot_area, chart.x_axis, '{%s}valAx' % CHART_NS)
-        else:
-            self._write_axis(plot_area, chart.x_axis, '{%s}catAx' % CHART_NS)
-        self._write_axis(plot_area, chart.y_axis, '{%s}valAx' % CHART_NS)
-
-        self._write_legend(ch)
-
-        SubElement(ch, '{%s}plotVisOnly' % CHART_NS, {'val':'1'})
+    def _write_options(self, subchart):
+        pass
 
     def _write_title(self, chart):
         if self.chart.title != '':
@@ -120,22 +109,8 @@ class ChartWriter(object):
             t = SubElement(r, '{%s}t' % DRAWING_NS).text = self.chart.title
             SubElement(title, '{%s}layout' % CHART_NS)
 
-    def _write_axis(self, plot_area, axis, label):
-        self.chart.compute_axes()
+    def _write_axis_title(self, axis, ax):
 
-        ax = SubElement(plot_area, label)
-        SubElement(ax, '{%s}axId' % CHART_NS, {'val':safe_string(axis.id)})
-
-        scaling = SubElement(ax, '{%s}scaling' % CHART_NS)
-        SubElement(scaling, '{%s}orientation' % CHART_NS, {'val':axis.orientation})
-        if label == '{%s}valAx' % CHART_NS:
-            SubElement(scaling, '{%s}max' % CHART_NS, {'val':str(float(axis.max))})
-            SubElement(scaling, '{%s}min' % CHART_NS, {'val':str(float(axis.min))})
-
-        SubElement(ax, '{%s}axPos' % CHART_NS, {'val':axis.position})
-        if label == '{%s}valAx' % CHART_NS:
-            SubElement(ax, '{%s}majorGridlines' % CHART_NS)
-            SubElement(ax, '{%s}numFmt' % CHART_NS, {'formatCode':"General", 'sourceLinked':'1'})
         if axis.title != '':
             title = SubElement(ax, '{%s}title' % CHART_NS)
             tx = SubElement(title, '{%s}tx' % CHART_NS)
@@ -149,6 +124,25 @@ class ChartWriter(object):
             SubElement(r, '{%s}rPr' % DRAWING_NS, {'lang':self.chart.lang})
             t = SubElement(r, '{%s}t' % DRAWING_NS).text = axis.title
             SubElement(title, '{%s}layout' % CHART_NS)
+
+    def _write_axis(self, plot_area, axis, label):
+
+        self.chart.compute_axes()
+
+        ax = SubElement(plot_area, label)
+        SubElement(ax, '{%s}axId' % CHART_NS, {'val':safe_string(axis.id)})
+
+        scaling = SubElement(ax, '{%s}scaling' % CHART_NS)
+        SubElement(scaling, '{%s}orientation' % CHART_NS, {'val':axis.orientation})
+        if axis.type == "valAx":
+            SubElement(scaling, '{%s}max' % CHART_NS, {'val':str(float(axis.max))})
+            SubElement(scaling, '{%s}min' % CHART_NS, {'val':str(float(axis.min))})
+
+        SubElement(ax, '{%s}axPos' % CHART_NS, {'val':axis.position})
+        if axis.type == "valAx":
+            SubElement(ax, '{%s}majorGridlines' % CHART_NS)
+            SubElement(ax, '{%s}numFmt' % CHART_NS, {'formatCode':"General", 'sourceLinked':'1'})
+        self._write_axis_title(axis, ax)
         SubElement(ax, '{%s}tickLblPos' % CHART_NS, {'val':axis.tick_label_position})
         SubElement(ax, '{%s}crossAx' % CHART_NS, {'val':str(axis.cross)})
         SubElement(ax, '{%s}crosses' % CHART_NS, {'val':axis.crosses})
@@ -158,11 +152,8 @@ class ChartWriter(object):
             SubElement(ax, '{%s}lblAlgn' % CHART_NS, {'val':axis.label_align})
         if axis.label_offset:
             SubElement(ax, '{%s}lblOffset' % CHART_NS, {'val':str(axis.label_offset)})
-        if label == '{%s}valAx' % CHART_NS:
-            if self.chart.type == Chart.SCATTER_CHART:
-                SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'midCat'})
-            else:
-                SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':'between'})
+        if axis.type == "valAx":
+            SubElement(ax, '{%s}crossBetween' % CHART_NS, {'val':axis.cross_between})
             SubElement(ax, '{%s}majorUnit' % CHART_NS, {'val':str(float(axis.unit))})
 
     def _write_series(self, subchart):
@@ -178,7 +169,7 @@ class ChartWriter(object):
 
             if serie.color:
                 sppr = SubElement(ser, '{%s}spPr' % CHART_NS)
-                if self.chart.type == Chart.BAR_CHART:
+                if self.chart.TYPE == "barChart":
                     # fill color
                     fillc = SubElement(sppr, '{%s}solidFill' % DRAWING_NS)
                     SubElement(fillc, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
@@ -194,7 +185,7 @@ class ChartWriter(object):
                 cat = SubElement(ser, '{%s}cat' % CHART_NS)
                 self._write_serial(cat, serie.labels)
 
-            if self.chart.type == Chart.SCATTER_CHART:
+            if self.chart.TYPE == "scatterChart":
                 if serie.xvalues:
                     xval = SubElement(ser, '{%s}xVal' % CHART_NS)
                     self._write_serial(xval, serie.xreference)
@@ -287,3 +278,53 @@ class ChartWriter(object):
             'Target' : '../drawings/drawing%s.xml' % drawing_id }
         SubElement(root, 'Relationship', attrs)
         return get_document_content(root)
+
+
+class PieChartWriter(BaseChartWriter):
+
+    def _write_options(self, subchart):
+        SubElement(subchart, '{%s}varyColors' % CHART_NS, {'val':'1'})
+
+    def _write_axis(self, plot_area, axis, label):
+        """Pie Charts have no axes, do nothing"""
+        pass
+
+
+class LineChartWriter(BaseChartWriter):
+
+    def _write_options(self, subchart):
+        SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':self.chart.GROUPING})
+
+
+class BarChartWriter(LineChartWriter):
+
+    def _write_options(self, subchart):
+        SubElement(subchart, '{%s}barDir' % CHART_NS, {'val':'col'})
+        SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':self.chart.GROUPING})
+
+
+class ScatterChartWriter(LineChartWriter):
+
+    def _write_options(self, subchart):
+        SubElement(subchart, '{%s}scatterStyle' % CHART_NS, {'val':'lineMarker'})
+
+
+class ChartWriter(object):
+    """
+    Preserve interface for chart writer
+    """
+
+    def __init__(self, chart):
+        if isinstance(chart, PieChart):
+            self.cw = PieChartWriter(chart)
+        elif isinstance(chart, LineChart):
+            self.cw = LineChartWriter(chart)
+        elif isinstance(chart, BarChart):
+            self.cw = BarChartWriter(chart)
+        elif isinstance(chart, ScatterChart):
+            self.cw = ScatterChartWriter(chart)
+        else:
+            raise ValueError("Don't know how to handle %s", chart.__class__.__name__)
+
+    def write(self):
+        return self.cw.write()
