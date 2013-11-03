@@ -5,7 +5,7 @@ python:
   - "3.2"
   - "3.3"
 # command to run tests
-script: nosetests
+script: nosetests lxml pytest
 
 notifications:
   email:
