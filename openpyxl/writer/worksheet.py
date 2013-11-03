@@ -30,14 +30,7 @@ import decimal, re
 
 # compatibility imports
 
-from openpyxl.shared.compat import BytesIO, StringIO
-
-try:
-    # Python 2
-    isinstance(1, long)
-except NameError:
-    # Python 3, all ints are long
-    long = int
+from openpyxl.shared.compat import BytesIO, StringIO, long
 
 # package imports
 from openpyxl.cell import coordinate_from_string, column_index_from_string
