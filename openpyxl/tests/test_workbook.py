@@ -2,7 +2,7 @@
 # file openpyxl/tests/test_workbook.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -24,22 +24,17 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-# 3rd party imports
-from nose.tools import eq_, with_setup, raises
-
-try:  # For Python 3.2 and later
-    from nose.tools import assert_is_instance
-except ImportError:
-    def assert_is_instance(a, b):
-        assert isinstance(a, b)
-
-import os.path as osp
+# stdlib
+import os.path
 
 # package imports
 from openpyxl.workbook import Workbook
 from openpyxl.reader.excel import load_workbook
 from openpyxl.namedrange import NamedRange
 from openpyxl.shared.exc import ReadOnlyWorkbookException
+
+# test imports
+from nose.tools import eq_, with_setup, raises
 from openpyxl.tests.helper import TMPDIR, clean_tmpdir, make_tmpdir
 from openpyxl.tests.schema import validate_archive
 
@@ -150,7 +145,7 @@ def test_add_local_named_range():
     named_range = NamedRange('test_nr', [(new_sheet, 'A1')])
     named_range.scope = new_sheet
     wb.add_named_range(named_range)
-    dest_filename = osp.join(TMPDIR, 'local_named_range_book.xlsx')
+    dest_filename = os.path.join(TMPDIR, 'local_named_range_book.xlsx')
     wb.save(dest_filename)
 
 
@@ -162,7 +157,7 @@ def test_write_regular_date():
     book = Workbook()
     sheet = book.get_active_sheet()
     sheet.cell("A1").value = today
-    dest_filename = osp.join(TMPDIR, 'date_read_write_issue.xlsx')
+    dest_filename = os.path.join(TMPDIR, 'date_read_write_issue.xlsx')
     book.save(dest_filename)
 
     validate_archive(dest_filename)
@@ -178,7 +173,7 @@ def test_write_regular_float():
     book = Workbook()
     sheet = book.get_active_sheet()
     sheet.cell("A1").value = float_value
-    dest_filename = osp.join(TMPDIR, 'float_read_write_issue.xlsx')
+    dest_filename = os.path.join(TMPDIR, 'float_read_write_issue.xlsx')
     book.save(dest_filename)
 
     validate_archive(dest_filename)
@@ -227,7 +222,7 @@ class AlternativeWorksheet(object):
 
 def test_worksheet_class():
     wb = Workbook(worksheet_class=AlternativeWorksheet)
-    assert_is_instance(wb.worksheets[0], AlternativeWorksheet)
+    assert isinstance(wb.worksheets[0], AlternativeWorksheet)
 
 
 @raises(AssertionError)
