@@ -125,6 +125,7 @@ def compare_xml(generated, expected):
 
 def safe_iterator(node):
     """Return an iterator that is compatible with Python 2.6"""
-    if sys.version_info < (2, 7):
+    if hasattr(node, "iter"):
+        return node.iter()
+    else:
         return node.getiterator()
-    return node.iter()
