@@ -9,7 +9,8 @@ python:
 install:
   pip install lxml pytest nose
 
-script:  pytest
+script:  
+  py.test
 
 notifications:
   email:
