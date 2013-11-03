@@ -47,7 +47,7 @@ Other ways to help
 There are several ways to contribute, even if you can't code (or can't code well):
 
 - triaging bugs on the bug tracker: closing bugs that have already been closed, are not relevant, cannot be reproduced, ...
-- updating documentation in virtually every area: many large features have been added (mainly about charts and images at the moment) but without any documentation, it's pretty hard to do anything with it 
+- updating documentation in virtually every area: many large features have been added (mainly about charts and images at the moment) but without any documentation, it's pretty hard to do anything with it
 - proposing compatibility fixes for different versions of Python: we try to support 2.5 to 3.3, so if it does not work on your environment, let us know :-)
 
 Installation
@@ -64,15 +64,15 @@ or ::
 .. note::
 
     To install from sources (there is nothing to build, openpyxl is 100% pure Python), you can download an archive from `bitbucket`_ (look in the "tags" tab).
-    
+
     After extracting the archive, you can do::
 
-    $ python setup.py install 
+    $ python setup.py install
 
 .. _bitbucket: https://bitbucket.org/ericgazoni/openpyxl/downloads
 
 .. warning::
-    
+
     To be able to include images (jpeg,png,bmp,...) into an openpyxl file, you will also need the 'PIL' library that can be installed with::
 
     $ pip install pillow
@@ -83,7 +83,7 @@ or ::
 Getting the source
 ------------------
 
-Source code is hosted on bitbucket.org. You can get it using a Mercurial client and the following URLs: 
+Source code is hosted on bitbucket.org. You can get it using a Mercurial client and the following URLs:
 
     * $ hg clone \https://bitbucket.org/ericgazoni/openpyxl -r |release|
 
@@ -93,7 +93,7 @@ or to get the latest development version:
 
 
 Usage examples
-------------------
+--------------
 
 Tutorial
 ++++++++
@@ -107,7 +107,14 @@ Cookbook
 
 .. toctree::
 
-       usage
+    usage
+
+Charts
+++++++
+
+.. toctree::
+
+    charts
 
 Read/write large files
 ++++++++++++++++++++++
