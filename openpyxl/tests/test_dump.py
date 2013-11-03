@@ -27,6 +27,9 @@
 # Python stdlib imports
 from datetime import time, datetime
 from tempfile import NamedTemporaryFile
+import os
+import os.path
+import shutil
 
 # 3rd party imports
 from nose.tools import eq_, raises
@@ -41,9 +44,7 @@ from openpyxl.writer.strings import StringTableBuilder
 
 from openpyxl.shared.compat import xrange
 from openpyxl.shared.exc import WorkbookAlreadySaved
-import os
-import os.path as osp
-import shutil
+
 
 def _get_test_filename():
 
@@ -150,7 +151,7 @@ def test_create_temp_file():
 
     f = dump_worksheet.create_temporary_file()
 
-    if not osp.isfile(f):
+    if not os.path.isfile(f):
         raise Exception("The file %s does not exist" % f)
 
 @raises(WorkbookAlreadySaved)

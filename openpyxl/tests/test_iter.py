@@ -24,7 +24,7 @@
 # @author: see AUTHORS file
 
 from nose.tools import eq_, raises, assert_raises
-import os.path as osp
+import os.path
 from openpyxl.tests.helper import DATADIR
 from openpyxl.reader.iter_worksheet import get_range_boundaries
 from openpyxl.reader.excel import load_workbook
@@ -32,9 +32,9 @@ from openpyxl.shared.compat import xrange
 import datetime
 
 class TestWorksheet(object):
-    
-    workbook_name = osp.join(DATADIR, 'genuine', 'empty.xlsx')
-    
+
+    workbook_name = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
+
     def _open_wb(self):
         return load_workbook(filename = self.workbook_name, use_iterators = True)
 
@@ -44,9 +44,9 @@ class TestDims(TestWorksheet):
         wb = self._open_wb()
         for i, sheetn in enumerate(wb.get_sheet_names()):
             ws = wb.get_sheet_by_name(name = sheetn)
-            
+
             eq_(ws._dimensions, self.expected[i])
-    
+
     def test_get_highest_column_iter(self):
         wb = self._open_wb()
         ws = wb.worksheets[0]
@@ -54,66 +54,66 @@ class TestDims(TestWorksheet):
 
 class TestText(TestWorksheet):
     sheet_name = 'Sheet1 - Text'
-    
+
     expected = [['This is cell A1 in Sheet 1', None, None, None, None, None, None],
                 [None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, 'This is cell G5'], ]
-    
+
     def test_read_fast_integrated(self):
-        
+
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-        
+
         for row, expected_row in zip(ws.iter_rows(), self.expected):
-            
+
             row_values = [x.internal_value for x in row]
-            
+
             eq_(row_values, expected_row)
 
-    
+
     def test_get_boundaries_range(self):
-        
+
         eq_(get_range_boundaries('C1:C4'), (3, 1, 3, 4))
-    
+
     def test_get_boundaries_one(self):
 
-        
+
         eq_(get_range_boundaries('C1'), (3, 1, 4, 1))
-    
+
     def test_read_single_cell_range(self):
-        
+
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-        
+
         eq_('This is cell A1 in Sheet 1', list(ws.iter_rows('A1'))[0][0].internal_value)
 
 class TestIntegers(TestWorksheet):
-    
+
     sheet_name = 'Sheet2 - Numbers'
-    
+
     expected = [[x + 1] for x in xrange(30)]
-    
+
     query_range = 'D1:E30'
-    
+
     def test_read_fast_integrated(self):
-        
+
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-        
+
         for row, expected_row in zip(ws.iter_rows(self.query_range), self.expected):
-            
+
             row_values = [x.internal_value for x in row]
-            
+
             eq_(row_values, expected_row)
 
 class TestFloats(TestWorksheet):
-    
+
     sheet_name = 'Sheet2 - Numbers'
     query_range = 'K1:L30'
     expected = expected = [[(x + 1) / 100.0] for x in xrange(30)]
-    
+
     def test_read_fast_integrated(self):
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
@@ -123,14 +123,14 @@ class TestFloats(TestWorksheet):
 
 
 class TestDates(TestWorksheet):
-    
+
     sheet_name = 'Sheet4 - Dates'
-    
+
     def test_read_single_cell_date(self):
-        
+
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-        
+
         eq_(datetime.datetime(1973, 5, 20), list(ws.iter_rows('A1'))[0][0].internal_value)
         eq_(datetime.datetime(1973, 5, 20, 9, 15, 2), list(ws.iter_rows('C1'))[0][0].internal_value)
 
