@@ -425,15 +425,6 @@ class Chart(object):
         _max = max([s.max() for s in self._series])
         return len(str(int(_max)))
 
-    #def compute_axes(self):
-        #"""Calculate maximum value and units for axes"""
-        #mini, maxi = self._get_extremes()
-        #self.y_axis.set_values(mini, maxi)
-
-        #if not None in [s.xvalues for s in self._series]:
-            #mini, maxi = self._get_extremes('xvalues')
-            #self.x_axis.set_values(mini, maxi)
-
     def _get_extremes(self, attr='values'):
         """Calculate the maximum and minimum values of all series for an axis
         'values' for columns
