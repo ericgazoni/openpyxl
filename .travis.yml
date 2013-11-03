@@ -7,9 +7,9 @@ python:
 # command to run tests
 
 install:
-	pip install lxml
-	pip install pytest
-	pip install nose
+  pip install lxml
+  pip install pytest
+  pip install nose
 
 script:  pytest
 
