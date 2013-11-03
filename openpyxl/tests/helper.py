@@ -96,7 +96,7 @@ def get_xml(xml_node):
 
     io = BytesIO()
     if version_info[0] >= 3 and version_info[1] >= 2:
-        ElementTree(xml_node).write(io, encoding='UTF-8', xml_declaration=True)
+        ElementTree(xml_node).write(io, encoding='UTF-8', xml_declaration=False)
         ret = str(io.getvalue(), 'utf-8')
         ret = ret.replace('utf-8', 'UTF-8', 1)
     else:
