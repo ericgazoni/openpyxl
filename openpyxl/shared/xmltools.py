@@ -72,8 +72,11 @@ try:
     tostring,
     register_namespace,
     )
-
+    LXML = True
 except ImportError:
+    LXML = False
+
+if LXML is False:
     from xml.etree.ElementTree import (
     ElementTree,
     Element,
