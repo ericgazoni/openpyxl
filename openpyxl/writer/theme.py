@@ -33,7 +33,7 @@ from openpyxl.shared.xmltools import fromstring, get_document_content
 def write_theme():
     """Write the theme xml."""
     xml_node = fromstring(
-            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+            '<?xml version="1.0" ?>\n'
 
             '<a:theme xmlns:a="http://schemas.openxmlformats.org/'
                 'drawingml/2006/main" name="Office Theme">'

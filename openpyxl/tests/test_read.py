@@ -225,7 +225,7 @@ def test_read_no_theme():
 
 class TestReadFormulae(object):
 
-    xml_src = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    xml_src = """<?xml version="1.0" encoding="UTF-8" ?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac"><dimension ref="A1:B6"/><sheetViews><sheetView tabSelected="1" workbookViewId="0"><selection activeCell="A6" sqref="A6"/></sheetView></sheetViews><sheetFormatPr baseColWidth="10" defaultColWidth="9.140625" defaultRowHeight="15" x14ac:dyDescent="0.25"/><cols><col min="1" max="1" width="15.7109375" customWidth="1"/><col min="2" max="2" width="15.28515625" customWidth="1"/></cols><sheetData><row r="1" spans="1:2" x14ac:dyDescent="0.25">
 <c r="A1" t="s"><v>0</v></c>
 <c r="B1" t="str"><f>CONCATENATE(A1,A2)</f><v>Hello, world!</v></c></row><row r="2" spans="1:2" x14ac:dyDescent="0.25">
