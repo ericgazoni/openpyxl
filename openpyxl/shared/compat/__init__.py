@@ -26,7 +26,6 @@ from openpyxl import LXML
 
 if LXML is True:
     from lxml.etree import iterparse
-    LXML = True
 else:
     from openpyxl.shared.compat.elementtree import iterparse
 
