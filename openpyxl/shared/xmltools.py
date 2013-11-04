@@ -81,14 +81,24 @@ if LXML is True:
     )
 else:
     from openpyxl.shared.compat import register_namespace
-    from xml.etree.ElementTree import (
-    ElementTree,
-    Element,
-    SubElement,
-    QName,
-    fromstring,
-    tostring
-    )
+    try:
+        from xml.etree.cElementTree import (
+        ElementTree,
+        Element,
+        SubElement,
+        QName,
+        fromstring,
+        tostring
+        )
+    except ImportError:
+        from xml.etree.ElementTree import (
+        ElementTree,
+        Element,
+        SubElement,
+        QName,
+        fromstring,
+        tostring
+        )
 
 from openpyxl.shared.ooxml import (
     CHART_NS,
