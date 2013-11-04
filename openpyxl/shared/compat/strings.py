@@ -28,11 +28,14 @@ if VER[0] == 3:
     basestring = str
     unicode = str
     from io import BufferedReader
-    file = BufferedReader    
+    file = BufferedReader
+    from io import BufferedRandom
+    tempfile = BufferedRandom
 else:
     basestring = basestring
     unicode = unicode
     file = file
+    tempfile = file
 
 if VER[0] == 3:
     from io import BytesIO, StringIO

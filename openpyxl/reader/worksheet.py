@@ -33,7 +33,7 @@ from openpyxl.shared.compat import iterparse
 
 # package imports
 from openpyxl.cell import get_column_letter
-from openpyxl.shared.xmltools import fromstring, QName
+from openpyxl.shared.xmltools import fromstring
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
 from openpyxl.shared.ooxml import SHEET_MAIN_NS
@@ -41,10 +41,10 @@ from openpyxl.shared.ooxml import SHEET_MAIN_NS
 def _get_xml_iter(xml_source):
 
     if not hasattr(xml_source, 'name'):
-        if isinstance(xml_source, str):
-            return StringIO(xml_source)
+        if hasattr(xml_source, 'decode'):
+            return BytesIO(xml_source)
         else:
-            return StringIO(str(xml_source, 'utf-8'))
+            return BytesIO(xml_source.encode('utf-8'))
     else:
         xml_source.seek(0)
         return xml_source
