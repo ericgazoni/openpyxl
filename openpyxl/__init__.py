@@ -25,6 +25,12 @@
 
 """Imports for the openpyxl package."""
 
+try:
+    from lxml import etree
+    LXML = True
+except ImportError:
+    LXML = False
+
 # package imports
 from openpyxl import cell
 from openpyxl import namedrange

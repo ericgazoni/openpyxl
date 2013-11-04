@@ -62,7 +62,14 @@ Shortcut functions taken from:
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesNSImpl
 
-try:
+
+# compatibility
+from openpyxl.shared.compat import OrderedDict
+
+# package imports
+from openpyxl import LXML
+
+if LXML is True:
     from lxml.etree import (
     Element,
     ElementTree,
@@ -72,11 +79,8 @@ try:
     tostring,
     register_namespace,
     )
-    LXML = True
-except ImportError:
-    LXML = False
-
-if LXML is False:
+else:
+    from openpyxl.shared.compat import register_namespace
     from xml.etree.ElementTree import (
     ElementTree,
     Element,
@@ -85,12 +89,7 @@ if LXML is False:
     fromstring,
     tostring
     )
-    from openpyxl.shared.compat import register_namespace
 
-# compatibility
-from openpyxl.shared.compat import OrderedDict
-
-# package imports
 from openpyxl.shared.ooxml import (
     CHART_NS,
     DRAWING_NS,
