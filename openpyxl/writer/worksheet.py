@@ -105,7 +105,7 @@ def write_worksheet(worksheet, string_table, style_table):
             attr = {'type': rule['type']}
             for rule_attr in ConditionalFormatting.rule_attributes:
                 if rule_attr in rule:
-                    attr[rule_attr] = rule[rule_attr]
+                    attr[rule_attr] = str(rule[rule_attr])
             start_tag(doc, 'cfRule', attr)
             if 'formula' in rule:
                 tag(doc, 'formula', None, rule['formula'])

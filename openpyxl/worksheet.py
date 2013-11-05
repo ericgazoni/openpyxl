@@ -397,34 +397,34 @@ class ConditionalFormatting(object):
         :param end_value: Ending value.
         :param end_rgb: End RGB color, such as 'FFAABB11'
         """
-        rule = {'type': 'colorScale', 'colorScale': {'color': [Color(start_rgb), Color(end_rgb)], 'cvfo': []}}
+        rule = {'type': 'colorScale', 'colorScale': {'color': [Color(start_rgb), Color(end_rgb)], 'cfvo': []}}
         if start_type in ('max', 'min'):
-            rule['colorScale']['cvfo'].append({'type': start_type})
+            rule['colorScale']['cfvo'].append({'type': start_type})
         else:
-            rule['colorScale']['cvfo'].append({'type': start_type, 'val': start_value})
+            rule['colorScale']['cfvo'].append({'type': start_type, 'val': str(start_value)})
         if end_type in ('max', 'min'):
-            rule['colorScale']['cvfo'].append({'type': end_type})
+            rule['colorScale']['cfvo'].append({'type': end_type})
         else:
-            rule['colorScale']['cvfo'].append({'type': end_type, 'val': end_value})
+            rule['colorScale']['cfvo'].append({'type': end_type, 'val': str(end_value)})
         self.addCustomRule(range_string, rule)
 
     def add3ColorScale(self, range_string, start_type, start_value, start_rgb, mid_type, mid_value, mid_rgb, end_type,
                        end_value, end_rgb):
         """Add a 3-color scale to the conditional formatting.  See `add2ColorScale` for parameter descriptions."""
         rule = {'type': 'colorScale', 'colorScale': {'color': [Color(start_rgb), Color(mid_rgb), Color(end_rgb)],
-                                                     'cvfo': []}}
+                                                     'cfvo': []}}
         if start_type in ('max', 'min'):
-            rule['colorScale']['cvfo'].append({'type': start_type})
+            rule['colorScale']['cfvo'].append({'type': start_type})
         else:
-            rule['colorScale']['cvfo'].append({'type': start_type, 'val': start_value})
+            rule['colorScale']['cfvo'].append({'type': start_type, 'val': str(start_value)})
         if mid_type in ('max', 'min'):
-            rule['colorScale']['cvfo'].append({'type': mid_type})
+            rule['colorScale']['cfvo'].append({'type': mid_type})
         else:
-            rule['colorScale']['cvfo'].append({'type': mid_type, 'val': mid_value})
+            rule['colorScale']['cfvo'].append({'type': mid_type, 'val': str(mid_value)})
         if end_type in ('max', 'min'):
-            rule['colorScale']['cvfo'].append({'type': end_type})
+            rule['colorScale']['cfvo'].append({'type': end_type})
         else:
-            rule['colorScale']['cvfo'].append({'type': end_type, 'val': end_value})
+            rule['colorScale']['cfvo'].append({'type': end_type, 'val': str(end_value)})
         self.addCustomRule(range_string, rule)
 
 class PageMargins(object):
