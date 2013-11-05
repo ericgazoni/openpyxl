@@ -40,7 +40,7 @@ from openpyxl.style import NumberFormat, Border, Color, Font
 
 # test imports
 from nose.tools import eq_, ok_, assert_false
-from openpyxl.tests.helper import DATADIR, assert_equals_file_content, get_xml, compare_xml
+from openpyxl.tests.helper import DATADIR, get_xml, compare_xml
 
 class TestCreateStyle(object):
 
@@ -62,7 +62,6 @@ class TestCreateStyle(object):
 
     def test_write_style_table(self):
         reference_file = os.path.join(DATADIR, 'writer', 'expected', 'simple-styles.xml')
-        #assert_equals_file_content(reference_file, self.writer.write_table())
 
 
 class TestStyleWriter(object):

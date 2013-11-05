@@ -130,10 +130,6 @@ class TestWriteProps(object):
             diff = compare_xml(content, expected.read())
             assert diff is None
 
-        #assert_equals_file_content(
-                #os.path.join(DATADIR, 'writer', 'expected', 'core.xml'),
-                ##content)
-
     def test_write_properties_app(self):
         wb = Workbook()
         wb.create_sheet()
