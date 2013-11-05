@@ -108,7 +108,8 @@ def write_worksheet(worksheet, string_table, style_table):
                     attr[rule_attr] = str(rule[rule_attr])
             start_tag(doc, 'cfRule', attr)
             if 'formula' in rule:
-                tag(doc, 'formula', None, rule['formula'])
+                for f in rule['formula']:
+                    tag(doc, 'formula', None, f)
             if 'colorScale' in rule:
                 start_tag(doc, 'colorScale')
                 for cfvo in rule['colorScale']['cfvo']:

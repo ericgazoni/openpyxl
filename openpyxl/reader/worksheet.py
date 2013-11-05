@@ -100,7 +100,7 @@ def filter_cells(pair):
 
     return element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c'
 
-def fast_parse(ws, xml_source, string_table, style_table):
+def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 
     xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
     root = fromstring(xml_source)
@@ -242,9 +242,11 @@ def fast_parse(ws, xml_source, string_table, style_table):
                 if cfRule.get(attr) is not None:
                     rule[attr] = cfRule.get(attr)
 
-            formula = cfRule.find(QName(xmlns, 'forumla').text)
-            if formula is not None:
-                rule['formula'] = formula.text
+            formula = cfRule.findall(QName(xmlns, 'formula').text)
+            for f in formula:
+                if 'formula' not in rule:
+                    rule['formula'] = []
+                rule['formula'].append(f.text)
 
             colorScale = cfRule.find(QName(xmlns, 'colorScale').text)
             if colorScale is not None:
@@ -260,9 +262,8 @@ def fast_parse(ws, xml_source, string_table, style_table):
                 colorNodes = colorScale.findall(QName(xmlns, 'color').text)
                 for color in colorNodes:
                     c = Color(Color.BLACK)
-                    # color_index unavailable here - read in styles and not saved globally
-                    #if color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
-                    #    c.index = color_index[int(color.get('indexed'))]
+                    if color_index and color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
+                        c.index = color_index[int(color.get('indexed'))]
                     if color.get('theme') is not None:
                         if color.get('tint') is not None:
                             c.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
@@ -294,14 +295,14 @@ def fast_parse(ws, xml_source, string_table, style_table):
 from openpyxl.reader.iter_worksheet import IterableWorksheet
 
 def read_worksheet(xml_source, parent, preset_title, string_table,
-                   style_table, workbook_name=None, sheet_codename=None, keep_vba=False):
+                   style_table, color_index=None, workbook_name=None, sheet_codename=None, keep_vba=False):
     """Read an xml worksheet"""
     if workbook_name and sheet_codename:
         ws = IterableWorksheet(parent, preset_title, workbook_name,
                 sheet_codename, xml_source, string_table)
     else:
         ws = Worksheet(parent, preset_title)
-        fast_parse(ws, xml_source, string_table, style_table)
+        fast_parse(ws, xml_source, string_table, style_table, color_index)
     if keep_vba:
         ws.xml_source = xml_source
     return ws

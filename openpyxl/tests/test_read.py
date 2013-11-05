@@ -241,7 +241,7 @@ class TestReadFormulae(object):
 
     def test_fast_parse(self):
         from openpyxl.reader.worksheet import fast_parse
-        fast_parse(self.ws, self.xml_src, {}, {})
+        fast_parse(self.ws, self.xml_src, {}, {}, None)
         b1 = self.ws.cell('B1')
         eq_(b1.data_type, 'f')
         eq_(b1.value, '=CONCATENATE(A1,A2)')
