@@ -351,7 +351,7 @@ class ConditionalFormatting(object):
     def setRules(self, cfRules):
         """Set the conditional formatting rules from a dictionary.  Intended for use when loading a document.
         cfRules use the structure: {range_string: [rule1, rule2]}, eg:
-        {'A1:A4': [{'type': 'colorScale', 'priority': '13', 'colorScale': {'cfvo': ['min', 'max'],
+        {'A1:A4': [{'type': 'colorScale', 'priority': '13', 'colorScale': {'cfvo': [{'type': 'min'}, {'type': 'max'}],
         'color': [Color('FFFF7128'), Color('FFFFEF9C')]}]}
         """
         self.cf_rules = {}
@@ -377,7 +377,8 @@ class ConditionalFormatting(object):
         `ConditionalFormatting.rule_attributes`.  The priority will be added automatically.
 
         For example:
-        {'type': 'colorScale', 'colorScale': {'cfvo': ['min', 'max'], 'color': [Color('FFFF7128'), Color('FFFFEF9C')]}
+        {'type': 'colorScale', 'colorScale': {'cfvo': [{'type': 'min'}, {'type': 'max'}],
+                                              'color': [Color('FFFF7128'), Color('FFFFEF9C')]}
         """
         rule['priority'] = self.max_priority + 1
         self.max_priority += 1
