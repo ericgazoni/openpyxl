@@ -71,8 +71,6 @@ BaseRawCell = namedtuple('RawCell', RAW_ATTRIBUTES)
 
 formatter = NumberFormat()
 
-formatter = NumberFormat()
-
 class RawCell(BaseRawCell):
     """Optimized version of the :class:`openpyxl.cell.Cell`, using named tuples.
 
