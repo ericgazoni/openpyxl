@@ -347,7 +347,7 @@ class Cell(object):
         self.bind_value(value)
 
     @property
-    def excel_value(self):
+    def internal_value(self):
         """Always returns the value for excel."""
         return self._value
 
