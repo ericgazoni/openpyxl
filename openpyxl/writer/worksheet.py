@@ -44,6 +44,7 @@ from openpyxl.cell import coordinate_from_string, column_index_from_string
 from openpyxl.shared.xmltools import Element, SubElement, XMLGenerator, ElementTree, \
         get_document_content, start_tag, end_tag, tag, fromstring, tostring, register_namespace
 from openpyxl.shared.compat.itertools import iteritems, iterkeys
+from openpyxl.worksheet import ConditionalFormatting
 
 
 def row_sort(cell):
@@ -91,6 +92,48 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_mergecells(doc, worksheet)
     write_worksheet_datavalidations(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
+
+    for range_string, rules in worksheet.conditional_formatting.cf_rules.iteritems():
+        if not len(rules):
+            # Skip if there are no rules.  This is possible if a dataBar rule was read in and ignored.
+            continue
+        start_tag(doc, 'conditionalFormatting', {'sqref': range_string})
+        for rule in rules:
+            if rule['type'] == 'dataBar':
+                # Ignore - uses extLst tag which is currently unsupported.
+                continue
+            attr = {'type': rule['type']}
+            for rule_attr in ConditionalFormatting.rule_attributes:
+                if rule_attr in rule:
+                    attr[rule_attr] = rule[rule_attr]
+            start_tag(doc, 'cfRule', attr)
+            if 'formula' in rule:
+                tag(doc, 'formula', None, rule['formula'])
+            if 'colorScale' in rule:
+                start_tag(doc, 'colorScale')
+                for cfvo in rule['colorScale']['cfvo']:
+                    tag(doc, 'cfvo', cfvo)
+                for color in rule['colorScale']['color']:
+                    if str(color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such
+                        if str(color.index).split(':')[2]:
+                            tag(doc, 'color', {'theme': str(color.index).split(':')[1],
+                                               'tint': str(color.index).split(':')[2]})
+                        else:
+                            tag(doc, 'color', {'theme': str(color.index).split(':')[1]})
+                    else:
+                        tag(doc, 'color', {'rgb': str(color.index)})
+                end_tag(doc, 'colorScale')
+            if 'iconSet' in rule:
+                iconAttr = {}
+                for icon_attr in ConditionalFormatting.icon_attributes:
+                    if icon_attr in rule['iconSet']:
+                        iconAttr[icon_attr] = rule['iconSet'][icon_attr]
+                start_tag(doc, 'iconSet', iconAttr)
+                for cfvo in rule['iconSet']['cfvo']:
+                    tag(doc, 'cfvo', cfvo)
+                end_tag(doc, 'iconSet')
+            end_tag(doc, 'cfRule')
+        end_tag(doc, 'conditionalFormatting')
 
     options = worksheet.page_setup.options
     if options:

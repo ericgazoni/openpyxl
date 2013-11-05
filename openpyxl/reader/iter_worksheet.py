@@ -108,7 +108,8 @@ def iter_rows(workbook_name, sheet_name, xml_source, shared_date, string_table, 
         max_col = column_index_from_string(max_col) + 1
         max_row += 6
 
-    style_table = read_style_table(archive.read(ARC_STYLE))
+    style_properties = read_style_table(archive.read(ARC_STYLE))
+    style_table = style_properties.pop('table')
 
     source.seek(0)
     p = iterparse(source)

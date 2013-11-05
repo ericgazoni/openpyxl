@@ -35,7 +35,8 @@ from openpyxl.shared.compat import iterparse
 from openpyxl.cell import get_column_letter
 from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.cell import Cell, coordinate_from_string
-from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
+from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension, ConditionalFormatting
+from openpyxl.style import Color
 
 def _get_xml_iter(xml_source):
 
@@ -222,6 +223,73 @@ def fast_parse(ws, xml_source, string_table, style_table):
         oddFooter = headerFooter.find(QName(xmlns, 'oddFooter').text)
         if oddFooter is not None and oddFooter.text is not None:
             ws.header_footer.setFooter(oddFooter.text)
+
+    conditionalFormattingNodes = root.findall(QName(xmlns, 'conditionalFormatting').text)
+    rules = {}
+    for cf in conditionalFormattingNodes:
+        if not cf.get('sqref'):
+            # Potentially flag - this attribute should always be present.
+            continue
+        range_string = cf.get('sqref')
+        cfRules = cf.findall(QName(xmlns, 'cfRule').text)
+        rules[range_string] = []
+        for cfRule in cfRules:
+            if not cfRule.get('type') or cfRule.get('type') == 'dataBar':
+                # dataBar conditional formatting isn't supported, as it relies on the complex <extLst> tag
+                continue
+            rule = {'type': cfRule.get('type')}
+            for attr in ConditionalFormatting.rule_attributes:
+                if cfRule.get(attr) is not None:
+                    rule[attr] = cfRule.get(attr)
+
+            formula = cfRule.find(QName(xmlns, 'forumla').text)
+            if formula is not None:
+                rule['formula'] = formula.text
+
+            colorScale = cfRule.find(QName(xmlns, 'colorScale').text)
+            if colorScale is not None:
+                rule['colorScale'] = {'cfvo': [], 'color': []}
+                cfvoNodes = colorScale.findall(QName(xmlns, 'cfvo').text)
+                for node in cfvoNodes:
+                    cfvo = {}
+                    if node.get('type') is not None:
+                        cfvo['type'] = node.get('type')
+                    if node.get('val') is not None:
+                        cfvo['val'] = node.get('val')
+                    rule['colorScale']['cfvo'].append(cfvo)
+                colorNodes = colorScale.findall(QName(xmlns, 'color').text)
+                for color in colorNodes:
+                    c = Color(Color.BLACK)
+                    # color_index unavailable here - read in styles and not saved globally
+                    #if color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
+                    #    c.index = color_index[int(color.get('indexed'))]
+                    if color.get('theme') is not None:
+                        if color.get('tint') is not None:
+                            c.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
+                        else:
+                            c.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
+                    elif color.get('rgb'):
+                        c.index = color.get('rgb')
+                    rule['colorScale']['color'].append(c)
+
+            iconSet = cfRule.find(QName(xmlns, 'iconSet').text)
+            if iconSet is not None:
+                rule['iconSet'] = {'cfvo': []}
+                for iconAttr in ConditionalFormatting.icon_attributes:
+                    if iconSet.get(iconAttr) is not None:
+                        rule['iconSet'][iconAttr] = iconSet.get(iconAttr)
+                cfvoNodes = iconSet.findall(QName(xmlns, 'cfvo').text)
+                for node in cfvoNodes:
+                    cfvo = {}
+                    if node.get('type') is not None:
+                        cfvo['type'] = node.get('type')
+                    if node.get('val') is not None:
+                        cfvo['val'] = node.get('val')
+                    rule['iconSet']['cfvo'].append(cfvo)
+
+            rules[range_string].append(rule)
+    if len(rules):
+        ws.conditional_formatting.setRules(rules)
 
 from openpyxl.reader.iter_worksheet import IterableWorksheet
 

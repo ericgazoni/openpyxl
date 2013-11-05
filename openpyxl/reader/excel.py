@@ -168,7 +168,9 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
     except KeyError:
         assert wb.loaded_theme == None, "even though the theme information is missing there is a theme object ?"
 
-    style_table = read_style_table(archive.read(ARC_STYLE))
+    style_properties = read_style_table(archive.read(ARC_STYLE))
+    style_table = style_properties.pop('table')
+    wb.style_properties = style_properties
 
     wb.properties.excel_base_date = read_excel_base_date(xml_source=archive.read(ARC_WORKBOOK))
 

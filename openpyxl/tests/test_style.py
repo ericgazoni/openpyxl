@@ -220,7 +220,8 @@ def test_read_style():
         content = handle.read()
     finally:
         handle.close()
-    style_table = read_style_table(content)
+    style_properties = read_style_table(content)
+    style_table = style_properties['table']
     eq_(4, len(style_table))
     eq_(NumberFormat._BUILTIN_FORMATS[9], style_table[1].number_format.format_code)
     eq_('yyyy-mm-dd', style_table[2].number_format.format_code)
@@ -425,5 +426,6 @@ def test_read_cell_style():
         content = handle.read()
     finally:
         handle.close()
-    style_table = read_style_table(content)
+    style_properties = read_style_table(content)
+    style_table = style_properties['table']
     eq_(2, len(style_table))

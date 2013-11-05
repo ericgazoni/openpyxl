@@ -43,6 +43,7 @@ from openpyxl.drawing import Drawing
 from openpyxl.namedrange import NamedRangeContainingValue
 from openpyxl.shared.compat import OrderedDict, unicode, xrange, basestring
 from openpyxl.shared.compat.itertools import iteritems
+from openpyxl.style import Color
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
@@ -338,6 +339,94 @@ class ColumnDimension(object):
         self.collapsed = False
         self.style_index = 0
 
+class ConditionalFormatting(object):
+    """Conditional formatting rules."""
+    rule_attributes = ['aboveAverage', 'dxfId', 'operator', 'priority', 'rank', 'stDev', 'text']
+    icon_attributes = ['iconSet', 'showValue', 'reverse']
+
+    def __init__(self):
+        self.cf_rules = {}
+        self.max_priority = 0
+
+    def setRules(self, cfRules):
+        """Set the conditional formatting rules from a dictionary.  Intended for use when loading a document.
+        cfRules use the structure: {range_string: [rule1, rule2]}, eg:
+        {'A1:A4': [{'type': 'colorScale', 'priority': '13', 'colorScale': {'cfvo': ['min', 'max'],
+        'color': [Color('FFFF7128'), Color('FFFFEF9C')]}]}
+        """
+        self.cf_rules = {}
+        self.max_priority = 0
+        priorityMap = []
+        if not isinstance(cfRules, dict):
+            return
+        for range_string, rules in cfRules.iteritems():
+            self.cf_rules[range_string] = rules
+            for rule in rules:
+                priorityMap.append(int(rule['priority']))
+        priorityMap.sort()
+        for range_string, rules in cfRules.iteritems():
+            self.cf_rules[range_string] = rules
+            for rule in rules:
+                priority = priorityMap.index(int(rule['priority'])) + 1
+                rule['priority'] = str(priority)
+                if 'priority' in rule and priority > self.max_priority:
+                    self.max_priority = priority
+
+    def addCustomRule(self, range_string, rule):
+        """Add a custom rule.  Rule is a dictionary containing a key called type, and other keys, as found in
+        `ConditionalFormatting.rule_attributes`.  The priority will be added automatically.
+
+        For example:
+        {'type': 'colorScale', 'colorScale': {'cfvo': ['min', 'max'], 'color': [Color('FFFF7128'), Color('FFFFEF9C')]}
+        """
+        rule['priority'] = self.max_priority + 1
+        self.max_priority += 1
+        if range_string not in self.cf_rules:
+            self.cf_rules[range_string] = []
+        self.cf_rules[range_string].append(rule)
+
+    def add2ColorScale(self, range_string, start_type, start_value, start_rgb, end_type, end_value, end_rgb):
+        """
+        Add a 2-color scale to the conditional formatting.
+
+        :param range_string: Range of the conditional formatting, eg "B1:B10" or "A1:A1048576" for the whole column.
+        :param start_type: Starting color reference - can be: num, percent, percentile, min, max, formula
+        :param start_value: Starting value.  Percent expressed in integer from 0 - 100. (Ignored for min / max.)
+        :param start_rgb: Start RGB color, such as 'FFAABB11'
+        :param end_type: Ending color reference - can be: num, percent, percentile, min, max, formula
+        :param end_value: Ending value.
+        :param end_rgb: End RGB color, such as 'FFAABB11'
+        """
+        rule = {'type': 'colorScale', 'colorScale': {'color': [Color(start_rgb), Color(end_rgb)], 'cvfo': []}}
+        if start_type in ('max', 'min'):
+            rule['colorScale']['cvfo'].append({'type': start_type})
+        else:
+            rule['colorScale']['cvfo'].append({'type': start_type, 'val': start_value})
+        if end_type in ('max', 'min'):
+            rule['colorScale']['cvfo'].append({'type': end_type})
+        else:
+            rule['colorScale']['cvfo'].append({'type': end_type, 'val': end_value})
+        self.addCustomRule(range_string, rule)
+
+    def add3ColorScale(self, range_string, start_type, start_value, start_rgb, mid_type, mid_value, mid_rgb, end_type,
+                       end_value, end_rgb):
+        """Add a 3-color scale to the conditional formatting.  See `add2ColorScale` for parameter descriptions."""
+        rule = {'type': 'colorScale', 'colorScale': {'color': [Color(start_rgb), Color(mid_rgb), Color(end_rgb)],
+                                                     'cvfo': []}}
+        if start_type in ('max', 'min'):
+            rule['colorScale']['cvfo'].append({'type': start_type})
+        else:
+            rule['colorScale']['cvfo'].append({'type': start_type, 'val': start_value})
+        if mid_type in ('max', 'min'):
+            rule['colorScale']['cvfo'].append({'type': mid_type})
+        else:
+            rule['colorScale']['cvfo'].append({'type': mid_type, 'val': mid_value})
+        if end_type in ('max', 'min'):
+            rule['colorScale']['cvfo'].append({'type': end_type})
+        else:
+            rule['colorScale']['cvfo'].append({'type': end_type, 'val': end_value})
+        self.addCustomRule(range_string, rule)
+
 class PageMargins(object):
     """Information about page margins for view/print layouts."""
 
@@ -467,6 +556,7 @@ class Worksheet(object):
         self.paper_size = None
         self.orientation = None
         self.xml_source = None
+        self.conditional_formatting = ConditionalFormatting()
 
     def __repr__(self):
         return self.repr_format % self.title
