@@ -265,7 +265,7 @@ class StyleWriter(object):
             {'name':"Normal", 'xfId':"0", 'builtinId':"0"})
 
     def _write_dxfs(self):
-        if 'dxf_list' in self._style_properties:
+        if self._style_properties and 'dxf_list' in self._style_properties:
             dxfs = SubElement(self._root, 'dxfs', {'count': str(len(self._style_properties['dxf_list']))})
             for d in self._style_properties['dxf_list']:
                 dxf = SubElement(dxfs, 'dxf')
@@ -334,6 +334,7 @@ class StyleWriter(object):
                                 SubElement(node, 'color', {'rgb': str(obj.color.index)})
         else:
             dxfs = SubElement(self._root, 'dxfs', {'count': '0'})
+        return dxfs
 
     def _write_table_styles(self):
 

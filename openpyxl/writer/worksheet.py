@@ -175,9 +175,6 @@ def write_worksheet(worksheet, string_table, style_table):
             tag(doc, 'brk', {'id': str(b), 'man': 'true', 'max': '16383', 'min': '0'})
         end_tag(doc, 'rowBreaks')
 
-
-
-
     end_tag(doc, 'worksheet')
     doc.endDocument()
     xml_string = xml_file.getvalue()
