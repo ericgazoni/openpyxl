@@ -62,7 +62,7 @@ def test_dump_sheet_title():
 
     wb.save(test_filename)
 
-    wb2 = load_workbook(test_filename, True)
+    wb2 = load_workbook(test_filename)
 
     ws = wb2.get_sheet_by_name('Test1')
 
@@ -102,16 +102,16 @@ def test_dump_sheet():
 
     wb.save(test_filename)
 
-    wb2 = load_workbook(test_filename, True)
+    wb2 = load_workbook(test_filename)
 
     ws = wb2.worksheets[0]
 
 
-    for ex_row, ws_row in zip(expected_rows[:-20], ws.iter_rows()):
+    for ex_row, ws_row in zip(expected_rows[:-20], ws.rows):
 
         for ex_cell, ws_cell in zip(ex_row, ws_row):
 
-            eq_(ex_cell, ws_cell.internal_value)
+            eq_(ex_cell, ws_cell.value)
 
     os.remove(test_filename)
 
