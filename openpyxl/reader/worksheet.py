@@ -131,7 +131,7 @@ def fast_parse(ws, xml_source, string_table, style_table):
             if formula is not None:
                 value = "=" + str(formula)
             if not guess_types and not formula:
-                ws.cell(coordinate).set_value_explicit(value=value,
+                ws.cell(coordinate).set_explicit_value(value=value,
                                                        data_type=data_type)
             else:
                 ws.cell(coordinate).value = value

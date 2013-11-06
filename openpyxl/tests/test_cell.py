@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_cell.py
 
 # Copyright (c) 2010-2011 openpyxl
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -188,7 +188,7 @@ def test_data_type_check():
 def test_set_bad_type():
     ws = build_dummy_worksheet()
     cell = Cell(ws, 'A', 1)
-    cell.set_value_explicit(1, 'q')
+    cell.set_explicit_value(1, 'q')
 
 
 def test_time():

@@ -234,7 +234,7 @@ class Cell(object):
         except:
             return unicode('#N/A')
 
-    def set_value_explicit(self, value=None, data_type=TYPE_STRING):
+    def set_explicit_value(self, value=None, data_type=TYPE_STRING):
         """Coerce values according to their explicit type"""
         type_coercion_map = {
             self.TYPE_INLINE: self.check_string,
@@ -250,6 +250,9 @@ class Cell(object):
                 msg = 'Invalid data type: %s' % data_type
                 raise DataTypeException(msg)
         self._data_type = data_type
+
+    # preserve old method name
+    set_value_explicit = set_explicit_value
 
     def data_type_for_value(self, value):
         """Given a value, infer the correct data type"""
@@ -281,7 +284,7 @@ class Cell(object):
         """Given a value, infer type and display options."""
         self._data_type = self.data_type_for_value(value)
         if value is None:
-            self.set_value_explicit('', self.TYPE_NULL)
+            self.set_explicit_value('', self.TYPE_NULL)
             return True
         elif self._data_type == self.TYPE_STRING:
             # percentage detection
@@ -291,7 +294,7 @@ class Cell(object):
                 percentage_search = self.RE_PATTERNS['percentage'].match(str(value))
             if percentage_search and value.strip() != '%':
                 value = float(value.replace('%', '')) / 100.0
-                self.set_value_explicit(value, self.TYPE_NUMERIC)
+                self.set_explicit_value(value, self.TYPE_NUMERIC)
                 self._set_number_format(NumberFormat.FORMAT_PERCENTAGE)
                 return True
             # time detection
@@ -309,7 +312,7 @@ class Cell(object):
                             [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
                 days = (hours / 24.0) + (minutes / 1440.0) + \
                         (seconds / 86400.0)
-                self.set_value_explicit(days, self.TYPE_NUMERIC)
+                self.set_explicit_value(days, self.TYPE_NUMERIC)
                 self._set_number_format(NumberFormat.FORMAT_DATE_TIME3)
                 return True
         if self._data_type == self.TYPE_NUMERIC:
@@ -327,9 +330,9 @@ class Cell(object):
                 elif isinstance(value, datetime.timedelta):
                     self._set_number_format(NumberFormat.FORMAT_DATE_TIMEDELTA)
                 value = SharedDate().datetime_to_julian(date=value)
-                self.set_value_explicit(value, self.TYPE_NUMERIC)
+                self.set_explicit_value(value, self.TYPE_NUMERIC)
                 return True
-        self.set_value_explicit(value, self._data_type)
+        self.set_explicit_value(value, self._data_type)
 
     @property
     def value(self):
