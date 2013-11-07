@@ -37,7 +37,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.style import NumberFormat, Border, Color, Font, HashableObject
+from openpyxl.style import NumberFormat, Border, Color, Fill, Font, HashableObject
 
 # test imports
 from nose.tools import eq_, ok_, assert_false
@@ -197,10 +197,19 @@ class TestStyleWriter(object):
         self.worksheet.conditional_formatting.add2ColorScale('A1:A10', 'min', None, 'FFAA0000', 'max', None, 'FF00AA00')
         self.worksheet.conditional_formatting.add3ColorScale('B1:B10', 'percentile', 10, 'FFAA0000', 'percentile', 50,
                                                              'FF0000AA', 'percentile', 90, 'FF00AA00')
+
+        redFill = Fill()
+        redFill.start_color.index = 'FFEE1111'
+        redFill.end_color.index = 'FFEE1111'
+        redFill.fill_type = Fill.FILL_SOLID
+
+        self.worksheet.conditional_formatting.addCellIs('U10:U18', 'greaterThanOrEqual', ['U$7'], True, self.workbook,
+                                                        None, None, redFill)
+
         xml = write_worksheet(self.worksheet, None, None)
         ok_('<conditionalFormatting sqref="A1:A10"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFAA0000"></color><color rgb="FF00AA00"></color></colorScale></cfRule></conditionalFormatting>' in xml)
         ok_('<conditionalFormatting sqref="B1:B10"><cfRule type="colorScale" priority="2"><colorScale><cfvo type="percentile" val="10"></cfvo><cfvo type="percentile" val="50"></cfvo><cfvo type="percentile" val="90"></cfvo><color rgb="FFAA0000"></color><color rgb="FF0000AA"></color><color rgb="FF00AA00"></color></colorScale></cfRule></conditionalFormatting>' in xml)
-
+        ok_('<conditionalFormatting sqref="U10:U18"><cfRule priority="3" dxfId="0" type="cellIs" stopIfTrue="1" operator="greaterThanOrEqual"><formula>U$7</formula></cfRule></conditionalFormatting>' in xml)
 
 #def test_format_comparisions():
 #    format1 = NumberFormat()

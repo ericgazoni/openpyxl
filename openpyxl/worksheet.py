@@ -342,7 +342,7 @@ class ColumnDimension(object):
 class ConditionalFormatting(object):
     """Conditional formatting rules."""
     rule_attributes = ['aboveAverage', 'bottom', 'dxfId', 'equalAverage', 'operator', 'percent', 'priority', 'rank',
-                       'stdDev', 'text']
+                       'stdDev', 'stopIfTrue', 'text']
     icon_attributes = ['iconSet', 'showValue', 'reverse']
 
     def __init__(self):
@@ -372,6 +372,34 @@ class ConditionalFormatting(object):
                 rule['priority'] = str(priority)
                 if 'priority' in rule and priority > self.max_priority:
                     self.max_priority = priority
+
+    def addDxfStyle(self, wb, font, border, fill):
+        """Formatting for non color scale conditional formatting uses the dxf style list in styles.xml.  Add a style
+        and get the corresponding style id to use in the conditional formatting rule.
+
+        Excel adds a dxf style for each conditional formatting, even if it already exists.
+
+        :param wb: the workbook
+        :param font: openpyxl.style.Font
+        :param border: openpyxl.style.Border
+        :param fill: openpyxl.style.Fill
+        :return: dxfId (excel uses a 0 based index for the dxfId)
+        """
+        if not wb.style_properties:
+            wb.style_properties = {'dxf_list': []}
+        elif 'dxf_list' not in wb.style_properties:
+            wb.style_properties['dxf_list'] = []
+
+        dxf = {}
+        if font:
+            dxf['font'] = [font]
+        if border:
+            dxf['border'] = [border]
+        if fill:
+            dxf['fill'] = [fill]
+
+        wb.style_properties['dxf_list'].append(dxf)
+        return len(wb.style_properties['dxf_list']) - 1
 
     def addCustomRule(self, range_string, rule):
         """Add a custom rule.  Rule is a dictionary containing a key called type, and other keys, as found in
@@ -428,6 +456,38 @@ class ConditionalFormatting(object):
         else:
             rule['colorScale']['cfvo'].append({'type': end_type, 'val': str(end_value)})
         self.addCustomRule(range_string, rule)
+
+    def addCellIs(self, range_string, operator, formula, stopIfTrue, wb, font, border, fill):
+        """Add a conditional formatting of type cellIs.
+
+        Formula is in a list to handle multiple formula's, such as ['a1']
+
+        Valid values for operator are:
+        'between', 'notBetween', 'equal', 'notEqual', 'greaterThan', 'lessThan', 'greaterThanOrEqual', 'lessThanOrEqual'
+        """
+        if operator == ">":
+            operator = "greaterThan"
+        elif operator == ">=":
+            operator = "greaterThanOrEqual"
+        elif operator == "<":
+            operator = "lessThan"
+        elif operator == "<=":
+            operator = "lessThanOrEqual"
+        elif operator == "=":
+            operator = "equal"
+        elif operator == "==":
+            operator = "equal"
+        elif operator == "!=":
+            operator = "notEqual"
+
+        if operator in ('between', 'notBetween', 'equal', 'notEqual', 'greaterThan', 'lessThan', 'greaterThanOrEqual',
+                        'lessThanOrEqual'):
+            dxfId = self.addDxfStyle(wb, font, border, fill)
+            rule = {'type': 'cellIs', 'dxfId': dxfId, 'operator': operator, 'formula': formula}
+            if stopIfTrue:
+                rule['stopIfTrue'] = '1'
+            self.addCustomRule(range_string, rule)
+
 
 class PageMargins(object):
     """Information about page margins for view/print layouts."""
