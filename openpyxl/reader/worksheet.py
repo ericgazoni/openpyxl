@@ -224,14 +224,14 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
         if oddFooter is not None and oddFooter.text is not None:
             ws.header_footer.setFooter(oddFooter.text)
 
-    conditionalFormattingNodes = root.findall(QName(xmlns, 'conditionalFormatting').text)
+    conditionalFormattingNodes = root.findall('{%s}conditionalFormatting' % SHEET_MAIN_NS)
     rules = {}
     for cf in conditionalFormattingNodes:
         if not cf.get('sqref'):
             # Potentially flag - this attribute should always be present.
             continue
         range_string = cf.get('sqref')
-        cfRules = cf.findall(QName(xmlns, 'cfRule').text)
+        cfRules = cf.findall('{%s}cfRule' % SHEET_MAIN_NS)
         rules[range_string] = []
         for cfRule in cfRules:
             if not cfRule.get('type') or cfRule.get('type') == 'dataBar':
@@ -242,16 +242,16 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
                 if cfRule.get(attr) is not None:
                     rule[attr] = cfRule.get(attr)
 
-            formula = cfRule.findall(QName(xmlns, 'formula').text)
+            formula = cfRule.findall('{%s}formula' % SHEET_MAIN_NS)
             for f in formula:
                 if 'formula' not in rule:
                     rule['formula'] = []
                 rule['formula'].append(f.text)
 
-            colorScale = cfRule.find(QName(xmlns, 'colorScale').text)
+            colorScale = cfRule.find('{%s}colorScale' % SHEET_MAIN_NS)
             if colorScale is not None:
                 rule['colorScale'] = {'cfvo': [], 'color': []}
-                cfvoNodes = colorScale.findall(QName(xmlns, 'cfvo').text)
+                cfvoNodes = colorScale.findall('{%s}cfvo' % SHEET_MAIN_NS)
                 for node in cfvoNodes:
                     cfvo = {}
                     if node.get('type') is not None:
@@ -259,7 +259,7 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
                     if node.get('val') is not None:
                         cfvo['val'] = node.get('val')
                     rule['colorScale']['cfvo'].append(cfvo)
-                colorNodes = colorScale.findall(QName(xmlns, 'color').text)
+                colorNodes = colorScale.findall('{%s}color' % SHEET_MAIN_NS)
                 for color in colorNodes:
                     c = Color(Color.BLACK)
                     if color_index and color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
@@ -273,13 +273,13 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
                         c.index = color.get('rgb')
                     rule['colorScale']['color'].append(c)
 
-            iconSet = cfRule.find(QName(xmlns, 'iconSet').text)
+            iconSet = cfRule.find('{%s}iconSet' % SHEET_MAIN_NS)
             if iconSet is not None:
                 rule['iconSet'] = {'cfvo': []}
                 for iconAttr in ConditionalFormatting.icon_attributes:
                     if iconSet.get(iconAttr) is not None:
                         rule['iconSet'][iconAttr] = iconSet.get(iconAttr)
-                cfvoNodes = iconSet.findall(QName(xmlns, 'cfvo').text)
+                cfvoNodes = iconSet.findall('{%s}cfvo' % SHEET_MAIN_NS)
                 for node in cfvoNodes:
                     cfvo = {}
                     if node.get('type') is not None:
