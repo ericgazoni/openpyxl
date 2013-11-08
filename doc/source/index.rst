@@ -123,6 +123,13 @@ Read/write large files
 
     optimized
 
+Working with styles
++++++++++++++++++++
+
+.. toctree::
+
+    styles
+
 API Documentation
 ------------------
 

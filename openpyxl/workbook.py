@@ -94,6 +94,7 @@ class Workbook(object):
         self._worksheet_class = worksheet_class
         self._optimized_worksheet_class = optimized_worksheet_class
         self.vba_archive = None
+        self.style_properties = None
         self._guess_types = guess_types
 
         self.encoding = encoding

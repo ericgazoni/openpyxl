@@ -28,20 +28,20 @@
 # package imports
 from openpyxl.shared.xmltools import fromstring, QName
 from openpyxl.shared.exc import MissingNumberFormat
-from openpyxl.style import Style, NumberFormat, Font, Fill, Borders, Protection
+from openpyxl.style import Style, NumberFormat, Font, Fill, Borders, Protection, Color
 from copy import deepcopy
-
 
 def read_style_table(xml_source):
     """Read styles from the shared style table"""
-    table = {}
+    style_prop = {'table': {}}
     xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
     root = fromstring(xml_source)
     custom_num_formats = parse_custom_num_formats(root, xmlns)
-    color_index = parse_color_index(root, xmlns)
-    font_list = parse_fonts(root, xmlns, color_index)
-    fill_list = parse_fills(root, xmlns, color_index)
-    border_list = parse_borders(root, xmlns, color_index)
+    style_prop['color_index'] = parse_color_index(root, xmlns)
+    font_list = parse_fonts(root, xmlns, style_prop['color_index'])
+    fill_list = parse_fills(root, xmlns, style_prop['color_index'])
+    border_list = parse_borders(root, xmlns, style_prop['color_index'])
+    style_prop['dxf_list'] = parse_dxfs(root, xmlns, style_prop['color_index'])
     builtin_formats = NumberFormat._BUILTIN_FORMATS
     cell_xfs = root.find(QName(xmlns, 'cellXfs').text)
     if cell_xfs is not None: # can happen on bad OOXML writers (e.g. Gnumeric)
@@ -114,8 +114,8 @@ def read_style_table(xml_source):
                         else:
                             new_style.protection.hidden = Protection.PROTECTION_UNPROTECTED
 
-            table[index] = new_style
-    return table
+            style_prop['table'][index] = new_style
+    return style_prop
 
 def parse_custom_num_formats(root, xmlns):
     """Read in custom numeric formatting rules from the shared style table"""
@@ -149,6 +149,41 @@ def parse_color_index(root, xmlns):
                        'FF003366', 'FF339966', 'FF003300', 'FF333300', 'FF993300', 'FF993366', 'FF333399', 'FF333333']
     return color_index
 
+def parse_dxfs(root, xmlns, color_index):
+    """Read in the dxfs effects - used by conditional formatting."""
+    dxf_list = []
+    dxfs = root.find(QName(xmlns, 'dxfs').text)
+    if dxfs is not None:
+        nodes = dxfs.findall(QName(xmlns, 'dxf').text)
+        for dxf in nodes:
+            dxf_item = {}
+            font_node = dxf.find(QName(xmlns, 'font').text)
+            if font_node is not None:
+                dxf_item['font'] = {}
+                dxf_item['font']['bold'] = True if len(font_node.findall(QName(xmlns, 'b').text)) else False
+                dxf_item['font']['italic'] = True if len(font_node.findall(QName(xmlns, 'i').text)) else False
+                if len(font_node.findall(QName(xmlns, 'u').text)):
+                    underline = font_node.find(QName(xmlns, 'u').text).get('val')
+                    dxf_item['font']['underline'] = underline if underline else 'single'
+                color = font_node.find(QName(xmlns, 'color').text)
+                if color is not None:
+                    dxf_item['font']['color'] = Color(Color.BLACK)
+                    if color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
+                        dxf_item['font']['color'].index = color_index[int(color.get('indexed'))]
+                    elif color.get('theme') is not None:
+                        if color.get('tint') is not None:
+                            dxf_item['font']['color'] .index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
+                        else:
+                            dxf_item['font']['color'] .index = 'theme:%s:' % color.get('theme') # prefix color with theme
+                    elif color.get('rgb'):
+                        dxf_item['font']['color'] .index = color.get('rgb')
+            fill_node = dxf.find(QName(xmlns, 'fill').text)
+            if fill_node is not None:
+                dxf_item['fill'] = parse_fills(dxf, xmlns, color_index, True)
+                dxf_item['border'] = parse_borders(dxf, xmlns, color_index, True)
+            dxf_list.append(dxf_item)
+    return dxf_list
+
 def parse_fonts(root, xmlns, color_index):
     """Read in the fonts"""
     font_list = []
@@ -178,10 +213,13 @@ def parse_fonts(root, xmlns, color_index):
             font_list.append(font)
     return font_list
 
-def parse_fills(root, xmlns, color_index):
+def parse_fills(root, xmlns, color_index, skip_find=False):
     """Read in the list of fills"""
     fill_list = []
-    fills = root.find(QName(xmlns, 'fills').text)
+    if skip_find:
+        fills = root
+    else:
+        fills = root.find(QName(xmlns, 'fills').text)
     count = 0
     if fills is not None:
         fillNodes = fills.findall(QName(xmlns, 'fill').text)
@@ -225,10 +263,13 @@ def parse_fills(root, xmlns, color_index):
                 fill_list.append(newFill)
     return fill_list
 
-def parse_borders(root, xmlns, color_index):
+def parse_borders(root, xmlns, color_index, skip_find=False):
     """Read in the boarders"""
     border_list = []
-    borders = root.find(QName(xmlns, 'borders').text)
+    if skip_find:
+        borders = root
+    else:
+        borders = root.find(QName(xmlns, 'borders').text)
     if borders is not None:
         boarderNodes = borders.findall(QName(xmlns, 'border').text)
         count = 0

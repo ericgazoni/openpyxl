@@ -34,9 +34,10 @@ from openpyxl.shared.compat import BytesIO, StringIO
 from openpyxl.reader.excel import load_workbook
 from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
+from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.style import NumberFormat, Border, Color, Font
+from openpyxl.style import NumberFormat, Border, Color, Fill, Font, HashableObject
 
 # test imports
 from nose.tools import eq_, ok_, assert_false
@@ -191,6 +192,23 @@ class TestStyleWriter(object):
         ok_('indent="0"' not in xml)
         ok_('indent="-1"' not in xml)
 
+    def test_conditional_formatting_write(self):
+        self.worksheet.conditional_formatting.add2ColorScale('A1:A10', 'min', None, 'FFAA0000', 'max', None, 'FF00AA00')
+        self.worksheet.conditional_formatting.add3ColorScale('B1:B10', 'percentile', 10, 'FFAA0000', 'percentile', 50,
+                                                             'FF0000AA', 'percentile', 90, 'FF00AA00')
+
+        redFill = Fill()
+        redFill.start_color.index = 'FFEE1111'
+        redFill.end_color.index = 'FFEE1111'
+        redFill.fill_type = Fill.FILL_SOLID
+
+        self.worksheet.conditional_formatting.addCellIs('U10:U18', 'greaterThanOrEqual', ['U$7'], True, self.workbook,
+                                                        None, None, redFill)
+
+        xml = write_worksheet(self.worksheet, None, None)
+        ok_('<conditionalFormatting sqref="A1:A10"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFAA0000"></color><color rgb="FF00AA00"></color></colorScale></cfRule></conditionalFormatting>' in xml)
+        ok_('<conditionalFormatting sqref="B1:B10"><cfRule type="colorScale" priority="2"><colorScale><cfvo type="percentile" val="10"></cfvo><cfvo type="percentile" val="50"></cfvo><cfvo type="percentile" val="90"></cfvo><color rgb="FFAA0000"></color><color rgb="FF0000AA"></color><color rgb="FF00AA00"></color></colorScale></cfRule></conditionalFormatting>' in xml)
+        ok_('<conditionalFormatting sqref="U10:U18"><cfRule priority="3" dxfId="0" type="cellIs" stopIfTrue="1" operator="greaterThanOrEqual"><formula>U$7</formula></cfRule></conditionalFormatting>' in xml)
 
 #def test_format_comparisions():
 #    format1 = NumberFormat()
@@ -219,7 +237,8 @@ def test_read_style():
         content = handle.read()
     finally:
         handle.close()
-    style_table = read_style_table(content)
+    style_properties = read_style_table(content)
+    style_table = style_properties['table']
     eq_(4, len(style_table))
     eq_(NumberFormat._BUILTIN_FORMATS[9], style_table[1].number_format.format_code)
     eq_('yyyy-mm-dd', style_table[2].number_format.format_code)
@@ -274,6 +293,69 @@ def test_read_complex_style():
     eq_(ws.cell('A25').style.alignment.wrap_text, True)
     eq_(ws.cell('A26').style.alignment.shrink_to_fit, True)
 
+
+def compare_complex(a, b):
+    if isinstance(a, list):
+        if not isinstance(b, list):
+            return False
+        else:
+            for i, v in enumerate(a):
+                if not compare_complex(v, b[i]):
+                    return False
+    elif isinstance(a, dict):
+        if not isinstance(b, dict):
+            return False
+        else:
+            for k in a.iterkeys():
+                if isinstance(a[k], (list, dict)):
+                    if not compare_complex(a[k], b[k]):
+                        return False
+                elif a[k] != b[k]:
+                    return False
+    elif isinstance(a, HashableObject) or isinstance(b, HashableObject):
+        if repr(a) != repr(b):
+            return False
+    elif a != b:
+        return False
+    return True
+
+
+def test_conditional_formatting_read():
+    reference_file = os.path.join(DATADIR, 'reader', 'conditional-formatting.xlsx')
+    wb = load_workbook(reference_file)
+    ws = wb.get_active_sheet()
+
+    # First test the conditional formatting rules read
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['A1:A1048576'], [{'priority': '27', 'type': 'colorScale', 'colorScale': {'color': [Color('FFFF7128'), 'FFFFEF9C'], 'cfvo': [{'type': 'min'}, {'type': 'max'}]}}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['B1:B10'], [{'priority': '26', 'type': 'colorScale', 'colorScale': {'color': ['theme:6:', 'theme:4:'], 'cfvo': [{'type': 'num', 'val': '3'}, {'type': 'num', 'val': '7'}]}}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['C1:C10'], [{'priority': '25', 'type': 'colorScale', 'colorScale': {'color': ['FFFF7128', 'FFFFEF9C'], 'cfvo': [{'type': 'percent', 'val': '10'}, {'type': 'percent', 'val': '90'}]}}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['D1:D10'], [{'priority': '24', 'type': 'colorScale', 'colorScale': {'color': ['theme:6:', 'theme:5:'], 'cfvo': [{'type': 'formula', 'val': '2'}, {'type': 'formula', 'val': '4'}]}}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['E1:E10'], [{'priority': '23', 'type': 'colorScale', 'colorScale': {'color': ['FFFF7128', 'FFFFEF9C'], 'cfvo': [{'type': 'percentile', 'val': '10'}, {'type': 'percentile', 'val': '90'}]}}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['F1:F10'], [{'priority': '22', 'type': 'colorScale', 'colorScale': {'color': ['FFFF7128', 'FFFFEB84', 'FF63BE7B'], 'cfvo': [{'type': 'min'}, {'type': 'percentile', 'val': '50'}, {'type': 'max'}]}}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['G1:G10'], [{'priority': '21', 'type': 'colorScale', 'colorScale': {'color': ['theme:4:', 'FFFFEB84', 'theme:5:'], 'cfvo': [{'type': 'num', 'val': '0'}, {'type': 'percentile', 'val': '50'}, {'type': 'num', 'val': '10'}]}}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['H1:H10'], [{'priority': '20', 'type': 'colorScale', 'colorScale': {'color': ['FFFF7128', 'FFFFEB84', 'FF63BE7B'], 'cfvo': [{'type': 'percent', 'val': '0'}, {'type': 'percent', 'val': '50'}, {'type': 'percent', 'val': '100'}]}}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['I1:I10'], [{'priority': '19', 'type': 'colorScale', 'colorScale': {'color': ['FF0000FF', 'FFFF6600', 'FF008000'], 'cfvo': [{'type': 'formula', 'val': '2'}, {'type': 'formula', 'val': '7'}, {'type': 'formula', 'val': '9'}]}}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['J1:J10'], [{'priority': '18', 'type': 'colorScale', 'colorScale': {'color': ['FFFF7128', 'FFFFEB84', 'FF63BE7B'], 'cfvo': [{'type': 'percentile', 'val': '10'}, {'type': 'percentile', 'val': '50'}, {'type': 'percentile', 'val': '90'}]}}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['K1:K10'], []))  # K - M are dataBar conditional formatting, which are not
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['L1:L10'], []))  # handled at the moment, and should not load, but also
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['M1:M10'], []))  # should not interfere with the loading / saving of the file.
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['N1:N10'], [{'priority': '17', 'iconSet': {'cfvo': [{'type': 'percent', 'val': '0'}, {'type': 'percent', 'val': '33'}, {'type': 'percent', 'val': '67'}]}, 'type': 'iconSet'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['O1:O10'], [{'priority': '16', 'iconSet': {'cfvo': [{'type': 'percent', 'val': '0'}, {'type': 'num', 'val': '2'}, {'type': 'num', 'val': '4'}, {'type': 'num', 'val': '6'}], 'showValue': '0', 'iconSet': '4ArrowsGray', 'reverse': '1'}, 'type': 'iconSet'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['P1:P10'], [{'priority': '15', 'iconSet': {'cfvo': [{'type': 'percent', 'val': '0'}, {'type': 'percentile', 'val': '20'}, {'type': 'percentile', 'val': '40'}, {'type': 'percentile', 'val': '60'}, {'type': 'percentile', 'val': '80'}], 'iconSet': '5Rating'}, 'type': 'iconSet'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['Q1:Q10'], [{'text': '3', 'priority': '14', 'dxfId': '27', 'operator': 'containsText', 'formula': ['NOT(ISERROR(SEARCH("3",Q1)))'], 'type': 'containsText'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['R1:R10'], [{'operator': 'between', 'dxfId': '26', 'type': 'cellIs', 'formula': ['2', '7'], 'priority': '13'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['S1:S10'], [{'priority': '12', 'dxfId': '25', 'percent': '1', 'type': 'top10', 'rank': '10'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['T1:T10'], [{'priority': '11', 'dxfId': '24', 'type': 'top10', 'rank': '4', 'bottom': '1'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['U1:U10'], [{'priority': '10', 'dxfId': '23', 'type': 'aboveAverage'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['V1:V10'], [{'aboveAverage': '0', 'dxfId': '22', 'type': 'aboveAverage', 'priority': '9'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['W1:W10'], [{'priority': '8', 'dxfId': '21', 'type': 'aboveAverage', 'equalAverage': '1'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['X1:X10'], [{'aboveAverage': '0', 'dxfId': '20', 'priority': '7', 'type': 'aboveAverage', 'equalAverage': '1'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['Y1:Y10'], [{'priority': '6', 'dxfId': '19', 'type': 'aboveAverage', 'stdDev': '1'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['Z1:Z10'], [{'aboveAverage': '0', 'dxfId': '18', 'type': 'aboveAverage', 'stdDev': '1', 'priority': '5'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['AA1:AA10'], [{'priority': '4', 'dxfId': '17', 'type': 'aboveAverage', 'stdDev': '2'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['AB1:AB10'], [{'priority': '3', 'dxfId': '16', 'type': 'duplicateValues'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['AC1:AC10'], [{'priority': '2', 'dxfId': '15', 'type': 'uniqueValues'}]))
+    ok_(compare_complex(ws.conditional_formatting.cf_rules['AD1:AD10'], [{'priority': '1', 'dxfId': '14', 'type': 'expression', 'formula': ['AD1>3']}]))
 
 def test_change_existing_styles():
     reference_file = os.path.join(DATADIR, 'reader', 'complex-styles.xlsx')
@@ -424,5 +506,6 @@ def test_read_cell_style():
         content = handle.read()
     finally:
         handle.close()
-    style_table = read_style_table(content)
+    style_properties = read_style_table(content)
+    style_table = style_properties['table']
     eq_(2, len(style_table))
