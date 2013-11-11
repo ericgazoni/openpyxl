@@ -48,7 +48,7 @@ from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.shared.compat import unicode
 from openpyxl.shared.ooxml import (MIN_COLUMN, MAX_COLUMN, PACKAGE_WORKSHEETS,
-    MAX_ROW, MIN_ROW, ARC_STYLE)
+    MAX_ROW, MIN_ROW, ARC_STYLE, SHEET_MAIN_NS)
 
 
 TYPE_NULL = Cell.TYPE_NULL
@@ -122,7 +122,7 @@ def get_cells(p, min_row, min_col, max_row, max_col, _re_coordinate=RE_COORDINAT
 
     for _event, element in p:
 
-        if element.tag == '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c':
+        if element.tag == '{%s}c' % SHEET_MAIN_NS:
             coord = element.get('r')
             column_str, row = _re_coordinate.match(coord).groups()
 
@@ -132,8 +132,8 @@ def get_cells(p, min_row, min_col, max_row, max_col, _re_coordinate=RE_COORDINAT
             if min_col <= column <= max_col and min_row <= row <= max_row:
                 data_type = element.get('t', 'n')
                 style_id = element.get('s')
-                formula = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}f')
-                value = element.findtext('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
+                formula = element.findtext('{%s}f' % SHEET_MAIN_NS)
+                value = element.findtext('{%s}v' % SHEET_MAIN_NS)
                 if formula is not None:
                     data_type = Cell.TYPE_FORMULA
                     value = "=" + formula

@@ -27,7 +27,7 @@
 
 # package imports
 
-from openpyxl.shared.compat import register_namespace
+#from openpyxl.shared.compat import register_namespace
 from openpyxl.shared.xmltools import Element, SubElement
 from openpyxl.cell import absolute_coordinate
 from openpyxl.shared.xmltools import get_document_content
@@ -84,8 +84,7 @@ def write_content_types(workbook):
     seen = set()
     if workbook.vba_archive:
         root = fromstring(workbook.vba_archive.read(ARC_CONTENT_TYPES))
-        register_namespace('', 'http://schemas.openxmlformats.org/package/2006/content-types')
-        for elem in root.findall('{http://schemas.openxmlformats.org/package/2006/content-types}Override'):
+        for elem in root.findall('{%s}Override' % CONTYPES_NS):
             seen.add(elem.attrib['PartName'])
     else:
         root = Element('{%s}Types' % CONTYPES_NS)
@@ -159,15 +158,14 @@ def write_properties_app(workbook):
 
 def write_root_rels(workbook):
     """Write the relationships xml."""
-    root = Element('{%s}Relationships' % PKG_REL_NS, {'xmlns':
-            'http://schemas.openxmlformats.org/package/2006/relationships'})
+    root = Element('{%s}Relationships' % PKG_REL_NS, {'xmlns': PKG_REL_NS})
     relation_tag = '{%s}Relationship' % PKG_REL_NS
     SubElement(root, relation_tag, {'Id': 'rId1', 'Target': ARC_WORKBOOK,
-            'Type': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument'})
+            'Type': REL_NS})
     SubElement(root, relation_tag, {'Id': 'rId2', 'Target': ARC_CORE,
-            'Type': 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties'})
+            'Type': COREPROPS_NS})
     SubElement(root, relation_tag, {'Id': 'rId3', 'Target': ARC_APP,
-            'Type': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties'})
+            'Type': XPROPS_NS})
     return get_document_content(root)
 
 
@@ -244,19 +242,19 @@ def write_workbook_rels(workbook):
     for i in range(1, len(workbook.worksheets) + 1):
         SubElement(root, '{%s}Relationship' % PKG_REL_NS,
                    {'Id': 'rId%d' % i, 'Target': 'worksheets/sheet%s.xml' % i,
-                    'Type': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet'})
+                    'Type': '%s/worksheet' % REL_NS})
     rid = len(workbook.worksheets) + 1
     SubElement(root, '{%s}Relationship' % PKG_REL_NS,
                {'Id': 'rId%d' % rid, 'Target': 'sharedStrings.xml',
-                'Type': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings'})
+                'Type': '%s/sharedStrings' % REL_NS})
     SubElement(root, '{%s}Relationship' % PKG_REL_NS,
                {'Id': 'rId%d' % (rid + 1), 'Target': 'styles.xml',
-                'Type': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles'})
+                'Type': '%s/styles' % REL_NS})
     SubElement(root, '{%s}Relationship' % PKG_REL_NS,
                {'Id': 'rId%d' % (rid + 2), 'Target': 'theme/theme1.xml',
-                'Type': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme'})
+                'Type': '%s/theme' % REL_NS})
     if workbook.vba_archive:
         SubElement(root, '{%s}Relationship' % PKG_REL_NS,
                    {'Id': 'rId%d' % (rid + 3), 'Target': 'vbaProject.bin',
-                    'Type': 'http://schemas.microsoft.com/office/2006/relationships/vbaProject'})
+                    'Type': '%s/vbaProject' % REL_NS})
     return get_document_content(root)
