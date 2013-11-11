@@ -33,13 +33,15 @@ from openpyxl.shared.compat import BytesIO, StringIO
 # package imports
 from openpyxl.reader.excel import load_workbook
 from openpyxl.reader.style import read_style_table
+from openpyxl.shared.ooxml import ARC_STYLE
 from openpyxl.workbook import Workbook
 from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.style import NumberFormat, Border, Color, Fill, Font, HashableObject
+from openpyxl.style import NumberFormat, Border, Color, Fill, Font, HashableObject, Borders
 
 # test imports
+from zipfile import ZIP_DEFLATED, ZipFile
 from nose.tools import eq_, ok_, assert_false
 from openpyxl.tests.helper import DATADIR, get_xml, compare_xml
 
@@ -192,23 +194,64 @@ class TestStyleWriter(object):
         ok_('indent="0"' not in xml)
         ok_('indent="-1"' not in xml)
 
-    def test_conditional_formatting_write(self):
+    def test_conditional_formatting_add2ColorScale(self):
         self.worksheet.conditional_formatting.add2ColorScale('A1:A10', 'min', None, 'FFAA0000', 'max', None, 'FF00AA00')
+        xml = write_worksheet(self.worksheet, None, None)
+        ok_('<conditionalFormatting sqref="A1:A10"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFAA0000"></color><color rgb="FF00AA00"></color></colorScale></cfRule></conditionalFormatting>' in xml)
+
+    def test_conditional_formatting_add3ColorScale(self):
         self.worksheet.conditional_formatting.add3ColorScale('B1:B10', 'percentile', 10, 'FFAA0000', 'percentile', 50,
                                                              'FF0000AA', 'percentile', 90, 'FF00AA00')
+        xml = write_worksheet(self.worksheet, None, None)
+        ok_('<conditionalFormatting sqref="B1:B10"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="percentile" val="10"></cfvo><cfvo type="percentile" val="50"></cfvo><cfvo type="percentile" val="90"></cfvo><color rgb="FFAA0000"></color><color rgb="FF0000AA"></color><color rgb="FF00AA00"></color></colorScale></cfRule></conditionalFormatting>' in xml)
 
+    def test_conditional_formatting_addCellIs(self):
         redFill = Fill()
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-
         self.worksheet.conditional_formatting.addCellIs('U10:U18', 'greaterThanOrEqual', ['U$7'], True, self.workbook,
                                                         None, None, redFill)
-
         xml = write_worksheet(self.worksheet, None, None)
-        ok_('<conditionalFormatting sqref="A1:A10"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFAA0000"></color><color rgb="FF00AA00"></color></colorScale></cfRule></conditionalFormatting>' in xml)
-        ok_('<conditionalFormatting sqref="B1:B10"><cfRule type="colorScale" priority="2"><colorScale><cfvo type="percentile" val="10"></cfvo><cfvo type="percentile" val="50"></cfvo><cfvo type="percentile" val="90"></cfvo><color rgb="FFAA0000"></color><color rgb="FF0000AA"></color><color rgb="FF00AA00"></color></colorScale></cfRule></conditionalFormatting>' in xml)
-        ok_('<conditionalFormatting sqref="U10:U18"><cfRule priority="3" dxfId="0" type="cellIs" stopIfTrue="1" operator="greaterThanOrEqual"><formula>U$7</formula></cfRule></conditionalFormatting>' in xml)
+        ok_('<conditionalFormatting sqref="U10:U18"><cfRule priority="1" dxfId="0" type="cellIs" stopIfTrue="1" operator="greaterThanOrEqual"><formula>U$7</formula></cfRule></conditionalFormatting>' in xml)
+
+    def test_conditional_formatting_addCustomRule(self):
+        dxfId = self.worksheet.conditional_formatting.addDxfStyle(self.workbook, None, None, None)
+        self.worksheet.conditional_formatting.addCustomRule('C1:C10',  {'type': 'expression', 'dxfId': dxfId, 'formula': ['ISBLANK(C1)'], 'stopIfTrue': '1'})
+        xml = write_worksheet(self.worksheet, None, None)
+        ok_(dxfId == 0)
+        ok_('<conditionalFormatting sqref="C1:C10"><cfRule dxfId="0" type="expression" stopIfTrue="1" priority="1"><formula>ISBLANK(C1)</formula></cfRule></conditionalFormatting>' in xml)
+
+    def test_conditional_formatting_addDxfStyle(self):
+        fill = Fill()
+        fill.start_color.index = 'FFEE1111'
+        fill.end_color.index = 'FFEE1111'
+        fill.fill_type = Fill.FILL_SOLID
+        font = Font()
+        font.name = 'Arial'
+        font.size = 12
+        font.bold = True
+        font.underline = Font.UNDERLINE_SINGLE
+        borders = Borders()
+        borders.top.border_style = Border.BORDER_THIN
+        borders.top.color.index = Color.DARKYELLOW
+        borders.bottom.border_style = Border.BORDER_THIN
+        borders.bottom.color.index = Color.BLACK
+        dxfId = self.worksheet.conditional_formatting.addDxfStyle(self.workbook, font, borders, fill)
+        ok_(dxfId == 0)
+        dxfId = self.worksheet.conditional_formatting.addDxfStyle(self.workbook, None, None, fill)
+        ok_(dxfId == 1)
+        ok_(len(self.workbook.style_properties['dxf_list']) == 2)
+        ok_(repr(self.workbook.style_properties['dxf_list'][0]) == "{'font': ['Arial':12:True:False:False:False:'single':False:'FF000000'], 'border': ['none':'FF000000':'none':'FF000000':'thin':'FF808000':'thin':'FF000000':'none':'FF000000':0:'none':'FF000000':'none':'FF000000':'none':'FF000000':'none':'FF000000':'none':'FF000000'], 'fill': ['solid':0:'FFEE1111':'FFEE1111']}")
+        ok_(repr(self.workbook.style_properties['dxf_list'][1]) == "{'fill': ['solid':0:'FFEE1111':'FFEE1111']}")
+
+    def test_conditional_formatting_setRules(self):
+        rules = {'A1:A4': [{'type': 'colorScale', 'priority': '13',
+                            'colorScale': {'cfvo': [{'type': 'min'}, {'type': 'max'}],
+                                           'color': [Color('FFFF7128'), Color('FFFFEF9C')]}}]}
+        self.worksheet.conditional_formatting.setRules(rules)
+        xml = write_worksheet(self.worksheet, None, None)
+        ok_('<conditionalFormatting sqref="A1:A4"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFFF7128"></color><color rgb="FFFFEF9C"></color></colorScale></cfRule></conditionalFormatting>' in xml)
 
 #def test_format_comparisions():
 #    format1 = NumberFormat()
@@ -497,6 +540,31 @@ def test_change_existing_styles():
     eq_(ws.cell('D24').merged, True)
     eq_(ws.cell('C25').style.alignment.wrap_text, True)
     eq_(ws.cell('C26').style.alignment.shrink_to_fit, True)
+
+
+def test_parse_dxfs():
+    reference_file = os.path.join(DATADIR, 'reader', 'conditional-formatting.xlsx')
+    wb = load_workbook(reference_file)
+    archive = ZipFile(reference_file, 'r', ZIP_DEFLATED)
+    read_xml = archive.read(ARC_STYLE)
+
+    # Verify length
+    ok_('<dxfs count="164">' in read_xml)
+    ok_(len(wb.style_properties['dxf_list']) == 164)
+
+    # Verify first dxf style
+    ok_('<dxfs count="164"><dxf><font><color rgb="FF9C0006"/></font><fill><patternFill><bgColor rgb="FFFFC7CE"/></patternFill></fill></dxf>' in read_xml)
+    ok_(repr(wb.style_properties['dxf_list'][0]) == "{'font': {'color': 'FF9C0006', 'bold': False, 'italic': False}, 'border': [], 'fill': [None:0:'FFFFFFFF':'FFFFC7CE']}")
+
+    # Verify that the dxf styles stay the same when they're written and read back in.
+    w = StyleWriter(wb)
+    w._write_dxfs()
+    write_xml = get_xml(w._root)
+    read_style_prop = read_style_table(write_xml)
+    ok_(len(read_style_prop['dxf_list']) == len(wb.style_properties['dxf_list']))
+    for i, dxf in enumerate(read_style_prop['dxf_list']):
+        print i
+        ok_(repr(wb.style_properties['dxf_list'][i] == dxf))
 
 
 def test_read_cell_style():
