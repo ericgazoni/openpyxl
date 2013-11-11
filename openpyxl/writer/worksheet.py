@@ -50,6 +50,7 @@ from openpyxl.shared.xmltools import (
 from openpyxl.shared.ooxml import (
     SHEET_MAIN_NS,
     PKG_REL_NS,
+    REL_NS
 )
 from openpyxl.shared.compat.itertools import iteritems, iterkeys
 
@@ -74,8 +75,8 @@ def write_worksheet(worksheet, string_table, style_table):
     doc = XMLGenerator(out=xml_file, encoding='utf-8')
     start_tag(doc, 'worksheet',
             {'xml:space': 'preserve',
-            'xmlns': SHEET_MAIN_NS ,
-            'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
+            'xmlns': SHEET_MAIN_NS,
+            'xmlns:r': REL_NS})
     if vba_root is not None:
         codename = vba_root.find('{%s}sheetPr' % SHEET_MAIN_NS).get('codeName', worksheet.title)
         start_tag(doc, 'sheetPr', {"codeName": codename})
