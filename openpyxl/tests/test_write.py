@@ -72,7 +72,7 @@ def test_write_workbook_rels():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'workbook.xml.rels')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_workbook():
@@ -81,7 +81,7 @@ def test_write_workbook():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'workbook.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_string_table():
@@ -90,7 +90,7 @@ def test_write_string_table():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sharedStrings.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_worksheet():
@@ -101,7 +101,7 @@ def test_write_worksheet():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_hidden_worksheet():
@@ -113,7 +113,7 @@ def test_write_hidden_worksheet():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_bool():
@@ -125,7 +125,7 @@ def test_write_bool():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_bool.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_formula():
@@ -138,7 +138,7 @@ def test_write_formula():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_formula.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_style():
@@ -151,7 +151,7 @@ def test_write_style():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_style.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_height():
@@ -163,7 +163,7 @@ def test_write_height():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_height.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_hyperlink():
@@ -175,7 +175,7 @@ def test_write_hyperlink():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_hyperlink.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_hyperlink_rels():
@@ -192,7 +192,7 @@ def test_write_hyperlink_rels():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_hyperlink.xml.rels')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_hyperlink_value():
@@ -218,7 +218,7 @@ def test_write_auto_filter():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'workbook_auto_filter.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_freeze_panes_horiz():
@@ -230,7 +230,7 @@ def test_freeze_panes_horiz():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_freeze_panes_horiz.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 def test_freeze_panes_vert():
     wb = Workbook()
@@ -241,7 +241,7 @@ def test_freeze_panes_vert():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_freeze_panes_vert.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 def test_freeze_panes_both():
     wb = Workbook()
@@ -252,7 +252,7 @@ def test_freeze_panes_both():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_freeze_panes_both.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 def test_long_number():
     wb = Workbook()
@@ -262,7 +262,7 @@ def test_long_number():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'long_number.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 def test_decimal():
     wb = Workbook()
@@ -272,7 +272,7 @@ def test_decimal():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'decimal.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 def test_short_number():
     wb = Workbook()
@@ -282,4 +282,4 @@ def test_short_number():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'short_number.xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
