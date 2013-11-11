@@ -271,20 +271,21 @@ class StyleWriter(object):
                 dxf = SubElement(dxfs, 'dxf')
                 if 'font' in d and d['font']:
                     font_node = SubElement(dxf, 'font')
-                    if str(d['font']['color'].index).split(':')[0] == 'theme':  # strip prefix theme if marked
-                        if str(d['font']['color'].index).split(':')[2]:
-                            SubElement(font_node, 'color', {'theme': str(d['font']['color'].index).split(':')[1],
-                                                            'tint': str(d['font']['color'].index).split(':')[2]})
+                    if 'color' in d['font']:
+                        if str(d['font']['color'].index).split(':')[0] == 'theme':  # strip prefix theme if marked
+                            if str(d['font']['color'].index).split(':')[2]:
+                                SubElement(font_node, 'color', {'theme': str(d['font']['color'].index).split(':')[1],
+                                                                'tint': str(d['font']['color'].index).split(':')[2]})
+                            else:
+                                SubElement(font_node, 'color', {'theme': str(d['font']['color'].index).split(':')[1]})
                         else:
-                            SubElement(font_node, 'color', {'theme': str(d['font']['color'].index).split(':')[1]})
-                    else:
-                        SubElement(font_node, 'color', {'rgb': str(d['font']['color'].index)})
+                            SubElement(font_node, 'color', {'rgb': str(d['font']['color'].index)})
                     # Don't write the 'scheme' element because it appears to prevent
                     # the font name from being applied in Excel.
                     #SubElement(font_node, 'scheme', {'val':'minor'})
-                    if d['font']['bold']:
+                    if 'bold' in d['font'] and d['font']['bold']:
                         SubElement(font_node, 'b')
-                    if d['font']['italic']:
+                    if 'italic' in d['font'] and d['font']['italic']:
                         SubElement(font_node, 'i')
                     if 'underline' in d['font'] and d['font']['underline'] == 'single':
                         SubElement(font_node, 'u')
