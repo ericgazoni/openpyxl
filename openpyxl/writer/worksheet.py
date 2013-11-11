@@ -317,7 +317,7 @@ def write_worksheet_hyperlinks(doc, worksheet):
 
 def write_worksheet_rels(worksheet, idx):
     """Write relationships for the worksheet to xml."""
-    root = Element('Relationships', {'xmlns': 'http://schemas.openxmlformats.org/package/2006/relationships'})
+    root = Element('Relationships', {'xmlns': PKG_REL_NS})
     for rel in worksheet.relationships:
         attrs = {'Id': rel.id, 'Type': rel.type, 'Target': rel.target}
         if rel.target_mode:
@@ -325,7 +325,7 @@ def write_worksheet_rels(worksheet, idx):
         SubElement(root, 'Relationship', attrs)
     if worksheet._charts or worksheet._images:
         attrs = {'Id' : 'rId1',
-            'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
+            'Type' : '%s/drawing' % REL_NS,
             'Target' : '../drawings/drawing%s.xml' % idx }
         SubElement(root, 'Relationship', attrs)
     return get_document_content(root)
