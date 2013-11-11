@@ -158,14 +158,14 @@ def write_properties_app(workbook):
 
 def write_root_rels(workbook):
     """Write the relationships xml."""
-    root = Element('{%s}Relationships' % PKG_REL_NS, {'xmlns': PKG_REL_NS})
+    root = Element('{%s}Relationships' % PKG_REL_NS)
     relation_tag = '{%s}Relationship' % PKG_REL_NS
     SubElement(root, relation_tag, {'Id': 'rId1', 'Target': ARC_WORKBOOK,
-            'Type': REL_NS})
+            'Type': '%s/officeDocument' % REL_NS})
     SubElement(root, relation_tag, {'Id': 'rId2', 'Target': ARC_CORE,
-            'Type': COREPROPS_NS})
+            'Type': '%s/metadata/core-properties' % PKG_REL_NS})
     SubElement(root, relation_tag, {'Id': 'rId3', 'Target': ARC_APP,
-            'Type': XPROPS_NS})
+            'Type': '%s/extended-properties' % REL_NS})
     return get_document_content(root)
 
 
@@ -256,5 +256,5 @@ def write_workbook_rels(workbook):
     if workbook.vba_archive:
         SubElement(root, '{%s}Relationship' % PKG_REL_NS,
                    {'Id': 'rId%d' % (rid + 3), 'Target': 'vbaProject.bin',
-                    'Type': '%s/vbaProject' % REL_NS})
+                    'Type': 'http://schemas.microsoft.com/office/2006/relationships/vbaProject'})
     return get_document_content(root)
