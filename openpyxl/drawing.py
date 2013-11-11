@@ -68,31 +68,27 @@ class Drawing(object):
         self.rotation = 0
 #        self.shadow = Shadow()
 
-    def _set_width(self, w):
+    @property
+    def width(self):
+        return self._width
 
+    @width.setter
+    def width(self, w):
         if self.resize_proportional and w:
             ratio = self._height / self._width
             self._height = round(ratio * w)
         self._width = w
 
-    def _get_width(self):
+    @property
+    def height(self):
+        return self._height
 
-        return self._width
-
-    width = property(_get_width, _set_width)
-
-    def _set_height(self, h):
-
+    @height.setter
+    def height(self, h):
         if self.resize_proportional and h:
             ratio = self._width / self._height
             self._width = round(ratio * h)
         self._height = h
-
-    def _get_height(self):
-
-        return self._height
-
-    height = property(_get_height, _set_height)
 
     def set_dimension(self, w=0, h=0):
 
