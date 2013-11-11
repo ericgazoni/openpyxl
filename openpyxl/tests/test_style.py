@@ -103,7 +103,7 @@ class TestStyleWriter(object):
         expected = '<?xml version=\'1.0\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /></font></fonts></styleSheet>'
         xml = get_xml(w._root)
         diff = compare_xml(xml, expected)
-        assert_false(diff)
+        assert diff is None, diff
 
     def test_fonts_with_underline(self):
         self.worksheet.cell('A1').style.font.size = 12
@@ -114,7 +114,7 @@ class TestStyleWriter(object):
         expected = '<?xml version=\'1.0\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u /></font></fonts></styleSheet>'
         xml = get_xml(w._root)
         diff = compare_xml(xml, expected)
-        assert_false(diff)
+        assert diff is None, diff
 
     def test_fills(self):
 
@@ -125,7 +125,7 @@ class TestStyleWriter(object):
         expected = '<?xml version=\'1.0\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fills count="3"><fill><patternFill patternType="none" /></fill><fill><patternFill patternType="gray125" /></fill><fill><patternFill patternType="solid"><fgColor rgb="FF808000" /></patternFill></fill></fills></styleSheet>'
         xml = get_xml(w._root)
         diff = compare_xml(xml, expected)
-        assert_false(diff)
+        assert diff is None, diff
 
     def test_borders(self):
 
@@ -136,7 +136,7 @@ class TestStyleWriter(object):
         expected = '<?xml version=\'1.0\'?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><borders count="2"><border><left /><right /><top /><bottom /><diagonal /></border><border><left /><right /><top style="thin"><color rgb="FF808000" /></top><bottom /><diagonal /></border></borders></styleSheet>'
         xml = get_xml(w._root)
         diff = compare_xml(xml, expected)
-        assert_false(diff)
+        assert diff is None, diff
 
     def test_write_cell_xfs_1(self):
 
