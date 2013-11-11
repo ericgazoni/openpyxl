@@ -41,7 +41,7 @@ def test_write_content_types():
             '[Content_Types].xml')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
 
 
 def test_write_root_rels():
@@ -50,4 +50,4 @@ def test_write_root_rels():
     reference_file = os.path.join(DATADIR, 'writer', 'expected', '.rels')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
-        assert diff is None
+        assert diff is None, diff
