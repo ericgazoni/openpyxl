@@ -552,6 +552,12 @@ class TestChartWriter(object):
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
+    def test_write_rels(self):
+        xml = self.cw.write_rels(1)
+        expected = """<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartUserShapes" Target="../drawings/drawing1.xml"/></Relationships>"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
     def test_write_no_ascii(self):
 
         ws = self.make_worksheet()

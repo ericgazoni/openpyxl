@@ -25,7 +25,7 @@
 from numbers import Number
 
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
-from openpyxl.shared.ooxml import CHART_NS, DRAWING_NS, REL_NS
+from openpyxl.shared.ooxml import CHART_NS, DRAWING_NS, REL_NS, PKG_REL_NS
 from openpyxl.shared.compat import iteritems, basestring
 from openpyxl.chart import Chart, ErrorBar, BarChart, LineChart, PieChart, ScatterChart, GraphChart
 
@@ -264,12 +264,12 @@ class BaseChartWriter(object):
             SubElement(root, '{%s}userShapes' % CHART_NS, {'{%s}id' % REL_NS:'rId1'})
 
     def write_rels(self, drawing_id):
-        root = Element("{%s}relationships" % REL_NS)
+        root = Element("{%s}Relationships" % PKG_REL_NS)
 
         attrs = {'Id' : 'rId1',
             'Type' : '%s/chartUserShapes' % REL_NS,
             'Target' : '../drawings/drawing%s.xml' % drawing_id }
-        SubElement(root, 'Relationship', attrs)
+        SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
         return get_document_content(root)
 
 
