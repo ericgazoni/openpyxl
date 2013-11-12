@@ -91,7 +91,7 @@ def write_worksheet(worksheet, string_table, style_table):
     tag(doc, 'dimension', {'ref': '%s' % worksheet.calculate_dimension()})
     write_worksheet_sheetviews(doc, worksheet)
     tag(doc, 'sheetFormatPr', {'defaultRowHeight': '15'})
-    write_worksheet_cols(doc, worksheet)
+    write_worksheet_cols(doc, worksheet, style_table)
     write_worksheet_data(doc, worksheet, string_table, style_table)
     if worksheet.auto_filter:
         tag(doc, 'autoFilter', {'ref': worksheet.auto_filter})
@@ -221,19 +221,16 @@ def write_worksheet_sheetviews(doc, worksheet):
     end_tag(doc, 'sheetViews')
 
 
-def write_worksheet_cols(doc, worksheet):
+def write_worksheet_cols(doc, worksheet, style_table):
     """Write worksheet columns to xml."""
     if worksheet.column_dimensions:
         start_tag(doc, 'cols')
         for column_string, columndimension in \
                 iteritems(worksheet.column_dimensions):
             col_index = column_index_from_string(column_string)
-            col_def = {}
-            col_def['min'] = str(col_index)
-            col_def['max'] = str(col_index)
-            if columndimension.width != \
-                    worksheet.default_column_dimension.width:
-                col_def['customWidth'] = 'true'
+            col_def = {'min': str(col_index), 'max': str(col_index)}
+            if columndimension.width != -1:
+                col_def['customWidth'] = '1'
             if not columndimension.visible:
                 col_def['hidden'] = 'true'
             if columndimension.outline_level > 0:
@@ -243,7 +240,7 @@ def write_worksheet_cols(doc, worksheet):
             if columndimension.auto_size:
                 col_def['bestFit'] = 'true'
             if columndimension.style_index:
-                col_def['style'] = str(columndimension.style_index)
+                col_def['style'] = str(style_table[hash(columndimension.style_index)])
             if columndimension.width > 0:
                 col_def['width'] = str(columndimension.width)
             else:

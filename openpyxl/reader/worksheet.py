@@ -147,22 +147,25 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
         for col in colNodes:
             min = int(col.get('min')) if col.get('min') else 1
             max = int(col.get('max')) if col.get('max') else 1
-            for colId in range(min, max + 1):
-                column = get_column_letter(colId)
-                if column not in ws.column_dimensions:
-                    ws.column_dimensions[column] = ColumnDimension(column)
-                if col.get('width') is not None:
-                    ws.column_dimensions[column].width = float(col.get('width'))
-                if col.get('bestFit') == '1':
-                    ws.column_dimensions[column].auto_size = True
-                if col.get('hidden') == '1':
-                    ws.column_dimensions[column].visible = False
-                if col.get('outlineLevel') is not None:
-                    ws.column_dimensions[column].outline_level = int(col.get('outlineLevel'))
-                if col.get('collapsed') == '1':
-                    ws.column_dimensions[column].collapsed = True
-                if col.get('style') is not None:
-                    ws.column_dimensions[column].style_index = col.get('style')
+            # Ignore ranges that go up to the max column 16384.  Columns need to be extended to handle
+            # ranges without creating an entry for every single one.
+            if max != 16384:
+                for colId in range(min, max + 1):
+                    column = get_column_letter(colId)
+                    if column not in ws.column_dimensions:
+                        ws.column_dimensions[column] = ColumnDimension(column)
+                    if col.get('width') is not None:
+                        ws.column_dimensions[column].width = float(col.get('width'))
+                    if col.get('bestFit') == '1':
+                        ws.column_dimensions[column].auto_size = True
+                    if col.get('hidden') == '1':
+                        ws.column_dimensions[column].visible = False
+                    if col.get('outlineLevel') is not None:
+                        ws.column_dimensions[column].outline_level = int(col.get('outlineLevel'))
+                    if col.get('collapsed') == '1':
+                        ws.column_dimensions[column].collapsed = True
+                    if col.get('style') is not None:
+                        ws.column_dimensions[column].style_index = style_table.get(int(col.get('style')))
 
     sheetData = root.find('{%s}sheetData' % SHEET_MAIN_NS)
     if sheetData is not None:
