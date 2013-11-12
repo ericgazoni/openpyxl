@@ -5,12 +5,16 @@ Roadmap for next version
 
 [x] lxml required for tests
 
-[ ] allow lxml as backend
+[x] allow lxml as backend
 
-[ ] Always use qualified namespaces
+[X] Always use qualified namespaces
 
 [x] Merge chart improvements
 
 [x] Add support for preserving formulae
 
-[ ] Harmonise cells for reader and optimised reader
+[ ] Harmonise cells for reader and optimised reader -> 1.9 / 2.0
+
+[ ] Fix inference for "=IF"
+
+[ ] Add tests for Drawing - fix problems with Charts & Excel for Windows

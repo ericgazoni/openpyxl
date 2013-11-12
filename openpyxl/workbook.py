@@ -41,8 +41,8 @@ from openpyxl.style import Style
 from openpyxl.writer.excel import save_workbook
 from openpyxl.shared.exc import ReadOnlyWorkbookException
 from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900, CALENDAR_MAC_1904
-from openpyxl.shared.xmltools import fromstring, QName
-from openpyxl.shared.ooxml import NAMESPACES
+from openpyxl.shared.xmltools import fromstring
+from openpyxl.shared.ooxml import NAMESPACES, SHEET_MAIN_NS
 
 
 class DocumentProperties(object):
@@ -104,7 +104,7 @@ class Workbook(object):
 
     def read_workbook_settings(self, xml_source):
         root = fromstring(xml_source)
-        view = root.find('*/' + QName(NAMESPACES['main'], 'workbookView').text)
+        view = root.find('*/' '{%s}workbookView' % SHEET_MAIN_NS)
 
         if 'activeTab' in view.attrib:
             self._active_sheet_index = int(view.attrib['activeTab'])

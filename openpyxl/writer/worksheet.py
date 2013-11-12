@@ -50,6 +50,7 @@ from openpyxl.shared.xmltools import (
 from openpyxl.shared.ooxml import (
     SHEET_MAIN_NS,
     PKG_REL_NS,
+    REL_NS
 )
 from openpyxl.shared.compat.itertools import iteritems, iterkeys
 from openpyxl.worksheet import ConditionalFormatting
@@ -75,8 +76,8 @@ def write_worksheet(worksheet, string_table, style_table):
     doc = XMLGenerator(out=xml_file, encoding='utf-8')
     start_tag(doc, 'worksheet',
             {'xml:space': 'preserve',
-            'xmlns': SHEET_MAIN_NS ,
-            'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
+            'xmlns': SHEET_MAIN_NS,
+            'xmlns:r': REL_NS})
     if vba_root is not None:
         codename = vba_root.find('{%s}sheetPr' % SHEET_MAIN_NS).get('codeName', worksheet.title)
         start_tag(doc, 'sheetPr', {"codeName": codename})
@@ -354,7 +355,7 @@ def write_worksheet_hyperlinks(doc, worksheet):
 
 def write_worksheet_rels(worksheet, idx):
     """Write relationships for the worksheet to xml."""
-    root = Element('Relationships', {'xmlns': 'http://schemas.openxmlformats.org/package/2006/relationships'})
+    root = Element('Relationships', {'xmlns': PKG_REL_NS})
     for rel in worksheet.relationships:
         attrs = {'Id': rel.id, 'Type': rel.type, 'Target': rel.target}
         if rel.target_mode:
@@ -362,7 +363,7 @@ def write_worksheet_rels(worksheet, idx):
         SubElement(root, 'Relationship', attrs)
     if worksheet._charts or worksheet._images:
         attrs = {'Id' : 'rId1',
-            'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
+            'Type' : '%s/drawing' % REL_NS,
             'Target' : '../drawings/drawing%s.xml' % idx }
         SubElement(root, 'Relationship', attrs)
     return get_document_content(root)

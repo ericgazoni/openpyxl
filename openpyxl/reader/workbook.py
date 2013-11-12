@@ -26,8 +26,8 @@
 """Read in global settings to be maintained by the workbook object."""
 
 # package imports
-from openpyxl.shared.xmltools import fromstring, QName
-from openpyxl.shared.ooxml import NAMESPACES
+from openpyxl.shared.xmltools import fromstring
+from openpyxl.shared.ooxml import NAMESPACES, DCORE_NS, COREPROPS_NS, DCTERMS_NS, SHEET_MAIN_NS, CONTYPES_NS
 from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import W3CDTF_to_datetime,CALENDAR_WINDOWS_1900,CALENDAR_MAC_1904
 from openpyxl.namedrange import NamedRange, NamedRangeContainingValue, split_named_range, refers_to_range
@@ -49,18 +49,16 @@ def read_properties_core(xml_source):
     """Read assorted file properties."""
     properties = DocumentProperties()
     root = fromstring(xml_source)
-    properties.creator = root.findtext(
-        QName(NAMESPACES['dc'], 'creator').text, '')
-    properties.last_modified_by = root.findtext(
-        QName(NAMESPACES['cp'], 'lastModifiedBy').text, '')
+    properties.creator = root.findtext('{%s}creator' % DCORE_NS, '')
+    properties.last_modified_by = root.findtext('{%s}lastModifiedBy' % COREPROPS_NS, '')
 
-    created_node = root.find(QName(NAMESPACES['dcterms'], 'created').text)
+    created_node = root.find('{%s}created' % DCTERMS_NS)
     if created_node is not None:
         properties.created = W3CDTF_to_datetime(created_node.text)
     else:
         properties.created = datetime.datetime.now()
 
-    modified_node = root.find(QName(NAMESPACES['dcterms'], 'modified').text)
+    modified_node = root.find('{%s}modified' % DCTERMS_NS)
     if modified_node is not None:
         properties.modified = W3CDTF_to_datetime(modified_node.text)
     else:
@@ -71,7 +69,7 @@ def read_properties_core(xml_source):
 
 def read_excel_base_date(xml_source):
     root = fromstring(text = xml_source)
-    wbPr = root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}workbookPr')
+    wbPr = root.find('{%s}workbookPr' % SHEET_MAIN_NS)
     if wbPr is not None and wbPr.get('date1904') in ('1', 'true'):
         return CALENDAR_MAC_1904
 
@@ -82,14 +80,14 @@ def read_excel_base_date(xml_source):
 def read_content_types(xml_source):
     """Read content types."""
     root = fromstring(xml_source)
-    contents_root = root.findall('{http://schemas.openxmlformats.org/package/2006/content-types}Override')
+    contents_root = root.findall('{%s}Override' % CONTYPES_NS)
     for type in contents_root:
         yield type.get('PartName'), type.get('ContentType')
 
 def read_sheets_titles(xml_source):
     """Read titles for all sheets."""
     root = fromstring(xml_source)
-    titles_root = root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}sheets')
+    titles_root = root.find('{%s}sheets' % SHEET_MAIN_NS)
 
     return [sheet.get('name') for sheet in titles_root]
 
@@ -97,7 +95,7 @@ def read_named_ranges(xml_source, workbook):
     """Read named ranges, excluding poorly defined ranges."""
     named_ranges = []
     root = fromstring(xml_source)
-    names_root = root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}definedNames')
+    names_root = root.find('{%s}definedNames' %SHEET_MAIN_NS)
     if names_root is not None:
         for name_node in names_root:
             range_name = name_node.get('name')

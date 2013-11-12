@@ -69,6 +69,7 @@ from openpyxl.shared.compat import OrderedDict
 # package imports
 from openpyxl import LXML
 
+#LXML = False
 if LXML is True:
     from lxml.etree import (
     Element,
@@ -103,6 +104,8 @@ else:
 from openpyxl.shared.ooxml import (
     CHART_NS,
     DRAWING_NS,
+    SHEET_DRAWING_NS,
+    CHART_DRAWING_NS,
     SHEET_MAIN_NS,
     REL_NS,
     VTYPES_NS,
@@ -121,7 +124,8 @@ register_namespace('a', DRAWING_NS)
 register_namespace('s', SHEET_MAIN_NS)
 register_namespace('r', REL_NS)
 register_namespace('vt', VTYPES_NS)
-
+register_namespace('xdr', SHEET_DRAWING_NS)
+register_namespace('cdr', CHART_DRAWING_NS)
 
 def get_document_content(xml_node):
     """Print nicely formatted xml to a string."""
