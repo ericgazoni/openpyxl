@@ -22,8 +22,8 @@
 # @author: see AUTHORS file
 import pytest
 
-from openpyxl.shared.ooxml import CHART_DRAWING_NS, SHEET_DRAWING_NS
-from openpyxl.shared.xmltools import Element
+from openpyxl.shared.ooxml import CHART_DRAWING_NS, SHEET_DRAWING_NS, DRAWING_NS
+from openpyxl.shared.xmltools import Element, SubElement
 
 from .helper import compare_xml, get_xml
 
@@ -301,70 +301,13 @@ class TestDrawingWriter(object):
     @pil_required
     def test_write_images(self):
         from openpyxl.drawing import Image
-        img = os.path.join(DATADIR, "plain.png")
-        i = Image(img)
-        self.dw._sheet._images.append(i)
-        xml = self.dw.write()
-        expected = """
-           <xdr:wsDr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
-             <xdr:absoluteAnchor>
-               <xdr:pos x="0" y="0" />
-               <xdr:ext cx="200025" cy="1828800" />
-               <xdr:graphicFrame macro="">
-                 <xdr:nvGraphicFramePr>
-                   <xdr:cNvPr id="0" name="Graphique 0" />
-                   <xdr:cNvGraphicFramePr />
-                 </xdr:nvGraphicFramePr>
-                 <xdr:xfrm>
-                   <a:off x="0" y="0" />
-                   <a:ext cx="0" cy="0" />
-                 </xdr:xfrm>
-                 <a:graphic>
-                   <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">
-                     <c:chart r:id="rId1" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />
-                   </a:graphicData>
-                 </a:graphic>
-               </xdr:graphicFrame>
-               <xdr:clientData />
-             </xdr:absoluteAnchor>
-             <xdr:absoluteAnchor>
-               <xdr:pos x="0" y="0" />
-               <xdr:ext cx="1123950" cy="1123950" />
-               <xdr:pic>
-                 <xdr:nvPicPr>
-                   <xdr:cNvPr id="0" name="Picture 0" />
-                   <xdr:cNvPicPr>
-                     <a:picLocks noChangeArrowheads="1" noChangeAspect="1" />
-                   </xdr:cNvPicPr>
-                 </xdr:nvPicPr>
-                 <xdr:blipFill>
-                   <a:blip cstate="print" r:embed="rId1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />
-                   <a:srcRect />
-                   <a:stretch>
-                     <a:fillRect />
-                   </a:stretch>
-                 </xdr:blipFill>
-                 <xdr:spPr bwMode="auto">
-                   <a:xfrm>
-                     <a:off x="0" y="0" />
-                     <a:ext cx="0" cy="0" />
-                   </a:xfrm>
-                   <a:prstGeom prst="rect">
-                     <a:avLst />
-                   </a:prstGeom>
-                   <a:noFill />
-                   <a:ln w="1">
-                     <a:noFill />
-                     <a:miter lim="800000" />
-                     <a:headEnd />
-                     <a:tailEnd len="med" type="none" w="med" />
-                   </a:ln>
-                   <a:effectLst />
-                 </xdr:spPr>
-               </xdr:pic>
-               <xdr:clientData />
-             </xdr:absoluteAnchor>
-           </xdr:wsDr>
+        path = os.path.join(DATADIR, "plain.png")
+        img = Image(path)
+        root = Element("{%s}test" % SHEET_DRAWING_NS)
+        chart = SubElement(root, "{%s}test" % DRAWING_NS)
+        root = self.dw._write_image(root, img, 0)
+        xml = get_xml(root)
+        expected = """<xdr:test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"><a:test /><xdr:absoluteAnchor><xdr:pos x="0" y="0" /><xdr:ext cx="1123950" cy="1123950" /><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="0" name="Picture 0" /><xdr:cNvPicPr><a:picLocks noChangeArrowheads="1" noChangeAspect="1" /></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip cstate="print" r:embed="rId1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" /><a:srcRect /><a:stretch><a:fillRect /></a:stretch></xdr:blipFill><xdr:spPr bwMode="auto"><a:xfrm><a:off x="0" y="0" /><a:ext cx="0" cy="0" /></a:xfrm><a:prstGeom prst="rect"><a:avLst /></a:prstGeom><a:noFill /><a:ln w="1"><a:noFill /><a:miter lim="800000" /><a:headEnd /><a:tailEnd len="med" type="none" w="med" /></a:ln><a:effectLst /></xdr:spPr></xdr:pic><xdr:clientData /></xdr:absoluteAnchor></xdr:test>
 """
         diff = compare_xml(xml, expected)
         assert diff is None, diff

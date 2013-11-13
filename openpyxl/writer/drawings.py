@@ -138,6 +138,7 @@ class DrawingWriter(object):
         SubElement(sppr, 'a:effectLst')
 
         SubElement(anchor, 'xdr:clientData')
+        return node
 
     def write_rels(self, chart_id, image_id):
 
