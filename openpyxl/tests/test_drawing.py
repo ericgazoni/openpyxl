@@ -35,9 +35,21 @@ class TestDrawing(object):
         from openpyxl.drawing import Drawing
         self.drawing = Drawing()
 
+    def test_ctor(self):
+        d = self.drawing
+        assert d.coordinates == ((1, 2), (16, 8))
+        assert d.width == 21
+        assert d.height == 192
+        assert d.left == 0
+        assert d.top == 0
+        assert d.count == 0
+        assert d.rotation == 0
+        assert d.resize_proportional is False
+        assert d.description == ""
+        assert d.name == ""
+
     def test_width(self):
         d = self.drawing
-        assert d.width == 21.0
         d.width = 100
         d.height = 50
         assert d.width == 100
@@ -45,14 +57,12 @@ class TestDrawing(object):
     def test_proportional_width(self):
         d = self.drawing
         d.resize_proportional = True
-        assert d.width == 21.0
         d.width = 100
         d.height = 50
-        assert d.width == 5
+        assert (d.width, d.height) == (5, 50)
 
     def test_height(self):
         d = self.drawing
-        assert d.height == 192
         d.height = 50
         d.width = 100
         assert d.height == 50
@@ -60,10 +70,21 @@ class TestDrawing(object):
     def test_proportional_height(self):
         d = self.drawing
         d.resize_proportional = True
-        assert d.height == 192
         d.height = 50
         d.width = 100
-        assert d.height == 1000
+        assert (d.width, d.height) == (100, 1000)
+
+    def test_set_dimension(self):
+        d = self.drawing
+        d.resize_proportional = True
+        d.set_dimension(100, 50)
+        assert d.width == 6
+        assert d.height == 50
+
+    def test_get_emu(self):
+        d = self.drawing
+        dims = d.get_emu_dimensions()
+        assert dims == (0, 0, 200025, 1828800)
 
 
 class TestShape(object):
