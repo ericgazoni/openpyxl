@@ -121,11 +121,11 @@ class TestShape(object):
 
     def setup(self):
         from openpyxl.drawing import Shape
-        self.shape = Shape()
+        self.shape = Shape(chart=DummyChart())
 
     def test_ctor(self):
         s = self.shape
-        assert s.coordinates == ((0, 0), (1, 1))
+        assert s.axis_coordinates == ((0, 0), (1, 1))
         assert s.text is None
         assert s.scheme == "accent1"
         assert s.style == "rect"
@@ -133,7 +133,6 @@ class TestShape(object):
         assert s.color == "FFFFFF"
         assert s.text_color == "000000"
         assert s.border_width == 0
-
 
     def test_border_color(self):
         s = self.shape
@@ -157,8 +156,9 @@ class TestShape(object):
 
     def test_coordinates(self):
         s = self.shape
-        s._chart = DummyChart()
-        assert s.get_coordinates() == (1, 1, 1, 1)
+        s.coordinates = ((0, 0), (60, 80))
+        assert s.axis_coordinates == ((0, 0), (60, 80))
+        assert s.coordinates == (1, 1, 1, 1)
 
 
 class TestImage(object):

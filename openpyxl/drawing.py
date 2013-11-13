@@ -314,68 +314,74 @@ class Shape(object):
     "chartPlus"
     '''
 
-    def __init__(self, coordinates=((0, 0), (1, 1)),
-                 text=None, scheme="accent1"):
-
-        self.coordinates = coordinates  # in axis unit
+    def __init__(self,
+                 chart,
+                 coordinates=((0, 0), (1, 1)),
+                 text=None,
+                 scheme="accent1"):
+        self.chart = chart
+        self.coordinates = coordinates  # in axis units
         self.text = text
         self.scheme = scheme
         self.style = Shape.RECT
-        self._border_width = 3175  # in EMU
-        self._border_color = Color.BLACK[2:]  # "F3B3C5"
-        self._color = Color.WHITE[2:]
-        self._text_color = Color.BLACK[2:]
+        self.border_width = 0
+        self.border_color = Color.BLACK  # "F3B3C5"
+        self.color = Color.WHITE
+        self.text_color = Color.BLACK
 
-    def _get_border_color(self):
+    @property
+    def border_color(self):
         return self._border_color
 
-    def _set_border_color(self, color):
+    @border_color.setter
+    def border_color(self, color):
         self._border_color = short_color(color)
 
-    border_color = property(_get_border_color, _set_border_color)
-
-    def _get_color(self):
+    @property
+    def color(self):
         return self._color
 
-    def _set_color(self, color):
+    @color.setter
+    def color(self, color):
         self._color = short_color(color)
 
-    color = property(_get_color, _set_color)
-
-    def _get_text_color(self):
+    @property
+    def text_color(self):
         return self._text_color
 
-    def _set_text_color(self, color):
+    @text_color.setter
+    def text_color(self, color):
         self._text_color = short_color(color)
 
-    text_color = property(_get_text_color, _set_text_color)
+    @property
+    def border_width(self):
+        return self._border_width
 
-    def _get_border_width(self):
+    @border_width.setter
+    def border_width(self, w):
+        self._border_width = w
 
-        return EMU_to_pixels(self._border_width)
+    @property
+    def coordinates(self):
+        """Return coordindates in axis units"""
+        return self._coordinates
 
-    def _set_border_width(self, w):
-
-        self._border_width = pixels_to_EMU(w)
-
-    border_width = property(_get_border_width, _set_border_width)
-
-    def get_coordinates(self):
-        """ return shape coordinates in percentages (left, top, right, bottom)
+    @coordinates.setter
+    def coordinates(self, coords):
+        """ set shape coordinates in percentages (left, top, right, bottom)
         """
+        self.axis_coordinates = coords
+        (x1, y1), (x2, y2) = coords # bottom left, top right
+        drawing_width = pixels_to_EMU(self.chart.drawing.width)
+        drawing_height = pixels_to_EMU(self.chart.drawing.height)
+        plot_width = drawing_width * self.chart.width
+        plot_height = drawing_height * self.chart.height
 
-        (x1, y1), (x2, y2) = self.coordinates
+        margin_left = self.chart._get_margin_left() * drawing_width
+        xunit = plot_width / self.chart.get_x_units()
 
-        drawing_width = pixels_to_EMU(self._chart.drawing.width)
-        drawing_height = pixels_to_EMU(self._chart.drawing.height)
-        plot_width = drawing_width * self._chart.width
-        plot_height = drawing_height * self._chart.height
-
-        margin_left = self._chart._get_margin_left() * drawing_width
-        xunit = plot_width / self._chart.get_x_units()
-
-        margin_top = self._chart._get_margin_top() * drawing_height
-        yunit = self._chart.get_y_units()
+        margin_top = self.chart._get_margin_top() * drawing_height
+        yunit = self.chart.get_y_units()
 
         x_start = (margin_left + (float(x1) * xunit)) / drawing_width
         y_start = ((margin_top
@@ -402,7 +408,7 @@ class Shape(object):
         if y_end < y_start:
             y_end, y_start = y_start, y_end
 
-        return (_norm_pct(x_start), _norm_pct(y_start),
+        self._coordinates = (_norm_pct(x_start), _norm_pct(y_start),
             _norm_pct(x_end), _norm_pct(y_end))
 
 
