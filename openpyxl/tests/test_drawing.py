@@ -81,6 +81,10 @@ class TestDrawing(object):
         assert d.width == 6
         assert d.height == 50
 
+        d.set_dimension(50, 500)
+        assert d.width == 50
+        assert d.height == 417
+
     def test_get_emu(self):
         d = self.drawing
         dims = d.get_emu_dimensions()
@@ -116,6 +120,7 @@ class DummyChart(object):
 
     def get_y_units(self):
         return 15
+
 
 class TestShape(object):
 
@@ -159,6 +164,12 @@ class TestShape(object):
         s.coordinates = ((0, 0), (60, 80))
         assert s.axis_coordinates == ((0, 0), (60, 80))
         assert s.coordinates == (1, 1, 1, 1)
+
+    def test_pct(self):
+        s = self.shape
+        assert s._norm_pct(10) == 1
+        assert s._norm_pct(0.5) == 0.5
+        assert s._norm_pct(-10) == 0
 
 
 class TestShadow(object):

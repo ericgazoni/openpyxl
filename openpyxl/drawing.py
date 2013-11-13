@@ -395,21 +395,24 @@ class Shape(object):
                   - (float(y2) * yunit))
                   / drawing_height)
 
-        def _norm_pct(pct):
-            """ force shapes to appear by truncating too large sizes """
-            if pct > 1:
-                pct = 1
-            elif pct < 0:
-                pct = 0
-            return pct
-
         # allow user to specify y's in whatever order
         # excel expect y_end to be lower
         if y_end < y_start:
             y_end, y_start = y_start, y_end
 
-        self._coordinates = (_norm_pct(x_start), _norm_pct(y_start),
-            _norm_pct(x_end), _norm_pct(y_end))
+        self._coordinates = (
+            self._norm_pct(x_start), self._norm_pct(y_start),
+            self._norm_pct(x_end), self._norm_pct(y_end)
+        )
+
+    @staticmethod
+    def _norm_pct(pct):
+        """ force shapes to appear by truncating too large sizes """
+        if pct > 1:
+            return 1
+        elif pct < 0:
+            return 0
+        return pct
 
 
 def bounding_box(bw, bh, w, h):
