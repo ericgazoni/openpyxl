@@ -94,47 +94,50 @@ class DrawingWriter(object):
 
             SubElement(anchor, 'xdr:clientData')
 
-        for i, img in enumerate(self._sheet._images):
-            drawing = img.drawing
-
-            x, y, w, h = drawing.get_emu_dimensions()
-            anchor = SubElement(root, 'xdr:absoluteAnchor')
-            SubElement(anchor, 'xdr:pos', {'x':str(x), 'y':str(y)})
-            SubElement(anchor, 'xdr:ext', {'cx':str(w), 'cy':str(h)})
-
-            pic = SubElement(anchor, 'xdr:pic')
-            name = SubElement(pic, 'xdr:nvPicPr')
-            SubElement(name, 'xdr:cNvPr', {'id':'%s' % i, 'name':'Picture %s' % i})
-            SubElement(SubElement(name, 'xdr:cNvPicPr'), 'a:picLocks', {'noChangeAspect':"1" if img.nochangeaspect else '0','noChangeArrowheads':"1" if img.nochangearrowheads else '0'})
-            blipfill = SubElement(pic, 'xdr:blipFill')
-            SubElement(blipfill, 'a:blip', {
-                'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
-                'r:embed': 'rId%s' % (i + 1),
-                'cstate':'print'
-            })
-            SubElement(blipfill, 'a:srcRect')
-            SubElement(SubElement(blipfill, 'a:stretch'), 'a:fillRect')
-
-            sppr = SubElement(pic, 'xdr:spPr', {'bwMode':'auto'})
-            frm = SubElement(sppr, 'a:xfrm')
-            # no transformation
-            SubElement(frm, 'a:off', {'x':'0', 'y':'0'})
-            SubElement(frm, 'a:ext', {'cx':'0', 'cy':'0'})
-
-            SubElement(SubElement(sppr, 'a:prstGeom', {'prst':'rect'}), 'a:avLst')
-
-            SubElement(sppr, 'a:noFill')
-
-            ln = SubElement(sppr, 'a:ln', {'w':'1'})
-            SubElement(ln, 'a:noFill')
-            SubElement(ln, 'a:miter', {'lim':'800000'})
-            SubElement(ln, 'a:headEnd')
-            SubElement(ln, 'a:tailEnd', {'type':'none', 'w':'med', 'len':'med'})
-            SubElement(sppr, 'a:effectLst')
-
-            SubElement(anchor, 'xdr:clientData')
+        for idx, img in enumerate(self._sheet._images):
+            self._write_image(root, img, idx)
 
         return get_document_content(root)
+
+    def _write_image(self, node, img, idx):
+        drawing = img.drawing
+
+        x, y, w, h = drawing.get_emu_dimensions()
+        anchor = SubElement(node, 'xdr:absoluteAnchor')
+        SubElement(anchor, 'xdr:pos', {'x':str(x), 'y':str(y)})
+        SubElement(anchor, 'xdr:ext', {'cx':str(w), 'cy':str(h)})
+
+        pic = SubElement(anchor, 'xdr:pic')
+        name = SubElement(pic, 'xdr:nvPicPr')
+        SubElement(name, 'xdr:cNvPr', {'id':'%s' % idx, 'name':'Picture %s' % idx})
+        SubElement(SubElement(name, 'xdr:cNvPicPr'), 'a:picLocks', {'noChangeAspect':"1" if img.nochangeaspect else '0','noChangeArrowheads':"1" if img.nochangearrowheads else '0'})
+        blipfill = SubElement(pic, 'xdr:blipFill')
+        SubElement(blipfill, 'a:blip', {
+            'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+            'r:embed': 'rId%s' % (idx + 1),
+            'cstate':'print'
+        })
+        SubElement(blipfill, 'a:srcRect')
+        SubElement(SubElement(blipfill, 'a:stretch'), 'a:fillRect')
+
+        sppr = SubElement(pic, 'xdr:spPr', {'bwMode':'auto'})
+        frm = SubElement(sppr, 'a:xfrm')
+        # no transformation
+        SubElement(frm, 'a:off', {'x':'0', 'y':'0'})
+        SubElement(frm, 'a:ext', {'cx':'0', 'cy':'0'})
+
+        SubElement(SubElement(sppr, 'a:prstGeom', {'prst':'rect'}), 'a:avLst')
+
+        SubElement(sppr, 'a:noFill')
+
+        ln = SubElement(sppr, 'a:ln', {'w':'1'})
+        SubElement(ln, 'a:noFill')
+        SubElement(ln, 'a:miter', {'lim':'800000'})
+        SubElement(ln, 'a:headEnd')
+        SubElement(ln, 'a:tailEnd', {'type':'none', 'w':'med', 'len':'med'})
+        SubElement(sppr, 'a:effectLst')
+
+        SubElement(anchor, 'xdr:clientData')
 
     def write_rels(self, chart_id, image_id):
 

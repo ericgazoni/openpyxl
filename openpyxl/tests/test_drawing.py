@@ -217,6 +217,7 @@ class DummyCell(object):
     def __init__(self):
         self.parent = DummySheet()
 
+pil_required = pytest.mark.skipif("Image is False", reason="PIL must be installed")
 
 class TestImage(object):
 
@@ -227,13 +228,13 @@ class TestImage(object):
         from openpyxl.drawing import Image
         return Image
 
-    @pytest.mark.skipif("Image", reason="PIL is installed installed")
+    @pytest.mark.skipif("Image", reason="PIL is installed")
     def test_import(self):
         Image = self.make_one()
         with pytest.raises(ImportError):
             i = Image._import_image(self.img)
 
-    @pytest.mark.skipif("Image is False", reason="PIL must be installed")
+    @pil_required
     def test_ctor(self):
         Image = self.make_one()
         i = Image(img=self.img)
@@ -244,7 +245,7 @@ class TestImage(object):
         assert d.width == 118
         assert d.height == 118
 
-    @pytest.mark.skipif("Image is False", reason="PIL must be installed")
+    @pil_required
     def test_anchor(self):
         Image = self.make_one()
         i = Image(self.img)
@@ -253,7 +254,7 @@ class TestImage(object):
         assert vals == (('A', '1'), (118, 118))
 
 
-class TestChartWriter(object):
+class TestDrawingWriter(object):
 
     def setup(self):
         from openpyxl.writer.drawings import DrawingWriter
@@ -293,6 +294,78 @@ class TestChartWriter(object):
 </xdr:wsDr>"""
         diff = compare_xml(xml, expected)
         assert diff is None, diff
+
+    @pil_required
+    def test_write_images(self):
+        from openpyxl.drawing import Image
+        img = os.path.join(DATADIR, "plain.png")
+        i = Image(img)
+        self.dw._sheet._images.append(i)
+        xml = self.dw.write()
+        expected = """
+           <xdr:wsDr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
+             <xdr:absoluteAnchor>
+               <xdr:pos x="0" y="0" />
+               <xdr:ext cx="200025" cy="1828800" />
+               <xdr:graphicFrame macro="">
+                 <xdr:nvGraphicFramePr>
+                   <xdr:cNvPr id="0" name="Graphique 0" />
+                   <xdr:cNvGraphicFramePr />
+                 </xdr:nvGraphicFramePr>
+                 <xdr:xfrm>
+                   <a:off x="0" y="0" />
+                   <a:ext cx="0" cy="0" />
+                 </xdr:xfrm>
+                 <a:graphic>
+                   <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">
+                     <c:chart r:id="rId1" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />
+                   </a:graphicData>
+                 </a:graphic>
+               </xdr:graphicFrame>
+               <xdr:clientData />
+             </xdr:absoluteAnchor>
+             <xdr:absoluteAnchor>
+               <xdr:pos x="0" y="0" />
+               <xdr:ext cx="1123950" cy="1123950" />
+               <xdr:pic>
+                 <xdr:nvPicPr>
+                   <xdr:cNvPr id="0" name="Picture 0" />
+                   <xdr:cNvPicPr>
+                     <a:picLocks noChangeArrowheads="1" noChangeAspect="1" />
+                   </xdr:cNvPicPr>
+                 </xdr:nvPicPr>
+                 <xdr:blipFill>
+                   <a:blip cstate="print" r:embed="rId1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />
+                   <a:srcRect />
+                   <a:stretch>
+                     <a:fillRect />
+                   </a:stretch>
+                 </xdr:blipFill>
+                 <xdr:spPr bwMode="auto">
+                   <a:xfrm>
+                     <a:off x="0" y="0" />
+                     <a:ext cx="0" cy="0" />
+                   </a:xfrm>
+                   <a:prstGeom prst="rect">
+                     <a:avLst />
+                   </a:prstGeom>
+                   <a:noFill />
+                   <a:ln w="1">
+                     <a:noFill />
+                     <a:miter lim="800000" />
+                     <a:headEnd />
+                     <a:tailEnd len="med" type="none" w="med" />
+                   </a:ln>
+                   <a:effectLst />
+                 </xdr:spPr>
+               </xdr:pic>
+               <xdr:clientData />
+             </xdr:absoluteAnchor>
+           </xdr:wsDr>
+"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
 
     def test_write_rels(self):
         from openpyxl.shared.xmltools import Element
