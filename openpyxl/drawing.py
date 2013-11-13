@@ -370,6 +370,7 @@ class Shape(object):
     def coordinates(self, coords):
         """ set shape coordinates in percentages (left, top, right, bottom)
         """
+        # this needs refactoring to reflect changes in charts
         self.axis_coordinates = coords
         (x1, y1), (x2, y2) = coords # bottom left, top right
         drawing_width = pixels_to_EMU(self.chart.drawing.width)
