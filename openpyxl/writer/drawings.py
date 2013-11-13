@@ -170,7 +170,7 @@ class ShapeWriter(object):
             anchor = SubElement(root, 'cdr:relSizeAnchor',
                 {'xmlns:cdr' : "http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"})
 
-            xstart, ystart, xend, yend = shape.get_coordinates()
+            xstart, ystart, xend, yend = shape.coordinates
 
             _from = SubElement(anchor, 'cdr:from')
             SubElement(_from, 'cdr:x').text = str(xstart)
