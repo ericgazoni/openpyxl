@@ -22,6 +22,7 @@
 # @author: see AUTHORS file
 import pytest
 
+from .helper import compare_xml, get_xml
 
 def test_bounding_box():
     from openpyxl.drawing import bounding_box
@@ -250,3 +251,156 @@ class TestImage(object):
         c = DummyCell()
         vals = i.anchor(c)
         assert vals == (('A', '1'), (118, 118))
+
+
+class TestChartWriter(object):
+
+    def setup(self):
+        from openpyxl.writer.drawings import DrawingWriter
+        from openpyxl.drawing import Drawing
+        sheet = DummySheet()
+        chart = DummyChart()
+        d = Drawing()
+        chart.drawing = d
+        sheet._charts = [chart]
+        sheet._images = []
+        self.dw = DrawingWriter(sheet=sheet)
+
+    def test_write(self):
+        xml = self.dw.write()
+        expected = """
+        <xdr:wsDr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
+  <xdr:absoluteAnchor>
+    <xdr:pos x="0" y="0" />
+    <xdr:ext cx="200025" cy="1828800" />
+    <xdr:graphicFrame macro="">
+      <xdr:nvGraphicFramePr>
+        <xdr:cNvPr id="0" name="Graphique 0" />
+        <xdr:cNvGraphicFramePr />
+      </xdr:nvGraphicFramePr>
+      <xdr:xfrm>
+        <a:off x="0" y="0" />
+        <a:ext cx="0" cy="0" />
+      </xdr:xfrm>
+      <a:graphic>
+        <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">
+          <c:chart r:id="rId1" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />
+        </a:graphicData>
+      </a:graphic>
+    </xdr:graphicFrame>
+    <xdr:clientData />
+  </xdr:absoluteAnchor>
+</xdr:wsDr>"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+    def test_write_rels(self):
+        from openpyxl.shared.xmltools import Element
+        xml = self.dw.write_rels(0, 0)
+        expected = """<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+             <Relationship Id="rId1" Target="../charts/chart0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart" />
+           </Relationships>"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+
+class TestShapeWriter(object):
+
+    def setup(self):
+        from openpyxl.writer.drawings import ShapeWriter
+        from openpyxl.drawing import Shape
+        chart = DummyChart()
+        self.shape = Shape(chart=chart, text="My first chart")
+        self.sw = ShapeWriter(shapes=[self.shape])
+
+    def test_write(self):
+        xml = self.sw.write(0)
+        expected = """
+           <c:userShapes xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
+             <cdr:relSizeAnchor xmlns:cdr="http://schemas.openxmlformats.org/drawingml/2006/chartDrawing">
+               <cdr:from>
+                 <cdr:x>1</cdr:x>
+                 <cdr:y>1</cdr:y>
+               </cdr:from>
+               <cdr:to>
+                 <cdr:x>1</cdr:x>
+                 <cdr:y>1</cdr:y>
+               </cdr:to>
+               <cdr:sp macro="" textlink="">
+                 <cdr:nvSpPr>
+                   <cdr:cNvPr id="0" name="shape 0" />
+                   <cdr:cNvSpPr />
+                 </cdr:nvSpPr>
+                 <cdr:spPr>
+                   <a:xfrm xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                     <a:off x="0" y="0" />
+                     <a:ext cx="0" cy="0" />
+                   </a:xfrm>
+                   <a:prstGeom prst="rect" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                     <a:avLst />
+                   </a:prstGeom>
+                   <a:solidFill xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                     <a:srgbClr val="FFFFFF" />
+                   </a:solidFill>
+                   <a:ln w="0" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                     <a:solidFill>
+                       <a:srgbClr val="000000" />
+                     </a:solidFill>
+                   </a:ln>
+                 </cdr:spPr>
+                 <cdr:style>
+                   <a:lnRef idx="2" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                     <a:schemeClr val="accent1">
+                       <a:shade val="50000" />
+                     </a:schemeClr>
+                   </a:lnRef>
+                   <a:fillRef idx="1" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                     <a:schemeClr val="accent1" />
+                   </a:fillRef>
+                   <a:effectRef idx="0" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                     <a:schemeClr val="accent1" />
+                   </a:effectRef>
+                   <a:fontRef idx="minor" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                     <a:schemeClr val="lt1" />
+                   </a:fontRef>
+                 </cdr:style>
+                 <cdr:txBody>
+                   <a:bodyPr vertOverflow="clip" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" />
+                   <a:lstStyle xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" />
+                   <a:p xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                     <a:r>
+                       <a:rPr lang="en-US">
+                         <a:solidFill>
+                           <a:srgbClr val="000000" />
+                         </a:solidFill>
+                       </a:rPr>
+                       <a:t>My first chart</a:t>
+                     </a:r>
+                   </a:p>
+                 </cdr:txBody>
+               </cdr:sp>
+             </cdr:relSizeAnchor>
+           </c:userShapes>
+"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+    def test_write_text(self):
+        from openpyxl.shared.xmltools import Element, CHART_DRAWING_NS
+        from openpyxl.drawing import Shape
+        root = Element("{%s}test" % CHART_DRAWING_NS)
+        self.sw._write_text(root, self.shape)
+        xml = get_xml(root)
+        expected = """<?xml version='1.0' encoding='UTF-8'?><cdr:test xmlns:cdr="http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"><cdr:txBody><a:bodyPr vertOverflow="clip" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" /><a:lstStyle xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" /><a:p xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:r><a:rPr lang="en-US"><a:solidFill><a:srgbClr val="000000" /></a:solidFill></a:rPr><a:t>My first chart</a:t></a:r></a:p></cdr:txBody></cdr:test>"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+
+    def test_write_style(self):
+        from openpyxl.shared.xmltools import Element, CHART_DRAWING_NS
+        root = Element("{%s}test" % CHART_DRAWING_NS)
+        self.sw._write_style(root)
+        xml = get_xml(root)
+        expected = """<?xml version='1.0' encoding='UTF-8'?><cdr:test xmlns:cdr="http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"><cdr:style><a:lnRef idx="2" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="accent1"><a:shade val="50000" /></a:schemeClr></a:lnRef><a:fillRef idx="1" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="accent1" /></a:fillRef><a:effectRef idx="0" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="accent1" /></a:effectRef><a:fontRef idx="minor" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="lt1" /></a:fontRef></cdr:style></cdr:test>"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
