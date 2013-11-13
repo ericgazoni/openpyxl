@@ -87,10 +87,78 @@ class TestDrawing(object):
         assert dims == (0, 0, 200025, 1828800)
 
 
+class DummyDrawing(object):
+
+    """Shapes need charts which need drawings"""
+
+    width = 10
+    height = 20
+
+
+class DummyChart(object):
+
+    """Shapes need a chart to calculate their coordinates"""
+
+    width = 100
+    height = 100
+
+    def __init__(self):
+        self.drawing = DummyDrawing()
+
+    def _get_margin_left(self):
+        return 10
+
+    def _get_margin_top(self):
+        return 5
+
+    def get_x_units(self):
+        return 25
+
+    def get_y_units(self):
+        return 15
+
 class TestShape(object):
 
     def setup(self):
-        pass
+        from openpyxl.drawing import Shape
+        self.shape = Shape()
+
+    def test_ctor(self):
+        s = self.shape
+        assert s.coordinates == ((0, 0), (1, 1))
+        assert s.text is None
+        assert s.scheme == "accent1"
+        assert s.style == "rect"
+        assert s.border_color == "000000"
+        assert s.color == "FFFFFF"
+        assert s.text_color == "000000"
+        assert s.border_width == 0
+
+
+    def test_border_color(self):
+        s = self.shape
+        s.border_color = "BBBBBB"
+        assert s.border_color == "BBBBBB"
+
+    def test_color(self):
+        s = self.shape
+        s.color = "000000"
+        assert s.color == "000000"
+
+    def test_text_color(self):
+        s = self.shape
+        s.text_color = "FF0000"
+        assert s.text_color == "FF0000"
+
+    def test_border_width(self):
+        s = self.shape
+        s.border_width = 50
+        assert s.border_width == 50
+
+    def test_coordinates(self):
+        s = self.shape
+        s._chart = DummyChart()
+        assert s.get_coordinates() == (1, 1, 1, 1)
 
 
 class TestImage(object):
