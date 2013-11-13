@@ -20,6 +20,7 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
+import pytest
 
 
 def test_bounding_box():
@@ -189,7 +190,17 @@ class TestShadow(object):
         assert s.alpha == 50
 
 
+try:
+    from PIL import Image
+except ImportError:
+    Image = False
+
+
+@pytest.mark.skipif(Image is False, reason="PIL must be installed")
 class TestImage(object):
 
-    def setup(self):
-        pass
+    def test_import(self):
+        from openpyxl.drawing import Image
+        with pytest.raises(IOError):
+            i = Image._import_image("")
+

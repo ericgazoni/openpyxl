@@ -434,7 +434,8 @@ def bounding_box(bw, bh, w, h):
 class Image(object):
     """ Raw Image class """
 
-    def _import_image(self, img):
+    @staticmethod
+    def _import_image(img):
         try:
             try:
                 import Image as PILImage
