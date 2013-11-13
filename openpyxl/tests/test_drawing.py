@@ -161,6 +161,23 @@ class TestShape(object):
         assert s.coordinates == (1, 1, 1, 1)
 
 
+class TestShadow(object):
+
+    def setup(self):
+        from openpyxl.drawing import Shadow
+        self.shadow = Shadow()
+
+    def test_ctor(self):
+        s = self.shadow
+        assert s.visible == False
+        assert s.blurRadius == 6
+        assert s.distance == 2
+        assert s.direction == 0
+        assert s.alignment == "br"
+        assert s.color.index == "FF000000"
+        assert s.alpha == 50
+
+
 class TestImage(object):
 
     def setup(self):
