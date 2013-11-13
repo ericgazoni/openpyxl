@@ -22,6 +22,9 @@
 # @author: see AUTHORS file
 import pytest
 
+from openpyxl.shared.ooxml import CHART_DRAWING_NS, SHEET_DRAWING_NS
+from openpyxl.shared.xmltools import Element
+
 from .helper import compare_xml, get_xml
 
 def test_bounding_box():
@@ -459,7 +462,6 @@ class TestShapeWriter(object):
         assert diff is None, diff
 
     def test_write_text(self):
-        from openpyxl.shared.xmltools import Element, CHART_DRAWING_NS
         from openpyxl.drawing import Shape
         root = Element("{%s}test" % CHART_DRAWING_NS)
         self.sw._write_text(root, self.shape)
@@ -470,7 +472,6 @@ class TestShapeWriter(object):
 
 
     def test_write_style(self):
-        from openpyxl.shared.xmltools import Element, CHART_DRAWING_NS
         root = Element("{%s}test" % CHART_DRAWING_NS)
         self.sw._write_style(root)
         xml = get_xml(root)
