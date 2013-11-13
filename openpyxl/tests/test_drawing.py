@@ -195,12 +195,58 @@ try:
 except ImportError:
     Image = False
 
+import os
+from .helper import DATADIR
 
-@pytest.mark.skipif(Image is False, reason="PIL must be installed")
+
+class DummySheet(object):
+    """Required for images"""
+
+    def point_pos(self, vertical, horizontal):
+        return vertical, horizontal
+
+
+class DummyCell(object):
+    """Required for images"""
+
+    column = "A"
+    row = "1"
+    anchor = (0, 0)
+
+    def __init__(self):
+        self.parent = DummySheet()
+
+
 class TestImage(object):
 
-    def test_import(self):
-        from openpyxl.drawing import Image
-        with pytest.raises(IOError):
-            i = Image._import_image("")
+    def setup(self):
+        self.img = img = os.path.join(DATADIR, "plain.png")
 
+    def make_one(self):
+        from openpyxl.drawing import Image
+        return Image
+
+    @pytest.mark.skipif(Image, reason="PIL is installed installed")
+    def test_import(self):
+        Image = self.make_one()
+        with pytest.raises(ImportError):
+            i = Image._import_image(self.img)
+
+    @pytest.mark.skipif(Image is False, reason="PIL must be installed")
+    def test_ctor(self):
+        Image = self.make_one()
+        i = Image(img=self.img)
+        assert i.nochangearrowheads == True
+        assert i.nochangeaspect == True
+        d = i.drawing
+        assert d.coordinates == ((0, 0), (1, 1))
+        assert d.width == 118
+        assert d.height == 118
+
+    @pytest.mark.skipif(Image is False, reason="PIL must be installed")
+    def test_anchor(self):
+        Image = self.make_one()
+        i = Image(self.img)
+        c = DummyCell()
+        vals = i.anchor(c)
+        assert vals == (('A', '1'), (118, 118))
