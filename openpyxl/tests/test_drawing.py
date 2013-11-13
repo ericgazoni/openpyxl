@@ -226,13 +226,13 @@ class TestImage(object):
         from openpyxl.drawing import Image
         return Image
 
-    @pytest.mark.skipif(Image, reason="PIL is installed installed")
+    @pytest.mark.skipif("Image", reason="PIL is installed installed")
     def test_import(self):
         Image = self.make_one()
         with pytest.raises(ImportError):
             i = Image._import_image(self.img)
 
-    @pytest.mark.skipif(Image is False, reason="PIL must be installed")
+    @pytest.mark.skipif("Image is False", reason="PIL must be installed")
     def test_ctor(self):
         Image = self.make_one()
         i = Image(img=self.img)
@@ -243,7 +243,7 @@ class TestImage(object):
         assert d.width == 118
         assert d.height == 118
 
-    @pytest.mark.skipif(Image is False, reason="PIL must be installed")
+    @pytest.mark.skipif("Image is False", reason="PIL must be installed")
     def test_anchor(self):
         Image = self.make_one()
         i = Image(self.img)
