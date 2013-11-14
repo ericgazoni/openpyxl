@@ -261,38 +261,14 @@ class TestDrawingWriter(object):
 
     def setup(self):
         from openpyxl.writer.drawings import DrawingWriter
-        from openpyxl.drawing import Drawing
         sheet = DummySheet()
-        chart = DummyChart()
-        d = Drawing()
-        chart.drawing = d
-        sheet._charts = [chart]
+        sheet._charts = []
         sheet._images = []
         self.dw = DrawingWriter(sheet=sheet)
 
     def test_write(self):
         xml = self.dw.write()
-        expected = """<xdr:wsDr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
-  <xdr:absoluteAnchor>
-    <xdr:pos x="0" y="0" />
-    <xdr:ext cx="200025" cy="1828800" />
-    <xdr:graphicFrame macro="">
-      <xdr:nvGraphicFramePr>
-        <xdr:cNvPr id="0" name="Graphique 0" />
-        <xdr:cNvGraphicFramePr />
-      </xdr:nvGraphicFramePr>
-      <xdr:xfrm>
-        <a:off x="0" y="0" />
-        <a:ext cx="0" cy="0" />
-      </xdr:xfrm>
-      <a:graphic>
-        <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">
-          <c:chart r:id="rId1" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />
-        </a:graphicData>
-      </a:graphic>
-    </xdr:graphicFrame>
-    <xdr:clientData />
-  </xdr:absoluteAnchor>
+        expected = """<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
 </xdr:wsDr>"""
         diff = compare_xml(xml, expected)
         assert diff is None, diff
@@ -303,7 +279,7 @@ class TestDrawingWriter(object):
         chart = DummyChart()
         drawing = Drawing()
         chart.drawing = drawing
-        self.dw._write_chart(root, chart, 0)
+        self.dw._write_chart(root, chart, 1)
         xml = get_xml(root)
         expected = """<xdr:test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
         xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
@@ -312,7 +288,7 @@ class TestDrawingWriter(object):
     <xdr:ext cx="200025" cy="1828800"/>
     <xdr:graphicFrame macro="">
       <xdr:nvGraphicFramePr>
-        <xdr:cNvPr id="0" name="Graphique 0"/>
+        <xdr:cNvPr id="2" name="Chart 1"/>
         <xdr:cNvGraphicFramePr/>
       </xdr:nvGraphicFramePr>
       <xdr:xfrm>
@@ -337,7 +313,7 @@ class TestDrawingWriter(object):
         path = os.path.join(DATADIR, "plain.png")
         img = Image(path)
         root = Element("test")
-        self.dw._write_image(root, img, 0)
+        self.dw._write_image(root, img, 1)
         xml = get_xml(root)
         expected = """<test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
   <xdr:absoluteAnchor>
@@ -345,7 +321,7 @@ class TestDrawingWriter(object):
     <xdr:ext cx="1123950" cy="1123950"/>
     <xdr:pic>
       <xdr:nvPicPr>
-        <xdr:cNvPr id="0" name="Picture 0"/>
+        <xdr:cNvPr id="2" name="Picture 1"/>
         <xdr:cNvPicPr>
           <a:picLocks noChangeArrowheads="1" noChangeAspect="1"/>
         </xdr:cNvPicPr>
@@ -384,11 +360,14 @@ class TestDrawingWriter(object):
 
 
     def test_write_rels(self):
-        from openpyxl.shared.xmltools import Element
-        xml = self.dw.write_rels(0, 0)
+        self.dw._sheet._charts.append(None)
+        self.dw._sheet._images.append(None)
+        xml = self.dw.write_rels(1, 1)
         expected = """<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-             <Relationship Id="rId1" Target="../charts/chart0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart" />
-           </Relationships>"""
+  <Relationship Id="rId1" Target="../charts/chart1.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
+  <Relationship Id="rId2" Target="../media/image1.png" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"/>
+</Relationships>
+"""
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
