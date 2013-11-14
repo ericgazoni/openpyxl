@@ -336,11 +336,48 @@ class TestDrawingWriter(object):
         from openpyxl.drawing import Image
         path = os.path.join(DATADIR, "plain.png")
         img = Image(path)
-        root = Element("{%s}test" % SHEET_DRAWING_NS)
-        chart = SubElement(root, "{%s}test" % DRAWING_NS)
+        root = Element("test")
         self.dw._write_image(root, img, 0)
         xml = get_xml(root)
-        expected = """<xdr:test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"><a:test /><xdr:absoluteAnchor><xdr:pos x="0" y="0" /><xdr:ext cx="1123950" cy="1123950" /><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="0" name="Picture 0" /><xdr:cNvPicPr><a:picLocks noChangeArrowheads="1" noChangeAspect="1" /></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip cstate="print" r:embed="rId1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" /><a:srcRect /><a:stretch><a:fillRect /></a:stretch></xdr:blipFill><xdr:spPr bwMode="auto"><a:xfrm><a:off x="0" y="0" /><a:ext cx="0" cy="0" /></a:xfrm><a:prstGeom prst="rect"><a:avLst /></a:prstGeom><a:noFill /><a:ln w="1"><a:noFill /><a:miter lim="800000" /><a:headEnd /><a:tailEnd len="med" type="none" w="med" /></a:ln><a:effectLst /></xdr:spPr></xdr:pic><xdr:clientData /></xdr:absoluteAnchor></xdr:test>
+        expected = """<test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
+  <xdr:absoluteAnchor>
+    <xdr:pos x="0" y="0"/>
+    <xdr:ext cx="1123950" cy="1123950"/>
+    <xdr:pic>
+      <xdr:nvPicPr>
+        <xdr:cNvPr id="0" name="Picture 0"/>
+        <xdr:cNvPicPr>
+          <a:picLocks noChangeArrowheads="1" noChangeAspect="1"/>
+        </xdr:cNvPicPr>
+      </xdr:nvPicPr>
+      <xdr:blipFill>
+        <a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" cstate="print" r:embed="rId1"/>
+        <a:srcRect/>
+        <a:stretch>
+          <a:fillRect/>
+        </a:stretch>
+      </xdr:blipFill>
+      <xdr:spPr bwMode="auto">
+        <a:xfrm>
+          <a:off x="0" y="0"/>
+          <a:ext cx="0" cy="0"/>
+        </a:xfrm>
+        <a:prstGeom prst="rect">
+          <a:avLst/>
+        </a:prstGeom>
+        <a:noFill/>
+        <a:ln w="1">
+          <a:noFill/>
+          <a:miter lim="800000"/>
+          <a:headEnd/>
+          <a:tailEnd len="med" type="none" w="med"/>
+        </a:ln>
+        <a:effectLst/>
+      </xdr:spPr>
+    </xdr:pic>
+    <xdr:clientData/>
+  </xdr:absoluteAnchor>
+</test>
 """
         diff = compare_xml(xml, expected)
         assert diff is None, diff

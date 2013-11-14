@@ -30,7 +30,8 @@ from openpyxl.shared.ooxml import (
     SHEET_DRAWING_NS,
     CHART_NS,
     REL_NS,
-    CHART_DRAWING_NS
+    CHART_DRAWING_NS,
+    PKG_REL_NS
 )
 
 
@@ -145,20 +146,19 @@ class DrawingWriter(object):
 
     def write_rels(self, chart_id, image_id):
 
-        root = Element('Relationships',
-            {'xmlns' : 'http://schemas.openxmlformats.org/package/2006/relationships'})
-        i = 0
+        root = Element("{%s}Relationships" % PKG_REL_NS)
         for i, chart in enumerate(self._sheet._charts):
             attrs = {'Id' : 'rId%s' % (i + 1),
-                'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart',
+                'Type' : '%s/chart' % REL_NS,
                 'Target' : '../charts/chart%s.xml' % (chart_id + i) }
-            SubElement(root, 'Relationship', attrs)
+            SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
         for j, img in enumerate(self._sheet._images):
             attrs = {'Id' : 'rId%s' % (i + j + 1),
-                'Type' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+                'Type' : '{%s/image' % REL_NS,
                 'Target' : '../media/image%s.png' % (image_id + j) }
-            SubElement(root, 'Relationship', attrs)
+            SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
         return get_document_content(root)
+
 
 class ShapeWriter(object):
     """ one file per shape """
