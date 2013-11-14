@@ -479,7 +479,7 @@ class TestShapeWriter(object):
         root = Element("{%s}test" % CHART_DRAWING_NS)
         self.sw._write_text(root, self.shape)
         xml = get_xml(root)
-        expected = """<?xml version='1.0' encoding='UTF-8'?><cdr:test xmlns:cdr="http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"><cdr:txBody><a:bodyPr vertOverflow="clip" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" /><a:lstStyle xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" /><a:p xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:r><a:rPr lang="en-US"><a:solidFill><a:srgbClr val="000000" /></a:solidFill></a:rPr><a:t>My first chart</a:t></a:r></a:p></cdr:txBody></cdr:test>"""
+        expected = """<cdr:test xmlns:cdr="http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"><cdr:txBody><a:bodyPr vertOverflow="clip" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" /><a:lstStyle xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" /><a:p xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:r><a:rPr lang="en-US"><a:solidFill><a:srgbClr val="000000" /></a:solidFill></a:rPr><a:t>My first chart</a:t></a:r></a:p></cdr:txBody></cdr:test>"""
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
@@ -488,6 +488,6 @@ class TestShapeWriter(object):
         root = Element("{%s}test" % CHART_DRAWING_NS)
         self.sw._write_style(root)
         xml = get_xml(root)
-        expected = """<?xml version='1.0' encoding='UTF-8'?><cdr:test xmlns:cdr="http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"><cdr:style><a:lnRef idx="2" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="accent1"><a:shade val="50000" /></a:schemeClr></a:lnRef><a:fillRef idx="1" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="accent1" /></a:fillRef><a:effectRef idx="0" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="accent1" /></a:effectRef><a:fontRef idx="minor" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="lt1" /></a:fontRef></cdr:style></cdr:test>"""
+        expected = """<cdr:test xmlns:cdr="http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"><cdr:style><a:lnRef idx="2" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="accent1"><a:shade val="50000" /></a:schemeClr></a:lnRef><a:fillRef idx="1" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="accent1" /></a:fillRef><a:effectRef idx="0" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="accent1" /></a:effectRef><a:fontRef idx="minor" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:schemeClr val="lt1" /></a:fontRef></cdr:style></cdr:test>"""
         diff = compare_xml(xml, expected)
         assert diff is None, diff
