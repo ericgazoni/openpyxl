@@ -47,57 +47,61 @@ class DrawingWriter(object):
             {'xmlns:xdr' : "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing",
             'xmlns:a' : "http://schemas.openxmlformats.org/drawingml/2006/main"})
 
-        for i, chart in enumerate(self._sheet._charts):
-
-            drawing = chart.drawing
-
-#            anchor = SubElement(root, 'xdr:twoCellAnchor')
-#            (start_row, start_col), (end_row, end_col) = drawing.coordinates
-#            # anchor coordinates
-#            _from = SubElement(anchor, 'xdr:from')
-#            x = SubElement(_from, 'xdr:col').text = str(start_col)
-#            x = SubElement(_from, 'xdr:colOff').text = '0'
-#            x = SubElement(_from, 'xdr:row').text = str(start_row)
-#            x = SubElement(_from, 'xdr:rowOff').text = '0'
-
-#            _to = SubElement(anchor, 'xdr:to')
-#            x = SubElement(_to, 'xdr:col').text = str(end_col)
-#            x = SubElement(_to, 'xdr:colOff').text = '0'
-#            x = SubElement(_to, 'xdr:row').text = str(end_row)
-#            x = SubElement(_to, 'xdr:rowOff').text = '0'
-
-            # we only support absolute anchor atm (TODO: oneCellAnchor, twoCellAnchor
-            x, y, w, h = drawing.get_emu_dimensions()
-            anchor = SubElement(root, 'xdr:absoluteAnchor')
-            SubElement(anchor, 'xdr:pos', {'x':str(x), 'y':str(y)})
-            SubElement(anchor, 'xdr:ext', {'cx':str(w), 'cy':str(h)})
-
-            # graph frame
-            frame = SubElement(anchor, 'xdr:graphicFrame', {'macro':''})
-
-            name = SubElement(frame, 'xdr:nvGraphicFramePr')
-            SubElement(name, 'xdr:cNvPr', {'id':'%s' % i, 'name':'Graphique %s' % i})
-            SubElement(name, 'xdr:cNvGraphicFramePr')
-
-            frm = SubElement(frame, 'xdr:xfrm')
-            # no transformation
-            SubElement(frm, 'a:off', {'x':'0', 'y':'0'})
-            SubElement(frm, 'a:ext', {'cx':'0', 'cy':'0'})
-
-            graph = SubElement(frame, 'a:graphic')
-            data = SubElement(graph, 'a:graphicData',
-                {'uri':'http://schemas.openxmlformats.org/drawingml/2006/chart'})
-            SubElement(data, 'c:chart',
-                {   'xmlns:c':'http://schemas.openxmlformats.org/drawingml/2006/chart',
-                    'xmlns:r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
-                    'r:id':'rId%s' % (i + 1)})
-
-            SubElement(anchor, 'xdr:clientData')
+        for idx, chart in enumerate(self._sheet._charts):
+            self._write_chart(root, chart, idx)
 
         for idx, img in enumerate(self._sheet._images):
             self._write_image(root, img, idx)
 
         return get_document_content(root)
+
+    def _write_chart(self, node, chart, idx):
+        """Add a chart"""
+        drawing = chart.drawing
+
+        #anchor = SubElement(root, 'xdr:twoCellAnchor')
+        #(start_row, start_col), (end_row, end_col) = drawing.coordinates
+        ## anchor coordinates
+        #_from = SubElement(anchor, 'xdr:from')
+        #x = SubElement(_from, 'xdr:col').text = str(start_col)
+        #x = SubElement(_from, 'xdr:colOff').text = '0'
+        #x = SubElement(_from, 'xdr:row').text = str(start_row)
+        #x = SubElement(_from, 'xdr:rowOff').text = '0'
+
+        #_to = SubElement(anchor, 'xdr:to')
+        #x = SubElement(_to, 'xdr:col').text = str(end_col)
+        #x = SubElement(_to, 'xdr:colOff').text = '0'
+        #x = SubElement(_to, 'xdr:row').text = str(end_row)
+        #x = SubElement(_to, 'xdr:rowOff').text = '0'
+
+        # we only support absolute anchor atm (TODO: oneCellAnchor, twoCellAnchor
+        x, y, w, h = drawing.get_emu_dimensions()
+        anchor = SubElement(node, 'xdr:absoluteAnchor')
+        SubElement(anchor, 'xdr:pos', {'x':str(x), 'y':str(y)})
+        SubElement(anchor, 'xdr:ext', {'cx':str(w), 'cy':str(h)})
+
+        # graph frame
+        frame = SubElement(anchor, 'xdr:graphicFrame', {'macro':''})
+
+        name = SubElement(frame, 'xdr:nvGraphicFramePr')
+        SubElement(name, 'xdr:cNvPr', {'id':'%s' % idx, 'name':'Graphique %s' % idx})
+        SubElement(name, 'xdr:cNvGraphicFramePr')
+
+        frm = SubElement(frame, 'xdr:xfrm')
+        # no transformation
+        SubElement(frm, 'a:off', {'x':'0', 'y':'0'})
+        SubElement(frm, 'a:ext', {'cx':'0', 'cy':'0'})
+
+        graph = SubElement(frame, 'a:graphic')
+        data = SubElement(graph, 'a:graphicData',
+            {'uri':'http://schemas.openxmlformats.org/drawingml/2006/chart'})
+        SubElement(data, 'c:chart',
+            {   'xmlns:c':'http://schemas.openxmlformats.org/drawingml/2006/chart',
+                'xmlns:r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+                'r:id':'rId%s' % (idx + 1)})
+
+        SubElement(anchor, 'xdr:clientData')
+        return node
 
     def _write_image(self, node, img, idx):
         drawing = img.drawing
