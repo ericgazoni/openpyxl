@@ -606,6 +606,7 @@ class Worksheet(object):
         self._auto_filter = None
         self._freeze_panes = None
         self.paper_size = None
+        self.formula_attributes = {}
         self.orientation = None
         self.xml_source = None
         self.conditional_formatting = ConditionalFormatting()

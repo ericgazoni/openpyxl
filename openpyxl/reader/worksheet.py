@@ -118,7 +118,7 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
     for event, element in filter(filter_cells, it):
 
         value = element.findtext('{%s}v' % SHEET_MAIN_NS)
-        formula = element.findtext('{%s}f' % SHEET_MAIN_NS)
+        formula = element.find('{%s}f' % SHEET_MAIN_NS)
 
         coordinate = element.get('r')
         style_id = element.get('s')
@@ -130,13 +130,21 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
             if data_type == Cell.TYPE_STRING:
                 value = string_table.get(int(value))
             if formula is not None:
-                value = "=" + str(formula)
-            if not guess_types and not formula:
-                ws.cell(coordinate).set_explicit_value(value=value,
-                                                       data_type=data_type)
+                if formula.text:
+                    value = "=" + str(formula.text)
+                else:
+                    value = "="
+                formula_type = formula.get('t')
+                if formula_type:
+                    ws.formula_attributes[coordinate] = {'t': formula_type}
+                    if formula.get('si'):  # Shared group index for shared formulas
+                        ws.formula_attributes[coordinate]['si'] = formula.get('si')
+                    if formula.get('ref'):  # Range for shared formulas
+                        ws.formula_attributes[coordinate]['ref'] = formula.get('ref')
+            if not guess_types and formula is None:
+                ws.cell(coordinate).set_explicit_value(value=value, data_type=data_type)
             else:
                 ws.cell(coordinate).value = value
-
 
         # to avoid memory exhaustion, clear the item after use
         element.clear()

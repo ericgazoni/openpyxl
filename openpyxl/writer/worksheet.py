@@ -290,7 +290,15 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
                 if cell.data_type == cell.TYPE_STRING:
                     tag(doc, 'v', body='%s' % string_table[value])
                 elif cell.data_type == cell.TYPE_FORMULA:
-                    tag(doc, 'f', body='%s' % value[1:])
+                    if coordinate in worksheet.formula_attributes:
+                        attr = worksheet.formula_attributes[coordinate]
+                        if 't' in attr and attr['t'] == 'shared' and 'ref' not in attr:
+                            # Don't write body for shared formula
+                            tag(doc, 'f', attr=attr)
+                        else:
+                            tag(doc, 'f', attr=attr, body='%s' % value[1:])
+                    else:
+                        tag(doc, 'f', body='%s' % value[1:])
                     tag(doc, 'v')
                 elif cell.data_type == cell.TYPE_NUMERIC:
                     if isinstance(value, (long, decimal.Decimal)):

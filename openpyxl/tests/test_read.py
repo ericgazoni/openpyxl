@@ -250,6 +250,57 @@ class TestReadFormulae(object):
         eq_(a6.value, '=SUM(A4:A5)')
 
 
+def test_read_complex_formulae():
+    null_file = os.path.join(DATADIR, 'reader', 'formulae.xlsx')
+    wb = load_workbook(null_file)
+    ws = wb.get_active_sheet()
+
+    # Test normal forumlae
+    assert ws.cell('A1').data_type != 'f'
+    assert ws.cell('A2').data_type != 'f'
+    assert ws.cell('A3').data_type == 'f'
+    assert 'A3' not in ws.formula_attributes
+    assert ws.cell('A3').value == '=12345'
+    assert ws.cell('A4').data_type == 'f'
+    assert 'A4' not in ws.formula_attributes
+    assert ws.cell('A4').value == '=A2+A3'
+    assert ws.cell('A5').data_type == 'f'
+    assert 'A5' not in ws.formula_attributes
+    assert ws.cell('A5').value == '=SUM(A2:A4)'
+
+    # Test shared forumlae
+    assert ws.cell('B7').data_type == 'f'
+    assert ws.formula_attributes['B7']['t'] == 'shared'
+    assert ws.formula_attributes['B7']['si'] == '0'
+    assert ws.formula_attributes['B7']['ref'] == 'B7:E7'
+    assert ws.cell('B7').value == '=B4*2'
+    assert ws.cell('C7').data_type == 'f'
+    assert ws.formula_attributes['C7']['t'] == 'shared'
+    assert ws.formula_attributes['C7']['si'] == '0'
+    assert 'ref' not in ws.formula_attributes['C7']
+    assert ws.cell('C7').value == '='
+    assert ws.cell('D7').data_type == 'f'
+    assert ws.formula_attributes['D7']['t'] == 'shared'
+    assert ws.formula_attributes['D7']['si'] == '0'
+    assert 'ref' not in ws.formula_attributes['D7']
+    assert ws.cell('D7').value == '='
+    assert ws.cell('E7').data_type == 'f'
+    assert ws.formula_attributes['E7']['t'] == 'shared'
+    assert ws.formula_attributes['E7']['si'] == '0'
+    assert 'ref' not in ws.formula_attributes['E7']
+    assert ws.cell('E7').value == '='
+
+    # Test array forumlae
+    assert ws.cell('C10').data_type == 'f'
+    assert 'ref' not in ws.formula_attributes['C10']['ref']
+    assert ws.formula_attributes['C10']['t'] == 'array'
+    assert 'si' not in ws.formula_attributes['C10']
+    assert ws.formula_attributes['C10']['ref'] == 'C10:C14'
+    assert ws.cell('C10').value == '=SUM(A10:A14*B10:B14)'
+    assert ws.cell('C11').data_type != 'f'
+
+
+
 def test_read_contains_chartsheet():
     """
     Test reading workbook containing chartsheet.

@@ -134,6 +134,12 @@ def test_write_formula():
     ws.cell('F1').value = 10
     ws.cell('F2').value = 32
     ws.cell('F3').value = '=F1+F2'
+    ws.cell('A4').value = '=A1+A2+A3'
+    ws.formula_attributes['A4'] = {'t': 'shared', 'ref': 'A4:C4', 'si': '0'}
+    ws.cell('B4').value = '='
+    ws.formula_attributes['B4'] = {'t': 'shared', 'si': '0'}
+    ws.cell('C4').value = '='
+    ws.formula_attributes['C4'] = {'t': 'shared', 'si': '0'}
     content = write_worksheet(ws, {}, {})
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_formula.xml')
     with open(reference_file) as expected:
