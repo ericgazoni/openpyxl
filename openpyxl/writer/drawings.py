@@ -101,41 +101,47 @@ class DrawingWriter(object):
         drawing = img.drawing
 
         x, y, w, h = drawing.get_emu_dimensions()
-        anchor = SubElement(node, 'xdr:absoluteAnchor')
-        SubElement(anchor, 'xdr:pos', {'x':str(x), 'y':str(y)})
-        SubElement(anchor, 'xdr:ext', {'cx':str(w), 'cy':str(h)})
+        anchor = SubElement(node, '{%s}absoluteAnchor' % SHEET_DRAWING_NS)
+        SubElement(anchor, '{%s}pos' % SHEET_DRAWING_NS, {'x':str(x), 'y':str(y)})
+        SubElement(anchor, '{%s}ext' % SHEET_DRAWING_NS, {'cx':str(w), 'cy':str(h)})
 
-        pic = SubElement(anchor, 'xdr:pic')
-        name = SubElement(pic, 'xdr:nvPicPr')
-        SubElement(name, 'xdr:cNvPr', {'id':'%s' % idx, 'name':'Picture %s' % idx})
-        SubElement(SubElement(name, 'xdr:cNvPicPr'), 'a:picLocks', {'noChangeAspect':"1" if img.nochangeaspect else '0','noChangeArrowheads':"1" if img.nochangearrowheads else '0'})
-        blipfill = SubElement(pic, 'xdr:blipFill')
-        SubElement(blipfill, 'a:blip', {
-            'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
-            'r:embed': 'rId%s' % (idx + 1),
+        pic = SubElement(anchor, '{%s}pic' % SHEET_DRAWING_NS)
+        name = SubElement(pic, '{%s}nvPicPr' % SHEET_DRAWING_NS)
+        SubElement(name, '{%s}cNvPr' % SHEET_DRAWING_NS, {'id':'%s' % idx, 'name':'Picture %s' % idx})
+        SubElement(SubElement(name, '{%s}cNvPicPr' % SHEET_DRAWING_NS),
+                   '{%s}picLocks' % DRAWING_NS, {'noChangeAspect':"1" if img.nochangeaspect\
+                                    else '0','noChangeArrowheads':"1" if img.nochangearrowheads\
+                                    else '0'})
+        blipfill = SubElement(pic, '{%s}blipFill' % SHEET_DRAWING_NS)
+        SubElement(blipfill, '{%s}blip' % DRAWING_NS, {
+            '{%s}embed' % REL_NS: 'rId%s' % (idx + 1),
             'cstate':'print'
         })
-        SubElement(blipfill, 'a:srcRect')
-        SubElement(SubElement(blipfill, 'a:stretch'), 'a:fillRect')
+        SubElement(blipfill, '{%s}srcRect' % DRAWING_NS)
+        SubElement(
+            SubElement(blipfill, '{%s}stretch' % DRAWING_NS),
+            '{%s}fillRect' % DRAWING_NS)
 
-        sppr = SubElement(pic, 'xdr:spPr', {'bwMode':'auto'})
-        frm = SubElement(sppr, 'a:xfrm')
+        sppr = SubElement(pic, '{%s}spPr' % SHEET_DRAWING_NS, {'bwMode':'auto'})
+        frm = SubElement(sppr, '{%s}xfrm' % DRAWING_NS)
         # no transformation
-        SubElement(frm, 'a:off', {'x':'0', 'y':'0'})
-        SubElement(frm, 'a:ext', {'cx':'0', 'cy':'0'})
+        SubElement(frm, '{%s}off' % DRAWING_NS, {'x':'0', 'y':'0'})
+        SubElement(frm, '{%s}ext' % DRAWING_NS, {'cx':'0', 'cy':'0'})
 
-        SubElement(SubElement(sppr, 'a:prstGeom', {'prst':'rect'}), 'a:avLst')
+        SubElement(
+            SubElement(sppr, '{%s}prstGeom' % DRAWING_NS, {'prst':'rect'})
+            , '{%s}avLst' % DRAWING_NS)
 
-        SubElement(sppr, 'a:noFill')
+        SubElement(sppr, '{%s}noFill' % DRAWING_NS)
 
-        ln = SubElement(sppr, 'a:ln', {'w':'1'})
-        SubElement(ln, 'a:noFill')
-        SubElement(ln, 'a:miter', {'lim':'800000'})
-        SubElement(ln, 'a:headEnd')
-        SubElement(ln, 'a:tailEnd', {'type':'none', 'w':'med', 'len':'med'})
-        SubElement(sppr, 'a:effectLst')
+        ln = SubElement(sppr, '{%s}ln' % DRAWING_NS, {'w':'1'})
+        SubElement(ln, '{%s}noFill' % DRAWING_NS)
+        SubElement(ln, '{%s}miter' % DRAWING_NS, {'lim':'800000'})
+        SubElement(ln, '{%s}headEnd' % DRAWING_NS)
+        SubElement(ln, '{%s}tailEnd' % DRAWING_NS, {'type':'none', 'w':'med', 'len':'med'})
+        SubElement(sppr, '{%s}effectLst' % DRAWING_NS)
 
-        SubElement(anchor, 'xdr:clientData')
+        SubElement(anchor, '{%s}clientData' % SHEET_DRAWING_NS)
 
     def write_rels(self, chart_id, image_id):
 
