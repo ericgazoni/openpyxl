@@ -171,42 +171,41 @@ class ShapeWriter(object):
 
     def write(self, shape_id):
 
-        root = Element('c:userShapes', {'xmlns:c' : 'http://schemas.openxmlformats.org/drawingml/2006/chart'})
+        root = Element('{%s}userShapes' % CHART_NS)
 
         for shape in self._shapes:
-            anchor = SubElement(root, 'cdr:relSizeAnchor',
-                {'xmlns:cdr' : "http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"})
+            anchor = SubElement(root, '{%s}relSizeAnchor' % CHART_DRAWING_NS)
 
             xstart, ystart, xend, yend = shape.coordinates
 
-            _from = SubElement(anchor, 'cdr:from')
-            SubElement(_from, 'cdr:x').text = str(xstart)
-            SubElement(_from, 'cdr:y').text = str(ystart)
+            _from = SubElement(anchor, '{%s}from' % CHART_DRAWING_NS)
+            SubElement(_from, '{%s}x' % CHART_DRAWING_NS).text = str(xstart)
+            SubElement(_from, '{%s}y' % CHART_DRAWING_NS).text = str(ystart)
 
-            _to = SubElement(anchor, 'cdr:to')
-            SubElement(_to, 'cdr:x').text = str(xend)
-            SubElement(_to, 'cdr:y').text = str(yend)
+            _to = SubElement(anchor, '{%s}to' % CHART_DRAWING_NS)
+            SubElement(_to, '{%s}x' % CHART_DRAWING_NS).text = str(xend)
+            SubElement(_to, '{%s}y' % CHART_DRAWING_NS).text = str(yend)
 
-            sp = SubElement(anchor, 'cdr:sp', {'macro':'', 'textlink':''})
-            nvspr = SubElement(sp, 'cdr:nvSpPr')
-            SubElement(nvspr, 'cdr:cNvPr', {'id':str(shape_id), 'name':'shape %s' % shape_id})
-            SubElement(nvspr, 'cdr:cNvSpPr')
+            sp = SubElement(anchor, '{%s}sp' % CHART_DRAWING_NS, {'macro':'', 'textlink':''})
+            nvspr = SubElement(sp, '{%s}nvSpPr' % CHART_DRAWING_NS)
+            SubElement(nvspr, '{%s}cNvPr' % CHART_DRAWING_NS, {'id':str(shape_id), 'name':'shape %s' % shape_id})
+            SubElement(nvspr, '{%s}cNvSpPr' % CHART_DRAWING_NS)
 
-            sppr = SubElement(sp, 'cdr:spPr')
-            frm = SubElement(sppr, 'a:xfrm', {'xmlns:a':self.schema})
+            sppr = SubElement(sp, '{%s}spPr' % CHART_DRAWING_NS)
+            frm = SubElement(sppr, '{%s}xfrm' % DRAWING_NS,)
             # no transformation
-            SubElement(frm, 'a:off', {'x':'0', 'y':'0'})
-            SubElement(frm, 'a:ext', {'cx':'0', 'cy':'0'})
+            SubElement(frm, '{%s}off' % DRAWING_NS, {'x':'0', 'y':'0'})
+            SubElement(frm, '{%s}ext' % DRAWING_NS, {'cx':'0', 'cy':'0'})
 
-            prstgeom = SubElement(sppr, 'a:prstGeom', {'xmlns:a':self.schema, 'prst':str(shape.style)})
-            SubElement(prstgeom, 'a:avLst')
+            prstgeom = SubElement(sppr, '{%s}prstGeom' % DRAWING_NS, {'prst':str(shape.style)})
+            SubElement(prstgeom, '{%s}avLst' % DRAWING_NS)
 
-            fill = SubElement(sppr, 'a:solidFill', {'xmlns:a':self.schema})
-            SubElement(fill, 'a:srgbClr', {'val':shape.color})
+            fill = SubElement(sppr, '{%s}solidFill' % DRAWING_NS, )
+            SubElement(fill, '{%s}srgbClr' % DRAWING_NS, {'val':shape.color})
 
-            border = SubElement(sppr, 'a:ln', {'xmlns:a':self.schema, 'w':str(shape._border_width)})
-            sf = SubElement(border, 'a:solidFill')
-            SubElement(sf, 'a:srgbClr', {'val':shape.border_color})
+            border = SubElement(sppr, '{%s}ln' % DRAWING_NS, {'w':str(shape._border_width)})
+            sf = SubElement(border, '{%s}solidFill' % DRAWING_NS)
+            SubElement(sf, '{%s}srgbClr' % DRAWING_NS, {'val':shape.border_color})
 
             self._write_style(sp)
             self._write_text(sp, shape)
