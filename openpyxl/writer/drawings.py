@@ -217,35 +217,34 @@ class ShapeWriter(object):
     def _write_text(self, node, shape):
         """ write text in the shape """
 
-        tx_body = SubElement(node, 'cdr:txBody')
-        SubElement(tx_body, 'a:bodyPr', {'xmlns:a':self.schema, 'vertOverflow':'clip'})
-        SubElement(tx_body, 'a:lstStyle',
-            {'xmlns:a':self.schema})
-        p = SubElement(tx_body, 'a:p', {'xmlns:a':self.schema})
+        tx_body = SubElement(node, '{%s}txBody' % CHART_DRAWING_NS)
+        SubElement(tx_body, '{%s}bodyPr' % DRAWING_NS, {'vertOverflow':'clip'})
+        SubElement(tx_body, '{%s}lstStyle' % DRAWING_NS)
+        p = SubElement(tx_body, '{%s}p' % DRAWING_NS)
         if shape.text:
-            r = SubElement(p, 'a:r')
-            rpr = SubElement(r, 'a:rPr', {'lang':'en-US'})
-            fill = SubElement(rpr, 'a:solidFill')
-            SubElement(fill, 'a:srgbClr', {'val':shape.text_color})
+            r = SubElement(p, '{%s}r' % DRAWING_NS)
+            rpr = SubElement(r, '{%s}rPr' % DRAWING_NS, {'lang':'en-US'})
+            fill = SubElement(rpr, '{%s}solidFill' % DRAWING_NS)
+            SubElement(fill, '{%s}srgbClr' % DRAWING_NS, {'val':shape.text_color})
 
-            SubElement(r, 'a:t').text = shape.text
+            SubElement(r, '{%s}t' % DRAWING_NS).text = shape.text
         else:
-            SubElement(p, 'a:endParaRPr', {'lang':'en-US'})
+            SubElement(p, '{%s}endParaRPr' % DRAWING_NS, {'lang':'en-US'})
 
     def _write_style(self, node):
         """ write style theme """
 
-        style = SubElement(node, 'cdr:style')
+        style = SubElement(node, '{%s}style' % CHART_DRAWING_NS)
 
-        ln_ref = SubElement(style, 'a:lnRef', {'xmlns:a':self.schema, 'idx':'2'})
-        scheme_clr = SubElement(ln_ref, 'a:schemeClr', {'val':'accent1'})
-        SubElement(scheme_clr, 'a:shade', {'val':'50000'})
+        ln_ref = SubElement(style, '{%s}lnRef' % DRAWING_NS, {'idx':'2'})
+        scheme_clr = SubElement(ln_ref, '{%s}schemeClr' % DRAWING_NS, {'val':'accent1'})
+        SubElement(scheme_clr, '{%s}shade' % DRAWING_NS, {'val':'50000'})
 
-        fill_ref = SubElement(style, 'a:fillRef', {'xmlns:a':self.schema, 'idx':'1'})
-        SubElement(fill_ref, 'a:schemeClr', {'val':'accent1'})
+        fill_ref = SubElement(style, '{%s}fillRef' % DRAWING_NS, {'idx':'1'})
+        SubElement(fill_ref, '{%s}schemeClr' % DRAWING_NS, {'val':'accent1'})
 
-        effect_ref = SubElement(style, 'a:effectRef', {'xmlns:a':self.schema, 'idx':'0'})
-        SubElement(effect_ref, 'a:schemeClr', {'val':'accent1'})
+        effect_ref = SubElement(style, '{%s}effectRef' % DRAWING_NS, {'idx':'0'})
+        SubElement(effect_ref, '{%s}schemeClr' % DRAWING_NS, {'val':'accent1'})
 
-        font_ref = SubElement(style, 'a:fontRef', {'xmlns:a':self.schema, 'idx':'minor'})
-        SubElement(font_ref, 'a:schemeClr', {'val':'lt1'})
+        font_ref = SubElement(style, '{%s}fontRef' % DRAWING_NS, {'idx':'minor'})
+        SubElement(font_ref, '{%s}schemeClr' % DRAWING_NS, {'val':'lt1'})
