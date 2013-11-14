@@ -355,15 +355,15 @@ def write_worksheet_hyperlinks(doc, worksheet):
 
 def write_worksheet_rels(worksheet, idx):
     """Write relationships for the worksheet to xml."""
-    root = Element('Relationships', {'xmlns': PKG_REL_NS})
+    root = Element('{%s}Relationships' % PKG_REL_NS)
     for rel in worksheet.relationships:
         attrs = {'Id': rel.id, 'Type': rel.type, 'Target': rel.target}
         if rel.target_mode:
             attrs['TargetMode'] = rel.target_mode
-        SubElement(root, 'Relationship', attrs)
+        SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
     if worksheet._charts or worksheet._images:
         attrs = {'Id' : 'rId1',
             'Type' : '%s/drawing' % REL_NS,
             'Target' : '../drawings/drawing%s.xml' % idx }
-        SubElement(root, 'Relationship', attrs)
+        SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
     return get_document_content(root)
