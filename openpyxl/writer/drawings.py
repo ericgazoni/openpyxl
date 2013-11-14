@@ -47,10 +47,10 @@ class DrawingWriter(object):
         root = Element("{%s}wsDr" % SHEET_DRAWING_NS)
 
         for idx, chart in enumerate(self._sheet._charts):
-            self._write_chart(root, chart, idx)
+            self._write_chart(root, chart, idx+1)
 
         for idx, img in enumerate(self._sheet._images):
-            self._write_image(root, img, idx)
+            self._write_image(root, img, idx+1)
 
         return get_document_content(root)
 
@@ -83,7 +83,7 @@ class DrawingWriter(object):
         frame = SubElement(anchor, '{%s}graphicFrame' % SHEET_DRAWING_NS, {'macro':''})
 
         name = SubElement(frame, '{%s}nvGraphicFramePr' % SHEET_DRAWING_NS)
-        SubElement(name, '{%s}cNvPr'% SHEET_DRAWING_NS, {'id':'%s' % idx, 'name':'Graphique %s' % idx})
+        SubElement(name, '{%s}cNvPr'% SHEET_DRAWING_NS, {'id':'%s' % (idx + 1), 'name':'Chart %s' % idx})
         SubElement(name, '{%s}cNvGraphicFramePr' % SHEET_DRAWING_NS)
 
         frm = SubElement(frame, '{%s}xfrm'  % SHEET_DRAWING_NS)
@@ -93,7 +93,7 @@ class DrawingWriter(object):
 
         graph = SubElement(frame, '{%s}graphic' % DRAWING_NS)
         data = SubElement(graph, '{%s}graphicData' % DRAWING_NS, {'uri':CHART_NS})
-        SubElement(data, '{%s}chart' % CHART_NS, {'{%s}id' % REL_NS:'rId%s' % (idx + 1)})
+        SubElement(data, '{%s}chart' % CHART_NS, {'{%s}id' % REL_NS:'rId%s' % idx })
 
         SubElement(anchor, '{%s}clientData' % SHEET_DRAWING_NS)
         return node
@@ -108,14 +108,14 @@ class DrawingWriter(object):
 
         pic = SubElement(anchor, '{%s}pic' % SHEET_DRAWING_NS)
         name = SubElement(pic, '{%s}nvPicPr' % SHEET_DRAWING_NS)
-        SubElement(name, '{%s}cNvPr' % SHEET_DRAWING_NS, {'id':'%s' % idx, 'name':'Picture %s' % idx})
+        SubElement(name, '{%s}cNvPr' % SHEET_DRAWING_NS, {'id':'%s' % (idx + 1), 'name':'Picture %s' % idx})
         SubElement(SubElement(name, '{%s}cNvPicPr' % SHEET_DRAWING_NS),
                    '{%s}picLocks' % DRAWING_NS, {'noChangeAspect':"1" if img.nochangeaspect\
                                     else '0','noChangeArrowheads':"1" if img.nochangearrowheads\
                                     else '0'})
         blipfill = SubElement(pic, '{%s}blipFill' % SHEET_DRAWING_NS)
         SubElement(blipfill, '{%s}blip' % DRAWING_NS, {
-            '{%s}embed' % REL_NS: 'rId%s' % (idx + 1),
+            '{%s}embed' % REL_NS: 'rId%s' % idx,
             'cstate':'print'
         })
         SubElement(blipfill, '{%s}srcRect' % DRAWING_NS)

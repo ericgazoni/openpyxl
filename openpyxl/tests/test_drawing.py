@@ -278,7 +278,7 @@ class TestDrawingWriter(object):
     <xdr:ext cx="200025" cy="1828800" />
     <xdr:graphicFrame macro="">
       <xdr:nvGraphicFramePr>
-        <xdr:cNvPr id="0" name="Graphique 0" />
+        <xdr:cNvPr id="2" name="Chart 1" />
         <xdr:cNvGraphicFramePr />
       </xdr:nvGraphicFramePr>
       <xdr:xfrm>
@@ -303,7 +303,7 @@ class TestDrawingWriter(object):
         chart = DummyChart()
         drawing = Drawing()
         chart.drawing = drawing
-        self.dw._write_chart(root, chart, 0)
+        self.dw._write_chart(root, chart, 1)
         xml = get_xml(root)
         expected = """<xdr:test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
         xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
@@ -312,7 +312,7 @@ class TestDrawingWriter(object):
     <xdr:ext cx="200025" cy="1828800"/>
     <xdr:graphicFrame macro="">
       <xdr:nvGraphicFramePr>
-        <xdr:cNvPr id="0" name="Graphique 0"/>
+        <xdr:cNvPr id="2" name="Chart 1"/>
         <xdr:cNvGraphicFramePr/>
       </xdr:nvGraphicFramePr>
       <xdr:xfrm>
@@ -337,7 +337,7 @@ class TestDrawingWriter(object):
         path = os.path.join(DATADIR, "plain.png")
         img = Image(path)
         root = Element("test")
-        self.dw._write_image(root, img, 0)
+        self.dw._write_image(root, img, 1)
         xml = get_xml(root)
         expected = """<test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
   <xdr:absoluteAnchor>
@@ -345,7 +345,7 @@ class TestDrawingWriter(object):
     <xdr:ext cx="1123950" cy="1123950"/>
     <xdr:pic>
       <xdr:nvPicPr>
-        <xdr:cNvPr id="0" name="Picture 0"/>
+        <xdr:cNvPr id="2" name="Picture 1"/>
         <xdr:cNvPicPr>
           <a:picLocks noChangeArrowheads="1" noChangeAspect="1"/>
         </xdr:cNvPicPr>
