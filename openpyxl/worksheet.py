@@ -465,6 +465,7 @@ class ConditionalFormatting(object):
         Valid values for operator are:
         'between', 'notBetween', 'equal', 'notEqual', 'greaterThan', 'lessThan', 'greaterThanOrEqual', 'lessThanOrEqual'
         """
+        # Excel doesn't use >, >=, etc, but allow for ease of python development
         expand = {">": "greaterThan", ">=": "greaterThanOrEqual", "<": "lessThan", "<=": "lessThanOrEqual",
                   "=": "equal", "==": "equal", "!=": "notEqual"}
         operator = expand[operator] if operator in expand else operator
