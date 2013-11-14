@@ -362,7 +362,7 @@ class TestDrawingWriter(object):
     def test_write_rels(self):
         self.dw._sheet._charts.append(None)
         self.dw._sheet._images.append(None)
-        xml = self.dw.write_rels(1, 1)
+        xml = self.dw.write_rels(0, 0)
         expected = """<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Target="../charts/chart1.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
   <Relationship Id="rId2" Target="../media/image1.png" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"/>
