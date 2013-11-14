@@ -85,6 +85,8 @@ def scatter(wb):
 
 if __name__ == "__main__":
     wb = Workbook()
+    ws = wb.get_active_sheet()
+    wb.remove_sheet(ws)
     numbers(wb)
     negative(wb)
     letters(wb)
