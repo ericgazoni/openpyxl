@@ -465,20 +465,9 @@ class ConditionalFormatting(object):
         Valid values for operator are:
         'between', 'notBetween', 'equal', 'notEqual', 'greaterThan', 'lessThan', 'greaterThanOrEqual', 'lessThanOrEqual'
         """
-        if operator == ">":
-            operator = "greaterThan"
-        elif operator == ">=":
-            operator = "greaterThanOrEqual"
-        elif operator == "<":
-            operator = "lessThan"
-        elif operator == "<=":
-            operator = "lessThanOrEqual"
-        elif operator == "=":
-            operator = "equal"
-        elif operator == "==":
-            operator = "equal"
-        elif operator == "!=":
-            operator = "notEqual"
+        expand = {">": "greaterThan", ">=": "greaterThanOrEqual", "<": "lessThan", "<=": "lessThanOrEqual",
+                  "=": "equal", "==": "equal", "!=": "notEqual"}
+        operator = expand[operator] if operator in expand else operator
 
         if operator in ('between', 'notBetween', 'equal', 'notEqual', 'greaterThan', 'lessThan', 'greaterThanOrEqual',
                         'lessThanOrEqual'):
