@@ -153,8 +153,8 @@ class DrawingWriter(object):
                 'Target' : '../charts/chart%s.xml' % (chart_id + i) }
             SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
         for j, img in enumerate(self._sheet._images):
-            attrs = {'Id' : 'rId%s' % (i + j + 1),
-                'Type' : '{%s/image' % REL_NS,
+            attrs = {'Id' : 'rId%s' % (i + 1 + j + 1),
+                'Type' : '%s/image' % REL_NS,
                 'Target' : '../media/image%s.png' % (image_id + j) }
             SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
         return get_document_content(root)
