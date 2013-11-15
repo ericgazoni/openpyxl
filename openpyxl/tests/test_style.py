@@ -654,7 +654,10 @@ def test_parse_dxfs():
     assert len(wb.style_properties['dxf_list']) == 164
 
     # Verify first dxf style
-    assert '<dxfs count="164"><dxf><font><color rgb="FF9C0006"/></font><fill><patternFill><bgColor rgb="FFFFC7CE"/></patternFill></fill></dxf>' in read_xml
+    reference_file = os.path.join(DATADIR, 'writer', 'expected', 'dxf_style.xml')
+    with open(reference_file) as expected:
+        diff = compare_xml(read_xml, expected.read())
+        assert diff is None, diff
     assert repr(wb.style_properties['dxf_list'][0]) == "{'font': {'color': 'FF9C0006', 'bold': False, 'italic': False}, 'border': [], 'fill': [None:0:'FFFFFFFF':'FFFFC7CE']}"
 
     # Verify that the dxf styles stay the same when they're written and read back in.
