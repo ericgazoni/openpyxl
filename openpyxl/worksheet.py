@@ -346,7 +346,7 @@ class ConditionalFormatting(object):
     icon_attributes = ('iconSet', 'showValue', 'reverse')
 
     def __init__(self):
-        self.cf_rules = {}
+        self.cf_rules = OrderedDict()
         self.max_priority = 0
 
     def setRules(self, cfRules):
