@@ -26,7 +26,19 @@ if sys.version_info < (2, 6):
     raise Exception("Python >= 2.6 is required.")
 
 from setuptools import setup, Extension, find_packages
+from setuptools.command.test import test as TestCommand
 import openpyxl  # to fetch __version__ etc
+
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = ['openpyxl']
+        self.test_suite = True
+    def run_tests(self):
+        #import here, cause outside the eggs aren't loaded
+        import pytest
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
 
 setup(name = 'openpyxl',
     packages = find_packages(),
@@ -40,7 +52,7 @@ setup(name = 'openpyxl',
     url = openpyxl.__url__,
     license = openpyxl.__license__,
     download_url = openpyxl.__downloadUrl__,
-    test_suite = 'nose.collector',
+    cmdclass = {'test': PyTest},
     tests_require = ['nose', 'lxml', 'pytest'],
     classifiers = ['Development Status :: 4 - Beta',
           'Operating System :: MacOS :: MacOS X',
