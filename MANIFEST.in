@@ -1,5 +1,5 @@
 prune openpyxl/tests
-prunt openpyxl/sample
+prune openpyxl/sample
 include LICENCE
 include AUTHORS
 include README

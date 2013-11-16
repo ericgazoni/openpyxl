@@ -66,7 +66,6 @@ class Color(HashableObject):
     __leaf__ = True
 
     def __init__(self, index):
-        super(Color, self).__init__()
         self.index = index
 
 
@@ -90,7 +89,6 @@ class Font(HashableObject):
     __slots__ = __fields__
 
     def __init__(self):
-        super(Font, self).__init__()
         self.name = 'Calibri'
         self.size = 11
         self.bold = False
@@ -133,7 +131,6 @@ class Fill(HashableObject):
     __slots__ = __fields__
 
     def __init__(self):
-        super(Fill, self).__init__()
         self.fill_type = self.FILL_NONE
         self.rotation = 0
         self.start_color = Color(Color.WHITE)
@@ -162,7 +159,6 @@ class Border(HashableObject):
     __slots__ = __fields__
 
     def __init__(self):
-        super(Border, self).__init__()
         self.border_style = self.BORDER_NONE
         self.color = Color(Color.BLACK)
 
@@ -188,7 +184,6 @@ class Borders(HashableObject):
     __slots__ = __fields__
 
     def __init__(self):
-        super(Borders, self).__init__()
         self.left = Border()
         self.right = Border()
         self.top = Border()
@@ -226,7 +221,6 @@ class Alignment(HashableObject):
     __leaf__ = True
 
     def __init__(self):
-        super(Alignment, self).__init__()
         self.horizontal = self.HORIZONTAL_GENERAL
         self.vertical = self.VERTICAL_BOTTOM
         self.text_rotation = 0
@@ -332,7 +326,6 @@ class NumberFormat(HashableObject):
         #return super(NumberFormat, self).__hash__()
 
     def __init__(self):
-        super(NumberFormat, self).__init__()
         self._format_code = self.FORMAT_GENERAL
         self._format_index = 0
 
@@ -384,7 +377,6 @@ class Protection(HashableObject):
     __leaf__ = True
 
     def __init__(self):
-        super(Protection, self).__init__()
         self.locked = self.PROTECTION_INHERIT
         self.hidden = self.PROTECTION_INHERIT
 
@@ -400,7 +392,6 @@ class Style(HashableObject):
     __slots__ = __fields__
 
     def __init__(self, static=False):
-        super(Style, self).__init__()
         self.static = static
         self.font = Font()
         self.fill = Fill()

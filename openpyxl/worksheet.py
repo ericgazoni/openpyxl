@@ -341,12 +341,12 @@ class ColumnDimension(object):
 
 class ConditionalFormatting(object):
     """Conditional formatting rules."""
-    rule_attributes = ['aboveAverage', 'bottom', 'dxfId', 'equalAverage', 'operator', 'percent', 'priority', 'rank',
-                       'stdDev', 'stopIfTrue', 'text']
-    icon_attributes = ['iconSet', 'showValue', 'reverse']
+    rule_attributes = ('aboveAverage', 'bottom', 'dxfId', 'equalAverage', 'operator', 'percent', 'priority', 'rank',
+                       'stdDev', 'stopIfTrue', 'text')
+    icon_attributes = ('iconSet', 'showValue', 'reverse')
 
     def __init__(self):
-        self.cf_rules = {}
+        self.cf_rules = OrderedDict()
         self.max_priority = 0
 
     def setRules(self, cfRules):
@@ -358,14 +358,12 @@ class ConditionalFormatting(object):
         self.cf_rules = {}
         self.max_priority = 0
         priorityMap = []
-        if not isinstance(cfRules, dict):
-            return
-        for range_string, rules in cfRules.items():
+        for range_string, rules in iteritems(cfRules):
             self.cf_rules[range_string] = rules
             for rule in rules:
                 priorityMap.append(int(rule['priority']))
         priorityMap.sort()
-        for range_string, rules in cfRules.items():
+        for range_string, rules in iteritems(cfRules):
             self.cf_rules[range_string] = rules
             for rule in rules:
                 priority = priorityMap.index(int(rule['priority'])) + 1
@@ -468,15 +466,13 @@ class ConditionalFormatting(object):
         # Excel doesn't use >, >=, etc, but allow for ease of python development
         expand = {">": "greaterThan", ">=": "greaterThanOrEqual", "<": "lessThan", "<=": "lessThanOrEqual",
                   "=": "equal", "==": "equal", "!=": "notEqual"}
-        operator = expand[operator] if operator in expand else operator
+        operator = expand.get(operator, operator)
 
-        if operator in ('between', 'notBetween', 'equal', 'notEqual', 'greaterThan', 'lessThan', 'greaterThanOrEqual',
-                        'lessThanOrEqual'):
-            dxfId = self.addDxfStyle(wb, font, border, fill)
-            rule = {'type': 'cellIs', 'dxfId': dxfId, 'operator': operator, 'formula': formula}
-            if stopIfTrue:
-                rule['stopIfTrue'] = '1'
-            self.addCustomRule(range_string, rule)
+        dxfId = self.addDxfStyle(wb, font, border, fill)
+        rule = {'type': 'cellIs', 'dxfId': dxfId, 'operator': operator, 'formula': formula}
+        if stopIfTrue:
+            rule['stopIfTrue'] = '1'
+        self.addCustomRule(range_string, rule)
 
 
 class PageMargins(object):
@@ -889,7 +885,7 @@ class Worksheet(object):
         """
         data_validation._sheet = self
         self._data_validations.append(data_validation)
-                
+
     def add_chart(self, chart):
         """ Add a chart to the sheet """
 
