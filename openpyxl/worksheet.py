@@ -468,15 +468,13 @@ class ConditionalFormatting(object):
         # Excel doesn't use >, >=, etc, but allow for ease of python development
         expand = {">": "greaterThan", ">=": "greaterThanOrEqual", "<": "lessThan", "<=": "lessThanOrEqual",
                   "=": "equal", "==": "equal", "!=": "notEqual"}
-        operator = expand[operator] if operator in expand else operator
+        operator = expand.get(operator, operator)
 
-        if operator in ('between', 'notBetween', 'equal', 'notEqual', 'greaterThan', 'lessThan', 'greaterThanOrEqual',
-                        'lessThanOrEqual'):
-            dxfId = self.addDxfStyle(wb, font, border, fill)
-            rule = {'type': 'cellIs', 'dxfId': dxfId, 'operator': operator, 'formula': formula}
-            if stopIfTrue:
-                rule['stopIfTrue'] = '1'
-            self.addCustomRule(range_string, rule)
+        dxfId = self.addDxfStyle(wb, font, border, fill)
+        rule = {'type': 'cellIs', 'dxfId': dxfId, 'operator': operator, 'formula': formula}
+        if stopIfTrue:
+            rule['stopIfTrue'] = '1'
+        self.addCustomRule(range_string, rule)
 
 
 class PageMargins(object):
