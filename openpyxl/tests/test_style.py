@@ -650,7 +650,7 @@ def test_parse_dxfs():
     read_xml = archive.read(ARC_STYLE)
 
     # Verify length
-    assert '<dxfs count="164">' in read_xml
+    assert '<dxfs count="164">' in str(read_xml)
     assert len(wb.style_properties['dxf_list']) == 164
 
     # Verify first dxf style
