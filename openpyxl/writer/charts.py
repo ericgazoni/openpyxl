@@ -247,14 +247,7 @@ class BaseChartWriter(object):
 
         settings = SubElement(root, '{%s}printSettings' % CHART_NS)
         SubElement(settings, '{%s}headerFooter' % CHART_NS)
-        try:
-            # Python 2
-            print_margins_items = iteritems(self.chart.print_margins)
-        except AttributeError:
-            # Python 3
-            print_margins_items = self.chart.print_margins.items()
-
-        margins = dict([(k, safe_string(v)) for (k, v) in print_margins_items])
+        margins = dict([(k, safe_string(v)) for (k, v) in iteritems(self.chart.print_margins)])
         SubElement(settings, '{%s}pageMargins' % CHART_NS, margins)
         SubElement(settings, '{%s}pageSetup' % CHART_NS)
 
