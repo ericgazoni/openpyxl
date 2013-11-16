@@ -341,9 +341,9 @@ class ColumnDimension(object):
 
 class ConditionalFormatting(object):
     """Conditional formatting rules."""
-    rule_attributes = ['aboveAverage', 'bottom', 'dxfId', 'equalAverage', 'operator', 'percent', 'priority', 'rank',
-                       'stdDev', 'stopIfTrue', 'text']
-    icon_attributes = ['iconSet', 'showValue', 'reverse']
+    rule_attributes = ('aboveAverage', 'bottom', 'dxfId', 'equalAverage', 'operator', 'percent', 'priority', 'rank',
+                       'stdDev', 'stopIfTrue', 'text')
+    icon_attributes = ('iconSet', 'showValue', 'reverse')
 
     def __init__(self):
         self.cf_rules = {}
