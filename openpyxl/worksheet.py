@@ -358,8 +358,6 @@ class ConditionalFormatting(object):
         self.cf_rules = {}
         self.max_priority = 0
         priorityMap = []
-        if not isinstance(cfRules, dict):
-            return
         for range_string, rules in iteritems(cfRules):
             self.cf_rules[range_string] = rules
             for rule in rules:
