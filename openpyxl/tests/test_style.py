@@ -449,7 +449,7 @@ def compare_complex(a, b):
         if not isinstance(b, dict):
             return False
         else:
-            for k in a.iterkeys():
+            for k in a.keys():
                 if isinstance(a[k], (list, dict)):
                     if not compare_complex(a[k], b[k]):
                         return False
@@ -650,7 +650,6 @@ def test_parse_dxfs():
     read_xml = archive.read(ARC_STYLE)
 
     # Verify length
-    assert '<dxfs count="164">' in read_xml
     assert len(wb.style_properties['dxf_list']) == 164
 
     # Verify first dxf style
