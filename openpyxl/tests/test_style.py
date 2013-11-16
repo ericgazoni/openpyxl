@@ -28,7 +28,7 @@ import os.path
 import datetime
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO, StringIO
+from openpyxl.shared.compat import BytesIO, StringIO, iterkeys
 
 # package imports
 from openpyxl.reader.excel import load_workbook
@@ -449,7 +449,7 @@ def compare_complex(a, b):
         if not isinstance(b, dict):
             return False
         else:
-            for k in a.iterkeys():
+            for k in iterkeys(a):
                 if isinstance(a[k], (list, dict)):
                     if not compare_complex(a[k], b[k]):
                         return False

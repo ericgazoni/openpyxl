@@ -100,7 +100,7 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_datavalidations(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
 
-    for range_string, rules in worksheet.conditional_formatting.cf_rules.iteritems():
+    for range_string, rules in iteritems(worksheet.conditional_formatting.cf_rules):
         if not len(rules):
             # Skip if there are no rules.  This is possible if a dataBar rule was read in and ignored.
             continue

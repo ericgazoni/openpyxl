@@ -360,12 +360,12 @@ class ConditionalFormatting(object):
         priorityMap = []
         if not isinstance(cfRules, dict):
             return
-        for range_string, rules in cfRules.iteritems():
+        for range_string, rules in iteritems(cfRules):
             self.cf_rules[range_string] = rules
             for rule in rules:
                 priorityMap.append(int(rule['priority']))
         priorityMap.sort()
-        for range_string, rules in cfRules.iteritems():
+        for range_string, rules in iteritems(cfRules):
             self.cf_rules[range_string] = rules
             for rule in rules:
                 priority = priorityMap.index(int(rule['priority'])) + 1
@@ -889,7 +889,7 @@ class Worksheet(object):
         """
         data_validation._sheet = self
         self._data_validations.append(data_validation)
-                
+
     def add_chart(self, chart):
         """ Add a chart to the sheet """
 
