@@ -15,4 +15,4 @@ script:
 notifications:
   email:
     recipients:
-      - web@myemptybucket.com
+      - charlie.clark@clark-consulting.eu
