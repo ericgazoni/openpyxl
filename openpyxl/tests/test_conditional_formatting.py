@@ -51,18 +51,28 @@ class TestConditionalFormatting(object):
 
     def test_conditional_formatting_add2ColorScale(self):
         self.worksheet.conditional_formatting.add2ColorScale('A1:A10', 'min', None, 'FFAA0000', 'max', None, 'FF00AA00')
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="A1:A10"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFAA0000"></color><color rgb="FF00AA00"></color></colorScale></cfRule></conditionalFormatting></worksheet>'
-        diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        rules = self.worksheet.conditional_formatting.cf_rules
+        assert 'A1:A10' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['A1:A10']) == 1
+        assert rules['A1:A10'][0]['priority'] == 1
+        assert rules['A1:A10'][0]['type'] == 'colorScale'
+        assert rules['A1:A10'][0]['colorScale']['cfvo'][0]['type'] == 'min'
+        assert rules['A1:A10'][0]['colorScale']['cfvo'][1]['type'] == 'max'
 
     def test_conditional_formatting_add3ColorScale(self):
         self.worksheet.conditional_formatting.add3ColorScale('B1:B10', 'percentile', 10, 'FFAA0000', 'percentile', 50,
                                                              'FF0000AA', 'percentile', 90, 'FF00AA00')
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="B1:B10"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="percentile" val="10"></cfvo><cfvo type="percentile" val="50"></cfvo><cfvo type="percentile" val="90"></cfvo><color rgb="FFAA0000"></color><color rgb="FF0000AA"></color><color rgb="FF00AA00"></color></colorScale></cfRule></conditionalFormatting></worksheet>'
-        diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        rules = self.worksheet.conditional_formatting.cf_rules
+        assert 'B1:B10' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['B1:B10']) == 1
+        assert rules['B1:B10'][0]['priority'] == 1
+        assert rules['B1:B10'][0]['type'] == 'colorScale'
+        assert rules['B1:B10'][0]['colorScale']['cfvo'][0]['type'] == 'percentile'
+        assert rules['B1:B10'][0]['colorScale']['cfvo'][0]['val'] == '10'
+        assert rules['B1:B10'][0]['colorScale']['cfvo'][1]['type'] == 'percentile'
+        assert rules['B1:B10'][0]['colorScale']['cfvo'][1]['val'] == '50'
+        assert rules['B1:B10'][0]['colorScale']['cfvo'][2]['type'] == 'percentile'
+        assert rules['B1:B10'][0]['colorScale']['cfvo'][2]['val'] == '90'
 
     def test_conditional_formatting_addCellIs_greaterThan(self):
         redFill = Fill()
@@ -73,10 +83,23 @@ class TestConditionalFormatting(object):
                                                         None, None, redFill)
         self.worksheet.conditional_formatting.addCellIs('V10:V18', '>', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="U10:U18"><cfRule priority="1" dxfId="0" type="cellIs" stopIfTrue="1" operator="greaterThan"><formula>U$7</formula></cfRule></conditionalFormatting><conditionalFormatting sqref="V10:V18"><cfRule priority="2" dxfId="1" type="cellIs" stopIfTrue="1" operator="greaterThan"><formula>V$7</formula></cfRule></conditionalFormatting></worksheet>'
-        diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        rules = self.worksheet.conditional_formatting.cf_rules
+        assert 'U10:U18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert rules['U10:U18'][0]['priority'] == 1
+        assert rules['U10:U18'][0]['type'] == 'cellIs'
+        assert rules['U10:U18'][0]['dxfId'] == 0
+        assert rules['U10:U18'][0]['operator'] == 'greaterThan'
+        assert rules['U10:U18'][0]['formula'][0] == 'U$7'
+        assert rules['U10:U18'][0]['stopIfTrue'] == '1'
+        assert 'V10:V18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert rules['V10:V18'][0]['priority'] == 2
+        assert rules['V10:V18'][0]['type'] == 'cellIs'
+        assert rules['V10:V18'][0]['dxfId'] == 1
+        assert rules['V10:V18'][0]['operator'] == 'greaterThan'
+        assert rules['V10:V18'][0]['formula'][0] == 'V$7'
+        assert rules['V10:V18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_greaterThanOrEqual(self):
         redFill = Fill()
@@ -87,10 +110,23 @@ class TestConditionalFormatting(object):
                                                         None, None, redFill)
         self.worksheet.conditional_formatting.addCellIs('V10:V18', '>=', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="U10:U18"><cfRule priority="1" dxfId="0" type="cellIs" stopIfTrue="1" operator="greaterThanOrEqual"><formula>U$7</formula></cfRule></conditionalFormatting><conditionalFormatting sqref="V10:V18"><cfRule priority="2" dxfId="1" type="cellIs" stopIfTrue="1" operator="greaterThanOrEqual"><formula>V$7</formula></cfRule></conditionalFormatting></worksheet>'
-        diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        rules = self.worksheet.conditional_formatting.cf_rules
+        assert 'U10:U18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert rules['U10:U18'][0]['priority'] == 1
+        assert rules['U10:U18'][0]['type'] == 'cellIs'
+        assert rules['U10:U18'][0]['dxfId'] == 0
+        assert rules['U10:U18'][0]['operator'] == 'greaterThanOrEqual'
+        assert rules['U10:U18'][0]['formula'][0] == 'U$7'
+        assert rules['U10:U18'][0]['stopIfTrue'] == '1'
+        assert 'V10:V18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert rules['V10:V18'][0]['priority'] == 2
+        assert rules['V10:V18'][0]['type'] == 'cellIs'
+        assert rules['V10:V18'][0]['dxfId'] == 1
+        assert rules['V10:V18'][0]['operator'] == 'greaterThanOrEqual'
+        assert rules['V10:V18'][0]['formula'][0] == 'V$7'
+        assert rules['V10:V18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_lessThan(self):
         redFill = Fill()
@@ -101,10 +137,23 @@ class TestConditionalFormatting(object):
                                                         None, None, redFill)
         self.worksheet.conditional_formatting.addCellIs('V10:V18', '<', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="U10:U18"><cfRule priority="1" dxfId="0" type="cellIs" stopIfTrue="1" operator="lessThan"><formula>U$7</formula></cfRule></conditionalFormatting><conditionalFormatting sqref="V10:V18"><cfRule priority="2" dxfId="1" type="cellIs" stopIfTrue="1" operator="lessThan"><formula>V$7</formula></cfRule></conditionalFormatting></worksheet>'
-        diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        rules = self.worksheet.conditional_formatting.cf_rules
+        assert 'U10:U18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert rules['U10:U18'][0]['priority'] == 1
+        assert rules['U10:U18'][0]['type'] == 'cellIs'
+        assert rules['U10:U18'][0]['dxfId'] == 0
+        assert rules['U10:U18'][0]['operator'] == 'lessThan'
+        assert rules['U10:U18'][0]['formula'][0] == 'U$7'
+        assert rules['U10:U18'][0]['stopIfTrue'] == '1'
+        assert 'V10:V18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert rules['V10:V18'][0]['priority'] == 2
+        assert rules['V10:V18'][0]['type'] == 'cellIs'
+        assert rules['V10:V18'][0]['dxfId'] == 1
+        assert rules['V10:V18'][0]['operator'] == 'lessThan'
+        assert rules['V10:V18'][0]['formula'][0] == 'V$7'
+        assert rules['V10:V18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_lessThanOrEqual(self):
         redFill = Fill()
@@ -115,10 +164,23 @@ class TestConditionalFormatting(object):
                                                         None, None, redFill)
         self.worksheet.conditional_formatting.addCellIs('V10:V18', '<=', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="U10:U18"><cfRule priority="1" dxfId="0" type="cellIs" stopIfTrue="1" operator="lessThanOrEqual"><formula>U$7</formula></cfRule></conditionalFormatting><conditionalFormatting sqref="V10:V18"><cfRule priority="2" dxfId="1" type="cellIs" stopIfTrue="1" operator="lessThanOrEqual"><formula>V$7</formula></cfRule></conditionalFormatting></worksheet>'
-        diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        rules = self.worksheet.conditional_formatting.cf_rules
+        assert 'U10:U18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert rules['U10:U18'][0]['priority'] == 1
+        assert rules['U10:U18'][0]['type'] == 'cellIs'
+        assert rules['U10:U18'][0]['dxfId'] == 0
+        assert rules['U10:U18'][0]['operator'] == 'lessThanOrEqual'
+        assert rules['U10:U18'][0]['formula'][0] == 'U$7'
+        assert rules['U10:U18'][0]['stopIfTrue'] == '1'
+        assert 'V10:V18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert rules['V10:V18'][0]['priority'] == 2
+        assert rules['V10:V18'][0]['type'] == 'cellIs'
+        assert rules['V10:V18'][0]['dxfId'] == 1
+        assert rules['V10:V18'][0]['operator'] == 'lessThanOrEqual'
+        assert rules['V10:V18'][0]['formula'][0] == 'V$7'
+        assert rules['V10:V18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_equal(self):
         redFill = Fill()
@@ -131,10 +193,31 @@ class TestConditionalFormatting(object):
                                                         None, None, redFill)
         self.worksheet.conditional_formatting.addCellIs('W10:W18', '==', ['W$7'], True, self.workbook,
                                                         None, None, redFill)
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="U10:U18"><cfRule priority="1" dxfId="0" type="cellIs" stopIfTrue="1" operator="equal"><formula>U$7</formula></cfRule></conditionalFormatting><conditionalFormatting sqref="V10:V18"><cfRule priority="2" dxfId="1" type="cellIs" stopIfTrue="1" operator="equal"><formula>V$7</formula></cfRule></conditionalFormatting><conditionalFormatting sqref="W10:W18"><cfRule priority="3" dxfId="2" type="cellIs" stopIfTrue="1" operator="equal"><formula>W$7</formula></cfRule></conditionalFormatting></worksheet>'
-        diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        rules = self.worksheet.conditional_formatting.cf_rules
+        assert 'U10:U18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert rules['U10:U18'][0]['priority'] == 1
+        assert rules['U10:U18'][0]['type'] == 'cellIs'
+        assert rules['U10:U18'][0]['dxfId'] == 0
+        assert rules['U10:U18'][0]['operator'] == 'equal'
+        assert rules['U10:U18'][0]['formula'][0] == 'U$7'
+        assert rules['U10:U18'][0]['stopIfTrue'] == '1'
+        assert 'V10:V18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert rules['V10:V18'][0]['priority'] == 2
+        assert rules['V10:V18'][0]['type'] == 'cellIs'
+        assert rules['V10:V18'][0]['dxfId'] == 1
+        assert rules['V10:V18'][0]['operator'] == 'equal'
+        assert rules['V10:V18'][0]['formula'][0] == 'V$7'
+        assert rules['V10:V18'][0]['stopIfTrue'] == '1'
+        assert 'W10:W18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['W10:W18']) == 1
+        assert rules['W10:W18'][0]['priority'] == 3
+        assert rules['W10:W18'][0]['type'] == 'cellIs'
+        assert rules['W10:W18'][0]['dxfId'] == 2
+        assert rules['W10:W18'][0]['operator'] == 'equal'
+        assert rules['W10:W18'][0]['formula'][0] == 'W$7'
+        assert rules['W10:W18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_notEqual(self):
         redFill = Fill()
@@ -145,10 +228,23 @@ class TestConditionalFormatting(object):
                                                         None, None, redFill)
         self.worksheet.conditional_formatting.addCellIs('V10:V18', '!=', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="U10:U18"><cfRule priority="1" dxfId="0" type="cellIs" stopIfTrue="1" operator="notEqual"><formula>U$7</formula></cfRule></conditionalFormatting><conditionalFormatting sqref="V10:V18"><cfRule priority="2" dxfId="1" type="cellIs" stopIfTrue="1" operator="notEqual"><formula>V$7</formula></cfRule></conditionalFormatting></worksheet>'
-        diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        rules = self.worksheet.conditional_formatting.cf_rules
+        assert 'U10:U18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert rules['U10:U18'][0]['priority'] == 1
+        assert rules['U10:U18'][0]['type'] == 'cellIs'
+        assert rules['U10:U18'][0]['dxfId'] == 0
+        assert rules['U10:U18'][0]['operator'] == 'notEqual'
+        assert rules['U10:U18'][0]['formula'][0] == 'U$7'
+        assert rules['U10:U18'][0]['stopIfTrue'] == '1'
+        assert 'V10:V18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert rules['V10:V18'][0]['priority'] == 2
+        assert rules['V10:V18'][0]['type'] == 'cellIs'
+        assert rules['V10:V18'][0]['dxfId'] == 1
+        assert rules['V10:V18'][0]['operator'] == 'notEqual'
+        assert rules['V10:V18'][0]['formula'][0] == 'V$7'
+        assert rules['V10:V18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_between(self):
         redFill = Fill()
@@ -157,10 +253,16 @@ class TestConditionalFormatting(object):
         redFill.fill_type = Fill.FILL_SOLID
         self.worksheet.conditional_formatting.addCellIs('U10:U18', 'between', ['U$7', 'U$8'], True, self.workbook,
                                                         None, None, redFill)
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="U10:U18"><cfRule priority="1" dxfId="0" type="cellIs" stopIfTrue="1" operator="between"><formula>U$7</formula><formula>U$8</formula></cfRule></conditionalFormatting></worksheet>'
-        diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        rules = self.worksheet.conditional_formatting.cf_rules
+        assert 'U10:U18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert rules['U10:U18'][0]['priority'] == 1
+        assert rules['U10:U18'][0]['type'] == 'cellIs'
+        assert rules['U10:U18'][0]['dxfId'] == 0
+        assert rules['U10:U18'][0]['operator'] == 'between'
+        assert rules['U10:U18'][0]['formula'][0] == 'U$7'
+        assert rules['U10:U18'][0]['formula'][1] == 'U$8'
+        assert rules['U10:U18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_notBetween(self):
         redFill = Fill()
@@ -169,10 +271,16 @@ class TestConditionalFormatting(object):
         redFill.fill_type = Fill.FILL_SOLID
         self.worksheet.conditional_formatting.addCellIs('U10:U18', 'notBetween', ['U$7', 'U$8'], True, self.workbook,
                                                         None, None, redFill)
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="U10:U18"><cfRule priority="1" dxfId="0" type="cellIs" stopIfTrue="1" operator="notBetween"><formula>U$7</formula><formula>U$8</formula></cfRule></conditionalFormatting></worksheet>'
-        diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        rules = self.worksheet.conditional_formatting.cf_rules
+        assert 'U10:U18' in rules
+        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert rules['U10:U18'][0]['priority'] == 1
+        assert rules['U10:U18'][0]['type'] == 'cellIs'
+        assert rules['U10:U18'][0]['dxfId'] == 0
+        assert rules['U10:U18'][0]['operator'] == 'notBetween'
+        assert rules['U10:U18'][0]['formula'][0] == 'U$7'
+        assert rules['U10:U18'][0]['formula'][1] == 'U$8'
+        assert rules['U10:U18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCustomRule(self):
         dxfId = self.worksheet.conditional_formatting.addDxfStyle(self.workbook, None, None, None)
