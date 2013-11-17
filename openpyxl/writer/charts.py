@@ -120,7 +120,8 @@ class BaseChartWriter(object):
 
     def _write_axis(self, plot_area, axis, label):
 
-        self.chart.compute_axes()
+        if self.chart.auto_axis:
+            self.chart.compute_axes()
 
         ax = SubElement(plot_area, label)
         SubElement(ax, '{%s}axId' % CHART_NS, {'val':safe_string(axis.id)})

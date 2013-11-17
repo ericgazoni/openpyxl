@@ -27,6 +27,7 @@ from datetime import date
 import os
 
 from nose.tools import eq_, assert_raises, assert_true, assert_false
+import pytest
 
 from openpyxl.tests.helper import (get_xml,
                                    DATADIR,
@@ -280,32 +281,32 @@ class TestChart(object):
         values = Reference(ws, (0, 0), (0, 9))
         self.range = Serie(values=values)
 
-    def make_worksheet(self):
-        wb = Workbook()
-        return wb.get_active_sheet()
+    def make_one(self):
+        from openpyxl.chart import Chart
+        return Chart()
 
     def test_ctor(self):
-        from openpyxl.chart import Axis, Legend
+        from openpyxl.chart import Legend
         from openpyxl.drawing import Drawing
-        c = Chart()
-        eq_(c.TYPE, None)
-        eq_(c.GROUPING, "standard")
-        assert_true(isinstance(c.legend, Legend))
-        eq_(c.show_legend, True)
-        eq_(c.lang, 'en-GB')
-        eq_(c.title, '')
-        eq_(c.print_margins,
-            {'b':.75, 'l':.7, 'r':.7, 't':.75, 'header':0.3, 'footer':.3}
-            )
-        assert_true(isinstance(c.drawing, Drawing))
-        eq_(c.width, .6)
-        eq_(c.height, .6)
-        eq_(c.margin_top, 0.31)
-        #eq_(c.margin_left, 0)
-        eq_(c._shapes, [])
+        c = self.make_one()
+        assert c.TYPE == None
+        assert c.GROUPING == "standard"
+        assert isinstance(c.legend, Legend)
+        assert c.show_legend
+        assert c.lang == 'en-GB'
+        assert c.title == ''
+        assert c.print_margins == {'b':0.75, 'l':0.7, 'r':0.7, 't':0.75,
+                                   'header':0.3, 'footer':0.3}
+        assert isinstance(c.drawing, Drawing)
+        assert c.width == 0.6
+        assert c.height == 0.6
+        assert c.margin_top == 0.31
+        assert c._shapes == []
+        with pytest.raises(ValueError):
+            assert c.margin_left == 0
 
     def test_mymax(self):
-        c = Chart()
+        c = self.make_one()
         eq_(c.mymax(range(10)), 9)
         from string import ascii_letters as letters
         eq_(c.mymax(list(letters)), "z")
@@ -313,48 +314,29 @@ class TestChart(object):
         eq_(c.mymax([""]*10), "")
 
     def test_mymin(self):
-        c = Chart()
+        c = self.make_one()
         eq_(c.mymin(range(10)), 0)
         from string import ascii_letters as letters
         eq_(c.mymin(list(letters)), "A")
         eq_(c.mymin(range(-10, 1)), -10)
         eq_(c.mymin([""]*10), "")
 
-    def test_compute_series_extremes(self):
-        c = Chart()
-        c._series.append(self.range)
-        mini, maxi = c._get_extremes()
-        eq_(mini, 0)
-        eq_(maxi, 1.0)
-
-    def test_compute_series_max_dates(self):
-        ws = self.make_worksheet()
-        for i in range(1, 10):
-            ws.append([date(2013, i, 1)])
-        c = Chart()
-        ref = Reference(ws, (0, 0), (9, 0))
-        series = Serie(ref)
-        c._series.append(series)
-        mini, maxi = c._get_extremes()
-        eq_(mini, 0)
-        eq_(maxi, 41518.0)
-
     def test_margin_top(self):
-        c = Chart()
+        c = self.make_one()
         eq_(c.margin_top, 0.31)
 
     def test_margin_left(self):
-        c = Chart()
+        c = self.make_one()
         c._series.append(self.range)
         eq_(c.margin_left, 0.03375)
 
     def test_set_margin_top(self):
-        c = Chart()
+        c = self.make_one()
         c.margin_top = 1
         eq_(c.margin_top, 0.31)
 
     def test_set_margin_left(self):
-        c = Chart()
+        c = self.make_one()
         c._series.append(self.range)
         c.margin_left = 0
         eq_(c.margin_left , 0.03375)
@@ -370,31 +352,19 @@ class TestGraphChart(object):
         values = Reference(ws, (0, 0), (0, 9))
         self.range = Serie(values=values)
 
-    def make_one(self):
+    def make_one(self, **kw):
         from openpyxl.chart import GraphChart
-        return GraphChart()
+        return GraphChart(kw)
+
+    def make_worksheet(self):
+        wb = Workbook()
+        return wb.get_active_sheet()
 
     def test_ctor(self):
-        from openpyxl.chart import Axis, Legend
-        from openpyxl.drawing import Drawing
+        from openpyxl.chart import Axis
         c = self.make_one()
-        eq_(c.TYPE, None)
-        eq_(c.GROUPING, "standard")
-        assert_true(isinstance(c.x_axis, Axis))
-        assert_true(isinstance(c.y_axis, Axis))
-        assert_true(isinstance(c.legend, Legend))
-        eq_(c.show_legend, True)
-        eq_(c.lang, 'en-GB')
-        eq_(c.title, '')
-        eq_(c.print_margins,
-            {'b':.75, 'l':.7, 'r':.7, 't':.75, 'header':0.3, 'footer':.3}
-            )
-        assert_true(isinstance(c.drawing, Drawing))
-        eq_(c.width, .6)
-        eq_(c.height, .6)
-        eq_(c.margin_top, 0.31)
-        #eq_(c.margin_left, 0)
-        eq_(c._shapes, [])
+        assert isinstance(c.x_axis, Axis)
+        assert isinstance(c.y_axis, Axis)
 
     def test_get_x_unit(self):
         c = self.make_one()
@@ -405,12 +375,42 @@ class TestGraphChart(object):
         c = self.make_one()
         c._series.append(self.range)
         c.y_axis.max = 10
-        eq_(c.get_y_units(), 190500.0)
+        eq_(c.get_y_units(), 228600.0)
 
     def test_get_y_char(self):
         c = self.make_one()
         c._series.append(self.range)
         eq_(c.get_y_chars(), 1)
+
+    def test_compute_series_extremes(self):
+        c = self.make_one()
+        c._series.append(self.range)
+        mini, maxi = c._get_extremes()
+        eq_(mini, 0)
+        eq_(maxi, 1.0)
+
+    def test_compute_series_max_dates(self):
+        ws = self.make_worksheet()
+        for i in range(1, 10):
+            ws.append([date(2013, i, 1)])
+        c = self.make_one()
+        ref = Reference(ws, (0, 0), (9, 0))
+        series = Serie(ref)
+        c._series.append(series)
+        mini, maxi = c._get_extremes()
+        eq_(mini, 0)
+        eq_(maxi, 41518.0)
+
+    def test_override_axis(self):
+        c = self.make_one()
+        c.add_serie(self.range)
+        c.compute_axes()
+        assert c.y_axis.min == 0
+        assert c.y_axis.max == 1
+        c.y_axis.min = -1
+        c.y_axis.max = 5
+        assert c.y_axis.min == -1
+        assert c.y_axis.max == 5
 
 
 class TestLineChart(object):

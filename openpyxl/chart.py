@@ -56,16 +56,12 @@ class Axis(object):
     orientation = ORIENTATION_MIN_MAX
     number_format = NumberFormat()
 
-    def __init__(self):
-
+    def __init__(self, auto_axis=True):
+        self.auto_axis = auto_axis
         self.min = 0
         self.max = 0
         self.unit = None
         self.title = ''
-
-    def set_values(self, mini, maxi):
-        self.min = mini
-        self.max = maxi
 
     def _max_min(self):
         """
@@ -100,8 +96,9 @@ class Axis(object):
 
     @property
     def min(self):
-        mini, maxi = self._max_min()
-        return mini
+        if self.auto_axis:
+            return self._max_min()[0]
+        return self._min
 
     @min.setter
     def min(self, value):
@@ -109,8 +106,9 @@ class Axis(object):
 
     @property
     def max(self):
-        mini, maxi = self._max_min()
-        return maxi
+        if self.auto_axis:
+            return self._max_min()[1]
+        return self._max
 
     @max.setter
     def max(self, value):
@@ -118,7 +116,8 @@ class Axis(object):
 
     @property
     def unit(self):
-        self._max_min
+        if self.auto_axis:
+            self._max_min()
         return self._unit
 
     @unit.setter
@@ -410,34 +409,10 @@ class Chart(object):
         shape._chart = self
         self._shapes.append(shape)
 
-    def get_x_units(self):
-        """ calculate one unit for x axis in EMU """
-        return max([len(s.values) for s in self._series])
-
-    def get_y_units(self):
-        """ calculate one unit for y axis in EMU """
-
-        dh = pixels_to_EMU(self.drawing.height)
-        return (dh * self.height) / self.y_axis.max
-
     def get_y_chars(self):
         """ estimate nb of chars for y axis """
         _max = max([s.max() for s in self._series])
         return len(str(int(_max)))
-
-    def _get_extremes(self, attr='values'):
-        """Calculate the maximum and minimum values of all series for an axis
-        'values' for columns
-        'xvalues for rows
-        """
-        # calculate the maximum and minimum for all series
-        series_max = [0]
-        series_min = [0]
-        for s in self._series:
-            if s is not None:
-                series_max.append(s.max(attr))
-                series_min.append(s.min(attr))
-        return min(series_min), max(series_max)
 
     @property
     def margin_top(self):
@@ -482,19 +457,48 @@ class GraphChart(Chart):
     x_axis = CategoryAxis
     y_axis = ValueAxis
 
-    def __init__(self):
+    def __init__(self, auto_axis=True):
         super(GraphChart, self).__init__()
-        self.x_axis = getattr(self, "x_axis")()
-        self.y_axis = getattr(self, "y_axis")()
+        self.auto_axis = auto_axis
+        self.x_axis = getattr(self, "x_axis")(auto_axis)
+        self.y_axis = getattr(self, "y_axis")(auto_axis)
 
     def compute_axes(self):
         """Calculate maximum value and units for axes"""
         mini, maxi = self._get_extremes()
-        self.y_axis.set_values(mini, maxi)
+        self.y_axis.min = mini
+        self.y_axis.max = maxi
+        self.y_axis._max_min()
 
         if not None in [s.xvalues for s in self._series]:
             mini, maxi = self._get_extremes('xvalues')
-            self.x_axis.set_values(mini, maxi)
+            self.x_axis.min = mini
+            self.x_axis.max = maxi
+            self.x_axis._max_min()
+
+    def get_x_units(self):
+        """ calculate one unit for x axis in EMU """
+        return max([len(s.values) for s in self._series])
+
+    def get_y_units(self):
+        """ calculate one unit for y axis in EMU """
+
+        dh = pixels_to_EMU(self.drawing.height)
+        return (dh * self.height) / self.y_axis.max
+
+    def _get_extremes(self, attr='values'):
+        """Calculate the maximum and minimum values of all series for an axis
+        'values' for columns
+        'xvalues for rows
+        """
+        # calculate the maximum and minimum for all series
+        series_max = [0]
+        series_min = [0]
+        for s in self._series:
+            if s is not None:
+                series_max.append(s.max(attr))
+                series_min.append(s.min(attr))
+        return min(series_min), max(series_max)
 
 
 class BarChart(GraphChart):
