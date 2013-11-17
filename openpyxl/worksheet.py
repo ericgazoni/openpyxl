@@ -576,7 +576,7 @@ class Worksheet(object):
         else:
             self.title = title
         self.row_dimensions = {}
-        self.column_dimensions = {}
+        self.column_dimensions = OrderedDict([])
         self.page_breaks = []
         self._cells = {}
         self._styles = {}

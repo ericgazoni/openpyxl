@@ -407,7 +407,6 @@ def test_parse_dxfs():
     assert repr(wb.style_properties['dxf_list'][0]['font']['color']) == repr(Color('FF9C0006'))
     assert wb.style_properties['dxf_list'][0]['font']['bold'] == False
     assert wb.style_properties['dxf_list'][0]['font']['italic'] == False
-    print repr(wb.style_properties['dxf_list'][0]['fill'])
     assert repr(wb.style_properties['dxf_list'][0]['fill']) == "[None:0:'FFFFFFFF':'FFFFC7CE']"
 
     # Verify that the dxf styles stay the same when they're written and read back in.
