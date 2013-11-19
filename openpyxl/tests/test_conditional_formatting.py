@@ -25,16 +25,18 @@
 
 # Python stdlib imports
 import os.path
+from xml.sax.saxutils import XMLGenerator
 
 # compatibility imports
+from openpyxl.shared.compat import BytesIO, StringIO
+from openpyxl.worksheet import ConditionalFormatting
 from openpyxl.shared.compat import iterkeys
 
 # package imports
 from openpyxl.reader.excel import load_workbook
 from openpyxl.reader.style import read_style_table
 from openpyxl.shared.ooxml import ARC_STYLE
-from openpyxl.workbook import Workbook
-from openpyxl.writer.worksheet import write_worksheet
+from openpyxl.writer.worksheet import write_worksheet_conditional_formatting
 from openpyxl.writer.styles import StyleWriter
 from openpyxl.style import Border, Color, Fill, Font, Borders, HashableObject
 
@@ -45,26 +47,30 @@ from openpyxl.tests.helper import DATADIR, get_xml, compare_xml
 
 class TestConditionalFormatting(object):
 
+    class WB():
+        style_properties = None
+
     def setup(self):
-        self.workbook = Workbook()
-        self.worksheet = self.workbook.create_sheet()
+        self.workbook = self.WB()
 
     def test_conditional_formatting_add2ColorScale(self):
-        self.worksheet.conditional_formatting.add2ColorScale('A1:A10', 'min', None, 'FFAA0000', 'max', None, 'FF00AA00')
-        rules = self.worksheet.conditional_formatting.cf_rules
+        cf = ConditionalFormatting()
+        cf.add2ColorScale('A1:A10', 'min', None, 'FFAA0000', 'max', None, 'FF00AA00')
+        rules = cf.cf_rules
         assert 'A1:A10' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['A1:A10']) == 1
+        assert len(cf.cf_rules['A1:A10']) == 1
         assert rules['A1:A10'][0]['priority'] == 1
         assert rules['A1:A10'][0]['type'] == 'colorScale'
         assert rules['A1:A10'][0]['colorScale']['cfvo'][0]['type'] == 'min'
         assert rules['A1:A10'][0]['colorScale']['cfvo'][1]['type'] == 'max'
 
     def test_conditional_formatting_add3ColorScale(self):
-        self.worksheet.conditional_formatting.add3ColorScale('B1:B10', 'percentile', 10, 'FFAA0000', 'percentile', 50,
+        cf = ConditionalFormatting()
+        cf.add3ColorScale('B1:B10', 'percentile', 10, 'FFAA0000', 'percentile', 50,
                                                              'FF0000AA', 'percentile', 90, 'FF00AA00')
-        rules = self.worksheet.conditional_formatting.cf_rules
+        rules = cf.cf_rules
         assert 'B1:B10' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['B1:B10']) == 1
+        assert len(cf.cf_rules['B1:B10']) == 1
         assert rules['B1:B10'][0]['priority'] == 1
         assert rules['B1:B10'][0]['type'] == 'colorScale'
         assert rules['B1:B10'][0]['colorScale']['cfvo'][0]['type'] == 'percentile'
@@ -75,17 +81,18 @@ class TestConditionalFormatting(object):
         assert rules['B1:B10'][0]['colorScale']['cfvo'][2]['val'] == '90'
 
     def test_conditional_formatting_addCellIs_greaterThan(self):
+        cf = ConditionalFormatting()
         redFill = Fill()
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        self.worksheet.conditional_formatting.addCellIs('U10:U18', 'greaterThan', ['U$7'], True, self.workbook,
+        cf.addCellIs('U10:U18', 'greaterThan', ['U$7'], True, self.workbook,
                                                         None, None, redFill)
-        self.worksheet.conditional_formatting.addCellIs('V10:V18', '>', ['V$7'], True, self.workbook,
+        cf.addCellIs('V10:V18', '>', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        rules = self.worksheet.conditional_formatting.cf_rules
+        rules = cf.cf_rules
         assert 'U10:U18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert len(cf.cf_rules['U10:U18']) == 1
         assert rules['U10:U18'][0]['priority'] == 1
         assert rules['U10:U18'][0]['type'] == 'cellIs'
         assert rules['U10:U18'][0]['dxfId'] == 0
@@ -93,7 +100,7 @@ class TestConditionalFormatting(object):
         assert rules['U10:U18'][0]['formula'][0] == 'U$7'
         assert rules['U10:U18'][0]['stopIfTrue'] == '1'
         assert 'V10:V18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert len(cf.cf_rules['V10:V18']) == 1
         assert rules['V10:V18'][0]['priority'] == 2
         assert rules['V10:V18'][0]['type'] == 'cellIs'
         assert rules['V10:V18'][0]['dxfId'] == 1
@@ -102,17 +109,18 @@ class TestConditionalFormatting(object):
         assert rules['V10:V18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_greaterThanOrEqual(self):
+        cf = ConditionalFormatting()
         redFill = Fill()
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        self.worksheet.conditional_formatting.addCellIs('U10:U18', 'greaterThanOrEqual', ['U$7'], True, self.workbook,
+        cf.addCellIs('U10:U18', 'greaterThanOrEqual', ['U$7'], True, self.workbook,
                                                         None, None, redFill)
-        self.worksheet.conditional_formatting.addCellIs('V10:V18', '>=', ['V$7'], True, self.workbook,
+        cf.addCellIs('V10:V18', '>=', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        rules = self.worksheet.conditional_formatting.cf_rules
+        rules = cf.cf_rules
         assert 'U10:U18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert len(cf.cf_rules['U10:U18']) == 1
         assert rules['U10:U18'][0]['priority'] == 1
         assert rules['U10:U18'][0]['type'] == 'cellIs'
         assert rules['U10:U18'][0]['dxfId'] == 0
@@ -120,7 +128,7 @@ class TestConditionalFormatting(object):
         assert rules['U10:U18'][0]['formula'][0] == 'U$7'
         assert rules['U10:U18'][0]['stopIfTrue'] == '1'
         assert 'V10:V18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert len(cf.cf_rules['V10:V18']) == 1
         assert rules['V10:V18'][0]['priority'] == 2
         assert rules['V10:V18'][0]['type'] == 'cellIs'
         assert rules['V10:V18'][0]['dxfId'] == 1
@@ -129,17 +137,18 @@ class TestConditionalFormatting(object):
         assert rules['V10:V18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_lessThan(self):
+        cf = ConditionalFormatting()
         redFill = Fill()
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        self.worksheet.conditional_formatting.addCellIs('U10:U18', 'lessThan', ['U$7'], True, self.workbook,
+        cf.addCellIs('U10:U18', 'lessThan', ['U$7'], True, self.workbook,
                                                         None, None, redFill)
-        self.worksheet.conditional_formatting.addCellIs('V10:V18', '<', ['V$7'], True, self.workbook,
+        cf.addCellIs('V10:V18', '<', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        rules = self.worksheet.conditional_formatting.cf_rules
+        rules = cf.cf_rules
         assert 'U10:U18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert len(cf.cf_rules['U10:U18']) == 1
         assert rules['U10:U18'][0]['priority'] == 1
         assert rules['U10:U18'][0]['type'] == 'cellIs'
         assert rules['U10:U18'][0]['dxfId'] == 0
@@ -147,7 +156,7 @@ class TestConditionalFormatting(object):
         assert rules['U10:U18'][0]['formula'][0] == 'U$7'
         assert rules['U10:U18'][0]['stopIfTrue'] == '1'
         assert 'V10:V18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert len(cf.cf_rules['V10:V18']) == 1
         assert rules['V10:V18'][0]['priority'] == 2
         assert rules['V10:V18'][0]['type'] == 'cellIs'
         assert rules['V10:V18'][0]['dxfId'] == 1
@@ -156,17 +165,18 @@ class TestConditionalFormatting(object):
         assert rules['V10:V18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_lessThanOrEqual(self):
+        cf = ConditionalFormatting()
         redFill = Fill()
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        self.worksheet.conditional_formatting.addCellIs('U10:U18', 'lessThanOrEqual', ['U$7'], True, self.workbook,
+        cf.addCellIs('U10:U18', 'lessThanOrEqual', ['U$7'], True, self.workbook,
                                                         None, None, redFill)
-        self.worksheet.conditional_formatting.addCellIs('V10:V18', '<=', ['V$7'], True, self.workbook,
+        cf.addCellIs('V10:V18', '<=', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        rules = self.worksheet.conditional_formatting.cf_rules
+        rules = cf.cf_rules
         assert 'U10:U18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert len(cf.cf_rules['U10:U18']) == 1
         assert rules['U10:U18'][0]['priority'] == 1
         assert rules['U10:U18'][0]['type'] == 'cellIs'
         assert rules['U10:U18'][0]['dxfId'] == 0
@@ -174,7 +184,7 @@ class TestConditionalFormatting(object):
         assert rules['U10:U18'][0]['formula'][0] == 'U$7'
         assert rules['U10:U18'][0]['stopIfTrue'] == '1'
         assert 'V10:V18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert len(cf.cf_rules['V10:V18']) == 1
         assert rules['V10:V18'][0]['priority'] == 2
         assert rules['V10:V18'][0]['type'] == 'cellIs'
         assert rules['V10:V18'][0]['dxfId'] == 1
@@ -183,19 +193,20 @@ class TestConditionalFormatting(object):
         assert rules['V10:V18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_equal(self):
+        cf = ConditionalFormatting()
         redFill = Fill()
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        self.worksheet.conditional_formatting.addCellIs('U10:U18', 'equal', ['U$7'], True, self.workbook,
+        cf.addCellIs('U10:U18', 'equal', ['U$7'], True, self.workbook,
                                                         None, None, redFill)
-        self.worksheet.conditional_formatting.addCellIs('V10:V18', '=', ['V$7'], True, self.workbook,
+        cf.addCellIs('V10:V18', '=', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        self.worksheet.conditional_formatting.addCellIs('W10:W18', '==', ['W$7'], True, self.workbook,
+        cf.addCellIs('W10:W18', '==', ['W$7'], True, self.workbook,
                                                         None, None, redFill)
-        rules = self.worksheet.conditional_formatting.cf_rules
+        rules = cf.cf_rules
         assert 'U10:U18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert len(cf.cf_rules['U10:U18']) == 1
         assert rules['U10:U18'][0]['priority'] == 1
         assert rules['U10:U18'][0]['type'] == 'cellIs'
         assert rules['U10:U18'][0]['dxfId'] == 0
@@ -203,7 +214,7 @@ class TestConditionalFormatting(object):
         assert rules['U10:U18'][0]['formula'][0] == 'U$7'
         assert rules['U10:U18'][0]['stopIfTrue'] == '1'
         assert 'V10:V18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert len(cf.cf_rules['V10:V18']) == 1
         assert rules['V10:V18'][0]['priority'] == 2
         assert rules['V10:V18'][0]['type'] == 'cellIs'
         assert rules['V10:V18'][0]['dxfId'] == 1
@@ -211,7 +222,7 @@ class TestConditionalFormatting(object):
         assert rules['V10:V18'][0]['formula'][0] == 'V$7'
         assert rules['V10:V18'][0]['stopIfTrue'] == '1'
         assert 'W10:W18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['W10:W18']) == 1
+        assert len(cf.cf_rules['W10:W18']) == 1
         assert rules['W10:W18'][0]['priority'] == 3
         assert rules['W10:W18'][0]['type'] == 'cellIs'
         assert rules['W10:W18'][0]['dxfId'] == 2
@@ -220,17 +231,18 @@ class TestConditionalFormatting(object):
         assert rules['W10:W18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_notEqual(self):
+        cf = ConditionalFormatting()
         redFill = Fill()
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        self.worksheet.conditional_formatting.addCellIs('U10:U18', 'notEqual', ['U$7'], True, self.workbook,
+        cf.addCellIs('U10:U18', 'notEqual', ['U$7'], True, self.workbook,
                                                         None, None, redFill)
-        self.worksheet.conditional_formatting.addCellIs('V10:V18', '!=', ['V$7'], True, self.workbook,
+        cf.addCellIs('V10:V18', '!=', ['V$7'], True, self.workbook,
                                                         None, None, redFill)
-        rules = self.worksheet.conditional_formatting.cf_rules
+        rules = cf.cf_rules
         assert 'U10:U18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert len(cf.cf_rules['U10:U18']) == 1
         assert rules['U10:U18'][0]['priority'] == 1
         assert rules['U10:U18'][0]['type'] == 'cellIs'
         assert rules['U10:U18'][0]['dxfId'] == 0
@@ -238,7 +250,7 @@ class TestConditionalFormatting(object):
         assert rules['U10:U18'][0]['formula'][0] == 'U$7'
         assert rules['U10:U18'][0]['stopIfTrue'] == '1'
         assert 'V10:V18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['V10:V18']) == 1
+        assert len(cf.cf_rules['V10:V18']) == 1
         assert rules['V10:V18'][0]['priority'] == 2
         assert rules['V10:V18'][0]['type'] == 'cellIs'
         assert rules['V10:V18'][0]['dxfId'] == 1
@@ -247,15 +259,16 @@ class TestConditionalFormatting(object):
         assert rules['V10:V18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_between(self):
+        cf = ConditionalFormatting()
         redFill = Fill()
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        self.worksheet.conditional_formatting.addCellIs('U10:U18', 'between', ['U$7', 'U$8'], True, self.workbook,
+        cf.addCellIs('U10:U18', 'between', ['U$7', 'U$8'], True, self.workbook,
                                                         None, None, redFill)
-        rules = self.worksheet.conditional_formatting.cf_rules
+        rules = cf.cf_rules
         assert 'U10:U18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert len(cf.cf_rules['U10:U18']) == 1
         assert rules['U10:U18'][0]['priority'] == 1
         assert rules['U10:U18'][0]['type'] == 'cellIs'
         assert rules['U10:U18'][0]['dxfId'] == 0
@@ -265,15 +278,16 @@ class TestConditionalFormatting(object):
         assert rules['U10:U18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCellIs_notBetween(self):
+        cf = ConditionalFormatting()
         redFill = Fill()
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        self.worksheet.conditional_formatting.addCellIs('U10:U18', 'notBetween', ['U$7', 'U$8'], True, self.workbook,
+        cf.addCellIs('U10:U18', 'notBetween', ['U$7', 'U$8'], True, self.workbook,
                                                         None, None, redFill)
-        rules = self.worksheet.conditional_formatting.cf_rules
+        rules = cf.cf_rules
         assert 'U10:U18' in rules
-        assert len(self.worksheet.conditional_formatting.cf_rules['U10:U18']) == 1
+        assert len(cf.cf_rules['U10:U18']) == 1
         assert rules['U10:U18'][0]['priority'] == 1
         assert rules['U10:U18'][0]['type'] == 'cellIs'
         assert rules['U10:U18'][0]['dxfId'] == 0
@@ -283,15 +297,26 @@ class TestConditionalFormatting(object):
         assert rules['U10:U18'][0]['stopIfTrue'] == '1'
 
     def test_conditional_formatting_addCustomRule(self):
-        dxfId = self.worksheet.conditional_formatting.addDxfStyle(self.workbook, None, None, None)
-        self.worksheet.conditional_formatting.addCustomRule('C1:C10',  {'type': 'expression', 'dxfId': dxfId, 'formula': ['ISBLANK(C1)'], 'stopIfTrue': '1'})
-        xml = write_worksheet(self.worksheet, None, None)
+        class WS():
+            conditional_formatting = ConditionalFormatting()
+        worksheet = WS()
+        dxfId = worksheet.conditional_formatting.addDxfStyle(self.workbook, None, None, None)
+        worksheet.conditional_formatting.addCustomRule('C1:C10',  {'type': 'expression', 'dxfId': dxfId, 'formula': ['ISBLANK(C1)'], 'stopIfTrue': '1'})
+
+        temp_buffer = StringIO()
+        doc = XMLGenerator(out=temp_buffer, encoding='utf-8')
+        write_worksheet_conditional_formatting(doc, worksheet)
+        doc.endDocument()
+        xml = temp_buffer.getvalue()
+        temp_buffer.close()
+
         assert dxfId == 0
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="C1:C10"><cfRule dxfId="0" type="expression" stopIfTrue="1" priority="1"><formula>ISBLANK(C1)</formula></cfRule></conditionalFormatting></worksheet>'
+        expected = '<conditionalFormatting sqref="C1:C10"><cfRule dxfId="0" type="expression" stopIfTrue="1" priority="1"><formula>ISBLANK(C1)</formula></cfRule></conditionalFormatting>'
         diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        assert diff is None, diff
 
     def test_conditional_formatting_addDxfStyle(self):
+        cf = ConditionalFormatting()
         fill = Fill()
         fill.start_color.index = 'FFEE1111'
         fill.end_color.index = 'FFEE1111'
@@ -306,23 +331,33 @@ class TestConditionalFormatting(object):
         borders.top.color.index = Color.DARKYELLOW
         borders.bottom.border_style = Border.BORDER_THIN
         borders.bottom.color.index = Color.BLACK
-        dxfId = self.worksheet.conditional_formatting.addDxfStyle(self.workbook, font, borders, fill)
+        dxfId = cf.addDxfStyle(self.workbook, font, borders, fill)
         assert dxfId == 0
-        dxfId = self.worksheet.conditional_formatting.addDxfStyle(self.workbook, None, None, fill)
+        dxfId = cf.addDxfStyle(self.workbook, None, None, fill)
         assert dxfId == 1
         assert len(self.workbook.style_properties['dxf_list']) == 2
         #assert self.workbook.style_properties['dxf_list'][0]) == {'font': ['Arial':12:True:False:False:False:'single':False:'FF000000'], 'border': ['none':'FF000000':'none':'FF000000':'thin':'FF808000':'thin':'FF000000':'none':'FF000000':0:'none':'FF000000':'none':'FF000000':'none':'FF000000':'none':'FF000000':'none':'FF000000'], 'fill': ['solid':0:'FFEE1111':'FFEE1111']}
         #assert self.workbook.style_properties['dxf_list'][1] == {'fill': ['solid':0:'FFEE1111':'FFEE1111']}
 
     def test_conditional_formatting_setRules(self):
+        class WS():
+            conditional_formatting = ConditionalFormatting()
+        worksheet = WS()
         rules = {'A1:A4': [{'type': 'colorScale', 'priority': '13',
                             'colorScale': {'cfvo': [{'type': 'min'}, {'type': 'max'}],
                                            'color': [Color('FFFF7128'), Color('FFFFEF9C')]}}]}
-        self.worksheet.conditional_formatting.setRules(rules)
-        xml = write_worksheet(self.worksheet, None, None)
-        expected = '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xml:space="preserve" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr summaryRight="1" summaryBelow="1"></outlinePr></sheetPr><dimension ref="A1:A1"></dimension><sheetViews><sheetView workbookViewId="0"><selection sqref="A1" activeCell="A1"></selection></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"></sheetFormatPr><sheetData></sheetData><conditionalFormatting sqref="A1:A4"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFFF7128"></color><color rgb="FFFFEF9C"></color></colorScale></cfRule></conditionalFormatting></worksheet>'
+        worksheet.conditional_formatting.setRules(rules)
+
+        temp_buffer = StringIO()
+        doc = XMLGenerator(out=temp_buffer, encoding='utf-8')
+        write_worksheet_conditional_formatting(doc, worksheet)
+        doc.endDocument()
+        xml = temp_buffer.getvalue()
+        temp_buffer.close()
+
+        expected = '<conditionalFormatting sqref="A1:A4"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFFF7128"></color><color rgb="FFFFEF9C"></color></colorScale></cfRule></conditionalFormatting>'
         diff = compare_xml(xml, expected)
-        # assert diff is None, diff
+        assert diff is None, diff
 
 
 def compare_complex(a, b):
