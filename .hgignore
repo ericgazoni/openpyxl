@@ -18,3 +18,4 @@ syntax: glob
 *.sh
 .git
 travis.yml
+cover
