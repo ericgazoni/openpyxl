@@ -99,49 +99,7 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_mergecells(doc, worksheet)
     write_worksheet_datavalidations(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
-
-    for range_string, rules in iteritems(worksheet.conditional_formatting.cf_rules):
-        if not len(rules):
-            # Skip if there are no rules.  This is possible if a dataBar rule was read in and ignored.
-            continue
-        start_tag(doc, 'conditionalFormatting', {'sqref': range_string})
-        for rule in rules:
-            if rule['type'] == 'dataBar':
-                # Ignore - uses extLst tag which is currently unsupported.
-                continue
-            attr = {'type': rule['type']}
-            for rule_attr in ConditionalFormatting.rule_attributes:
-                if rule_attr in rule:
-                    attr[rule_attr] = str(rule[rule_attr])
-            start_tag(doc, 'cfRule', attr)
-            if 'formula' in rule:
-                for f in rule['formula']:
-                    tag(doc, 'formula', None, f)
-            if 'colorScale' in rule:
-                start_tag(doc, 'colorScale')
-                for cfvo in rule['colorScale']['cfvo']:
-                    tag(doc, 'cfvo', cfvo)
-                for color in rule['colorScale']['color']:
-                    if str(color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such
-                        if str(color.index).split(':')[2]:
-                            tag(doc, 'color', {'theme': str(color.index).split(':')[1],
-                                               'tint': str(color.index).split(':')[2]})
-                        else:
-                            tag(doc, 'color', {'theme': str(color.index).split(':')[1]})
-                    else:
-                        tag(doc, 'color', {'rgb': str(color.index)})
-                end_tag(doc, 'colorScale')
-            if 'iconSet' in rule:
-                iconAttr = {}
-                for icon_attr in ConditionalFormatting.icon_attributes:
-                    if icon_attr in rule['iconSet']:
-                        iconAttr[icon_attr] = rule['iconSet'][icon_attr]
-                start_tag(doc, 'iconSet', iconAttr)
-                for cfvo in rule['iconSet']['cfvo']:
-                    tag(doc, 'cfvo', cfvo)
-                end_tag(doc, 'iconSet')
-            end_tag(doc, 'cfRule')
-        end_tag(doc, 'conditionalFormatting')
+    write_worksheet_conditional_formatting(doc, worksheet)
 
     options = worksheet.page_setup.options
     if options:
@@ -248,6 +206,52 @@ def write_worksheet_cols(doc, worksheet, style_table):
                 col_def['width'] = '9.10'
             tag(doc, 'col', col_def)
         end_tag(doc, 'cols')
+
+
+def write_worksheet_conditional_formatting(doc, worksheet):
+    """Write conditional formatting to xml."""
+    for range_string, rules in iteritems(worksheet.conditional_formatting.cf_rules):
+        if not len(rules):
+            # Skip if there are no rules.  This is possible if a dataBar rule was read in and ignored.
+            continue
+        start_tag(doc, 'conditionalFormatting', {'sqref': range_string})
+        for rule in rules:
+            if rule['type'] == 'dataBar':
+                # Ignore - uses extLst tag which is currently unsupported.
+                continue
+            attr = {'type': rule['type']}
+            for rule_attr in ConditionalFormatting.rule_attributes:
+                if rule_attr in rule:
+                    attr[rule_attr] = str(rule[rule_attr])
+            start_tag(doc, 'cfRule', attr)
+            if 'formula' in rule:
+                for f in rule['formula']:
+                    tag(doc, 'formula', None, f)
+            if 'colorScale' in rule:
+                start_tag(doc, 'colorScale')
+                for cfvo in rule['colorScale']['cfvo']:
+                    tag(doc, 'cfvo', cfvo)
+                for color in rule['colorScale']['color']:
+                    if str(color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such
+                        if str(color.index).split(':')[2]:
+                            tag(doc, 'color', {'theme': str(color.index).split(':')[1],
+                                               'tint': str(color.index).split(':')[2]})
+                        else:
+                            tag(doc, 'color', {'theme': str(color.index).split(':')[1]})
+                    else:
+                        tag(doc, 'color', {'rgb': str(color.index)})
+                end_tag(doc, 'colorScale')
+            if 'iconSet' in rule:
+                iconAttr = {}
+                for icon_attr in ConditionalFormatting.icon_attributes:
+                    if icon_attr in rule['iconSet']:
+                        iconAttr[icon_attr] = rule['iconSet'][icon_attr]
+                start_tag(doc, 'iconSet', iconAttr)
+                for cfvo in rule['iconSet']['cfvo']:
+                    tag(doc, 'cfvo', cfvo)
+                end_tag(doc, 'iconSet')
+            end_tag(doc, 'cfRule')
+        end_tag(doc, 'conditionalFormatting')
 
 
 def write_worksheet_data(doc, worksheet, string_table, style_table):
