@@ -9,6 +9,9 @@ python:
 install:
   pip install lxml pytest nose pytest-cov
 
+before_script:
+mkdir -p shippable/codecoverage
+
 script:  
   py.test --cov-report html --cov openpyxl --resultlog=shippable/testresults
 
