@@ -192,8 +192,12 @@ def parse_fonts(root, color_index):
         font_nodes = fonts.findall('{%s}font' % SHEET_MAIN_NS)
         for font_node in font_nodes:
             font = Font()
-            font.size = font_node.find('{%s}sz' % SHEET_MAIN_NS).get('val')
-            font.name = font_node.find('{%s}name' % SHEET_MAIN_NS).get('val')
+            fontSizeEl = font_node.find('{%s}sz' % SHEET_MAIN_NS)
+            if fontSizeEl is not None:
+                font.size = fontSizeEl.get('val')
+            fontNameEl = font_node.find('{%s}name' % SHEET_MAIN_NS)
+            if fontNameEl is not None:
+                font.name = fontNameEl.get('val')
             font.bold = True if len(font_node.findall('{%s}b' % SHEET_MAIN_NS)) else False
             font.italic = True if len(font_node.findall('{%s}i' % SHEET_MAIN_NS)) else False
             if len(font_node.findall('{%s}u' % SHEET_MAIN_NS)):
@@ -273,18 +277,18 @@ def parse_borders(root, color_index, skip_find=False):
     if borders is not None:
         boarderNodes = borders.findall('{%s}border' % SHEET_MAIN_NS)
         count = 0
-        for boarder in boarderNodes:
+        for border in boarderNodes:
             newBorder = Borders()
-            if boarder.get('diagonalup') == 1:
+            if border.get('diagonalup') == 1:
                 newBorder.diagonal_direction = newBorder.DIAGONAL_UP
-            if boarder.get('diagonalDown') == 1:
+            if border.get('diagonalDown') == 1:
                 if newBorder.diagonal_direction == newBorder.DIAGONAL_UP:
                     newBorder.diagonal_direction = newBorder.DIAGONAL_BOTH
                 else:
                     newBorder.diagonal_direction = newBorder.DIAGONAL_DOWN
 
             for side in ('left', 'right', 'top', 'bottom', 'diagonal'):
-                node = boarder.find('{%s}%s' % (SHEET_MAIN_NS, side))
+                node = border.find('{%s}%s' % (SHEET_MAIN_NS, side))
                 if node is not None:
                     borderSide = getattr(newBorder,side)
                     if node.get('style') is not None:
@@ -298,7 +302,7 @@ def parse_borders(root, color_index, skip_find=False):
                             if color.get('tint') is not None:
                                 borderSide.color.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
                             else:
-                                borderSide.color.index = 'theme:%s:' % color.get('theme') # prefix color with theme
+                                borderSide.color.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
                         elif color.get('rgb'):
                             borderSide.color.index = color.get('rgb')
             count += 1
