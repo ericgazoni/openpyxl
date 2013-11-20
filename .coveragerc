@@ -1,3 +1,5 @@
 [html]
 directory = shippable/codecoverage
 
+[xml]
+output = shippable/codecoverage/coverage.xml

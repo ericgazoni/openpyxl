@@ -13,7 +13,7 @@ before_script:
   mkdir -p shippable/codecoverage
 
 script:  
-  py.test --cov-report html --cov openpyxl --resultlog=shippable/testresults
+  py.test --cov-report html xml annotate --cov openpyxl --resultlog=shippable/testresults
 
 notifications:
   email:
