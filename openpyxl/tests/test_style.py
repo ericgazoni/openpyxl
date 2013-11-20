@@ -245,9 +245,9 @@ def test_read_complex_style():
     assert ws.cell('A12').style.alignment.vertical == 'top'
     assert ws.cell('A13').style.alignment.vertical == 'center'
     assert ws.cell('A14').style.alignment.vertical == 'bottom'
-    assert ws.cell('A15').style.number_format._format_code == '0.00'
-    assert ws.cell('A16').style.number_format._format_code == 'mm-dd-yy'
-    assert ws.cell('A17').style.number_format._format_code == '0.00%'
+    assert ws.cell('A15').style.number_format.format_code == '0.00'
+    assert ws.cell('A16').style.number_format.format_code == 'mm-dd-yy'
+    assert ws.cell('A17').style.number_format.format_code == '0.00%'
     assert 'A18:B18' in ws._merged_cells
     assert ws.cell('B18').merged
     assert ws.cell('A19').style.borders.top.color.index == 'FF006600'
@@ -296,9 +296,9 @@ def test_change_existing_styles():
     ws.cell('A12').style.alignment.vertical = 'bottom'
     ws.cell('A13').style.alignment.vertical = 'top'
     ws.cell('A14').style.alignment.vertical = 'center'
-    ws.cell('A15').style.number_format._format_code = '0.00%'
-    ws.cell('A16').style.number_format._format_code = '0.00'
-    ws.cell('A17').style.number_format._format_code = 'mm-dd-yy'
+    ws.cell('A15').style.number_format.format_code = '0.00%'
+    ws.cell('A16').style.number_format.format_code = '0.00'
+    ws.cell('A17').style.number_format.format_code = 'mm-dd-yy'
     ws.unmerge_cells('A18:B18')
     ws.cell('A19').style.borders.top.color.index = 'FF006600'
     ws.cell('A19').style.borders.bottom.color.index = 'FF006600'
@@ -341,9 +341,9 @@ def test_change_existing_styles():
     assert ws.cell('A12').style.alignment.vertical == 'bottom'
     assert ws.cell('A13').style.alignment.vertical == 'top'
     assert ws.cell('A14').style.alignment.vertical == 'center'
-    assert ws.cell('A15').style.number_format._format_code == '0.00%'
-    assert ws.cell('A16').style.number_format._format_code == '0.00'
-    assert ws.cell('A17').style.number_format._format_code == 'mm-dd-yy'
+    assert ws.cell('A15').style.number_format.format_code == '0.00%'
+    assert ws.cell('A16').style.number_format.format_code == '0.00'
+    assert ws.cell('A17').style.number_format.format_code == 'mm-dd-yy'
     assert 'A18:B18' not in ws._merged_cells
     assert not ws.cell('B18').merged
     assert ws.cell('A19').style.borders.top.color.index == 'FF006600'
@@ -387,9 +387,9 @@ def test_change_existing_styles():
     assert ws.cell('C12').style.alignment.vertical == 'top'
     assert ws.cell('C13').style.alignment.vertical == 'center'
     assert ws.cell('C14').style.alignment.vertical == 'bottom'
-    assert ws.cell('C15').style.number_format._format_code == '0.00'
-    assert ws.cell('C16').style.number_format._format_code == 'mm-dd-yy'
-    assert ws.cell('C17').style.number_format._format_code == '0.00%'
+    assert ws.cell('C15').style.number_format.format_code == '0.00'
+    assert ws.cell('C16').style.number_format.format_code == 'mm-dd-yy'
+    assert ws.cell('C17').style.number_format.format_code == '0.00%'
     assert 'C18:D18' in ws._merged_cells
     assert ws.cell('D18').merged
     assert ws.cell('C19').style.borders.top.color.index == 'FF006600'
