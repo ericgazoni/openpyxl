@@ -7,10 +7,10 @@ python:
 # command to run tests
 
 install:
-  pip install lxml pytest nose
+  pip install lxml pytest nose pytest-cov
 
 script:  
-  py.test
+  py.test --cov-report html --cov openpyxl --resultlog=shippable/testresults
 
 notifications:
   email:
