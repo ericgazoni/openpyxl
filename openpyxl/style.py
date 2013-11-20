@@ -40,13 +40,11 @@ class HashableObject(object):
     __leaf__ = False
 
     def __repr__(self):
-
         return ':'.join([repr(getattr(self, x)) for x in self.__fields__])
 
     def __hash__(self):
-
-#        return int(md5(repr(self)).hexdigest(), 16)
         return hash(repr(self))
+
 
 class Color(HashableObject):
     """Named colors for use in styles."""
