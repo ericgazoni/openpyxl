@@ -7,15 +7,7 @@ python:
 # command to run tests
 
 install:
-  pip install lxml pytest nose pytest-cov
-
-before_script:
-  mkdir -p shippable/codecoverage
+  pip install lxml pytest nose 
 
 script:  
-  py.test --cov-report xml --cov openpyxl --resultlog=shippable/testresults
-
-notifications:
-  email:
-    recipients:
-      - charlie.clark@clark-consulting.eu
+  py.test openpyxl
