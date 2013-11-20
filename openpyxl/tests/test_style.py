@@ -200,7 +200,7 @@ class TestStyleWriter(object):
 def test_builtin_format():
     nFormat = NumberFormat()
     nFormat.format_code = '0.00'
-    assert nFormat.builtin_format_code(2) == nFormat._format_code
+    assert nFormat.builtin_format_code(2) == nFormat.format_code
 
 
 def test_read_style():

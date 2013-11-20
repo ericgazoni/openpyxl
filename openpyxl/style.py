@@ -320,48 +320,44 @@ class NumberFormat(HashableObject):
     #def __ne__(self, other):
         #return self.format_code != other.format_code
 
-    #def __hash__(self):
-        #return super(NumberFormat, self).__hash__()
-
     def __init__(self):
         self._format_code = self.FORMAT_GENERAL
         self._format_index = 0
 
-    def _set_format_code(self, format_code = FORMAT_GENERAL):
-        """Setter for the format_code property."""
-        self._format_code = format_code
-        self._format_index = self.builtin_format_id(format = format_code)
-
-    def _get_format_code(self):
+    @property
+    def format_code(self):
         """Getter for the format_code property."""
         return self._format_code
 
-    format_code = property(_get_format_code, _set_format_code)
+    @format_code.setter
+    def format_code(self, format_code = FORMAT_GENERAL):
+        """Setter for the format_code property."""
+        self._format_code = format_code
+        self._format_index = self.builtin_format_id(format = format_code)
 
     def builtin_format_code(self, index):
         """Return one of the standard format codes by index."""
         return self._BUILTIN_FORMATS[index]
 
-    def is_builtin(self, format = None):
+    def is_builtin(self, format=None):
         """Check if a format code is a standard format code."""
         if format is None:
-            format = self._format_code
+            format = self.format_code
         return format in self._BUILTIN_FORMATS.values()
 
     def builtin_format_id(self, format):
         """Return the id of a standard style."""
         return self._BUILTIN_FORMATS_REVERSE.get(format, None)
 
-    def is_date_format(self, format = None):
+    def is_date_format(self, format=None):
         """Check if the number format is actually representing a date."""
         if format is None:
-            format = self._format_code
+            format = self.format_code
 
         if any([x in format for x in self.DATE_INDICATORS]):
-            if self.BAD_DATE_RE.search(format) is None:
-                return True
-
+            return not self.BAD_DATE_RE.search(format)
         return False
+
 
 class Protection(HashableObject):
     """Protection options for use in styles."""

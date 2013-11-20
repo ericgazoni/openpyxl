@@ -246,7 +246,7 @@ def test_is_date():
     eq_(cell.is_date(), True)
     cell.value = 'testme'
     eq_('testme', cell.value)
-    eq_(cell.is_date(), False)
+    assert cell.is_date() is False
 
 def test_is_not_date_color_format():
 
@@ -257,4 +257,4 @@ def test_is_not_date_color_format():
     cell.value = -13.5
     cell.style.number_format.format_code = '0.00_);[Red]\(0.00\)'
 
-    eq_(cell.is_date(), False)
+    assert cell.is_date() is False
