@@ -67,7 +67,7 @@ class TestConditionalFormatting(object):
     def test_conditional_formatting_add3ColorScale(self):
         cf = ConditionalFormatting()
         cf.add3ColorScale('B1:B10', 'percentile', 10, 'FFAA0000', 'percentile', 50,
-                                                             'FF0000AA', 'percentile', 90, 'FF00AA00')
+                          'FF0000AA', 'percentile', 90, 'FF00AA00')
         rules = cf.cf_rules
         assert 'B1:B10' in rules
         assert len(cf.cf_rules['B1:B10']) == 1
@@ -87,9 +87,9 @@ class TestConditionalFormatting(object):
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
         cf.addCellIs('U10:U18', 'greaterThan', ['U$7'], True, self.workbook,
-                                                        None, None, redFill)
-        cf.addCellIs('V10:V18', '>', ['V$7'], True, self.workbook,
-                                                        None, None, redFill)
+                     None, None, redFill)
+        cf.addCellIs('V10:V18', '>', ['V$7'], True, self.workbook, None,
+                     None, redFill)
         rules = cf.cf_rules
         assert 'U10:U18' in rules
         assert len(cf.cf_rules['U10:U18']) == 1
@@ -114,10 +114,10 @@ class TestConditionalFormatting(object):
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        cf.addCellIs('U10:U18', 'greaterThanOrEqual', ['U$7'], True, self.workbook,
-                                                        None, None, redFill)
-        cf.addCellIs('V10:V18', '>=', ['V$7'], True, self.workbook,
-                                                        None, None, redFill)
+        cf.addCellIs('U10:U18', 'greaterThanOrEqual', ['U$7'], True,
+                     self.workbook, None, None, redFill)
+        cf.addCellIs('V10:V18', '>=', ['V$7'], True, self.workbook, None,
+                     None, redFill)
         rules = cf.cf_rules
         assert 'U10:U18' in rules
         assert len(cf.cf_rules['U10:U18']) == 1
@@ -143,9 +143,9 @@ class TestConditionalFormatting(object):
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
         cf.addCellIs('U10:U18', 'lessThan', ['U$7'], True, self.workbook,
-                                                        None, None, redFill)
-        cf.addCellIs('V10:V18', '<', ['V$7'], True, self.workbook,
-                                                        None, None, redFill)
+                     None, None, redFill)
+        cf.addCellIs('V10:V18', '<', ['V$7'], True, self.workbook, None,
+                     None, redFill)
         rules = cf.cf_rules
         assert 'U10:U18' in rules
         assert len(cf.cf_rules['U10:U18']) == 1
@@ -170,10 +170,10 @@ class TestConditionalFormatting(object):
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        cf.addCellIs('U10:U18', 'lessThanOrEqual', ['U$7'], True, self.workbook,
-                                                        None, None, redFill)
-        cf.addCellIs('V10:V18', '<=', ['V$7'], True, self.workbook,
-                                                        None, None, redFill)
+        cf.addCellIs('U10:U18', 'lessThanOrEqual', ['U$7'], True,
+                     self.workbook, None, None, redFill)
+        cf.addCellIs('V10:V18', '<=', ['V$7'], True, self.workbook, None,
+                     None, redFill)
         rules = cf.cf_rules
         assert 'U10:U18' in rules
         assert len(cf.cf_rules['U10:U18']) == 1
@@ -198,12 +198,12 @@ class TestConditionalFormatting(object):
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        cf.addCellIs('U10:U18', 'equal', ['U$7'], True, self.workbook,
-                                                        None, None, redFill)
-        cf.addCellIs('V10:V18', '=', ['V$7'], True, self.workbook,
-                                                        None, None, redFill)
-        cf.addCellIs('W10:W18', '==', ['W$7'], True, self.workbook,
-                                                        None, None, redFill)
+        cf.addCellIs('U10:U18', 'equal', ['U$7'], True, self.workbook, None,
+                     None, redFill)
+        cf.addCellIs('V10:V18', '=', ['V$7'], True, self.workbook, None,
+                     None, redFill)
+        cf.addCellIs('W10:W18', '==', ['W$7'], True, self.workbook, None,
+                     None, redFill)
         rules = cf.cf_rules
         assert 'U10:U18' in rules
         assert len(cf.cf_rules['U10:U18']) == 1
@@ -237,9 +237,9 @@ class TestConditionalFormatting(object):
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
         cf.addCellIs('U10:U18', 'notEqual', ['U$7'], True, self.workbook,
-                                                        None, None, redFill)
-        cf.addCellIs('V10:V18', '!=', ['V$7'], True, self.workbook,
-                                                        None, None, redFill)
+                     None, None, redFill)
+        cf.addCellIs('V10:V18', '!=', ['V$7'], True, self.workbook, None,
+                     None, redFill)
         rules = cf.cf_rules
         assert 'U10:U18' in rules
         assert len(cf.cf_rules['U10:U18']) == 1
@@ -264,8 +264,8 @@ class TestConditionalFormatting(object):
         redFill.start_color.index = 'FFEE1111'
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
-        cf.addCellIs('U10:U18', 'between', ['U$7', 'U$8'], True, self.workbook,
-                                                        None, None, redFill)
+        cf.addCellIs('U10:U18', 'between', ['U$7', 'U$8'], True,
+                     self.workbook, None, None, redFill)
         rules = cf.cf_rules
         assert 'U10:U18' in rules
         assert len(cf.cf_rules['U10:U18']) == 1
@@ -284,7 +284,7 @@ class TestConditionalFormatting(object):
         redFill.end_color.index = 'FFEE1111'
         redFill.fill_type = Fill.FILL_SOLID
         cf.addCellIs('U10:U18', 'notBetween', ['U$7', 'U$8'], True, self.workbook,
-                                                        None, None, redFill)
+                     None, None, redFill)
         rules = cf.cf_rules
         assert 'U10:U18' in rules
         assert len(cf.cf_rules['U10:U18']) == 1
@@ -344,8 +344,8 @@ class TestConditionalFormatting(object):
             conditional_formatting = ConditionalFormatting()
         worksheet = WS()
         rules = {'A1:A4': [{'type': 'colorScale', 'priority': '13',
-                            'colorScale': {'cfvo': [{'type': 'min'}, {'type': 'max'}],
-                                           'color': [Color('FFFF7128'), Color('FFFFEF9C')]}}]}
+                            'colorScale': {'cfvo': [{'type': 'min'}, {'type': 'max'}], 'color':
+                                           [Color('FFFF7128'), Color('FFFFEF9C')]}}]}
         worksheet.conditional_formatting.setRules(rules)
 
         temp_buffer = StringIO()
