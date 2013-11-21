@@ -36,5 +36,10 @@ class HashableObject(object):
     def __repr__(self):
         return ':'.join([repr(getattr(self, x)) for x in self.__fields__])
 
+    @property
+    def __key(self):
+        """Use a tuple of fields as the basis for a key"""
+        return str([getattr(self, x) for x in self.__fields__])
+
     def __hash__(self):
-        return hash(repr(self))
+        return hash(self.__key)
