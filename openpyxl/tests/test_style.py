@@ -184,25 +184,6 @@ class TestStyleWriter(object):
         assert 'indent="-1"' not in xml
 
 
-#def test_format_comparisions():
-#    format1 = NumberFormat()
-#    format2 = NumberFormat()
-#    format3 = NumberFormat()
-#    format1.format_code = 'm/d/yyyy'
-#    format2.format_code = 'm/d/yyyy'
-#    format3.format_code = 'mm/dd/yyyy'
-#    assert not format1 < format2
-#    assert format1 < format3
-#    assert format1 == format2
-#    assert format1 != format3
-
-
-def test_builtin_format():
-    nFormat = NumberFormat()
-    nFormat.format_code = '0.00'
-    assert nFormat.builtin_format_code(2) == nFormat.format_code
-
-
 def test_read_style():
     reference_file = os.path.join(DATADIR, 'reader', 'simple-styles.xml')
 
