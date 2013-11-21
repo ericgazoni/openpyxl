@@ -195,8 +195,8 @@ def test_read_style():
     style_properties = read_style_table(content)
     style_table = style_properties['table']
     assert len(style_table) == 4
-    assert NumberFormat._BUILTIN_FORMATS[9] == style_table[1].number_format.format_code
-    assert 'yyyy-mm-dd' == style_table[2].number_format.format_code
+    assert NumberFormat._BUILTIN_FORMATS[9] == style_table[1].number_format
+    assert 'yyyy-mm-dd' == style_table[2].number_format
 
 
 def test_read_complex_style():
@@ -226,9 +226,9 @@ def test_read_complex_style():
     assert ws.cell('A12').style.alignment.vertical == 'top'
     assert ws.cell('A13').style.alignment.vertical == 'center'
     assert ws.cell('A14').style.alignment.vertical == 'bottom'
-    assert ws.cell('A15').style.number_format.format_code == '0.00'
-    assert ws.cell('A16').style.number_format.format_code == 'mm-dd-yy'
-    assert ws.cell('A17').style.number_format.format_code == '0.00%'
+    assert ws.cell('A15').style.number_format == '0.00'
+    assert ws.cell('A16').style.number_format == 'mm-dd-yy'
+    assert ws.cell('A17').style.number_format == '0.00%'
     assert 'A18:B18' in ws._merged_cells
     assert ws.cell('B18').merged
     assert ws.cell('A19').style.borders.top.color.index == 'FF006600'
@@ -322,9 +322,9 @@ def test_change_existing_styles():
     assert ws.cell('A12').style.alignment.vertical == 'bottom'
     assert ws.cell('A13').style.alignment.vertical == 'top'
     assert ws.cell('A14').style.alignment.vertical == 'center'
-    assert ws.cell('A15').style.number_format.format_code == '0.00%'
-    assert ws.cell('A16').style.number_format.format_code == '0.00'
-    assert ws.cell('A17').style.number_format.format_code == 'mm-dd-yy'
+    assert ws.cell('A15').style.number_format == '0.00%'
+    assert ws.cell('A16').style.number_format == '0.00'
+    assert ws.cell('A17').style.number_format == 'mm-dd-yy'
     assert 'A18:B18' not in ws._merged_cells
     assert not ws.cell('B18').merged
     assert ws.cell('A19').style.borders.top.color.index == 'FF006600'
@@ -368,9 +368,9 @@ def test_change_existing_styles():
     assert ws.cell('C12').style.alignment.vertical == 'top'
     assert ws.cell('C13').style.alignment.vertical == 'center'
     assert ws.cell('C14').style.alignment.vertical == 'bottom'
-    assert ws.cell('C15').style.number_format.format_code == '0.00'
-    assert ws.cell('C16').style.number_format.format_code == 'mm-dd-yy'
-    assert ws.cell('C17').style.number_format.format_code == '0.00%'
+    assert ws.cell('C15').style.number_format == '0.00'
+    assert ws.cell('C16').style.number_format == 'mm-dd-yy'
+    assert ws.cell('C17').style.number_format == '0.00%'
     assert 'C18:D18' in ws._merged_cells
     assert ws.cell('D18').merged
     assert ws.cell('C19').style.borders.top.color.index == 'FF006600'
