@@ -43,7 +43,8 @@ from openpyxl.shared.compat import iterparse, xrange
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import (coordinate_from_string, get_column_letter, Cell,
                             column_index_from_string)
-from openpyxl.reader.style import read_style_table, NumberFormat
+from openpyxl.reader.style import read_style_table
+from openpyxl.styles import is_date_format
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.shared.compat import unicode
@@ -69,7 +70,6 @@ RAW_ATTRIBUTES = ['row', 'column', 'coordinate', 'internal_value', 'data_type', 
 
 BaseRawCell = namedtuple('RawCell', RAW_ATTRIBUTES)
 
-formatter = NumberFormat()
 
 class RawCell(BaseRawCell):
     """Optimized version of the :class:`openpyxl.cell.Cell`, using named tuples.
@@ -90,7 +90,7 @@ class RawCell(BaseRawCell):
 
     @property
     def is_date(self):
-        return formatter.is_date_format(self.number_format)
+        return is_date_format(self.number_format)
 
 def iter_rows(workbook_name, sheet_name, xml_source, shared_date, string_table, range_string='', row_offset=0, column_offset=0):
 

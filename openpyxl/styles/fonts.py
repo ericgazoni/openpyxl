@@ -1,6 +1,4 @@
-# file openpyxl/style.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +21,36 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-"""Style and formatting option tracking."""
+from .colors import Color
+from .hashable import HashableObject
 
-from styles import *
+
+class Font(HashableObject):
+    """Font options used in styles."""
+    UNDERLINE_NONE = 'none'
+    UNDERLINE_DOUBLE = 'double'
+    UNDERLINE_DOUBLE_ACCOUNTING = 'doubleAccounting'
+    UNDERLINE_SINGLE = 'single'
+    UNDERLINE_SINGLE_ACCOUNTING = 'singleAccounting'
+
+    __fields__ = ('name',
+                  'size',
+                  'bold',
+                  'italic',
+                  'superscript',
+                  'subscript',
+                  'underline',
+                  'strikethrough',
+                  'color')
+    __slots__ = __fields__
+
+    def __init__(self):
+        self.name = 'Calibri'
+        self.size = 11
+        self.bold = False
+        self.italic = False
+        self.superscript = False
+        self.subscript = False
+        self.underline = self.UNDERLINE_NONE
+        self.strikethrough = False
+        self.color = Color(Color.BLACK)

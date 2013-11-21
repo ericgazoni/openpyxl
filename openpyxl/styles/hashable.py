@@ -1,6 +1,4 @@
-# file openpyxl/style.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +21,20 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-"""Style and formatting option tracking."""
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 
-from styles import *
+from copy import deepcopy
+
+class HashableObject(object):
+    """Define how to hash property classes."""
+    __fields__ = None
+    __leaf__ = False
+
+    def __repr__(self):
+        return ':'.join([repr(getattr(self, x)) for x in self.__fields__])
+
+    def __hash__(self):
+        return hash(repr(self))

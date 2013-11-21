@@ -1,6 +1,4 @@
-# file openpyxl/style.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +21,25 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-"""Style and formatting option tracking."""
+from .hashable import HashableObject
 
-from styles import *
+
+class Color(HashableObject):
+    """Named colors for use in styles."""
+    BLACK = 'FF000000'
+    WHITE = 'FFFFFFFF'
+    RED = 'FFFF0000'
+    DARKRED = 'FF800000'
+    BLUE = 'FF0000FF'
+    DARKBLUE = 'FF000080'
+    GREEN = 'FF00FF00'
+    DARKGREEN = 'FF008000'
+    YELLOW = 'FFFFFF00'
+    DARKYELLOW = 'FF808000'
+
+    __fields__ = ('index',)
+    __slots__ = __fields__
+    __leaf__ = True
+
+    def __init__(self, index):
+        self.index = index

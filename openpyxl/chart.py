@@ -24,7 +24,7 @@
 import math
 from numbers import Number
 
-from openpyxl.style import NumberFormat
+from openpyxl.style import NumberFormat, is_date_format, is_builtin
 from openpyxl.drawing import Drawing, Shape
 from openpyxl.shared.units import pixels_to_EMU, short_color
 from openpyxl.cell import get_column_letter
@@ -152,9 +152,6 @@ class ValueAxis(Axis):
     type= "valAx"
 
 
-formatter = NumberFormat()
-
-
 class Reference(object):
     """ a simple wrapper around a serie of reference data """
 
@@ -183,8 +180,9 @@ class Reference(object):
 
     @number_format.setter
     def number_format(self, value):
-        if not formatter.is_builtin(value):
-            raise ValueError("Invalid number format")
+        if value is not None:
+            if not is_builtin(value):
+                raise ValueError("Invalid number format")
         self._number_format = value
 
     @property
