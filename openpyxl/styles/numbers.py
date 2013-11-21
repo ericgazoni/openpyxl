@@ -113,13 +113,13 @@ class NumberFormat(HashableObject):
     DATE_INDICATORS = 'dmyhs'
     BAD_DATE_RE = re.compile(r'(\[|").*[dmhys].*(\]|")')
 
-    #def __eq__(self, other):
-        #if isinstance(other, NumberFormat):
-            #return self.format_code == other.format_code
-        #return self.format_code == other
+    def __eq__(self, other):
+        if isinstance(other, NumberFormat):
+            return self.format_code == other.format_code
+        return self.format_code == other
 
-    #def __ne__(self, other):
-        #return self != other
+    def __ne__(self, other):
+        return not self == other
 
     def __init__(self):
         self._format_code = self.FORMAT_GENERAL
