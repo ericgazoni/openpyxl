@@ -34,7 +34,7 @@ class HashableObject(object):
     __leaf__ = False
 
     def __repr__(self):
-        return ':'.join([repr(getattr(self, x)) for x in self.__fields__])
+        return self.__key
 
     @property
     def __key(self):
@@ -43,3 +43,9 @@ class HashableObject(object):
 
     def __hash__(self):
         return hash(self.__key)
+
+    def __eq__(self, other):
+        return self.__key == other.__key
+
+    def __ne__(self, other):
+        return not self == other

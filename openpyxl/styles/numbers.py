@@ -118,9 +118,6 @@ class NumberFormat(HashableObject):
             return self.format_code == other.format_code
         return self.format_code == other
 
-    def __ne__(self, other):
-        return not self == other
-
     def __init__(self):
         self._format_code = self.FORMAT_GENERAL
         self._format_index = 0
