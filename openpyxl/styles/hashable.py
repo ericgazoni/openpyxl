@@ -34,15 +34,15 @@ class HashableObject(object):
     __leaf__ = False
 
     def __repr__(self):
-        return self.__key
+        return str(self.__key)
 
     @property
     def __key(self):
         """Use a tuple of fields as the basis for a key"""
-        return str([getattr(self, x) for x in self.__fields__])
+        return [getattr(self, x) for x in self.__fields__]
 
     def __hash__(self):
-        return hash(self.__key)
+        return hash(str(self.__key))
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
