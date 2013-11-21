@@ -45,7 +45,9 @@ class HashableObject(object):
         return hash(self.__key)
 
     def __eq__(self, other):
-        return self.__key == other.__key
+        if isinstance(other, self.__class__):
+            return self.__key == other.__key
+        return self.__key == other
 
     def __ne__(self, other):
         return not self == other

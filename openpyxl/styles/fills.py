@@ -27,7 +27,7 @@ from .hashable import HashableObject
 
 class Fill(HashableObject):
     """Area fill patterns for use in styles."""
-    FILL_NONE = 'none'
+    FILL_NONE = None
     FILL_SOLID = 'solid'
     FILL_GRADIENT_LINEAR = 'linear'
     FILL_GRADIENT_PATH = 'path'
