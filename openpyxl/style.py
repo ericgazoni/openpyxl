@@ -25,4 +25,4 @@
 
 """Style and formatting option tracking."""
 
-from styles import *
+from .styles import *
