@@ -37,6 +37,8 @@ Any help will be greatly appreciated, just follow those steps:
     5. Let people know about the shiny thing you just implemented, update the docs !
     6. When it's done, just issue a pull request (click on the large "pull request" button on *your* repository) and wait for your code to be reviewed, and, if you followed all theses steps, merged into the main repository.
 
+For further information see :ref:`development`
+
 .. note:
 
 This is an open-source project, maintained by volunteers on their spare time, so while we try to work on this project as often as possible, sometimes life gets in the way. Please be patient.
@@ -136,6 +138,14 @@ API Documentation
 .. toctree::
 
        api
+
+Information for Developers
+--------------------------
+
+.. toctree::
+
+    development
+
 
 Indices and tables
 ==================
