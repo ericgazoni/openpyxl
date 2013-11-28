@@ -58,7 +58,7 @@ class ExcelWriter(object):
         """Write the various xml files into the zip archive."""
         # cleanup all worksheets
         shared_string_table = self._write_string_table(archive)
-        
+
         archive.writestr(ARC_CONTENT_TYPES, write_content_types(self.workbook))
         if not self.workbook.vba_archive:
             archive.writestr(ARC_ROOT_RELS, write_root_rels(self.workbook))
@@ -131,7 +131,7 @@ class ExcelWriter(object):
                     chart_id += 1
 
                 for img in sheet._images:
-                    buf = StringIO()
+                    buf = BytesIO()
                     img.image.save(buf, format= 'PNG')
                     archive.writestr(PACKAGE_IMAGES + '/image%d.png' % image_id, buf.getvalue())
                     image_id += 1
