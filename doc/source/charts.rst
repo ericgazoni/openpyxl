@@ -1,12 +1,11 @@
 Charts
 ======
 
-**************
-Important note
-**************
+.. warning::
 
-Openpyxl currently supports chart creation within a worksheet only. Charts in
-existing workbooks will be lost.
+    Openpyxl currently supports chart creation within a worksheet only. Charts in
+    existing workbooks will be lost.
+
 
 Chart types
 -----------
@@ -16,6 +15,8 @@ The following charts are available:
 * Bar Chart
 * Line Chart
 * Scatter Chart
+* Pie Chart
+
 
 Creating a chart
 ----------------
