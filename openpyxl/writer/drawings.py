@@ -147,13 +147,14 @@ class DrawingWriter(object):
     def write_rels(self, chart_id, image_id):
 
         root = Element("{%s}Relationships" % PKG_REL_NS)
+        i = 0
         for i, chart in enumerate(self._sheet._charts):
             attrs = {'Id' : 'rId%s' % (i + 1),
                 'Type' : '%s/chart' % REL_NS,
                 'Target' : '../charts/chart%s.xml' % (chart_id + i) }
             SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
         for j, img in enumerate(self._sheet._images):
-            attrs = {'Id' : 'rId%s' % (i + 1 + j + 1),
+            attrs = {'Id' : 'rId%s' % (i + j + 1),
                 'Type' : '%s/image' % REL_NS,
                 'Target' : '../media/image%s.png' % (image_id + j) }
             SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)

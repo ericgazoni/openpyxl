@@ -365,7 +365,7 @@ class TestDrawingWriter(object):
         xml = self.dw.write_rels(1, 1)
         expected = """<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Target="../charts/chart1.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
-  <Relationship Id="rId2" Target="../media/image1.png" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"/>
+  <Relationship Id="rId1" Target="../media/image1.png" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"/>
 </Relationships>
 """
         diff = compare_xml(xml, expected)
