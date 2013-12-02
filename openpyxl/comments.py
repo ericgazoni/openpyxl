@@ -24,6 +24,10 @@
 # @author: see AUTHORS file
 
 class Comment:
+    __slots__ = ('cell',
+                 'text',
+                 'author')
+    
     def __init__(self, cell, text=None, author=None):
         self.cell = cell
         self.text = text
