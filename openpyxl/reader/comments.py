@@ -26,7 +26,7 @@
 from os import path
 
 from openpyxl.comments import Comment
-from openpyxl.shared.ooxml import PACKAGE_WORKSHEET_RELS, PACKAGE_WORKSHEET,
+from openpyxl.shared.ooxml import PACKAGE_WORKSHEET_RELS, PACKAGE_WORKSHEETS, \
                                   SHEET_MAIN_NS, COMMENTS_NS
 from openpyxl.shared.xmltools import fromstring
 
@@ -38,7 +38,7 @@ def read_comments(xml_source):
     """Given the XML of a comments file, generates a list of the comments"""
     root = fromstring(xml_source)
     authors = _get_author_list(root)
-    comment_nodes = root.iter('{%}comment', SHEET_MAIN_NS)
+    comment_nodes = root.iter('{%s}comment' % SHEET_MAIN_NS)
     comments = []
     for node in comment_nodes:
         author = authors[int(node.attrib['authorId'])]
@@ -59,7 +59,6 @@ def get_worksheet_comment_dict(workbook, archive, valid_files):
     for i, sheet_name in enumerate(workbook.worksheets):
         sheet_codename = 'sheet%d.xml' % (i + 1)
         rels_file = PACKAGE_WORKSHEET_RELS + '/' + sheet_codename + '.rels'
-        print rels_file
         if rels_file not in valid_files:
             continue
         rels_source = archive.read(rels_file)
