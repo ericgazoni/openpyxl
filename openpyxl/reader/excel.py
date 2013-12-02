@@ -196,6 +196,7 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
             new_ws = read_worksheet(xml_source, wb, sheet_name, string_table, style_table, style_properties['color_index'], filename, sheet_codename)
         wb.add_sheet(new_ws, index=i)
 
+        # load comments into the worksheet cells
         comments_file = get_comments_file(sheet_codename, archive, valid_files)
         if comments_file is not None:
             sheet_comments = read_comments(archive.read(comments_file))

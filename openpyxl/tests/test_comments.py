@@ -24,23 +24,43 @@
 # @author: see AUTHORS file
 import os
 
+from nose.tools import eq_
+
 from openpyxl import load_workbook
 from openpyxl.tests.helper import DATADIR
 
-def test_comments():
+def test_many_comments():
     path = os.path.join(DATADIR, 'reader', 'comments.xlsx')
     wb = load_workbook(path)
     ws = wb.worksheets[0]
     firstcomment = ws.cell(coordinate="A1").comment
-    assert firstcomment.author == "Cuke"
-    assert firstcomment.text == "Cuke:\nFirst Comment"
+    eq_(firstcomment.author, "Cuke")
+    eq_(firstcomment.text,"Cuke:\nFirst Comment")
     secondcomment = ws.cell(coordinate="D1").comment
-    assert secondcomment.author == "Cuke"
-    assert secondcomment.text == "Cuke:\nSecond Comment"
+    eq_(secondcomment.author, "Cuke")
+    eq_(secondcomment.text, "Cuke:\nSecond Comment")
     thirdcomment = ws.cell(coordinate="A2").comment
-    assert thirdcomment.author == "Cuke"
-    assert thirdcomment.text == "Cuke:\nThird Comment"
+    eq_(thirdcomment.author, "Cuke")
+    eq_(thirdcomment.text, "Cuke:\nThird Comment")
     fourthcomment = ws.cell(coordinate="C7").comment
-    assert fourthcomment.author == "Cuke"
-    assert fourthcomment.text == "Cuke:\nFourth Comment"
+    eq_(fourthcomment.author, "Cuke")
+    eq_(fourthcomment.text, "Cuke:\nFourth Comment")
+    differentcomment = ws.cell(coordinate="B9").comment
+    eq_(differentcomment.author, "Not Cuke")
+    eq_(differentcomment.text, "Not Cuke:\nBecause it has a different author")
+
+def test_comment_absent():
+    path = os.path.join(DATADIR, 'reader', 'comments.xlsx')
+    wb = load_workbook(path)
+    ws = wb.worksheets[1]
+    nocomment = ws.cell(coordinate="A1").comment
+    eq_(nocomment, None)
+
+def test_singlerun_comment():
+    path = os.path.join(DATADIR, 'reader', 'comments.xlsx')
+    wb = load_workbook(path)
+    ws = wb.worksheets[2]
+    singlerun = ws.cell(coordinate="A1").comment
+    eq_(singlerun.author, "Not Cuke")
+    eq_(singlerun.text, "comment has one run")
 
