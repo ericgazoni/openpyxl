@@ -54,6 +54,9 @@ def read_comments(xml_source):
     return comments
 
 def get_comments_file(sheet_codename, archive, valid_files):
+    """Returns the XML filename in the archive which contains the comments for
+    the spreadsheet with codename sheet_codename. Returns None if there is no
+    such file"""
     rels_file = PACKAGE_WORKSHEET_RELS + '/' + sheet_codename + '.rels'
     if rels_file not in valid_files:
         return None
@@ -62,7 +65,8 @@ def get_comments_file(sheet_codename, archive, valid_files):
     for i in root:
         if i.attrib['Type'] == COMMENTS_NS:
             comments_file = path.normpath(PACKAGE_WORKSHEETS + '/' + i.attrib['Target'])
-            return comments_file
+            if comments_file in valid_files:
+                return comments_file
     return None
 
 
