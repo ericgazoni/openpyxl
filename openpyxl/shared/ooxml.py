@@ -55,6 +55,7 @@ ARC_VBA = ('xl/vba', 'xl/activeX', 'xl/drawings', 'xl/media', 'xl/ctrlProps', 'x
 # namespaces
 CHART_NS = "http://schemas.openxmlformats.org/drawingml/2006/chart"
 DRAWING_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
+COMMENTS_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments"
 SHEET_DRAWING_NS = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
 CHART_DRAWING_NS = "http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"
 REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"

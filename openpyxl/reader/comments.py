@@ -26,34 +26,35 @@
 from os import path
 
 from openpyxl.comments import Comment
-from openpyxl.shared.ooxml import PACKAGE_WORKSHEET_RELS, PACKAGE_WORKSHEETS
+from openpyxl.shared.ooxml import PACKAGE_WORKSHEET_RELS, PACKAGE_WORKSHEET,
+                                  SHEET_MAIN_NS, COMMENTS_NS
 from openpyxl.shared.xmltools import fromstring
 
 def _get_author_list(root):
-    author_subtree = root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}authors')
+    author_subtree = root.find('{%s}authors' % SHEET_MAIN_NS)
     return [author.text for author in author_subtree]
 
 def read_comments(xml_source):
     """Given the XML of a comments file, generates a list of the comments"""
     root = fromstring(xml_source)
     authors = _get_author_list(root)
-    comment_nodes = root.iter('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}comment')
+    comment_nodes = root.iter('{%}comment', SHEET_MAIN_NS)
     comments = []
     for node in comment_nodes:
         author = authors[int(node.attrib['authorId'])]
         cell = node.attrib['ref']
-        text_node = node.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}text')
+        text_node = node.find('{%s}text' % SHEET_MAIN_NS)
         text = ''
         substrs = []
-        for run in text_node.findall('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}r'):
-            runtext = ''.join([t.text for t in run.findall('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}t')])
+        for run in text_node.findall('{%s}r' % SHEET_MAIN_NS):
+            runtext = ''.join([t.text for t in run.findall('{%s}t' % SHEET_MAIN_NS)])
             substrs.append(runtext)
         comment_text = ''.join(substrs)
         comments.append(Comment(cell, comment_text, author))
     return comments
 
 def get_worksheet_comment_dict(workbook, archive, valid_files):
-    """Given a workbook, return a mapping of worksheet names to comment files"""
+    """Returns a mapping of worksheet codenames to XML comment files"""
     mapping = {}
     for i, sheet_name in enumerate(workbook.worksheets):
         sheet_codename = 'sheet%d.xml' % (i + 1)
@@ -64,7 +65,7 @@ def get_worksheet_comment_dict(workbook, archive, valid_files):
         rels_source = archive.read(rels_file)
         root = fromstring(rels_source)
         for i in root:
-            if i.attrib['Type'] == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments":
+            if i.attrib['Type'] == COMMENTS_NS:
                 comments_file = path.normpath(PACKAGE_WORKSHEETS + '/' + i.attrib['Target'])
                 mapping[sheet_codename] = comments_file
 
