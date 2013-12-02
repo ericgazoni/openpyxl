@@ -198,6 +198,11 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
 
-    print get_worksheet_comment_dict(wb, archive, valid_files)
+    comment_files = get_worksheet_comment_dict(wb, archive, valid_files)
+    for i, ws in enumerate(wb.worksheets):
+        sheet_codename = 'sheet%d.xml' % (i + 1)
+        if sheet_codename in comment_files:
+            sheet_comments = read_comments(archive.read(comment_files[sheet_codename]))
+            print [i.text for i in sheet_comments]
 
 

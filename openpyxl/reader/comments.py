@@ -29,9 +29,28 @@ from openpyxl.comments import Comment
 from openpyxl.shared.ooxml import PACKAGE_WORKSHEET_RELS, PACKAGE_WORKSHEETS
 from openpyxl.shared.xmltools import fromstring
 
+def _get_author_list(root):
+    author_subtree = root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}authors')
+    return [author.text for author in author_subtree]
+
 def read_comments(xml_source):
-    print xml_source
-    return Comment("A1", "Nic", "This is a comment")
+    """Given the XML of a comments file, generates a list of the comments"""
+    root = fromstring(xml_source)
+    authors = _get_author_list(root)
+    comment_nodes = root.iter('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}comment')
+    comments = []
+    for node in comment_nodes:
+        author = authors[int(node.attrib['authorId'])]
+        cell = node.attrib['ref']
+        text_node = node.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}text')
+        text = ''
+        substrs = []
+        for run in text_node.findall('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}r'):
+            runtext = ''.join([t.text for t in run.findall('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}t')])
+            substrs.append(runtext)
+        comment_text = ''.join(substrs)
+        comments.append(Comment(cell, comment_text, author))
+    return comments
 
 def get_worksheet_comment_dict(workbook, archive, valid_files):
     """Given a workbook, return a mapping of worksheet names to comment files"""
