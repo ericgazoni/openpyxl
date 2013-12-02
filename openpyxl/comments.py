@@ -23,7 +23,7 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-class Comment:
+class Comment(object):
     __slots__ = ('cell',
                  'text',
                  'author')
