@@ -22,5 +22,25 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
+import os
 
 from openpyxl import load_workbook
+from openpyxl.tests.helper import DATADIR
+
+def test_comments():
+    path = os.path.join(DATADIR, 'reader', 'comments.xlsx')
+    wb = load_workbook(path)
+    ws = wb.worksheets[0]
+    firstcomment = ws.cell(coordinate="A1").comment
+    assert firstcomment.author == "Cuke"
+    assert firstcomment.text == "Cuke:\nFirst Comment"
+    secondcomment = ws.cell(coordinate="D1").comment
+    assert secondcomment.author == "Cuke"
+    assert secondcomment.text == "Cuke:\nSecond Comment"
+    thirdcomment = ws.cell(coordinate="A2").comment
+    assert thirdcomment.author == "Cuke"
+    assert thirdcomment.text == "Cuke:\nThird Comment"
+    fourthcomment = ws.cell(coordinate="C7").comment
+    assert fourthcomment.author == "Cuke"
+    assert fourthcomment.text == "Cuke:\nFourth Comment"
+

@@ -53,22 +53,17 @@ def read_comments(xml_source):
         comments.append(Comment(cell, comment_text, author))
     return comments
 
-def get_worksheet_comment_dict(workbook, archive, valid_files):
-    """Returns a mapping of worksheet codenames to XML comment files"""
-    mapping = {}
-    for i, sheet_name in enumerate(workbook.worksheets):
-        sheet_codename = 'sheet%d.xml' % (i + 1)
-        rels_file = PACKAGE_WORKSHEET_RELS + '/' + sheet_codename + '.rels'
-        if rels_file not in valid_files:
-            continue
-        rels_source = archive.read(rels_file)
-        root = fromstring(rels_source)
-        for i in root:
-            if i.attrib['Type'] == COMMENTS_NS:
-                comments_file = path.normpath(PACKAGE_WORKSHEETS + '/' + i.attrib['Target'])
-                mapping[sheet_codename] = comments_file
-
-    return mapping
+def get_comments_file(sheet_codename, archive, valid_files):
+    rels_file = PACKAGE_WORKSHEET_RELS + '/' + sheet_codename + '.rels'
+    if rels_file not in valid_files:
+        return None
+    rels_source = archive.read(rels_file)
+    root = fromstring(rels_source)
+    for i in root:
+        if i.attrib['Type'] == COMMENTS_NS:
+            comments_file = path.normpath(PACKAGE_WORKSHEETS + '/' + i.attrib['Target'])
+            return comments_file
+    return None
 
 
 
