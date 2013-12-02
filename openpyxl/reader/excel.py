@@ -48,6 +48,7 @@ from openpyxl.reader.workbook import (read_sheets_titles, read_named_ranges,
         read_content_types)
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
+from openpyxl.reader.comments import read_comments, get_worksheet_comment_dict
 # Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
 
 
@@ -196,3 +197,7 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
         wb.add_sheet(new_ws, index=i)
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
+
+    print get_worksheet_comment_dict(wb, archive, valid_files)
+
+

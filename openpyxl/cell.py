@@ -155,7 +155,8 @@ class Cell(object):
                  'xf_index',
                  '_hyperlink_rel',
                  '_shared_date',
-                 'merged')
+                 'merged',
+                 'comment')
 
     ERROR_CODES = {'#NULL!': 0,
                    '#DIV/0!': 1,
@@ -196,6 +197,7 @@ class Cell(object):
         self.xf_index = 0
         self._shared_date = SharedDate(base_date=worksheet.parent.excel_base_date)
         self.merged = False
+        self.comment = None
 
     @property
     def encoding(self):
