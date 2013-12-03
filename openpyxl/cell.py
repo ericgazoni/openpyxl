@@ -482,6 +482,6 @@ class Cell(object):
     def comment(self):
         """ Returns the comment associated with this cell
 
-            :rtype: :class:`pyopenxl.comments.Comment`
+            :rtype: :class:`openpyxl.comments.Comment`
         """
         return self._comment     
