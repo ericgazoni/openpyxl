@@ -28,10 +28,12 @@ import pytest
 
 
 @pytest.mark.parametrize("value, result",
-                         [(1, None),
+                         [
+                          (1, None),
                           (0.9, 10),
                           (0.09, 100),
-                          (-0.09, 100)]
+                          (-0.09, 100)
+                         ]
                          )
 def test_less_than_one(value, result):
     from openpyxl.chart import less_than_one
@@ -39,10 +41,12 @@ def test_less_than_one(value, result):
 
 
 @pytest.mark.parametrize("value, result",
-                         [('s', 's'),
+                         [
+                          ('s', 's'),
                           (2.0/3, '0.666666666666667'),
                           (1, '1'),
-                          (None, 'None')]
+                          (None, 'None')
+                         ]
                          )
 def test_safe_string(value, result):
     from openpyxl.writer.charts import safe_string
@@ -51,52 +55,37 @@ def test_safe_string(value, result):
     assert v == 's'
 
 
-class TestAxis(object):
+def test_axis_ctor(Axis):
+    axis = Axis()
+    assert axis.title == ""
+    assert axis.auto_axis is True
+    with pytest.raises(ZeroDivisionError):
+        axis.max == 0
+    with pytest.raises(ZeroDivisionError):
+        axis.min == 0
+    with pytest.raises(ZeroDivisionError):
+        axis.unit == 0
 
 
-    def test_scaling(self, Axis):
-        axis = Axis()
-        axis.max = 10
-        assert axis.min == 0.0
-        assert axis.max == 12.0
-        assert axis.unit == 2.0
-
-        axis.max = 5
-        assert axis.min == 0.0
-        assert axis.max == 6.0
-        assert axis.unit == 1.0
-
-        axis.max = 50000
-        assert axis.min == 0.0
-        assert axis.max == 60000.0
-        assert axis.unit == 12000.0
-
-        axis.max = 1
-        assert axis.min == 0.0
-        assert axis.max == 2.0
-        assert axis.unit == 1.0
-
-        axis.max = 0.9
-        assert axis.min == 0.0
-        assert axis.max == 1.0
-        assert axis.unit == 0.2
-
-        axis.max = 0.09
-        assert axis.min== 0.0
-        assert axis.max== 0.1
-        assert axis.unit == 0.02
-
-        axis.min = -0.09
-        axis.max = 0
-        assert axis.min == -0.1
-        assert axis.max == 0.0
-        assert axis.unit == 0.02
-
-        axis.min = -2
-        axis.max = 8
-        assert axis.min == -3.0
-        assert axis.max == 10.0
-        assert axis.unit == 2.0
+@pytest.mark.parametrize("set_max, set_min, min, max, unit",
+                         [
+                         (10, 0, 0, 12, 2),
+                         (5, 0, 0, 6, 1),
+                         (50000, 0, 0, 60000, 12000),
+                         (1, 0, 0, 2, 1),
+                         (0.9, 0, 0, 1, 0.2),
+                         (0.09, 0, 0, 0.1, 0.02),
+                         (0, -0.09, -0.1, 0, 0.02),
+                         (8, -2, -3, 10, 2)
+                         ]
+                         )
+def test_scaling(Axis, set_max, set_min, min, max, unit):
+    axis = Axis()
+    axis.max = set_max
+    axis.min = set_min
+    assert axis.min == min
+    assert axis.max == max
+    assert axis.unit == unit
 
 
 @pytest.fixture
