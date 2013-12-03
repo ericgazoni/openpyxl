@@ -1,10 +1,9 @@
 import pytest
 import os
 
-from openpyxl.shared.xmltools import Element
-
-
+from openpyxl.shared.xmltools import Element, fromstring
 from openpyxl.shared.ooxml import CHART_NS
+
 from openpyxl.writer.charts import (ChartWriter,
                                     PieChartWriter,
                                     LineChartWriter,
@@ -18,7 +17,7 @@ from openpyxl.tests.helper import (get_xml,
                                    compare_xml,
                                    safe_iterator,
                                    )
-from .schema import chart_schema, fromstring
+from .schema import chart_schema
 
 @pytest.fixture
 def bar_chart(ten_row_sheet, BarChart, Serie, Reference):
@@ -269,6 +268,8 @@ class TestPieChartWriter(object):
         """Check the serialised file against sample"""
         cw = PieChartWriter(pie_chart)
         xml = cw.write()
+        tree = fromstring(xml)
+        chart_schema.assertValid(tree)
         expected_file = os.path.join(DATADIR, "writer", "expected", "piechart.xml")
         with open(expected_file) as expected:
             diff = compare_xml(xml, expected.read())
@@ -304,6 +305,8 @@ class TestLineChartWriter(object):
         """Check the serialised file against sample"""
         cw = LineChartWriter(line_chart)
         xml = cw.write()
+        tree = fromstring(xml)
+        chart_schema.assertValid(tree)
         expected_file = os.path.join(DATADIR, "writer", "expected", "LineChart.xml")
         with open(expected_file) as expected:
             diff = compare_xml(xml, expected.read())
@@ -338,6 +341,8 @@ class TestBarChartWriter(object):
         """Check the serialised file against sample"""
         cw = BarChartWriter(bar_chart_2)
         xml = cw.write()
+        tree = fromstring(xml)
+        chart_schema.assertValid(tree)
         expected_file = os.path.join(DATADIR, "writer", "expected", "BarChart.xml")
         with open(expected_file) as expected:
             diff = compare_xml(xml, expected.read())
