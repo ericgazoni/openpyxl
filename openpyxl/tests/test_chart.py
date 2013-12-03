@@ -824,35 +824,3 @@ class TestBarChartWriter(object):
         with open(expected_file) as expected:
             diff = compare_xml(xml, expected.read())
             assert diff is None, diff
-
-
-class TestAnchoring(object):
-    def _get_dummy_class(self):
-        class DummyImg(object):
-            def __init__(self):
-                self.size = (200, 200)
-
-        class DummyImage(Image):
-            def _import_image(self, img):
-                return DummyImg()
-
-        return DummyImage
-
-    def test_cell_anchor(self, ws):
-        assert ws.cell('A1').anchor == (0, 0)
-        assert ws.cell('D32').anchor == (210, 620)
-
-    def test_image_anchor(self, ws):
-        DummyImage = self._get_dummy_class()
-        cell = ws.cell('D32')
-        img = DummyImage(None)
-        img.anchor(cell)
-        assert (img.drawing.top, img.drawing.left) == (620, 210)
-
-    def test_image_end(self, ws):
-        DummyImage = self._get_dummy_class()
-        cell = ws.cell('A1')
-        img = DummyImage(None)
-        img.drawing.width, img.drawing.height = (50, 50)
-        end = img.anchor(cell)
-        assert end[1] == ('A', 3)
