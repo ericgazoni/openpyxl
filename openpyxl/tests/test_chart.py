@@ -24,29 +24,18 @@
 # @author: see AUTHORS file
 
 from datetime import date
-
 import pytest
 
-# Class Fixtures
 
-@pytest.fixture
-def less_than_one():
+@pytest.mark.parametrize("value, result",
+                         [(1, None),
+                          (0.9, 10),
+                          (0.09, 100),
+                          (-0.09, 100)]
+                         )
+def test_less_than_one(value, result):
     from openpyxl.chart import less_than_one
-    return less_than_one
-
-
-def test_less_than_one(less_than_one):
-    mul = less_than_one(1)
-    assert mul == None
-
-    mul = less_than_one(0.9)
-    assert mul == 10.0
-
-    mul = less_than_one(0.09)
-    assert mul == 100.0
-
-    mul = less_than_one(-0.09)
-    assert mul == 100.0
+    assert less_than_one(value) == result
 
 
 def test_safe_string():
