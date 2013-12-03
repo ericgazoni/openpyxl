@@ -26,7 +26,6 @@
 from datetime import date
 import os
 
-from nose.tools import eq_, assert_raises, assert_true, assert_false
 import pytest
 
 from openpyxl.tests.helper import (get_xml,
@@ -57,35 +56,88 @@ from openpyxl.drawing import Image
 
 from .schema import chart_schema, fromstring
 
+# Fixtures
 
-def test_less_than_one():
+@pytest.fixture
+def Chart():
+    from openpyxl.chart import Chart
+    return Chart
+
+
+@pytest.fixture
+def Axis():
+    from openpyxl.chart import Axis
+    return Axis
+
+
+@pytest.fixture
+def PieChart():
+    from openpyxl.chart import PieChart
+    return PieChart
+
+
+@pytest.fixture
+def LineChart():
+    from openpyxl.chart import LineChart
+    return LineChart
+
+
+@pytest.fixture
+def BarChart():
+    from openpyxl.chart import BarChart
+    return BarChart
+
+
+@pytest.fixture
+def ScatterChart():
+    from openpyxl.chart import ScatterChart
+    return ScatterChart
+
+
+@pytest.fixture
+def Reference():
+    from openpyxl.chart import Reference
+    return Reference
+
+
+@pytest.fixture
+def Serie():
+    from openpyxl.chart import Serie
+    return Serie
+
+@pytest.fixture
+def less_than_one():
     from openpyxl.chart import less_than_one
+    return less_than_one
+
+
+def test_less_than_one(less_than_one):
     mul = less_than_one(1)
-    eq_(mul, None)
+    assert mul == None
 
     mul = less_than_one(0.9)
-    eq_(mul, 10.0)
+    assert mul == 10.0
 
     mul = less_than_one(0.09)
-    eq_(mul, 100.0)
+    assert mul == 100.0
 
     mul = less_than_one(-0.09)
-    eq_(mul, 100.0)
+    assert mul == 100.0
 
 
 def test_safe_string():
     from openpyxl.writer.charts import safe_string
     v = safe_string('s')
-    eq_(v, 's')
+    assert v == 's'
 
     v = safe_string(2.0/3)
-    eq_(v, '0.666666666666667')
+    assert v == '0.666666666666667'
 
     v = safe_string(1)
-    eq_(v, '1')
+    assert v == '1'
 
     v = safe_string(None)
-    eq_(v, 'None')
+    assert v == 'None'
 
 
 class TestAxis(object):
@@ -96,46 +148,46 @@ class TestAxis(object):
 
     def test_scaling(self):
         self.axis.max = 10
-        eq_(self.axis.min, 0.0)
-        eq_(self.axis.max, 12.0)
-        eq_(self.axis.unit, 2.0)
+        assert self.axis.min == 0.0
+        assert self.axis.max == 12.0
+        assert self.axis.unit == 2.0
 
         self.axis.max = 5
-        eq_(self.axis.min, 0.0)
-        eq_(self.axis.max, 6.0)
-        eq_(self.axis.unit, 1.0)
+        assert self.axis.min == 0.0
+        assert self.axis.max == 6.0
+        assert self.axis.unit == 1.0
 
         self.axis.max = 50000
-        eq_(self.axis.min, 0.0)
-        eq_(self.axis.max, 60000.0)
-        eq_(self.axis.unit, 12000.0)
+        assert self.axis.min == 0.0
+        assert self.axis.max == 60000.0
+        assert self.axis.unit == 12000.0
 
         self.axis.max = 1
-        eq_(self.axis.min, 0.0)
-        eq_(self.axis.max, 2.0)
-        eq_(self.axis.unit, 1.0)
+        assert self.axis.min == 0.0
+        assert self.axis.max == 2.0
+        assert self.axis.unit == 1.0
 
         self.axis.max = 0.9
-        eq_(self.axis.min, 0.0)
-        eq_(self.axis.max, 1.0)
-        eq_(self.axis.unit, 0.2)
+        assert self.axis.min == 0.0
+        assert self.axis.max == 1.0
+        assert self.axis.unit == 0.2
 
         self.axis.max = 0.09
-        eq_(self.axis.min, 0.0)
-        eq_(self.axis.max, 0.1)
-        eq_(self.axis.unit, 0.02)
+        assert self.axis.min== 0.0
+        assert self.axis.max== 0.1
+        assert self.axis.unit == 0.02
 
         self.axis.min = -0.09
         self.axis.max = 0
-        eq_(self.axis.min, -0.1)
-        eq_(self.axis.max, 0.0)
-        eq_(self.axis.unit, 0.02)
+        assert self.axis.min == -0.1
+        assert self.axis.max == 0.0
+        assert self.axis.unit == 0.02
 
         self.axis.min = -2
         self.axis.max = 8
-        eq_(self.axis.min, -3.0)
-        eq_(self.axis.max, 10.0)
-        eq_(self.axis.unit, 2.0)
+        assert self.axis.min == -3.0
+        assert self.axis.max == 10.0
+        assert self.axis.unit == 2.0
 
 
 
@@ -153,35 +205,37 @@ class TestReference(object):
         self.range = Reference(self.sheet, (0, 0), (9, 0))
 
     def test_single_cell_ctor(self):
-        eq_(self.cell.pos1, (0, 0))
-        eq_(self.cell.pos2, None)
+        assert self.cell.pos1 == (0, 0)
+        assert self.cell.pos2 == None
 
     def test_range_ctor(self):
-        eq_(self.range.pos1, (0, 0))
-        eq_(self.range.pos2, (9, 0))
+        assert self.range.pos1 == (0, 0)
+        assert self.range.pos2 == (9, 0)
 
     def test_type_validation(self):
         pass
 
     def test_caching_cell(self):
-        eq_(self.cell._get_cache(), [0])
+        assert self.cell._get_cache() == [0]
 
     def test_caching_range(self):
-        eq_(self.range._get_cache(), [0, 1, 2, 3, 4, 5, 6, 7, 8 , 9])
+        assert self.range._get_cache() == [0, 1, 2, 3, 4, 5, 6, 7, 8 , 9]
 
     def test_ref_cell(self):
-        eq_(str(self.cell), "'reference'!$A$1")
+        assert str(self.cell) == "'reference'!$A$1"
 
     def test_ref_range(self):
-        eq_(str(self.range), "'reference'!$A$1:$A$10")
+        assert str(self.range) == "'reference'!$A$1:$A$10"
 
     def test_data_type(self):
-        assert_raises(ValueError, setattr, self.cell, 'data_type', 'f')
-        eq_(self.cell.data_type, 'n')
-        eq_(self.range.data_type, 'n')
+        with pytest.raises(ValueError):
+            self.cell.data_type = 'f'
+        assert self.cell.data_type == 'n'
+        assert self.range.data_type == 'n'
 
     def test_number_format(self):
-        assert_raises(ValueError, setattr, self.cell, 'number_format', 'YYYY')
+        with pytest.raises(ValueError):
+            self.cell.number_format = 'YYYY'
         self.cell.number_format = 'd-mmm'
 
 
@@ -196,7 +250,8 @@ class TestErrorBar(object):
 
     def test_ctor(self):
         from openpyxl.chart import ErrorBar
-        assert_raises(TypeError, ErrorBar, None, range(10))
+        with pytest.raises(TypeError):
+            ErrorBar(None, range(10))
 
 
 class TestSerie(object):
@@ -214,12 +269,12 @@ class TestSerie(object):
 
     def test_ctor(self):
         series = Serie(self.cell)
-        eq_(series.values, [0])
-        eq_(series.color, None)
-        eq_(series.error_bar, None)
-        eq_(series.xvalues, None)
-        eq_(series.labels, None)
-        eq_(series.legend, None)
+        assert series.values == [0]
+        assert series.color == None
+        assert series.error_bar == None
+        assert series.xvalues == None
+        assert series.labels == None
+        assert series.legend == None
 
     def test_invalid_values(self):
         series = Serie(self.cell)
@@ -231,44 +286,45 @@ class TestSerie(object):
 
     def test_color(self):
         series = Serie(self.cell)
-        eq_(series.color, None)
+        assert series.color == None
         series.color = "blue"
-        eq_(series.color, "blue")
-        assert_raises(ValueError, setattr, series, 'color', None)
+        assert series.color, "blue"
+        with pytest.raises(ValueError):
+            series.color = None
 
     def test_min_max(self):
         series = Serie(self.cell)
-        eq_(series.get_min_max(), (0, 0))
+        assert series.get_min_max() == (0, 0)
         series = Serie(self.range)
-        eq_(series.get_min_max(), (0, 9))
+        assert series.get_min_max() == (0, 9)
         series = Serie(self.empty)
-        eq_(series.get_min_max(), (None, None))
+        assert series.get_min_max() == (None, None)
 
     def test_min(self):
         series = Serie(self.cell)
-        eq_(series.min(), 0)
+        assert series.min() == 0
         series = Serie(self.range)
-        eq_(series.min(), 0)
+        assert series.min(), 0
         series = Serie(self.empty)
-        eq_(series.min(), None)
+        assert series.min() == None
 
     def test_max(self):
         series = Serie(self.cell)
-        eq_(series.max(), 0)
+        assert series.max() == 0
         series = Serie(self.range)
-        eq_(series.max(), 9)
+        assert series.max() == 9
         series = Serie(self.empty)
-        eq_(series.max(), None)
+        assert series.max(), None
 
     def test_len(self):
         series = Serie(self.cell)
-        eq_(len(series), 1)
+        assert len(series) == 1
 
     def test_error_bar(self):
         series = Serie(self.cell)
         from openpyxl.chart import ErrorBar
         series.error_bar = ErrorBar(None, self.cell)
-        eq_(series.get_min_max(), (0, 0))
+        assert series.get_min_max() == (0, 0)
 
 
 class TestChart(object):
@@ -291,13 +347,13 @@ class TestChart(object):
         c = self.make_one()
         assert c.TYPE == None
         assert c.GROUPING == "standard"
-        assert isinstance(c.legend, Legend)
+        assert isinstance(c.legend == Legend)
         assert c.show_legend
         assert c.lang == 'en-GB'
         assert c.title == ''
         assert c.print_margins == {'b':0.75, 'l':0.7, 'r':0.7, 't':0.75,
                                    'header':0.3, 'footer':0.3}
-        assert isinstance(c.drawing, Drawing)
+        assert isinstance(c.drawing == Drawing)
         assert c.width == 0.6
         assert c.height == 0.6
         assert c.margin_top == 0.31
@@ -307,39 +363,39 @@ class TestChart(object):
 
     def test_mymax(self):
         c = self.make_one()
-        eq_(c.mymax(range(10)), 9)
+        assert c.mymax(range(10)) == 9
         from string import ascii_letters as letters
-        eq_(c.mymax(list(letters)), "z")
-        eq_(c.mymax(range(-10, 1)), 0)
-        eq_(c.mymax([""]*10), "")
+        assert c.mymax(list(letters)) == "z"
+        assert c.mymax(range(-10 == 1)) == 0
+        assert c.mymax([""]*10) == ""
 
     def test_mymin(self):
         c = self.make_one()
-        eq_(c.mymin(range(10)), 0)
+        assert c.mymin(range(10)) == 0
         from string import ascii_letters as letters
-        eq_(c.mymin(list(letters)), "A")
-        eq_(c.mymin(range(-10, 1)), -10)
-        eq_(c.mymin([""]*10), "")
+        assert c.mymin(list(letters)) == "A"
+        assert c.mymin(range(-10 == 1)) == -10
+        assert c.mymin([""]*10) == ""
 
     def test_margin_top(self):
         c = self.make_one()
-        eq_(c.margin_top, 0.31)
+        assert c.margin_top == 0.31
 
     def test_margin_left(self):
         c = self.make_one()
         c._series.append(self.range)
-        eq_(c.margin_left, 0.03375)
+        assert c.margin_left == 0.03375
 
     def test_set_margin_top(self):
         c = self.make_one()
         c.margin_top = 1
-        eq_(c.margin_top, 0.31)
+        assert c.margin_top == 0.31
 
     def test_set_margin_left(self):
         c = self.make_one()
         c._series.append(self.range)
         c.margin_left = 0
-        eq_(c.margin_left , 0.03375)
+        assert c.margin_left  == 0.03375
 
 
 class TestGraphChart(object):
@@ -369,25 +425,25 @@ class TestGraphChart(object):
     def test_get_x_unit(self):
         c = self.make_one()
         c._series.append(self.range)
-        eq_(c.get_x_units(), 10)
+        assert c.get_x_units() == 10
 
     def test_get_y_unit(self):
         c = self.make_one()
         c._series.append(self.range)
         c.y_axis.max = 10
-        eq_(c.get_y_units(), 228600.0)
+        assert c.get_y_units() == 228600.0
 
     def test_get_y_char(self):
         c = self.make_one()
         c._series.append(self.range)
-        eq_(c.get_y_chars(), 1)
+        assert c.get_y_chars() == 1
 
     def test_compute_series_extremes(self):
         c = self.make_one()
         c._series.append(self.range)
         mini, maxi = c._get_extremes()
-        eq_(mini, 0)
-        eq_(maxi, 1.0)
+        assert mini == 0
+        assert maxi == 1.0
 
     def test_compute_series_max_dates(self):
         ws = self.make_worksheet()
@@ -398,8 +454,8 @@ class TestGraphChart(object):
         series = Serie(ref)
         c._series.append(series)
         mini, maxi = c._get_extremes()
-        eq_(mini, 0)
-        eq_(maxi, 41518.0)
+        assert mini == 0
+        assert maxi == 41518.0
 
     def test_override_axis(self):
         c = self.make_one()
@@ -418,9 +474,9 @@ class TestLineChart(object):
     def test_ctor(self):
         from openpyxl.chart import LineChart
         c = LineChart()
-        eq_(c.TYPE, "lineChart")
-        eq_(c.x_axis.type, "catAx")
-        eq_(c.y_axis.type, "valAx")
+        assert c.TYPE == "lineChart"
+        assert c.x_axis.type == "catAx"
+        assert c.y_axis.type == "valAx"
 
 
 class TestPieChart(object):
@@ -429,7 +485,7 @@ class TestPieChart(object):
 
         from openpyxl.chart import PieChart
         c = PieChart()
-        eq_(c.TYPE, "pieChart")
+        assert c.TYPE, "pieChart"
 
 
 class TestBarChart(object):
@@ -438,9 +494,9 @@ class TestBarChart(object):
 
         from openpyxl.chart import BarChart
         c = BarChart()
-        eq_(c.TYPE, "barChart")
-        eq_(c.x_axis.type, "catAx")
-        eq_(c.y_axis.type, "valAx")
+        assert c.TYPE == "barChart"
+        assert c.x_axis.type == "catAx"
+        assert c.y_axis.type == "valAx"
 
 
 class TestScatterChart(object):
@@ -449,9 +505,9 @@ class TestScatterChart(object):
 
         from openpyxl.chart import ScatterChart
         c = ScatterChart()
-        eq_(c.TYPE, "scatterChart")
-        eq_(c.x_axis.type, "valAx")
-        eq_(c.y_axis.type, "valAx")
+        assert c.TYPE == "scatterChart"
+        assert c.x_axis.type == "valAx"
+        assert c.y_axis.type == "valAx"
 
 
 class TestChartWriter(object):
@@ -522,7 +578,7 @@ class TestChartWriter(object):
         self.chart.show_legend = False
         self.cw._write_legend(self.root)
         children = [e for e in self.root]
-        eq_(len(children), 0)
+        assert len(children) == 0
 
     def test_write_print_settings(self):
         tagnames = ['test',
@@ -533,12 +589,12 @@ class TestChartWriter(object):
         for e in self.root:
             assert_true(e.tag in tagnames)
             if e.tag == "{%s}pageMargins" % CHART_NS:
-                eq_(e.keys(), list(self.chart.print_margins.keys()))
+                assert e.keys() == list(self.chart.print_margins.keys())
                 for k, v in e.items():
-                    eq_(float(v), self.chart.print_margins[k])
+                    assert float(v) == self.chart.print_margins[k]
             else:
-                eq_(e.text, None)
-                eq_(e.attrib, {})
+                assert e.text == None
+                assert e.attrib == {}
 
     def test_write_chart(self):
         root = Element('{%s}chartSpace' % CHART_NS)
@@ -708,7 +764,7 @@ class TestPieChartWriter(object):
         root = safe_iterator(self.root)
         chart_tags = [e.tag for e in root]
         for tag in tagnames:
-            assert_true(tag in chart_tags, tag)
+            assert tag in chart_tags
 
         assert_false('c:catAx' in chart_tags)
 
@@ -745,7 +801,7 @@ class TestLineChartWriter(object):
         root = safe_iterator(self.root)
         chart_tags = [e.tag for e in root]
         for tag in tagnames:
-            assert_true(tag in chart_tags, tag)
+            assert tag in chart_tags
 
     def test_serialised(self):
         """Check the serialised file against sample"""
@@ -806,8 +862,8 @@ class TestAnchoring(object):
         wb = Workbook()
         ws = wb.get_active_sheet()
 
-        eq_(ws.cell('A1').anchor, (0, 0))
-        eq_(ws.cell('D32').anchor, (210, 620))
+        assert ws.cell('A1').anchor == (0, 0)
+        assert ws.cell('D32').anchor == (210, 620)
 
     def test_image_anchor(self):
         DummyImage = self._get_dummy_class()
@@ -816,7 +872,7 @@ class TestAnchoring(object):
         cell = ws.cell('D32')
         img = DummyImage(None)
         img.anchor(cell)
-        eq_((img.drawing.top, img.drawing.left), (620, 210))
+        assert (img.drawing.top, img.drawing.left) == (620, 210)
 
     def test_image_end(self):
         DummyImage = self._get_dummy_class()
@@ -826,4 +882,4 @@ class TestAnchoring(object):
         img = DummyImage(None)
         img.drawing.width, img.drawing.height = (50, 50)
         end = img.anchor(cell)
-        eq_(end[1], ('A', 3))
+        assert end[1] == ('A', 3)
