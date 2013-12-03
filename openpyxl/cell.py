@@ -156,7 +156,7 @@ class Cell(object):
                  '_hyperlink_rel',
                  '_shared_date',
                  'merged',
-                 'comment')
+                 '_comment')
 
     ERROR_CODES = {'#NULL!': 0,
                    '#DIV/0!': 1,
@@ -197,7 +197,7 @@ class Cell(object):
         self.xf_index = 0
         self._shared_date = SharedDate(base_date=worksheet.parent.excel_base_date)
         self.merged = False
-        self.comment = None
+        self._comment = None   
 
     @property
     def encoding(self):
@@ -476,3 +476,12 @@ class Cell(object):
             top_anchor += default_height
 
         return (left_anchor, top_anchor)
+
+    # No comment setter because comments can't be written
+    @property
+    def comment(self):
+        """ Returns the comment associated with this cell
+
+            :rtype: :class:`pyopenxl.comments.Comment`
+        """
+        return self._comment     

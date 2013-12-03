@@ -33,11 +33,14 @@ def test_init():
     assert c.text == "text"
     assert c.author == "author"
 
-def test_slots():
+def test_properties():
     c = Comment("A1", "text", "author")
     with pytest.raises(AttributeError):
         c.notthere = ''
-    c.cell = "B2"
-    c.text = "TEXT"
-    c.author = "AUTHOR"
+    with pytest.raises(AttributeError):
+        c.cell = "B2"
+    with pytest.raises(AttributeError):
+        c.text = "TEXT"
+    with pytest.raises(AttributeError):
+        c.author = "AUTHOR"
 

@@ -201,7 +201,7 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
         if comments_file is not None:
             sheet_comments = read_comments(archive.read(comments_file))
             for comment in sheet_comments:
-                new_ws.cell(coordinate=comment.cell).comment = comment
+                new_ws.cell(coordinate=comment.cell)._comment = comment
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
 
