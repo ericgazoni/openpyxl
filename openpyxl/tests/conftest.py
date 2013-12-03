@@ -15,6 +15,68 @@ def Workbook():
     from openpyxl import Workbook
     return Workbook
 
+# Charts
+
+@pytest.fixture
+def Chart():
+    from openpyxl.chart import Chart
+    return Chart
+
+
+@pytest.fixture
+def GraphChart():
+    from openpyxl.chart import GraphChart
+    return GraphChart
+
+
+@pytest.fixture
+def Axis():
+    from openpyxl.chart import Axis
+    return Axis
+
+
+@pytest.fixture
+def PieChart():
+    from openpyxl.chart import PieChart
+    return PieChart
+
+
+@pytest.fixture
+def LineChart():
+    from openpyxl.chart import LineChart
+    return LineChart
+
+
+@pytest.fixture
+def BarChart():
+    from openpyxl.chart import BarChart
+    return BarChart
+
+
+@pytest.fixture
+def ScatterChart():
+    from openpyxl.chart import ScatterChart
+    return ScatterChart
+
+
+@pytest.fixture
+def Reference():
+    from openpyxl.chart import Reference
+    return Reference
+
+
+@pytest.fixture
+def Serie():
+    from openpyxl.chart import Serie
+    return Serie
+
+
+@pytest.fixture
+def ErrorBar():
+    from openpyxl.chart import ErrorBar
+    return ErrorBar
+
+# utility fixtures
 
 @pytest.fixture
 def ws(Workbook):
@@ -35,3 +97,9 @@ def ten_row_sheet(ws):
 def ten_column_sheet(ws):
     ws.append(list(range(10)))
     return ws
+
+from openpyxl.shared.xmltools import Element
+
+@pytest.fixture
+def root_xml():
+    return Element("test")
