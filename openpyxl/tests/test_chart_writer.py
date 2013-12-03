@@ -173,17 +173,6 @@ def scatter_chart(ws, ScatterChart, Reference, Serie):
 
 class TestScatterChartWriter(object):
 
-    #def setup(self, ws, ScatterChart, Reference, Serie):
-        #ws.title = 'Scatter'
-        #for i in range(10):
-            #ws.cell(row=i, column=0).value = i
-            #ws.cell(row=i, column=1).value = i
-        #self.scatterchart = ScatterChart()
-        #self.scatterchart.add_serie(Serie(Reference(ws, (0, 0), (10, 0)),
-                                          #xvalues=Reference(ws, (0, 1), (10, 1))))
-        #self.cw = ScatterChartWriter(self.scatterchart)
-        #root_xml = Element('test')
-
     def test_write_xaxis(self, scatter_chart, root_xml):
         cw = ScatterChartWriter(scatter_chart)
         scatter_chart.x_axis.title = 'test x axis title'
