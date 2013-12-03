@@ -32,7 +32,6 @@ from openpyxl.shared.xmltools import fromstring
 
 def _get_author_list(root):
     author_subtree = root.find('{%s}authors' % SHEET_MAIN_NS)
-    print author_subtree
     return [author.text for author in author_subtree]
 
 def read_comments(xml_source):
