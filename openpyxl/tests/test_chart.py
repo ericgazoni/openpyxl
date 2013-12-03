@@ -38,19 +38,17 @@ def test_less_than_one(value, result):
     assert less_than_one(value) == result
 
 
-def test_safe_string():
+@pytest.mark.parametrize("value, result",
+                         [('s', 's'),
+                          (2.0/3, '0.666666666666667'),
+                          (1, '1'),
+                          (None, 'None')]
+                         )
+def test_safe_string(value, result):
     from openpyxl.writer.charts import safe_string
+    assert safe_string(value) == result
     v = safe_string('s')
     assert v == 's'
-
-    v = safe_string(2.0/3)
-    assert v == '0.666666666666667'
-
-    v = safe_string(1)
-    assert v == '1'
-
-    v = safe_string(None)
-    assert v == 'None'
 
 
 class TestAxis(object):
