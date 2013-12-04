@@ -32,11 +32,17 @@ import re
 
 # package imports
 import openpyxl.cell
-from openpyxl.cell import coordinate_from_string, \
-    column_index_from_string, get_column_letter
-from openpyxl.shared.exc import SheetTitleException, \
-    InsufficientCoordinatesException, CellCoordinatesException, \
+from openpyxl.cell import (
+    coordinate_from_string,
+    column_index_from_string,
+    get_column_letter
+    )
+from openpyxl.shared.exc import (
+    SheetTitleException,
+    InsufficientCoordinatesException,
+    CellCoordinatesException,
     NamedRangeException
+    )
 from openpyxl.shared.password_hasher import hash_password
 from openpyxl.styles import Style, DEFAULTS as DEFAULTS_STYLE
 from openpyxl.styles.formatting import ConditionalFormatting
