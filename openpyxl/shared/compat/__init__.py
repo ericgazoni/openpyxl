@@ -20,6 +20,8 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
+from __future__ import absolute_import
+
 from tempfile import NamedTemporaryFile
 
 from openpyxl import LXML
@@ -29,17 +31,25 @@ if LXML is True:
 else:
     from openpyxl.shared.compat.elementtree import iterparse
 
-from openpyxl.shared.compat.strings import basestring, unicode, StringIO, file, BytesIO, tempfile
-from openpyxl.shared.compat.numbers import long
-from openpyxl.shared.compat.itertools import xrange, ifilter, iteritems, iterkeys
+from .strings import (
+    basestring,
+    unicode,
+    StringIO,
+    file,
+    BytesIO,
+    tempfile,
+    safe_string
+    )
+from .numbers import long
+from .itertools import xrange, ifilter, iteritems, iterkeys
 
 # Python 2.6
 try:
     from collections import OrderedDict
 except ImportError:
-    from openpyxl.shared.compat.odict import OrderedDict
+    from .odict import OrderedDict
 
 try:
     from xml.etree.ElementTree import register_namespace
 except ImportError:
-    from openpyxl.shared.compat.elementtree import register_namespace
+    from .elementtree import register_namespace

@@ -20,8 +20,9 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
-
+from __future__ import absolute_import
 import sys
+
 VER = sys.version_info
 
 if VER[0] == 3:
@@ -42,3 +43,12 @@ if VER[0] == 3:
 else:
     from StringIO import StringIO
     BytesIO = StringIO
+
+def safe_string(value):
+    from numbers import Number
+    """Safely and consistently format numeric values"""
+    if isinstance(value, Number):
+        value = "%.15g" % value
+    elif not isinstance(value, basestring):
+        value = str(value)
+    return value

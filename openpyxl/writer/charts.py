@@ -22,21 +22,33 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-from numbers import Number
 
-from openpyxl.shared.xmltools import Element, SubElement, get_document_content
-from openpyxl.shared.ooxml import CHART_NS, DRAWING_NS, REL_NS, PKG_REL_NS
-from openpyxl.shared.compat import iteritems, basestring
-from openpyxl.chart import Chart, ErrorBar, BarChart, LineChart, PieChart, ScatterChart, GraphChart
+from openpyxl.shared.xmltools import (
+    Element,
+    SubElement,
+    get_document_content
+    )
+from openpyxl.shared.ooxml import (
+    CHART_NS,
+    DRAWING_NS,
+    REL_NS,
+    PKG_REL_NS
+    )
+from openpyxl.shared.compat import (
+    iteritems,
+    basestring,
+    safe_string
+    )
+from openpyxl.chart import (
+    Chart,
+    ErrorBar,
+    BarChart,
+    LineChart,
+    PieChart,
+    ScatterChart,
+    GraphChart
+    )
 
-
-def safe_string(value):
-    """Safely and consistently format numeric values"""
-    if isinstance(value, Number):
-        value = "%.15g" % value
-    elif not isinstance(value, basestring):
-        value = str(value)
-    return value
 
 class BaseChartWriter(object):
 
