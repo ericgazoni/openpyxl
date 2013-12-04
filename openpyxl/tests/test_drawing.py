@@ -23,9 +23,10 @@
 import pytest
 
 from openpyxl.shared.ooxml import CHART_DRAWING_NS, SHEET_DRAWING_NS, DRAWING_NS
-from openpyxl.shared.xmltools import Element, SubElement
+from openpyxl.shared.xmltools import Element, SubElement, fromstring
 
 from .helper import compare_xml, get_xml
+from .schema import drawing_schema, chart_schema
 
 def test_bounding_box():
     from openpyxl.drawing import bounding_box
@@ -275,13 +276,14 @@ class TestDrawingWriter(object):
 
     def test_write_chart(self):
         from openpyxl.drawing import Drawing
-        root = Element("{%s}test" % SHEET_DRAWING_NS)
+        root = Element("{%s}wsDr" % SHEET_DRAWING_NS)
         chart = DummyChart()
         drawing = Drawing()
         chart.drawing = drawing
         self.dw._write_chart(root, chart, 1)
+        drawing_schema.assertValid(root)
         xml = get_xml(root)
-        expected = """<xdr:test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+        expected = """<xdr:wsDr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
         xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
   <xdr:absoluteAnchor>
     <xdr:pos x="0" y="0"/>
@@ -303,7 +305,7 @@ class TestDrawingWriter(object):
     </xdr:graphicFrame>
     <xdr:clientData/>
   </xdr:absoluteAnchor>
-</xdr:test>"""
+</xdr:wsDr>"""
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
@@ -312,10 +314,11 @@ class TestDrawingWriter(object):
         from openpyxl.drawing import Image
         path = os.path.join(DATADIR, "plain.png")
         img = Image(path)
-        root = Element("test")
+        root = Element("{%s}wsDr" % SHEET_DRAWING_NS)
         self.dw._write_image(root, img, 1)
+        drawing_schema.assertValid(root)
         xml = get_xml(root)
-        expected = """<test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
+        expected = """<xdr:wsDr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
   <xdr:absoluteAnchor>
     <xdr:pos x="0" y="0"/>
     <xdr:ext cx="1123950" cy="1123950"/>
@@ -353,7 +356,7 @@ class TestDrawingWriter(object):
     </xdr:pic>
     <xdr:clientData/>
   </xdr:absoluteAnchor>
-</test>
+</xdr:wsDr>
 """
         diff = compare_xml(xml, expected)
         assert diff is None, diff
@@ -383,6 +386,8 @@ class TestShapeWriter(object):
 
     def test_write(self):
         xml = self.sw.write(0)
+        tree = fromstring(xml)
+        chart_schema.assertValid(tree)
         expected = """
            <c:userShapes xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
              <cdr:relSizeAnchor xmlns:cdr="http://schemas.openxmlformats.org/drawingml/2006/chartDrawing">
