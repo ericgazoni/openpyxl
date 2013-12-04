@@ -164,8 +164,6 @@ class DrawingWriter(object):
 class ShapeWriter(object):
     """ one file per shape """
 
-    schema = "http://schemas.openxmlformats.org/drawingml/2006/main"
-
     def __init__(self, shapes):
 
         self._shapes = shapes
