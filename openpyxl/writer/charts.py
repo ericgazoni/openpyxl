@@ -53,20 +53,19 @@ class BaseChartWriter(object):
 
     def __init__(self, chart):
         self.chart = chart
+        self.root = Element("{%s}chartSpace" % CHART_NS)
 
     def write(self):
         """ write a chart """
-        root = Element("{%s}chartSpace" % CHART_NS)
+        SubElement(self.root, '{%s}lang' % CHART_NS, {'val':self.chart.lang})
+        self._write_chart()
+        self._write_print_settings()
+        self._write_shapes()
 
-        SubElement(root, '{%s}lang' % CHART_NS, {'val':self.chart.lang})
-        self._write_chart(root)
-        self._write_print_settings(root)
-        self._write_shapes(root)
+        return get_document_content(self.root)
 
-        return get_document_content(root)
-
-    def _write_chart(self, root):
-        ch = SubElement(root, '{%s}chart' % CHART_NS)
+    def _write_chart(self):
+        ch = SubElement(self.root, '{%s}chart' % CHART_NS)
         self._write_title(ch)
         self._write_layout(ch)
         self._write_legend(ch)
@@ -254,18 +253,18 @@ class BaseChartWriter(object):
             SubElement(legend, '{%s}legendPos' % CHART_NS, {'val':self.chart.legend.position})
             SubElement(legend, '{%s}layout' % CHART_NS)
 
-    def _write_print_settings(self, root):
+    def _write_print_settings(self):
 
-        settings = SubElement(root, '{%s}printSettings' % CHART_NS)
+        settings = SubElement(self.root, '{%s}printSettings' % CHART_NS)
         SubElement(settings, '{%s}headerFooter' % CHART_NS)
         margins = dict([(k, safe_string(v)) for (k, v) in iteritems(self.chart.print_margins)])
         SubElement(settings, '{%s}pageMargins' % CHART_NS, margins)
         SubElement(settings, '{%s}pageSetup' % CHART_NS)
 
-    def _write_shapes(self, root):
+    def _write_shapes(self):
 
         if self.chart._shapes:
-            SubElement(root, '{%s}userShapes' % CHART_NS, {'{%s}id' % REL_NS:'rId1'})
+            SubElement(self.root, '{%s}userShapes' % CHART_NS, {'{%s}id' % REL_NS:'rId1'})
 
     def write_rels(self, drawing_id):
         root = Element("{%s}Relationships" % PKG_REL_NS)
