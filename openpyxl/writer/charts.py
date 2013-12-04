@@ -36,7 +36,6 @@ from openpyxl.shared.ooxml import (
     )
 from openpyxl.shared.compat import (
     iteritems,
-    basestring,
     safe_string
     )
 from openpyxl.chart import (
@@ -225,8 +224,7 @@ class BaseChartWriter(object):
         SubElement(data, '{%s}ptCount' % CHART_NS, {'val':str(len(values))})
         for j, val in enumerate(values):
             point = SubElement(data, '{%s}pt' % CHART_NS, {'idx':str(j)})
-            if not isinstance(val, basestring):
-                val = safe_string(val)
+            val = safe_string(val)
             SubElement(point, '{%s}v' % CHART_NS).text = val
 
     def _write_error_bar(self, node, serie):
