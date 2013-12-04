@@ -108,30 +108,34 @@ class DrawingWriter(object):
 
         pic = SubElement(anchor, '{%s}pic' % SHEET_DRAWING_NS)
         name = SubElement(pic, '{%s}nvPicPr' % SHEET_DRAWING_NS)
-        SubElement(name, '{%s}cNvPr' % SHEET_DRAWING_NS, {'id':'%s' % (idx + 1), 'name':'Picture %s' % idx})
-        SubElement(SubElement(name, '{%s}cNvPicPr' % SHEET_DRAWING_NS),
-                   '{%s}picLocks' % DRAWING_NS, {'noChangeAspect':"1" if img.nochangeaspect\
-                                    else '0','noChangeArrowheads':"1" if img.nochangearrowheads\
-                                    else '0'})
+        SubElement(name, '{%s}cNvPr' % SHEET_DRAWING_NS,
+                   {'id':'%s' % (idx + 1),
+                    'name':'Picture %s' % idx})
+        cNvPicPr = SubElement(name, '{%s}cNvPicPr' % SHEET_DRAWING_NS)
+        paras = {"noChangeAspect": "0"}
+        if img.nochangeaspect:
+            paras["noChangeAspect"] = "1"
+        if img.nochangearrowheads:
+            paras["noChangeArrowheads"] = "1"
+
+        SubElement(cNvPicPr, '{%s}picLocks' % DRAWING_NS, paras)
+
         blipfill = SubElement(pic, '{%s}blipFill' % SHEET_DRAWING_NS)
         SubElement(blipfill, '{%s}blip' % DRAWING_NS, {
             '{%s}embed' % REL_NS: 'rId%s' % idx,
             'cstate':'print'
         })
         SubElement(blipfill, '{%s}srcRect' % DRAWING_NS)
-        SubElement(
-            SubElement(blipfill, '{%s}stretch' % DRAWING_NS),
-            '{%s}fillRect' % DRAWING_NS)
+        stretch = SubElement(blipfill, '{%s}stretch' % DRAWING_NS)
+        SubElement(stretch, '{%s}fillRect' % DRAWING_NS)
 
         sppr = SubElement(pic, '{%s}spPr' % SHEET_DRAWING_NS, {'bwMode':'auto'})
         frm = SubElement(sppr, '{%s}xfrm' % DRAWING_NS)
         # no transformation
         SubElement(frm, '{%s}off' % DRAWING_NS, {'x':'0', 'y':'0'})
         SubElement(frm, '{%s}ext' % DRAWING_NS, {'cx':'0', 'cy':'0'})
-
-        SubElement(
-            SubElement(sppr, '{%s}prstGeom' % DRAWING_NS, {'prst':'rect'})
-            , '{%s}avLst' % DRAWING_NS)
+        prstGeom = SubElement(sppr, '{%s}prstGeom' % DRAWING_NS, {'prst':'rect'})
+        SubElement(prstGeom, '{%s}avLst' % DRAWING_NS)
 
         SubElement(sppr, '{%s}noFill' % DRAWING_NS)
 
