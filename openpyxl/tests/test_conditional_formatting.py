@@ -29,7 +29,7 @@ from xml.sax.saxutils import XMLGenerator
 
 # compatibility imports
 from openpyxl.shared.compat import BytesIO, StringIO
-from openpyxl.worksheet import ConditionalFormatting
+from openpyxl.styles.formatting import ConditionalFormatting
 from openpyxl.shared.compat import iterkeys
 
 # package imports
