@@ -35,9 +35,10 @@ from openpyxl.shared.compat import iterparse
 from openpyxl.cell import get_column_letter
 from openpyxl.shared.xmltools import fromstring
 from openpyxl.cell import Cell, coordinate_from_string
-from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension,  ConditionalFormatting
+from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
 from openpyxl.shared.ooxml import SHEET_MAIN_NS
 from openpyxl.style import Color
+from openpyxl.styles.formatting import ConditionalFormatting
 
 def _get_xml_iter(xml_source):
 
