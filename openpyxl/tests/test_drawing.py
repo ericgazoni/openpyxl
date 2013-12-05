@@ -215,7 +215,7 @@ class DummyCell(object):
     """Required for images"""
 
     column = "A"
-    row = "1"
+    row = 1
     anchor = (0, 0)
 
     def __init__(self):
@@ -255,7 +255,15 @@ class TestImage(object):
         i = Image(self.img)
         c = DummyCell()
         vals = i.anchor(c)
-        assert vals == (('A', '1'), (118, 118))
+        assert vals == (('A', 1), (118, 118))
+
+    @pil_required
+    def test_anchor_onecell(self):
+        Image = self.make_one()
+        i = Image(self.img)
+        c = DummyCell()
+        vals = i.anchor(c, anchortype="oneCell")
+        assert vals == ((0, 0), None)
 
 
 class TestDrawingWriter(object):
@@ -361,6 +369,32 @@ class TestDrawingWriter(object):
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
+    @pil_required
+    def test_write_anchor(self):
+        from openpyxl.drawing import Image
+        path = os.path.join(DATADIR, "plain.png")
+        drawing = Image(path).drawing
+        root = Element("test")
+        self.dw._write_anchor(root, drawing)
+        xml = get_xml(root)
+        expected = """<test><xdr:absoluteAnchor xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"><xdr:pos x="0" y="0"/><xdr:ext cx="1123950" cy="1123950"/></xdr:absoluteAnchor></test>"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+    @pil_required
+    def test_write_anchor_onecell(self):
+        from openpyxl.drawing import Image
+        path = os.path.join(DATADIR, "plain.png")
+        drawing = Image(path).drawing
+        drawing.anchortype =  "oneCell"
+        drawing.anchorcol = 0
+        drawing.anchorrow = 0
+        root = Element("test")
+        self.dw._write_anchor(root, drawing)
+        xml = get_xml(root)
+        expected = """<test><xdr:oneCellAnchor xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"><xdr:from><xdr:col>0</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from><xdr:ext cx="1123950" cy="1123950"/></xdr:oneCellAnchor></test>"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
 
     def test_write_rels(self):
         self.dw._sheet._charts.append(None)

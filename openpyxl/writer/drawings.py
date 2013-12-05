@@ -33,6 +33,7 @@ from openpyxl.shared.ooxml import (
     CHART_DRAWING_NS,
     PKG_REL_NS
 )
+from openpyxl.shared.compat.strings import safe_string
 
 
 class DrawingWriter(object):
@@ -98,13 +99,26 @@ class DrawingWriter(object):
         SubElement(anchor, '{%s}clientData' % SHEET_DRAWING_NS)
         return node
 
-    def _write_image(self, node, img, idx):
-        drawing = img.drawing
-
+    def _write_anchor(self, node, drawing):
         x, y, w, h = drawing.get_emu_dimensions()
-        anchor = SubElement(node, '{%s}absoluteAnchor' % SHEET_DRAWING_NS)
-        SubElement(anchor, '{%s}pos' % SHEET_DRAWING_NS, {'x':str(x), 'y':str(y)})
-        SubElement(anchor, '{%s}ext' % SHEET_DRAWING_NS, {'cx':str(w), 'cy':str(h)})
+
+        if drawing.anchortype == "oneCell":
+            anchor = SubElement(node, '{%s}oneCellAnchor' % SHEET_DRAWING_NS)
+            xdrfrom = SubElement(anchor, '{%s}from' % SHEET_DRAWING_NS)
+            SubElement(xdrfrom, '{%s}col' % SHEET_DRAWING_NS).text = safe_string(drawing.anchorcol)
+            SubElement(xdrfrom, '{%s}colOff' % SHEET_DRAWING_NS).text = safe_string(x)
+            SubElement(xdrfrom, '{%s}row' % SHEET_DRAWING_NS).text = safe_string(drawing.anchorrow)
+            SubElement(xdrfrom, '{%s}rowOff' % SHEET_DRAWING_NS).text = safe_string(y)
+        else:
+            anchor = SubElement(node, '{%s}absoluteAnchor' % SHEET_DRAWING_NS)
+            SubElement(anchor, '{%s}pos' % SHEET_DRAWING_NS, {'x':safe_string(x), 'y':safe_string(y)})
+
+        SubElement(anchor, '{%s}ext' % SHEET_DRAWING_NS, {'cx':safe_string(w), 'cy':safe_string(h)})
+
+        return anchor
+
+    def _write_image(self, node, img, idx):
+        anchor = self._write_anchor(node, img.drawing)
 
         pic = SubElement(anchor, '{%s}pic' % SHEET_DRAWING_NS)
         name = SubElement(pic, '{%s}nvPicPr' % SHEET_DRAWING_NS)
