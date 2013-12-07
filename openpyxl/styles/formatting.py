@@ -22,9 +22,7 @@
 # @author: see AUTHORS file
 
 
-from collections import OrderedDict
-
-from openpyxl.shared.compat import iteritems
+from openpyxl.shared.compat import iteritems, OrderedDict
 from .colors import Color
 
 
