@@ -200,9 +200,12 @@ class TestWorksheet(object):
         ws.append(['This is A2', 'This is B2'])
 
         vals = ws.range('A1:B2')
-
-        eq_((('This is A1', 'This is B1'),
-             ('This is A2', 'This is B2'),), flatten(vals))
+        expected = (
+            ('This is A1', 'This is B1'),
+            ('This is A2', 'This is B2'),
+        )
+        for e, v in zip(expected, flatten(vals)):
+            assert e == tuple(v)
 
     def test_rows(self):
 

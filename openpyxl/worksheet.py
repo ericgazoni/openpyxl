@@ -53,21 +53,12 @@ from openpyxl.shared.compat.itertools import iteritems
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
-def flatten(results):
 
-    rows = []
+def flatten(results):
+    """Return cell values row-by-row"""
 
     for row in results:
-
-        cells = []
-
-        for cell in row:
-
-            cells.append(cell.value)
-
-        rows.append(tuple(cells))
-
-    return tuple(rows)
+        yield(c.value for c in row)
 
 
 class Relationship(object):
