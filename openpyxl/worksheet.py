@@ -60,38 +60,46 @@ def flatten(results):
     for row in results:
         yield(c.value for c in row)
 
+from openpyxl.shared.ooxml import REL_NS, PKG_REL_NS
+from openpyxl.shared.xmltools import Element, SubElement, get_document_content
+
 
 class Relationship(object):
     """Represents many kinds of relationships."""
     # TODO: Use this object for workbook relationships as well as
     # worksheet relationships
-    TYPES = {
-        'hyperlink': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
-        'drawing':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
-        'image':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing'
-        # 'worksheet': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
-        # 'sharedStrings': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
-        # 'styles': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
-        # 'theme': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
-    }
 
-    def __init__(self, rel_type):
+    TYPES = ("hyperlink", "drawing", "image")
+
+    def __init__(self, rel_type, target=None, target_mode=None):
         if rel_type not in self.TYPES:
             raise ValueError("Invalid relationship type %s" % rel_type)
-        self.type = self.TYPES[rel_type]
-        self.target = ""
-        self.target_mode = ""
-        self.id = ""
+        self.type = "%s/%s" % (REL_NS, rel_type)
+        self.target = target
+        self.target_mode = target_mode
+        self.id = id
+
+    def __repr__(self):
+        root = Element("{%s}Relationships" % PKG_REL_NS)
+        body = SubElement(root, "{%s}Relationship" % PKG_REL_NS, self.__dict__)
+        return get_document_content(root)
 
 
 class PageSetup(object):
     """Information about page layout for this sheet"""
-    valid_setup = ("orientation", "paperSize", "scale", "fitToPage", "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber")
+    valid_setup = ("orientation", "paperSize", "scale", "fitToPage",
+                   "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber")
     valid_options = ("horizontalCentered", "verticalCentered")
-
-    def __init__(self):
-        self.orientation = self.paperSize = self.scale = self.fitToPage = self.fitToHeight = self.fitToWidth = self.firstPageNumber = self.useFirstPageNumber = None
-        self.horizontalCentered = self.verticalCentered = None
+    orientation = None
+    paperSize = None
+    scale = None
+    fitToPage = None
+    fitToHeight = None
+    fitToWidth = None
+    firstPageNumber = None
+    useFirstPageNumber = None
+    horizontalCentered = None
+    verticalCentered = None
 
     @property
     def setup(self):
@@ -752,13 +760,13 @@ class Worksheet(object):
         """ Add a chart to the sheet """
 
         chart._sheet = self
-        self._charts.append(chart)
+        self._charts.append(chart) # add to sheet relations
 
     def add_image(self, img):
         """ Add an image to the sheet """
 
         img._sheet = self
-        self._images.append(img)
+        self._images.append(img) # add to sheet relations
 
     def merge_cells(self, range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
         """ Set merge on a cell range.  Range is a cell range (e.g. A1:E1) """
