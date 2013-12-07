@@ -24,12 +24,12 @@
 # @author: see AUTHORS file
 
 class Comment(object):
-    __slots__ = ('_cell',
+    __slots__ = ('parent',
                  '_text',
                  '_author')
     
-    def __init__(self, cell, text=None, author=None):
-        self._cell = cell
+    def __init__(self, parent=None, text=None, author=None):
+        self.parent = parent
         self._text = text
         self._author = author
     
@@ -49,13 +49,5 @@ class Comment(object):
             :rtype: string
         """
         return self._text
-
-    @property
-    def cell(self):
-        """ The cell associated with the comment i.e. 'A1'
-
-            :rtype: string
-        """
-        return self._cell
     
 

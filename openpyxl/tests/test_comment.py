@@ -28,8 +28,8 @@ import pytest
 from openpyxl.comments import Comment
 
 def test_init():
-    c = Comment("A1", "text", "author")
-    assert c.cell == "A1"
+    c = Comment(None, "text", "author")
+    assert c.parent == None
     assert c.text == "text"
     assert c.author == "author"
 

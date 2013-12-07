@@ -34,12 +34,11 @@ def _get_author_list(root):
     author_subtree = root.find('{%s}authors' % SHEET_MAIN_NS)
     return [author.text for author in author_subtree]
 
-def read_comments(xml_source):
-    """Given the XML of a comments file, generates a list of the comments"""
+def read_comments(ws, xml_source):
+    """Given a worksheet and the XML of its comments file, assigns comments to cells"""
     root = fromstring(xml_source)
     authors = _get_author_list(root)
     comment_nodes = root.iter('{%s}comment' % SHEET_MAIN_NS)
-    comments = []
     for node in comment_nodes:
         author = authors[int(node.attrib['authorId'])]
         cell = node.attrib['ref']
@@ -50,8 +49,9 @@ def read_comments(xml_source):
             runtext = ''.join([t.text for t in run.findall('{%s}t' % SHEET_MAIN_NS)])
             substrs.append(runtext)
         comment_text = ''.join(substrs)
-        comments.append(Comment(cell, comment_text, author))
-    return comments
+        
+        comment = Comment(ws, comment_text, author)
+        ws.cell(coordinate=cell)._comment = comment
 
 def get_comments_file(sheet_codename, archive, valid_files):
     """Returns the XML filename in the archive which contains the comments for
