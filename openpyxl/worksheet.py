@@ -544,8 +544,12 @@ class Worksheet(object):
             cell_range = cell_range[0][0].address + ':' + cell_range[-1][-1].address
         self._auto_filter = cell_range
 
+    @property
+    def freeze_panes(self):
+        return self._freeze_panes
 
-    def _set_freeze_panes(self, topLeftCell):
+    @freeze_panes.setter
+    def freeze_panes(self, topLeftCell):
         if not topLeftCell:
             topLeftCell = None
         elif isinstance(topLeftCell, str):
@@ -555,12 +559,6 @@ class Worksheet(object):
         if topLeftCell == 'A1':
             topLeftCell = None
         self._freeze_panes = topLeftCell
-
-    def _get_freeze_panes(self):
-        return self._freeze_panes
-
-    freeze_panes = property(_get_freeze_panes, _set_freeze_panes, doc=
-                           "Get or set frozen panes")
 
     def add_print_title(self, n, rows_or_cols='rows'):
         """ Print Titles are rows or columns that are repeated on each printed sheet.
