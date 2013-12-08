@@ -51,7 +51,7 @@ def read_comments(ws, xml_source):
         comment_text = ''.join(substrs)
         
         comment = Comment(ws, comment_text, author)
-        ws.cell(coordinate=cell)._comment = comment
+        ws.cell(coordinate=cell).comment = comment
 
 def get_comments_file(sheet_codename, archive, valid_files):
     """Returns the XML filename in the archive which contains the comments for

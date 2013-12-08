@@ -477,11 +477,13 @@ class Cell(object):
 
         return (left_anchor, top_anchor)
 
-    # No comment setter because comments can't be written
     @property
     def comment(self):
         """ Returns the comment associated with this cell
 
             :rtype: :class:`openpyxl.comments.Comment`
         """
-        return self._comment     
+        return self._comment
+    @comment.setter
+    def comment(self, value):
+        self._comment = value  

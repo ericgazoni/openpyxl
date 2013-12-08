@@ -622,7 +622,7 @@ class Worksheet(object):
         """Delete cells that are not storing a value."""
         delete_list = [coordinate for coordinate, cell in \
             iteritems(self._cells) if (not cell.merged and cell.value in ('', None) and \
-            (coordinate not in self._styles or
+            cell.comment is None and (coordinate not in self._styles or
             hash(cell.style) == _DEFAULTS_STYLE_HASH))]
         for coordinate in delete_list:
             del self._cells[coordinate]
