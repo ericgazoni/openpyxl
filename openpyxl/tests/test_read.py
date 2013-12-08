@@ -56,6 +56,9 @@ def test_read_standalone_worksheet():
         def get_sheet_by_name(self, value):
             return None
 
+        def get_sheet_names(self):
+            return []
+
     path = os.path.join(DATADIR, 'reader', 'sheet2.xml')
     ws = None
     handle = open(path)
