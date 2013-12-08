@@ -486,4 +486,8 @@ class Cell(object):
         return self._comment
     @comment.setter
     def comment(self, value):
-        self._comment = value  
+        if value is None and self._comment is not None:
+            self.parent._comment_count -= 1
+        if value is not None and self._comment is None:
+            self.parent._comment_count += 1
+        self._comment = value

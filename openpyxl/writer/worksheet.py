@@ -365,7 +365,7 @@ def write_worksheet_hyperlinks(doc, worksheet):
         end_tag(doc, 'hyperlinks')
 
 
-def write_worksheet_rels(worksheet, idx):
+def write_worksheet_rels(worksheet, drawing_id, comments_id):
     """Write relationships for the worksheet to xml."""
     root = Element('{%s}Relationships' % PKG_REL_NS)
     for rel in worksheet.relationships:
@@ -376,6 +376,8 @@ def write_worksheet_rels(worksheet, idx):
     if worksheet._charts or worksheet._images:
         attrs = {'Id' : 'rId1',
             'Type' : '%s/drawing' % REL_NS,
-            'Target' : '../drawings/drawing%s.xml' % idx }
+            'Target' : '../drawings/drawing%s.xml' % drawing_id }
         SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
+    if worksheet._comment_count > 0:
+        print "Should be writing rels", comments_id
     return get_document_content(root)

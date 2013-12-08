@@ -97,15 +97,16 @@ class ExcelWriter(object):
         chart_id = 1
         image_id = 1
         shape_id = 1
+        comments_id = 1
 
         for i, sheet in enumerate(self.workbook.worksheets):
             archive.writestr(PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1),
                     write_worksheet(sheet, shared_string_table,
                             style_writer.get_style_by_hash()))
-            if sheet._charts or sheet._images or sheet.relationships:
+            if sheet._charts or sheet._images or sheet.relationships or sheet._comment_count > 0:
                 archive.writestr(PACKAGE_WORKSHEETS +
                         '/_rels/sheet%d.xml.rels' % (i + 1),
-                        write_worksheet_rels(sheet, drawing_id))
+                        write_worksheet_rels(sheet, drawing_id, comments_id))
             if sheet._charts or sheet._images:
                 dw = DrawingWriter(sheet)
                 archive.writestr(PACKAGE_DRAWINGS + '/drawing%d.xml' % drawing_id,
@@ -135,6 +136,9 @@ class ExcelWriter(object):
                     img.image.save(buf, format= 'PNG')
                     archive.writestr(PACKAGE_IMAGES + '/image%d.png' % image_id, buf.getvalue())
                     image_id += 1
+            if sheet._comment_count > 0:
+                print "Should be writing comments"
+                comments_id += 1
 
     def save(self, filename):
         """Write data into the archive."""

@@ -582,6 +582,7 @@ class Worksheet(object):
         self._styles = {}
         self._charts = []
         self._images = []
+        self._comment_count = 0
         self._merged_cells = []
         self.relationships = []
         self._data_validations = []
