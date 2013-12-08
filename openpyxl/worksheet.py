@@ -529,22 +529,22 @@ class Worksheet(object):
             raise SheetTitleException(msg)
         self._title = value
 
-
-    def _set_auto_filter(self, range):
-        # Normalize range to a str or None
-        if not range:
-            range = None
-        elif isinstance(range, str):
-            range = range.upper()
-        else:  # Assume a range
-            range = range[0][0].address + ':' + range[-1][-1].address
-        self._auto_filter = range
-
-    def _get_auto_filter(self):
+    @property
+    def auto_filter(self):
         return self._auto_filter
 
-    auto_filter = property(_get_auto_filter, _set_auto_filter, doc=
-                           'get or set auto filtering on columns')
+    @auto_filter.setter
+    def auto_filter(self, cell_range):
+        # Normalize range to a str or None
+        if not cell_range:
+            cell_range = None
+        elif isinstance(cell_range, str):
+            cell_range = cell_range.upper()
+        else:  # Assume a range
+            cell_range = cell_range[0][0].address + ':' + cell_range[-1][-1].address
+        self._auto_filter = cell_range
+
+
     def _set_freeze_panes(self, topLeftCell):
         if not topLeftCell:
             topLeftCell = None
