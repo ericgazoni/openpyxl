@@ -60,6 +60,12 @@ class TestWorksheet(object):
     def test_set_bad_title(self):
         Worksheet(self.wb, 'X' * 50)
 
+    def test_increment_title(self):
+        ws1 = self.wb.create_sheet(title="Test")
+        assert ws1.title == "Test"
+        ws2 = self.wb.create_sheet(title="Test")
+        assert ws2.title == "Test1"
+
     def test_set_bad_title_character(self):
         assert_raises(SheetTitleException, Worksheet, self.wb, '[')
         assert_raises(SheetTitleException, Worksheet, self.wb, ']')

@@ -518,12 +518,19 @@ class Worksheet(object):
 
         # check if sheet_name already exists
         # do this *before* length check
-        if self._parent.get_sheet_by_name(value):
-            # use name, but append with lowest possible integer
-            i = 1
-            while self._parent.get_sheet_by_name('%s%d' % (value, i)):
-                i += 1
-            value = '%s%d' % (value, i)
+        sheets = self._parent.get_sheet_names()
+        sheets = ",".join(sheets)
+        sheet_title_regex=re.compile("(?P<title>%s)(?P<count>\d?),?" % value)
+        matches = sheet_title_regex.findall(sheets)
+        if matches:
+            # use name, but append with the next highest integer
+            counts = [int(idx) for (t, idx) in matches if idx.isdigit()]
+            if counts:
+                highest = max(counts)
+            else:
+                highest = 0
+            value = "%s%d" % (value, highest+1)
+
         if len(value) > 31:
             msg = 'Maximum 31 characters allowed in sheet title'
             raise SheetTitleException(msg)
