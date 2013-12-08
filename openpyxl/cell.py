@@ -354,26 +354,24 @@ class Cell(object):
         """Always returns the value for excel."""
         return self._value
 
-    def _set_hyperlink(self, val):
-        """Set value and display for hyperlinks in a cell"""
+    @property
+    def hyperlink(self):
+        """Return the hyperlink target or an empty string"""
+        return self._hyperlink_rel is not None and \
+                self._hyperlink_rel.target or ''
+
+    @hyperlink.setter
+    def hyperlink(self, val):
+        """Set value and display for hyperlinks in a cell.
+        Automatically setsthe `value` of the cell with link text,
+        but you can modify it afterwards by setting the `value`
+        property, and the hyperlink will remain.\n\n' ':rtype: string"""
         if self._hyperlink_rel is None:
             self._hyperlink_rel = self.parent.create_relationship("hyperlink")
         self._hyperlink_rel.target = val
         self._hyperlink_rel.target_mode = "External"
         if self._value is None:
             self.value = val
-
-    def _get_hyperlink(self):
-        """Return the hyperlink target or an empty string"""
-        return self._hyperlink_rel is not None and \
-                self._hyperlink_rel.target or ''
-
-    hyperlink = property(_get_hyperlink, _set_hyperlink,
-            doc='Get or set the hyperlink held in the cell.  '
-            'Automatically sets the `value` of the cell with link text, '
-            'but you can modify it afterwards by setting the '
-            '`value` property, and the hyperlink will remain.\n\n'
-            ':rtype: string')
 
     @property
     def hyperlink_rel_id(self):
