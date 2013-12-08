@@ -412,6 +412,8 @@ class Worksheet(object):
 
     """
     repr_format = unicode('<Worksheet "%s">')
+    bad_title_char_re = re.compile(r'[\\*?:/\[\]]')
+
 
     BREAK_NONE = 0
     BREAK_ROW = 1
@@ -501,10 +503,16 @@ class Worksheet(object):
         """Return an unordered list of the cells in this worksheet."""
         return self._cells.values()
 
-    def _set_title(self, value):
-        """Set a sheet title, ensuring it is valid."""
-        bad_title_char_re = re.compile(r'[\\*?:/\[\]]')
-        if bad_title_char_re.search(value):
+    @property
+    def title(self):
+        """Return the title for this sheet."""
+        return self._title
+
+    @title.setter
+    def title(self, value):
+        """Set a sheet title, ensuring it is valid.
+           Limited to 31 characters, no special characters."""
+        if self.bad_title_char_re.search(value):
             msg = 'Invalid character found in sheet title'
             raise SheetTitleException(msg)
 
@@ -521,13 +529,6 @@ class Worksheet(object):
             raise SheetTitleException(msg)
         self._title = value
 
-    def _get_title(self):
-        """Return the title for this sheet."""
-        return self._title
-
-    title = property(_get_title, _set_title, doc=
-                     'Get or set the title of the worksheet. '
-                     'Limited to 31 characters, no special characters.')
 
     def _set_auto_filter(self, range):
         # Normalize range to a str or None
