@@ -20,12 +20,14 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
+import os
+
 import pytest
 
 from openpyxl.shared.ooxml import CHART_DRAWING_NS, SHEET_DRAWING_NS, DRAWING_NS
 from openpyxl.shared.xmltools import Element, SubElement, fromstring
 
-from .helper import compare_xml, get_xml
+from .helper import compare_xml, get_xml, DATADIR
 from .schema import drawing_schema, chart_schema
 
 def test_bounding_box():
@@ -195,15 +197,6 @@ class TestShadow(object):
         assert s.alpha == 50
 
 
-try:
-    from PIL import Image
-except ImportError:
-    Image = False
-
-import os
-from .helper import DATADIR
-
-
 class DummySheet(object):
     """Required for images"""
 
@@ -221,7 +214,6 @@ class DummyCell(object):
     def __init__(self):
         self.parent = DummySheet()
 
-pil_required = pytest.mark.skipif("Image is False", reason="PIL must be installed")
 
 class TestImage(object):
 
@@ -232,13 +224,13 @@ class TestImage(object):
         from openpyxl.drawing import Image
         return Image
 
-    @pytest.mark.skipif("Image", reason="PIL is installed")
+    @pytest.mark.pil_not_installed
     def test_import(self):
         Image = self.make_one()
         with pytest.raises(ImportError):
             i = Image._import_image(self.img)
 
-    @pil_required
+    @pytest.mark.pil_required
     def test_ctor(self):
         Image = self.make_one()
         i = Image(img=self.img)
@@ -249,7 +241,7 @@ class TestImage(object):
         assert d.width == 118
         assert d.height == 118
 
-    @pil_required
+    @pytest.mark.pil_required
     def test_anchor(self):
         Image = self.make_one()
         i = Image(self.img)
@@ -257,7 +249,7 @@ class TestImage(object):
         vals = i.anchor(c)
         assert vals == (('A', 1), (118, 118))
 
-    @pil_required
+    @pytest.mark.pil_required
     def test_anchor_onecell(self):
         Image = self.make_one()
         i = Image(self.img)
@@ -317,7 +309,7 @@ class TestDrawingWriter(object):
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
-    @pil_required
+    @pytest.mark.pil_required
     def test_write_images(self):
         from openpyxl.drawing import Image
         path = os.path.join(DATADIR, "plain.png")
@@ -369,7 +361,7 @@ class TestDrawingWriter(object):
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
-    @pil_required
+    @pytest.mark.pil_required
     def test_write_anchor(self):
         from openpyxl.drawing import Image
         path = os.path.join(DATADIR, "plain.png")
@@ -381,7 +373,7 @@ class TestDrawingWriter(object):
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
-    @pil_required
+    @pytest.mark.pil_required
     def test_write_anchor_onecell(self):
         from openpyxl.drawing import Image
         path = os.path.join(DATADIR, "plain.png")

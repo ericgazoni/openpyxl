@@ -103,3 +103,17 @@ from openpyxl.shared.xmltools import Element
 @pytest.fixture
 def root_xml():
     return Element("test")
+
+
+### Markers ###
+
+def pytest_runtest_setup(item):
+    if isinstance(item, item.Function):
+        try:
+            from PIL import Image
+        except ImportError:
+            Image = False
+        if item.get_marker("pil_required") and Image is False:
+            pytest.skip("PIL must be installed")
+        elif item.get_marker("pil_not_installed") and Image:
+            pytest.skip("PIL is installed")
