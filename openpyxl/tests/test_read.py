@@ -29,6 +29,7 @@ from datetime import datetime, date
 
 # 3rd party imports
 from nose.tools import eq_, raises
+import pytest
 
 # compatibility imports
 from openpyxl.shared.compat import BytesIO, StringIO, unicode, file, tempfile
@@ -52,6 +53,7 @@ def test_read_standalone_worksheet():
 
         excel_base_date = CALENDAR_WINDOWS_1900
         _guess_types = True
+        data_only = False
 
         def get_sheet_by_name(self, value):
             return None
@@ -302,6 +304,18 @@ def test_read_complex_formulae():
     assert ws.cell('C10').value == '=SUM(A10:A14*B10:B14)'
     assert ws.cell('C11').data_type != 'f'
 
+
+def test_data_only():
+    null_file = os.path.join(DATADIR, 'reader', 'formulae.xlsx')
+    wb = load_workbook(null_file, data_only=True)
+    ws = wb.get_active_sheet()
+    ws.parent.data_only = True
+    # Test cells returning values only, not formulae
+    assert ws.formula_attributes == {}
+    assert ws.cell('A2').data_type == 'n' and ws.cell('A2').value == 12345
+    assert ws.cell('A3').data_type == 'n' and ws.cell('A3').value == 12345
+    assert ws.cell('A3').data_type == 'n' and ws.cell('A4').value == 24690
+    assert ws.cell('A3').data_type == 'n' and ws.cell('A5').value == 49380
 
 
 def test_read_contains_chartsheet():

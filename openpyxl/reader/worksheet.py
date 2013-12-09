@@ -106,6 +106,7 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 
     root = fromstring(xml_source)
     guess_types = ws.parent._guess_types
+    data_only = ws.parent.data_only
 
     mergeCells = root.find('{%s}mergeCells' % SHEET_MAIN_NS)
     if mergeCells is not None:
@@ -130,7 +131,7 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
             data_type = element.get('t', 'n')
             if data_type == Cell.TYPE_STRING:
                 value = string_table.get(int(value))
-            if formula is not None:
+            if formula is not None and not data_only:
                 if formula.text:
                     value = "=" + str(formula.text)
                 else:
