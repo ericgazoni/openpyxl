@@ -71,7 +71,7 @@ class Relationship(object):
 
     TYPES = ("hyperlink", "drawing", "image")
 
-    def __init__(self, rel_type, target=None, target_mode=None):
+    def __init__(self, rel_type, target=None, target_mode=None, id=None):
         if rel_type not in self.TYPES:
             raise ValueError("Invalid relationship type %s" % rel_type)
         self.type = "%s/%s" % (REL_NS, rel_type)
@@ -764,15 +764,23 @@ class Worksheet(object):
 
     def add_chart(self, chart):
         """ Add a chart to the sheet """
-
         chart._sheet = self
-        self._charts.append(chart) # add to sheet relations
+        self._charts.append(chart)
+        self.add_drawing(chart)
 
     def add_image(self, img):
         """ Add an image to the sheet """
-
         img._sheet = self
-        self._images.append(img) # add to sheet relations
+        self._images.append(img)
+        self.add_drawing(img)
+
+    def add_drawing(self, obj):
+        """Images and charts both create drawings"""
+        self._parent.drawings.append(obj)
+
+    def add_rel(self, obj):
+        """Drawings and hyperlinks create relationships"""
+        self._parent.relationships.append(obj)
 
     def merge_cells(self, range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
         """ Set merge on a cell range.  Range is a cell range (e.g. A1:E1) """

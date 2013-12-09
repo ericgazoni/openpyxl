@@ -96,6 +96,8 @@ class Workbook(object):
         self.vba_archive = None
         self.style_properties = None
         self._guess_types = guess_types
+        self.relationships = []
+        self.drawings = []
 
         self.encoding = encoding
 
