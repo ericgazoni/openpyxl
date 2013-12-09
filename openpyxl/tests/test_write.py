@@ -322,6 +322,3 @@ class TestExcelWriter(object):
         zipinfo = archive.infolist()
         assert len(zipinfo) == 1
         assert zipinfo[0].filename == 'xl/media/image1.png'
-
-        #might not be safe, since compression can differ?
-        #assert zipinfo[0].file_size == 357
