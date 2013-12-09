@@ -203,6 +203,20 @@ def test_write_hyperlink_rels():
         assert diff is None, diff
 
 
+@pytest.mark.xfail
+@pytest.mark.pil_required
+def test_write_hyperlink_image_rels(Workbook, Image):
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('A1').value = "test"
+    ws.cell('A1').hyperlink = "http://test.com/"
+    img = os.path.join(DATADIR, "plain.png")
+    i = Image(img)
+    ws.add_image(i)
+    # TODO write integration test with duplicate relation ids then fix
+
+
+
 def test_hyperlink_value():
     wb = Workbook()
     ws = wb.create_sheet()
