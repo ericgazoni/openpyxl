@@ -7,14 +7,19 @@ import openpyxl
 
 def reader(optimised):
     """
-    Create a worksheet with variable width rows. Because data must be
-    serialised row by row it is often the width of the rows which is most
-    important.
+    Loop through all cells of a workbook
     """
     folder = os.path.split(__file__)[0]
     src = os.path.join(folder, "files", "large.xlsx")
     wb = openpyxl.load_workbook(src, use_iterators=optimised)
-
+    ws = wb.get_active_sheet()
+    if optimised:
+        rows = ws.iter_rows()
+    else:
+        rows = ws.rows
+    for row in rows:
+        for col in row:
+            pass
 
 def timer(fn):
     """
@@ -24,7 +29,7 @@ def timer(fn):
     """
     result = []
     for opt in (False, True):
-        print "Worksbook is {}".format(opt and "optimised" or "not optimised")
+        print "Workbook is {}".format(opt and "optimised" or "not optimised")
         times = timeit.repeat("{}({})".format(fn.func_name, opt),
                               setup="from __main__ import {}".format(fn.func_name),
                               number = 1,
