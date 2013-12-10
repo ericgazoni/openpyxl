@@ -25,6 +25,7 @@
 
 # 3rd party imports
 from nose.tools import eq_, raises, assert_raises
+import pytest
 
 # package imports
 from openpyxl.workbook import Workbook
@@ -368,3 +369,24 @@ class TestPositioning(object):
             eq_(ws.point_pos(*ws.cell(address).anchor),
                 coordinate_from_string(address))
 
+
+@pytest.fixture
+def PageSetup():
+    from openpyxl.worksheet import PageSetup
+    return PageSetup
+
+
+@pytest.mark.xfail
+def test_page_setup(PageSetup):
+    p = PageSetup()
+    assert p.setup == {}
+    p.scale = 1
+    assert p.setup['scale'] == 1
+
+
+def test_page_options(PageSetup):
+    p = PageSetup()
+    assert p.options == {}
+    p.horizontalCentered = True
+    p.verticalCentered = True
+    assert p.options == {'verticalCentered': '1', 'horizontalCentered': '1'}
