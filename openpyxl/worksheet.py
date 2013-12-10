@@ -342,17 +342,9 @@ class ColumnDimension(object):
                  outline_level=0,
                  collapsed=False,
                  style_index=0):
-        #self.column_index = index
-        #self.width = -1
-        #self.auto_size = False
-        #self.visible = True
-        #self.outline_level = 0
-        #self.collapsed = False
-        #self.style_index = 0
-
         self.column_index = index
         self.width = float(width)
-        self.auto_size = True
+        self.auto_size = False
         self.visible = visible
         self.outline_level = int(outline_level)
         self.collapsed = collapsed
