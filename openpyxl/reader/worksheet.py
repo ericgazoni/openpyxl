@@ -104,18 +104,17 @@ def filter_cells(pair):
 
 def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 
-    root = fromstring(xml_source) # loads sheet into memory
     guess_types = ws.parent._guess_types
     data_only = ws.parent.data_only
+
+    root = fromstring(xml_source) # loads sheet into memory
+    source = _get_xml_iter(xml_source)
+    it = iterparse(source) # parses sheet tag by tag
 
     mergeCells = root.find('{%s}mergeCells' % SHEET_MAIN_NS)
     if mergeCells is not None:
         for mergeCell in mergeCells.findall('{%s}mergeCell' % SHEET_MAIN_NS):
             ws.merge_cells(mergeCell.get('ref'))
-
-    source = _get_xml_iter(xml_source)
-
-    it = iterparse(source) # parses sheet tag by tag
 
     for event, element in filter(filter_cells, it):
 
