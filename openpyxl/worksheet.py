@@ -334,14 +334,21 @@ class ColumnDimension(object):
                  'collapsed',
                  'style_index',)
 
-    def __init__(self, index='A'):
+    def __init__(self,
+                 index='A',
+                 width=-1,
+                 auto_size=False,
+                 visible=True,
+                 outline_level=0,
+                 collapsed=False,
+                 style_index=0):
         self.column_index = index
-        self.width = -1
-        self.auto_size = False
-        self.visible = True
-        self.outline_level = 0
-        self.collapsed = False
-        self.style_index = 0
+        self.width = float(width)
+        self.auto_size = True
+        self.visible = visible
+        self.outline_level = int(outline_level)
+        self.collapsed = collapsed
+        self.style_index = style_index
 
 
 class PageMargins(object):

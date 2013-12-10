@@ -164,19 +164,19 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
                     for colId in range(min, max + 1):
                         column = get_column_letter(colId)
                         if column not in ws.column_dimensions:
-                            ws.column_dimensions[column] = ColumnDimension(column)
-                        if col.get('width') is not None:
-                            ws.column_dimensions[column].width = float(col.get('width'))
-                        if col.get('bestFit') == '1':
-                            ws.column_dimensions[column].auto_size = True
-                        if col.get('hidden') == '1':
-                            ws.column_dimensions[column].visible = False
-                        if col.get('outlineLevel') is not None:
-                            ws.column_dimensions[column].outline_level = int(col.get('outlineLevel'))
-                        if col.get('collapsed') == '1':
-                            ws.column_dimensions[column].collapsed = True
-                        if col.get('style') is not None:
-                            ws.column_dimensions[column].style_index = style_table.get(int(col.get('style')))
+                            width = col.get("width")
+                            auto_size = col.get('bestFit') == '1'
+                            visible = col.get('hidden') != '1'
+                            outline = col.get('outlineLevel')
+                            collapsed = col.get('collapsed') == '1'
+                            style_index =  style_table.get(int(col.get('style', 0)))
+                            ws.column_dimensions[column] = ColumnDimension(index=column,
+                                                                           width=width,
+                                                                           auto_size=auto_size,
+                                                                           visible=visible,
+                                                                           outline_level=outline,
+                                                                           collapsed=collapsed,
+                                                                           style_index=style_index)
 
 
     for event, element in it:
