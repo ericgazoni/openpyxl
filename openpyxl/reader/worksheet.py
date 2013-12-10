@@ -163,20 +163,18 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
                 if max != 16384:
                     for colId in range(min, max + 1):
                         column = get_column_letter(colId)
+                        width = col.get("width")
+                        auto_size = col.get('bestFit') == '1'
+                        visible = col.get('hidden') != '1'
+                        outline = col.get('outlineLevel')
+                        collapsed = col.get('collapsed') == '1'
+                        style_index =  style_table.get(int(col.get('style', 0)))
                         if column not in ws.column_dimensions:
-                            width = col.get("width")
-                            auto_size = col.get('bestFit') == '1'
-                            visible = col.get('hidden') != '1'
-                            outline = col.get('outlineLevel')
-                            collapsed = col.get('collapsed') == '1'
-                            style_index =  style_table.get(int(col.get('style', 0)))
-                            ws.column_dimensions[column] = ColumnDimension(index=column,
-                                                                           width=width,
-                                                                           auto_size=auto_size,
-                                                                           visible=visible,
-                                                                           outline_level=outline,
-                                                                           collapsed=collapsed,
-                                                                           style_index=style_index)
+                            new_column = ColumnDimension(index=column,
+                                                         width=width, auto_size=auto_size,
+                                                         visible=visible, outline_level=outline,
+                                                         collapsed=collapsed, style_index=style_index)
+                            ws.column_dimensions[column] = new_column
 
 
     for event, element in it:
@@ -187,55 +185,41 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
                 rowId = int(row.get('r'))
                 if rowId not in ws.row_dimensions:
                     ws.row_dimensions[rowId] = RowDimension(rowId)
-                if row.get('ht') is not None:
-                    ws.row_dimensions[rowId].height = float(row.get('ht'))
+                ht = row.get('ht')
+                if ht is not None:
+                    ws.row_dimensions[rowId].height = float(ht)
 
 
     for event, element in it:
         printOptions = element.find('{%s}printOptions' % SHEET_MAIN_NS)
         if printOptions is not None:
-            if printOptions.get('horizontalCentered') is not None:
-                ws.page_setup.horizontalCentered = printOptions.get('horizontalCentered')
-            if printOptions.get('verticalCentered') is not None:
-                ws.page_setup.verticalCentered = printOptions.get('verticalCentered')
+            hc = printOptions.get('horizontalCentered')
+            if hc is not None:
+                ws.page_setup.horizontalCentered = hc
+            vc = printOptions.get('verticalCentered')
+            if vc is not None:
+                ws.page_setup.verticalCentered = vc
 
 
     for event, element in it:
         pageMargins = element.find('{%s}pageMargins' % SHEET_MAIN_NS)
         if pageMargins is not None:
-            if pageMargins.get('left') is not None:
-                ws.page_margins.left = float(pageMargins.get('left'))
-            if pageMargins.get('right') is not None:
-                ws.page_margins.right = float(pageMargins.get('right'))
-            if pageMargins.get('top') is not None:
-                ws.page_margins.top = float(pageMargins.get('top'))
-            if pageMargins.get('bottom') is not None:
-                ws.page_margins.bottom = float(pageMargins.get('bottom'))
-            if pageMargins.get('header') is not None:
-                ws.page_margins.header = float(pageMargins.get('header'))
-            if pageMargins.get('footer') is not None:
-                ws.page_margins.footer = float(pageMargins.get('footer'))
+            for key in ("left", "right", "top", "bottom", "header", "footer"):
+                value = pageMargins.get(key)
+                if value is not None:
+                    setattr(ws.page_margins, key, value)
+
 
 
     for event, element in it:
         pageSetup = element.find('{%s}pageSetup' % SHEET_MAIN_NS)
         if pageSetup is not None:
-            if pageSetup.get('orientation') is not None:
-                ws.page_setup.orientation = pageSetup.get('orientation')
-            if pageSetup.get('paperSize') is not None:
-                ws.page_setup.paperSize = pageSetup.get('paperSize')
-            if pageSetup.get('scale') is not None:
-                ws.page_setup.top = pageSetup.get('scale')
-            if pageSetup.get('fitToPage') is not None:
-                ws.page_setup.fitToPage = pageSetup.get('fitToPage')
-            if pageSetup.get('fitToHeight') is not None:
-                ws.page_setup.fitToHeight = pageSetup.get('fitToHeight')
-            if pageSetup.get('fitToWidth') is not None:
-                ws.page_setup.fitToWidth = pageSetup.get('fitToWidth')
-            if pageSetup.get('firstPageNumber') is not None:
-                ws.page_setup.firstPageNumber = pageSetup.get('firstPageNumber')
-            if pageSetup.get('useFirstPageNumber') is not None:
-                ws.page_setup.useFirstPageNumber = pageSetup.get('useFirstPageNumber')
+            for key in ("orientation", "paperSize", "scale", "fitToPage",
+                        "fitToHeight", "fitToWidth", "firstPageNumber",
+                        "useFirstPageNumber"):
+                value = pageSetup.get(key, value)
+                if value is not None:
+                    setattr(ws.page_setup, key, value)
 
 
     for event, element in it:
