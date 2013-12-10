@@ -122,8 +122,7 @@ class PageSetup(object):
         for options_name in self.valid_options:
             options_value = getattr(self, options_name)
             if options_value is not None:
-                if options_name in ('horizontalCentered', 'verticalCentered') and options_value:
-                    optionsGroup[options_name] = '1'
+                optionsGroup[options_name] = '1'
 
         return optionsGroup
 
