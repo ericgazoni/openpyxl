@@ -104,7 +104,7 @@ def filter_cells(pair):
 
 def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 
-    root = fromstring(xml_source)
+    root = fromstring(xml_source) # loads sheet into memory
     guess_types = ws.parent._guess_types
     data_only = ws.parent.data_only
 
@@ -115,7 +115,7 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 
     source = _get_xml_iter(xml_source)
 
-    it = iterparse(source)
+    it = iterparse(source) # parses sheet tag by tag
 
     for event, element in filter(filter_cells, it):
 
