@@ -107,15 +107,8 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
     guess_types = ws.parent._guess_types
     data_only = ws.parent.data_only
 
-    root = fromstring(xml_source) # loads sheet into memory
     source = _get_xml_iter(xml_source)
     it = iterparse(source) # parses sheet tag by tag
-
-    mergeCells = root.find('{%s}mergeCells' % SHEET_MAIN_NS)
-    if mergeCells is not None:
-        for mergeCell in mergeCells.findall('{%s}mergeCell' % SHEET_MAIN_NS):
-            ws.merge_cells(mergeCell.get('ref'))
-
     for event, element in filter(filter_cells, it):
 
         value = element.findtext('{%s}v' % SHEET_MAIN_NS)
@@ -150,159 +143,180 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
         # to avoid memory exhaustion, clear the item after use
         element.clear()
 
-    cols = root.find('{%s}cols' % SHEET_MAIN_NS)
-    if cols is not None:
-        colNodes = cols.findall('{%s}col' % SHEET_MAIN_NS)
-        for col in colNodes:
-            min = int(col.get('min')) if col.get('min') else 1
-            max = int(col.get('max')) if col.get('max') else 1
-            # Ignore ranges that go up to the max column 16384.  Columns need to be extended to handle
-            # ranges without creating an entry for every single one.
-            if max != 16384:
-                for colId in range(min, max + 1):
-                    column = get_column_letter(colId)
-                    if column not in ws.column_dimensions:
-                        ws.column_dimensions[column] = ColumnDimension(column)
-                    if col.get('width') is not None:
-                        ws.column_dimensions[column].width = float(col.get('width'))
-                    if col.get('bestFit') == '1':
-                        ws.column_dimensions[column].auto_size = True
-                    if col.get('hidden') == '1':
-                        ws.column_dimensions[column].visible = False
-                    if col.get('outlineLevel') is not None:
-                        ws.column_dimensions[column].outline_level = int(col.get('outlineLevel'))
-                    if col.get('collapsed') == '1':
-                        ws.column_dimensions[column].collapsed = True
-                    if col.get('style') is not None:
-                        ws.column_dimensions[column].style_index = style_table.get(int(col.get('style')))
 
-    sheetData = root.find('{%s}sheetData' % SHEET_MAIN_NS)
-    if sheetData is not None:
-        rowNodes = sheetData.findall('{%s}row' % SHEET_MAIN_NS)
-        for row in rowNodes:
-            rowId = int(row.get('r'))
-            if rowId not in ws.row_dimensions:
-                ws.row_dimensions[rowId] = RowDimension(rowId)
-            if row.get('ht') is not None:
-                ws.row_dimensions[rowId].height = float(row.get('ht'))
+    for event, element in it:
+        mergeCells = element.find('{%s}mergeCells' % SHEET_MAIN_NS)
+        if mergeCells is not None:
+            for mergeCell in mergeCells.findall('{%s}mergeCell' % SHEET_MAIN_NS):
+                ws.merge_cells(mergeCell.get('ref'))
 
-    printOptions = root.find('{%s}printOptions' % SHEET_MAIN_NS)
-    if printOptions is not None:
-        if printOptions.get('horizontalCentered') is not None:
-            ws.page_setup.horizontalCentered = printOptions.get('horizontalCentered')
-        if printOptions.get('verticalCentered') is not None:
-            ws.page_setup.verticalCentered = printOptions.get('verticalCentered')
 
-    pageMargins = root.find('{%s}pageMargins' % SHEET_MAIN_NS)
-    if pageMargins is not None:
-        if pageMargins.get('left') is not None:
-            ws.page_margins.left = float(pageMargins.get('left'))
-        if pageMargins.get('right') is not None:
-            ws.page_margins.right = float(pageMargins.get('right'))
-        if pageMargins.get('top') is not None:
-            ws.page_margins.top = float(pageMargins.get('top'))
-        if pageMargins.get('bottom') is not None:
-            ws.page_margins.bottom = float(pageMargins.get('bottom'))
-        if pageMargins.get('header') is not None:
-            ws.page_margins.header = float(pageMargins.get('header'))
-        if pageMargins.get('footer') is not None:
-            ws.page_margins.footer = float(pageMargins.get('footer'))
+    for event, element in it:
+        cols = element.find('{%s}cols' % SHEET_MAIN_NS)
+        if cols is not None:
+            colNodes = cols.findall('{%s}col' % SHEET_MAIN_NS)
+            for col in colNodes:
+                min = int(col.get('min')) if col.get('min') else 1
+                max = int(col.get('max')) if col.get('max') else 1
+                # Ignore ranges that go up to the max column 16384.  Columns need to be extended to handle
+                # ranges without creating an entry for every single one.
+                if max != 16384:
+                    for colId in range(min, max + 1):
+                        column = get_column_letter(colId)
+                        if column not in ws.column_dimensions:
+                            ws.column_dimensions[column] = ColumnDimension(column)
+                        if col.get('width') is not None:
+                            ws.column_dimensions[column].width = float(col.get('width'))
+                        if col.get('bestFit') == '1':
+                            ws.column_dimensions[column].auto_size = True
+                        if col.get('hidden') == '1':
+                            ws.column_dimensions[column].visible = False
+                        if col.get('outlineLevel') is not None:
+                            ws.column_dimensions[column].outline_level = int(col.get('outlineLevel'))
+                        if col.get('collapsed') == '1':
+                            ws.column_dimensions[column].collapsed = True
+                        if col.get('style') is not None:
+                            ws.column_dimensions[column].style_index = style_table.get(int(col.get('style')))
 
-    pageSetup = root.find('{%s}pageSetup' % SHEET_MAIN_NS)
-    if pageSetup is not None:
-        if pageSetup.get('orientation') is not None:
-            ws.page_setup.orientation = pageSetup.get('orientation')
-        if pageSetup.get('paperSize') is not None:
-            ws.page_setup.paperSize = pageSetup.get('paperSize')
-        if pageSetup.get('scale') is not None:
-            ws.page_setup.top = pageSetup.get('scale')
-        if pageSetup.get('fitToPage') is not None:
-            ws.page_setup.fitToPage = pageSetup.get('fitToPage')
-        if pageSetup.get('fitToHeight') is not None:
-            ws.page_setup.fitToHeight = pageSetup.get('fitToHeight')
-        if pageSetup.get('fitToWidth') is not None:
-            ws.page_setup.fitToWidth = pageSetup.get('fitToWidth')
-        if pageSetup.get('firstPageNumber') is not None:
-            ws.page_setup.firstPageNumber = pageSetup.get('firstPageNumber')
-        if pageSetup.get('useFirstPageNumber') is not None:
-            ws.page_setup.useFirstPageNumber = pageSetup.get('useFirstPageNumber')
 
-    headerFooter = root.find('{%s}headerFooter' % SHEET_MAIN_NS)
-    if headerFooter is not None:
-        oddHeader = headerFooter.find('{%s}oddHeader' % SHEET_MAIN_NS)
-        if oddHeader is not None and oddHeader.text is not None:
-            ws.header_footer.setHeader(oddHeader.text)
-        oddFooter = headerFooter.find('{%s}oddFooter' % SHEET_MAIN_NS)
-        if oddFooter is not None and oddFooter.text is not None:
-            ws.header_footer.setFooter(oddFooter.text)
+    for event, element in it:
+        sheetData = element.find('{%s}sheetData' % SHEET_MAIN_NS)
+        if sheetData is not None:
+            rowNodes = sheetData.findall('{%s}row' % SHEET_MAIN_NS)
+            for row in rowNodes:
+                rowId = int(row.get('r'))
+                if rowId not in ws.row_dimensions:
+                    ws.row_dimensions[rowId] = RowDimension(rowId)
+                if row.get('ht') is not None:
+                    ws.row_dimensions[rowId].height = float(row.get('ht'))
 
-    conditionalFormattingNodes = root.findall('{%s}conditionalFormatting' % SHEET_MAIN_NS)
-    rules = {}
-    for cf in conditionalFormattingNodes:
-        if not cf.get('sqref'):
-            # Potentially flag - this attribute should always be present.
-            continue
-        range_string = cf.get('sqref')
-        cfRules = cf.findall('{%s}cfRule' % SHEET_MAIN_NS)
-        rules[range_string] = []
-        for cfRule in cfRules:
-            if not cfRule.get('type') or cfRule.get('type') == 'dataBar':
-                # dataBar conditional formatting isn't supported, as it relies on the complex <extLst> tag
+
+    for event, element in it:
+        printOptions = element.find('{%s}printOptions' % SHEET_MAIN_NS)
+        if printOptions is not None:
+            if printOptions.get('horizontalCentered') is not None:
+                ws.page_setup.horizontalCentered = printOptions.get('horizontalCentered')
+            if printOptions.get('verticalCentered') is not None:
+                ws.page_setup.verticalCentered = printOptions.get('verticalCentered')
+
+
+    for event, element in it:
+        pageMargins = element.find('{%s}pageMargins' % SHEET_MAIN_NS)
+        if pageMargins is not None:
+            if pageMargins.get('left') is not None:
+                ws.page_margins.left = float(pageMargins.get('left'))
+            if pageMargins.get('right') is not None:
+                ws.page_margins.right = float(pageMargins.get('right'))
+            if pageMargins.get('top') is not None:
+                ws.page_margins.top = float(pageMargins.get('top'))
+            if pageMargins.get('bottom') is not None:
+                ws.page_margins.bottom = float(pageMargins.get('bottom'))
+            if pageMargins.get('header') is not None:
+                ws.page_margins.header = float(pageMargins.get('header'))
+            if pageMargins.get('footer') is not None:
+                ws.page_margins.footer = float(pageMargins.get('footer'))
+
+
+    for event, element in it:
+        pageSetup = element.find('{%s}pageSetup' % SHEET_MAIN_NS)
+        if pageSetup is not None:
+            if pageSetup.get('orientation') is not None:
+                ws.page_setup.orientation = pageSetup.get('orientation')
+            if pageSetup.get('paperSize') is not None:
+                ws.page_setup.paperSize = pageSetup.get('paperSize')
+            if pageSetup.get('scale') is not None:
+                ws.page_setup.top = pageSetup.get('scale')
+            if pageSetup.get('fitToPage') is not None:
+                ws.page_setup.fitToPage = pageSetup.get('fitToPage')
+            if pageSetup.get('fitToHeight') is not None:
+                ws.page_setup.fitToHeight = pageSetup.get('fitToHeight')
+            if pageSetup.get('fitToWidth') is not None:
+                ws.page_setup.fitToWidth = pageSetup.get('fitToWidth')
+            if pageSetup.get('firstPageNumber') is not None:
+                ws.page_setup.firstPageNumber = pageSetup.get('firstPageNumber')
+            if pageSetup.get('useFirstPageNumber') is not None:
+                ws.page_setup.useFirstPageNumber = pageSetup.get('useFirstPageNumber')
+
+
+    for event, element in it:
+        headerFooter = element.find('{%s}headerFooter' % SHEET_MAIN_NS)
+        if headerFooter is not None:
+            oddHeader = headerFooter.find('{%s}oddHeader' % SHEET_MAIN_NS)
+            if oddHeader is not None and oddHeader.text is not None:
+                ws.header_footer.setHeader(oddHeader.text)
+            oddFooter = headerFooter.find('{%s}oddFooter' % SHEET_MAIN_NS)
+            if oddFooter is not None and oddFooter.text is not None:
+                ws.header_footer.setFooter(oddFooter.text)
+
+
+    for event, element in it:
+        conditionalFormattingNodes = element.findall('{%s}conditionalFormatting' % SHEET_MAIN_NS)
+        rules = {}
+        for cf in conditionalFormattingNodes:
+            if not cf.get('sqref'):
+                # Potentially flag - this attribute should always be present.
                 continue
-            rule = {'type': cfRule.get('type')}
-            for attr in ConditionalFormatting.rule_attributes:
-                if cfRule.get(attr) is not None:
-                    rule[attr] = cfRule.get(attr)
+            range_string = cf.get('sqref')
+            cfRules = cf.findall('{%s}cfRule' % SHEET_MAIN_NS)
+            rules[range_string] = []
+            for cfRule in cfRules:
+                if not cfRule.get('type') or cfRule.get('type') == 'dataBar':
+                    # dataBar conditional formatting isn't supported, as it relies on the complex <extLst> tag
+                    continue
+                rule = {'type': cfRule.get('type')}
+                for attr in ConditionalFormatting.rule_attributes:
+                    if cfRule.get(attr) is not None:
+                        rule[attr] = cfRule.get(attr)
 
-            formula = cfRule.findall('{%s}formula' % SHEET_MAIN_NS)
-            for f in formula:
-                if 'formula' not in rule:
-                    rule['formula'] = []
-                rule['formula'].append(f.text)
+                formula = cfRule.findall('{%s}formula' % SHEET_MAIN_NS)
+                for f in formula:
+                    if 'formula' not in rule:
+                        rule['formula'] = []
+                    rule['formula'].append(f.text)
 
-            colorScale = cfRule.find('{%s}colorScale' % SHEET_MAIN_NS)
-            if colorScale is not None:
-                rule['colorScale'] = {'cfvo': [], 'color': []}
-                cfvoNodes = colorScale.findall('{%s}cfvo' % SHEET_MAIN_NS)
-                for node in cfvoNodes:
-                    cfvo = {}
-                    if node.get('type') is not None:
-                        cfvo['type'] = node.get('type')
-                    if node.get('val') is not None:
-                        cfvo['val'] = node.get('val')
-                    rule['colorScale']['cfvo'].append(cfvo)
-                colorNodes = colorScale.findall('{%s}color' % SHEET_MAIN_NS)
-                for color in colorNodes:
-                    c = Color(Color.BLACK)
-                    if color_index and color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
-                        c.index = color_index[int(color.get('indexed'))]
-                    if color.get('theme') is not None:
-                        if color.get('tint') is not None:
-                            c.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
-                        else:
-                            c.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
-                    elif color.get('rgb'):
-                        c.index = color.get('rgb')
-                    rule['colorScale']['color'].append(c)
+                colorScale = cfRule.find('{%s}colorScale' % SHEET_MAIN_NS)
+                if colorScale is not None:
+                    rule['colorScale'] = {'cfvo': [], 'color': []}
+                    cfvoNodes = colorScale.findall('{%s}cfvo' % SHEET_MAIN_NS)
+                    for node in cfvoNodes:
+                        cfvo = {}
+                        if node.get('type') is not None:
+                            cfvo['type'] = node.get('type')
+                        if node.get('val') is not None:
+                            cfvo['val'] = node.get('val')
+                        rule['colorScale']['cfvo'].append(cfvo)
+                    colorNodes = colorScale.findall('{%s}color' % SHEET_MAIN_NS)
+                    for color in colorNodes:
+                        c = Color(Color.BLACK)
+                        if color_index and color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
+                            c.index = color_index[int(color.get('indexed'))]
+                        if color.get('theme') is not None:
+                            if color.get('tint') is not None:
+                                c.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
+                            else:
+                                c.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
+                        elif color.get('rgb'):
+                            c.index = color.get('rgb')
+                        rule['colorScale']['color'].append(c)
 
-            iconSet = cfRule.find('{%s}iconSet' % SHEET_MAIN_NS)
-            if iconSet is not None:
-                rule['iconSet'] = {'cfvo': []}
-                for iconAttr in ConditionalFormatting.icon_attributes:
-                    if iconSet.get(iconAttr) is not None:
-                        rule['iconSet'][iconAttr] = iconSet.get(iconAttr)
-                cfvoNodes = iconSet.findall('{%s}cfvo' % SHEET_MAIN_NS)
-                for node in cfvoNodes:
-                    cfvo = {}
-                    if node.get('type') is not None:
-                        cfvo['type'] = node.get('type')
-                    if node.get('val') is not None:
-                        cfvo['val'] = node.get('val')
-                    rule['iconSet']['cfvo'].append(cfvo)
+                iconSet = cfRule.find('{%s}iconSet' % SHEET_MAIN_NS)
+                if iconSet is not None:
+                    rule['iconSet'] = {'cfvo': []}
+                    for iconAttr in ConditionalFormatting.icon_attributes:
+                        if iconSet.get(iconAttr) is not None:
+                            rule['iconSet'][iconAttr] = iconSet.get(iconAttr)
+                    cfvoNodes = iconSet.findall('{%s}cfvo' % SHEET_MAIN_NS)
+                    for node in cfvoNodes:
+                        cfvo = {}
+                        if node.get('type') is not None:
+                            cfvo['type'] = node.get('type')
+                        if node.get('val') is not None:
+                            cfvo['val'] = node.get('val')
+                        rule['iconSet']['cfvo'].append(cfvo)
 
-            rules[range_string].append(rule)
-    if len(rules):
-        ws.conditional_formatting.setRules(rules)
+                rules[range_string].append(rule)
+        if len(rules):
+            ws.conditional_formatting.setRules(rules)
 
 from openpyxl.reader.iter_worksheet import IterableWorksheet
 
