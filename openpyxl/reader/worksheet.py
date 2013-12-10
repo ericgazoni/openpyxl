@@ -109,8 +109,8 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 
     source = _get_xml_iter(xml_source)
     it = iterparse(source) # parses sheet tag by tag
-    for event, element in filter(filter_cells, it):
 
+    def parse_cell(element):
         value = element.findtext('{%s}v' % SHEET_MAIN_NS)
         formula = element.find('{%s}f' % SHEET_MAIN_NS)
 
@@ -144,96 +144,85 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
         element.clear()
 
 
-    for event, element in it:
-        mergeCells = element.find('{%s}mergeCells' % SHEET_MAIN_NS)
-        if mergeCells is not None:
-            for mergeCell in mergeCells.findall('{%s}mergeCell' % SHEET_MAIN_NS):
-                ws.merge_cells(mergeCell.get('ref'))
+    def parse_merge(element):
+        for mergeCell in element.findall('{%s}mergeCell' % SHEET_MAIN_NS):
+            ws.merge_cells(mergeCell.get('ref'))
 
 
-    for event, element in it:
-        cols = element.find('{%s}cols' % SHEET_MAIN_NS)
-        if cols is not None:
-            colNodes = cols.findall('{%s}col' % SHEET_MAIN_NS)
-            for col in colNodes:
-                min = int(col.get('min')) if col.get('min') else 1
-                max = int(col.get('max')) if col.get('max') else 1
-                # Ignore ranges that go up to the max column 16384.  Columns need to be extended to handle
-                # ranges without creating an entry for every single one.
-                if max != 16384:
-                    for colId in range(min, max + 1):
-                        column = get_column_letter(colId)
-                        width = col.get("width")
-                        auto_size = col.get('bestFit') == '1'
-                        visible = col.get('hidden') != '1'
-                        outline = col.get('outlineLevel')
-                        collapsed = col.get('collapsed') == '1'
-                        style_index =  style_table.get(int(col.get('style', 0)))
-                        if column not in ws.column_dimensions:
-                            new_column = ColumnDimension(index=column,
-                                                         width=width, auto_size=auto_size,
-                                                         visible=visible, outline_level=outline,
-                                                         collapsed=collapsed, style_index=style_index)
-                            ws.column_dimensions[column] = new_column
+    def parse_column_dimensions(element):
+        colNodes = element.findall('{%s}col' % SHEET_MAIN_NS)
+        for col in colNodes:
+            min = int(col.get('min')) if col.get('min') else 1
+            max = int(col.get('max')) if col.get('max') else 1
+            # Ignore ranges that go up to the max column 16384.  Columns need to be extended to handle
+            # ranges without creating an entry for every single one.
+            if max != 16384:
+                for colId in range(min, max + 1):
+                    column = get_column_letter(colId)
+                    width = col.get("width")
+                    auto_size = col.get('bestFit') == '1'
+                    visible = col.get('hidden') != '1'
+                    outline = col.get('outlineLevel') or 0
+                    collapsed = col.get('collapsed') == '1'
+                    style_index =  style_table.get(int(col.get('style', 0)))
+                    print width, auto_size, visible, outline, collapsed, style_index
+                    if column not in ws.column_dimensions:
+                        new_dim = ColumnDimension(index=column,
+                                                  width=width, auto_size=auto_size,
+                                                  visible=visible, outline_level=outline,
+                                                  collapsed=collapsed, style_index=style_index)
+                        ws.column_dimensions[column] = new_dim
+                    #else:
+                        #dim = ws.column_dimensions[column]
+                        #dim.width = width
 
 
-    for event, element in it:
-        sheetData = element.find('{%s}sheetData' % SHEET_MAIN_NS)
-        if sheetData is not None:
-            rowNodes = sheetData.findall('{%s}row' % SHEET_MAIN_NS)
-            for row in rowNodes:
-                rowId = int(row.get('r'))
-                if rowId not in ws.row_dimensions:
-                    ws.row_dimensions[rowId] = RowDimension(rowId)
-                ht = row.get('ht')
-                if ht is not None:
-                    ws.row_dimensions[rowId].height = float(ht)
+    def parse_row_dimensions(element):
+        rowNodes = element.findall('{%s}row' % SHEET_MAIN_NS)
+        for row in rowNodes:
+            rowId = int(row.get('r'))
+            if rowId not in ws.row_dimensions:
+                ws.row_dimensions[rowId] = RowDimension(rowId)
+            ht = row.get('ht')
+            if ht is not None:
+                ws.row_dimensions[rowId].height = float(ht)
 
 
-    for event, element in it:
-        printOptions = element.find('{%s}printOptions' % SHEET_MAIN_NS)
-        if printOptions is not None:
-            hc = printOptions.get('horizontalCentered')
-            if hc is not None:
-                ws.page_setup.horizontalCentered = hc
-            vc = printOptions.get('verticalCentered')
-            if vc is not None:
-                ws.page_setup.verticalCentered = vc
+    def parse_print_options(element):
+        hc = element.get('horizontalCentered')
+        if hc is not None:
+            ws.page_setup.horizontalCentered = hc
+        vc = element.get('verticalCentered')
+        if vc is not None:
+            ws.page_setup.verticalCentered = vc
 
 
-    for event, element in it:
-        pageMargins = element.find('{%s}pageMargins' % SHEET_MAIN_NS)
-        if pageMargins is not None:
-            for key in ("left", "right", "top", "bottom", "header", "footer"):
-                value = pageMargins.get(key)
-                if value is not None:
-                    setattr(ws.page_margins, key, value)
+    def parse_margins(element):
+        for key in ("left", "right", "top", "bottom", "header", "footer"):
+            value = element.get(key)
+            if value is not None:
+                setattr(ws.page_margins, key, float(value))
 
 
-
-    for event, element in it:
-        pageSetup = element.find('{%s}pageSetup' % SHEET_MAIN_NS)
-        if pageSetup is not None:
-            for key in ("orientation", "paperSize", "scale", "fitToPage",
-                        "fitToHeight", "fitToWidth", "firstPageNumber",
-                        "useFirstPageNumber"):
-                value = pageSetup.get(key, value)
-                if value is not None:
-                    setattr(ws.page_setup, key, value)
+    def parse_page_setup(element):
+        for key in ("orientation", "paperSize", "scale", "fitToPage",
+                    "fitToHeight", "fitToWidth", "firstPageNumber",
+                    "useFirstPageNumber"):
+            value = element.get(key)
+            if value is not None:
+                setattr(ws.page_setup, key, value)
 
 
-    for event, element in it:
-        headerFooter = element.find('{%s}headerFooter' % SHEET_MAIN_NS)
-        if headerFooter is not None:
-            oddHeader = headerFooter.find('{%s}oddHeader' % SHEET_MAIN_NS)
-            if oddHeader is not None and oddHeader.text is not None:
-                ws.header_footer.setHeader(oddHeader.text)
-            oddFooter = headerFooter.find('{%s}oddFooter' % SHEET_MAIN_NS)
-            if oddFooter is not None and oddFooter.text is not None:
-                ws.header_footer.setFooter(oddFooter.text)
+    def parse_header_footer(element):
+        oddHeader = element.find('{%s}oddHeader' % SHEET_MAIN_NS)
+        if oddHeader is not None and oddHeader.text is not None:
+            ws.header_footer.setHeader(oddHeader.text)
+        oddFooter = element.find('{%s}oddFooter' % SHEET_MAIN_NS)
+        if oddFooter is not None and oddFooter.text is not None:
+            ws.header_footer.setFooter(oddFooter.text)
 
 
-    for event, element in it:
+    def parser_conditional_formatting(element):
         conditionalFormattingNodes = element.findall('{%s}conditionalFormatting' % SHEET_MAIN_NS)
         rules = {}
         for cf in conditionalFormattingNodes:
@@ -301,6 +290,23 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
                 rules[range_string].append(rule)
         if len(rules):
             ws.conditional_formatting.setRules(rules)
+
+    dispatcher = {
+        '{%s}c' % SHEET_MAIN_NS:parse_cell,
+        '{%s}mergeCells' % SHEET_MAIN_NS: parse_merge,
+        '{%s}cols' % SHEET_MAIN_NS: parse_column_dimensions,
+        '{%s}sheetData' % SHEET_MAIN_NS: parse_row_dimensions,
+        '{%s}printOptions' % SHEET_MAIN_NS: parse_print_options,
+        '{%s}pageMargins' % SHEET_MAIN_NS: parse_margins,
+        '{%s}pageSetup' % SHEET_MAIN_NS: parse_page_setup,
+        '{%s}headerFooter' % SHEET_MAIN_NS: parse_header_footer,
+        '{%s}conditionalFormatting' % SHEET_MAIN_NS: parser_conditional_formatting
+                  }
+    for event, element in it:
+        tag_name = element.tag
+        if tag_name in dispatcher:
+            dispatcher[tag_name](element)
+
 
 from openpyxl.reader.iter_worksheet import IterableWorksheet
 
