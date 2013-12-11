@@ -85,11 +85,3 @@ def compare_xml(generated, expected):
     if check is False:
         diff = checker.output_difference(ob, expected, PARSE_XML)
         return diff
-
-
-def safe_iterator(node):
-    """Return an iterator that is compatible with Python 2.6"""
-    if hasattr(node, "iter"):
-        return node.iter()
-    else:
-        return node.getiterator()
