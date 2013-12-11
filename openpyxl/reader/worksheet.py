@@ -33,7 +33,7 @@ from openpyxl.shared.compat import iterparse
 
 # package imports
 from openpyxl.cell import get_column_letter
-from openpyxl.shared.xmltools import fromstring
+from openpyxl.shared.xmltools import fromstring, safe_iterator
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
 from openpyxl.shared.ooxml import SHEET_MAIN_NS
@@ -165,18 +165,14 @@ class WorkSheetParser(object):
             else:
                 self.ws.cell(coordinate).value = value
 
-        # to avoid memory exhaustion, clear the item after use
-        element.clear()
-
 
     def parse_merge(self, element):
-        for mergeCell in element.findall('{%s}mergeCell' % SHEET_MAIN_NS):
+        for mergeCell in safe_iterator(element, ('{%s}mergeCell' % SHEET_MAIN_NS)):
             self.ws.merge_cells(mergeCell.get('ref'))
 
 
     def parse_column_dimensions(self, element):
-        colNodes = element.findall('{%s}col' % SHEET_MAIN_NS)
-        for col in colNodes:
+        for col in safe_iterator(element, '{%s}col' % SHEET_MAIN_NS):
             min = int(col.get('min')) if col.get('min') else 1
             max = int(col.get('max')) if col.get('max') else 1
             # Ignore ranges that go up to the max column 16384.  Columns need to be extended to handle
@@ -199,8 +195,7 @@ class WorkSheetParser(object):
 
 
     def parse_row_dimensions(self, element):
-        rowNodes = element.findall('{%s}row' % SHEET_MAIN_NS)
-        for row in rowNodes:
+        for row in safe_iterator(element, '{%s}row' % SHEET_MAIN_NS):
             rowId = int(row.get('r'))
             if rowId not in self.ws.row_dimensions:
                 self.ws.row_dimensions[rowId] = RowDimension(rowId)
@@ -244,9 +239,8 @@ class WorkSheetParser(object):
 
 
     def parser_conditional_formatting(self, element):
-        conditionalFormattingNodes = element.findall('{%s}conditionalFormatting' % SHEET_MAIN_NS)
         rules = {}
-        for cf in conditionalFormattingNodes:
+        for cf in safe_iterator(element, '{%s}conditionalFormatting' % SHEET_MAIN_NS):
             if not cf.get('sqref'):
                 # Potentially flag - this attribute should always be present.
                 continue
