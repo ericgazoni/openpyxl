@@ -102,54 +102,79 @@ def filter_cells(pair):
 
     return element.tag == '{%s}c' % SHEET_MAIN_NS
 
-def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 
-    guess_types = ws.parent._guess_types
-    data_only = ws.parent.data_only
+class WorkSheetParser(object):
 
-    source = _get_xml_iter(xml_source)
-    it = iterparse(source) # parses sheet tag by tag
+    def __init__(self, ws, xml_source, string_table, style_table, color_index=None):
+        self.ws = ws
+        self.source = xml_source
+        self.string_table = string_table
+        self.style_table = style_table
+        self.color_index = color_index
+        self.guess_types = ws.parent._guess_types
+        self.data_only = ws.parent.data_only
 
-    def parse_cell(element):
+    def parse(self):
+        stream = _get_xml_iter(self.source)
+        it = iterparse(stream)
+
+        dispatcher = {
+            '{%s}c' % SHEET_MAIN_NS: self.parse_cell,
+            '{%s}mergeCells' % SHEET_MAIN_NS: self.parse_merge,
+            '{%s}cols' % SHEET_MAIN_NS: self.parse_column_dimensions,
+            '{%s}sheetData' % SHEET_MAIN_NS: self.parse_row_dimensions,
+            '{%s}printOptions' % SHEET_MAIN_NS: self.parse_print_options,
+            '{%s}pageMargins' % SHEET_MAIN_NS: self.parse_margins,
+            '{%s}pageSetup' % SHEET_MAIN_NS: self.parse_page_setup,
+            '{%s}headerFooter' % SHEET_MAIN_NS: self.parse_header_footer,
+            '{%s}conditionalFormatting' % SHEET_MAIN_NS: self.parser_conditional_formatting
+                      }
+        for event, element in it:
+            tag_name = element.tag
+            if tag_name in dispatcher:
+                dispatcher[tag_name](element)
+
+
+    def parse_cell(self, element):
         value = element.findtext('{%s}v' % SHEET_MAIN_NS)
         formula = element.find('{%s}f' % SHEET_MAIN_NS)
 
         coordinate = element.get('r')
         style_id = element.get('s')
         if style_id is not None:
-            ws._styles[coordinate] = style_table.get(int(style_id))
+            self.ws._styles[coordinate] = self.style_table.get(int(style_id))
 
         if value is not None:
             data_type = element.get('t', 'n')
             if data_type == Cell.TYPE_STRING:
-                value = string_table.get(int(value))
-            if formula is not None and not data_only:
+                value = self.string_table.get(int(value))
+            if formula is not None and not self.data_only:
                 if formula.text:
                     value = "=" + str(formula.text)
                 else:
                     value = "="
                 formula_type = formula.get('t')
                 if formula_type:
-                    ws.formula_attributes[coordinate] = {'t': formula_type}
+                    self.ws.formula_attributes[coordinate] = {'t': formula_type}
                     if formula.get('si'):  # Shared group index for shared formulas
-                        ws.formula_attributes[coordinate]['si'] = formula.get('si')
+                        self.ws.formula_attributes[coordinate]['si'] = formula.get('si')
                     if formula.get('ref'):  # Range for shared formulas
-                        ws.formula_attributes[coordinate]['ref'] = formula.get('ref')
-            if not guess_types and formula is None:
-                ws.cell(coordinate).set_explicit_value(value=value, data_type=data_type)
+                        self.ws.formula_attributes[coordinate]['ref'] = formula.get('ref')
+            if not self.guess_types and formula is None:
+                self.ws.cell(coordinate).set_explicit_value(value=value, data_type=data_type)
             else:
-                ws.cell(coordinate).value = value
+                self.ws.cell(coordinate).value = value
 
         # to avoid memory exhaustion, clear the item after use
         element.clear()
 
 
-    def parse_merge(element):
+    def parse_merge(self, element):
         for mergeCell in element.findall('{%s}mergeCell' % SHEET_MAIN_NS):
-            ws.merge_cells(mergeCell.get('ref'))
+            self.ws.merge_cells(mergeCell.get('ref'))
 
 
-    def parse_column_dimensions(element):
+    def parse_column_dimensions(self, element):
         colNodes = element.findall('{%s}col' % SHEET_MAIN_NS)
         for col in colNodes:
             min = int(col.get('min')) if col.get('min') else 1
@@ -164,65 +189,61 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
                     visible = col.get('hidden') != '1'
                     outline = col.get('outlineLevel') or 0
                     collapsed = col.get('collapsed') == '1'
-                    style_index =  style_table.get(int(col.get('style', 0)))
-                    print width, auto_size, visible, outline, collapsed, style_index
-                    if column not in ws.column_dimensions:
+                    style_index =  self.style_table.get(int(col.get('style', 0)))
+                    if column not in self.ws.column_dimensions:
                         new_dim = ColumnDimension(index=column,
                                                   width=width, auto_size=auto_size,
                                                   visible=visible, outline_level=outline,
                                                   collapsed=collapsed, style_index=style_index)
-                        ws.column_dimensions[column] = new_dim
-                    #else:
-                        #dim = ws.column_dimensions[column]
-                        #dim.width = width
+                        self.ws.column_dimensions[column] = new_dim
 
 
-    def parse_row_dimensions(element):
+    def parse_row_dimensions(self, element):
         rowNodes = element.findall('{%s}row' % SHEET_MAIN_NS)
         for row in rowNodes:
             rowId = int(row.get('r'))
-            if rowId not in ws.row_dimensions:
-                ws.row_dimensions[rowId] = RowDimension(rowId)
+            if rowId not in self.ws.row_dimensions:
+                self.ws.row_dimensions[rowId] = RowDimension(rowId)
             ht = row.get('ht')
             if ht is not None:
-                ws.row_dimensions[rowId].height = float(ht)
+                self.ws.row_dimensions[rowId].height = float(ht)
 
 
-    def parse_print_options(element):
+    def parse_print_options(self, element):
         hc = element.get('horizontalCentered')
         if hc is not None:
-            ws.page_setup.horizontalCentered = hc
+            self.ws.page_setup.horizontalCentered = hc
         vc = element.get('verticalCentered')
         if vc is not None:
-            ws.page_setup.verticalCentered = vc
+            self.ws.page_setup.verticalCentered = vc
 
 
-    def parse_margins(element):
+    def parse_margins(self, element):
         for key in ("left", "right", "top", "bottom", "header", "footer"):
             value = element.get(key)
             if value is not None:
-                setattr(ws.page_margins, key, float(value))
+                setattr(self.ws.page_margins, key, float(value))
 
 
-    def parse_page_setup(element):
+    def parse_page_setup(self, element):
         for key in ("orientation", "paperSize", "scale", "fitToPage",
                     "fitToHeight", "fitToWidth", "firstPageNumber",
                     "useFirstPageNumber"):
             value = element.get(key)
             if value is not None:
-                setattr(ws.page_setup, key, value)
+                setattr(self.ws.page_setup, key, value)
 
 
-    def parse_header_footer(element):
+    def parse_header_footer(self, element):
         oddHeader = element.find('{%s}oddHeader' % SHEET_MAIN_NS)
         if oddHeader is not None and oddHeader.text is not None:
-            ws.header_footer.setHeader(oddHeader.text)
+            self.ws.header_footer.setHeader(oddHeader.text)
         oddFooter = element.find('{%s}oddFooter' % SHEET_MAIN_NS)
         if oddFooter is not None and oddFooter.text is not None:
-            ws.header_footer.setFooter(oddFooter.text)
+            self.ws.header_footer.setFooter(oddFooter.text)
 
 
-    def parser_conditional_formatting(element):
+    def parser_conditional_formatting(self, element):
         conditionalFormattingNodes = element.findall('{%s}conditionalFormatting' % SHEET_MAIN_NS)
         rules = {}
         for cf in conditionalFormattingNodes:
@@ -289,23 +310,13 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 
                 rules[range_string].append(rule)
         if len(rules):
-            ws.conditional_formatting.setRules(rules)
+            self.ws.conditional_formatting.setRules(rules)
 
-    dispatcher = {
-        '{%s}c' % SHEET_MAIN_NS:parse_cell,
-        '{%s}mergeCells' % SHEET_MAIN_NS: parse_merge,
-        '{%s}cols' % SHEET_MAIN_NS: parse_column_dimensions,
-        '{%s}sheetData' % SHEET_MAIN_NS: parse_row_dimensions,
-        '{%s}printOptions' % SHEET_MAIN_NS: parse_print_options,
-        '{%s}pageMargins' % SHEET_MAIN_NS: parse_margins,
-        '{%s}pageSetup' % SHEET_MAIN_NS: parse_page_setup,
-        '{%s}headerFooter' % SHEET_MAIN_NS: parse_header_footer,
-        '{%s}conditionalFormatting' % SHEET_MAIN_NS: parser_conditional_formatting
-                  }
-    for event, element in it:
-        tag_name = element.tag
-        if tag_name in dispatcher:
-            dispatcher[tag_name](element)
+
+def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
+
+    parser = WorkSheetParser(ws, xml_source, string_table, style_table, color_index)
+    parser.parse()
 
 
 from openpyxl.reader.iter_worksheet import IterableWorksheet
