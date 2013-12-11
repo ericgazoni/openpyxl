@@ -213,6 +213,7 @@ def test_write_hyperlink_image_rels(Workbook, Image):
     img = os.path.join(DATADIR, "plain.png")
     i = Image(img)
     ws.add_image(i)
+    raise ValueError("Resulting file is invalid")
     # TODO write integration test with duplicate relation ids then fix
 
 
