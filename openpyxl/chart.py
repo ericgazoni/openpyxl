@@ -278,6 +278,21 @@ class Serie(object):
             self._xvalues = None
         self.xreference = reference
 
+    @property
+    def labels(self):
+        """Return values from reference set as label"""
+        return self._labels
+
+    @labels.setter
+    def labels(self, reference):
+        if reference is not None:
+            if not isinstance(reference, Reference):
+                raise TypeError("Series labels must be a Reference instance")
+            reference.values
+            self._labels = reference
+        else:
+            self._labels = None
+
     def max(self, attr='values'):
         """
         Return the maximum value for numeric series.
