@@ -276,7 +276,9 @@ class WorkSheetParser(object):
                     colorNodes = colorScale.findall('{%s}color' % SHEET_MAIN_NS)
                     for color in colorNodes:
                         c = Color(Color.BLACK)
-                        if color_index and color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
+                        if self.color_index\
+                           and color.get('indexed') is not None\
+                           and 0 <= int(color.get('indexed')) < len(color_index):
                             c.index = color_index[int(color.get('indexed'))]
                         if color.get('theme') is not None:
                             if color.get('tint') is not None:
