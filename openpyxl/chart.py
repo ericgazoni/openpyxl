@@ -206,7 +206,6 @@ class Reference(object):
 
                     if self.data_type is None and cell.data_type is not None:
                         self.data_type = cell.data_type
-
         return self._values
 
     def __str__(self):
