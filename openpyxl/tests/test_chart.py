@@ -95,6 +95,12 @@ def empty_range(sheet, Reference):
     return Reference(sheet, (0, 1), (9, 1))
 
 
+@pytest.fixture
+def column_of_letters(sheet, Reference):
+    for idx, l in enumerate("ABCDEFGHIJ"):
+        sheet.cell(row=idx, column=1).value = l
+    return Reference(sheet, (0, 1), (9, 1))
+
 class TestReference(object):
 
     def test_single_cell_ctor(self, cell):
@@ -105,28 +111,34 @@ class TestReference(object):
         assert cell_range.pos1 == (0, 0)
         assert cell_range.pos2 == (9, 0)
 
-    def test_caching_cell(self, cell):
-        assert cell._get_cache() == [0]
-
-    def test_caching_range(self, cell_range):
-        assert cell_range._get_cache() == [0, 1, 2, 3, 4, 5, 6, 7, 8 , 9]
-
-    def test_ref_cell(self, cell):
+    def test_single_cell_ref(self, cell):
+        assert cell.values == [0]
         assert str(cell) == "'reference'!$A$1"
 
-    def test_ref_range(self, cell_range):
+    def test_cell_range_ref(self, cell_range):
+        assert cell_range.values == [0, 1, 2, 3, 4, 5, 6, 7, 8 , 9]
         assert str(cell_range) == "'reference'!$A$1:$A$10"
 
-    def test_data_type(self, cell, cell_range):
+    def test_data_type(self, cell):
         with pytest.raises(ValueError):
             cell.data_type = 'f'
+            cell.data_type = None
+
+    def test_type_inference(self, cell, cell_range, column_of_letters):
+        assert cell.values == [0]
         assert cell.data_type == 'n'
+
+        assert cell_range.values == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         assert cell_range.data_type == 'n'
+
+        assert column_of_letters.values == list("ABCDEFGHIJ")
+        assert column_of_letters.data_type == "s"
 
     def test_number_format(self, cell):
         with pytest.raises(ValueError):
             cell.number_format = 'YYYY'
         cell.number_format = 'd-mmm'
+        assert cell.number_format == 'd-mmm'
 
 
 class TestErrorBar(object):
