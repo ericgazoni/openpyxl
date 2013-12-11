@@ -8,14 +8,12 @@ from openpyxl.writer.charts import (ChartWriter,
                                     PieChartWriter,
                                     LineChartWriter,
                                     BarChartWriter,
-                                    ScatterChartWriter
+                                    ScatterChartWriter,
+                                    BaseChartWriter
                                     )
 from openpyxl.style import Color
 
-from openpyxl.tests.helper import (get_xml,
-                                   DATADIR,
-                                   compare_xml,
-                                   )
+from .helper import get_xml, DATADIR, compare_xml
 from .schema import chart_schema
 
 @pytest.fixture
@@ -27,6 +25,22 @@ def bar_chart(ten_row_sheet, BarChart, Serie, Reference):
     series.color = Color.GREEN
     chart.add_serie(series)
     return chart
+
+
+def test_write_serial(ten_row_sheet, LineChart, Serie, Reference, root_xml):
+    ws = ten_row_sheet
+    chart = LineChart()
+    for idx, l in enumerate("ABCDEF"):
+        ws.cell(row=idx, column=0).value = l
+    ref = Reference(ws, (0, 0), (9, 0))
+    series = Serie(ref)
+    chart.add_serie(series)
+    cw = BaseChartWriter(chart)
+    cw._write_serial(cw.root, ref)
+    xml = get_xml(cw.root)
+    expected = """ <c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:strRef><c:f>'data'!$A$1:$A$10</c:f><c:strCache><c:ptCount val="10"/><c:pt idx="0"><c:v>A</c:v></c:pt><c:pt idx="1"><c:v>B</c:v></c:pt><c:pt idx="2"><c:v>C</c:v></c:pt><c:pt idx="3"><c:v>D</c:v></c:pt><c:pt idx="4"><c:v>E</c:v></c:pt><c:pt idx="5"><c:v>F</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt></c:strCache></c:strRef></c:chartSpace>"""
+    diff = compare_xml(xml, expected)
+    assert diff is None, diff
 
 
 class TestChartWriter(object):
