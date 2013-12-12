@@ -74,22 +74,23 @@ def test_absolute_multiple():
 
     eq_('$ZF$51:$ZF$53', absolute_coordinate('ZF51:ZF$53'))
 
+@pytest.mark.parametrize("column, idx",
+                         [
+                         ('j', 10),
+                         ('Jj', 270),
+                         ('JJj', 7030)
+                         ]
+                         )
+def test_column_index(column, idx):
+    assert column_index_from_string(column) == idx
 
-def test_column_index():
-    eq_(10, column_index_from_string('J'))
-    eq_(270, column_index_from_string('jJ'))
-    eq_(7030, column_index_from_string('jjj'))
 
-
-def test_bad_column_index():
-
-    @raises(ColumnStringIndexException)
-    def _check(bad_string):
-        column_index_from_string(bad_string)
-
-    bad_strings = ('JJJJ', '', '$', '1',)
-    for bad_string in bad_strings:
-        yield _check, bad_string
+@pytest.mark.parametrize("column",
+                         ('JJJJ', '', '$', '1',)
+                         )
+def test_bad_column_index(column):
+    with pytest.raises(ColumnStringIndexException):
+        column_index_from_string(column)
 
 
 def test_column_letter_boundries():
