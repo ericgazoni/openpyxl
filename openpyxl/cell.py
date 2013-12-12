@@ -112,19 +112,17 @@ def get_column_letter(col_idx):
     # columns
     if not 1 <= col_idx <= 18278:
         msg = 'Column index out of bounds: %s' % col_idx
-        raise ColumnStringIndexException(msg)
-    ordinals = []
-    temp = col_idx
-    while temp:
-        quotient, remainder = divmod(temp, 26)
+        raise ValueError(msg)
+    letters = []
+    while col_idx > 0:
+        col_idx, remainder = divmod(col_idx, 26)
         # check for exact division and borrow if needed
         if remainder == 0:
-            quotient -= 1
             remainder = 26
-        ordinals.append(remainder + 64)
-        temp = quotient
-    ordinals.reverse()
-    return ''.join([chr(ordinal) for ordinal in ordinals])
+            col_idx -= 1
+        letters.append(chr(remainder+64))
+    return ''.join(reversed(letters))
+
 
 
 class Cell(object):
