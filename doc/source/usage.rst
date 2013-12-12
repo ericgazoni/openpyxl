@@ -75,20 +75,35 @@ Inserting an image
 
     wb = Workbook()
     ws = wb.get_active_sheet()
-    ws.cell('A1').value = 'You should see a logo below'
+    ws.cell('A1').value = 'You should see three logos below'
+    ws.cell('A2').value = 'Resize the rows and cells to see anchor differences'
 
-    # create an image instance
+    # create image instances
     img = Image('logo.png')
+    img2 = Image('logo.png')
+    img3 = Image('logo.png')
 
-    # place it if required
-    img.drawing.left = 200
+    # place image relative to top left corner of spreadsheet
     img.drawing.top = 100
+    img.drawing.left = 150
 
-    # you could also 'anchor' the image to a specific cell
-    # img.anchor(ws.cell('B12'))
+    # the top left offset needed to put the image
+    # at a specific cell can be automatically calculated
+    img2.anchor(ws.cell('D12'))
+
+    # one can also position the image relative to the specified cell
+    # this can be advantageous if the spreadsheet is later resized
+    # (this might not work as expected in LibreOffice)
+    img3.anchor(ws.cell('G20'), anchortype='oneCell')
+
+    # afterwards one can still add additional offsets from the cell
+    img3.drawing.left = 5
+    img3.drawing.top = 5
 
     # add to worksheet
     ws.add_image(img)
+    ws.add_image(img2)
+    ws.add_image(img3)
     wb.save('logo.xlsx')
 
 
