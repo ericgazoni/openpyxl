@@ -7,12 +7,12 @@ python:
 # command to run tests
 
 install:
-  pip install lxml pytest nose pytest-cov 
+  pip install lxml pytest nose pytest-cov pillow
 
 before_script:
   mkdir -p shippable/codecoverage shippable/testresults
 
-script:  
+script:
   py.test --cov-report xml --cov openpyxl --junit-xml=shippable/testresults/results.xml
 
 notifications:
