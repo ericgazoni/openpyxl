@@ -265,14 +265,3 @@ def test_is_not_date_color_format():
     cell.style.number_format.format_code = '0.00_);[Red]\(0.00\)'
 
     assert cell.is_date() is False
-
-@pytest.mark.xfail
-def test_explicit_formula():
-    wb = Workbook()
-    ws = Worksheet(wb)
-    ws._stlyes = {}
-    cell = Cell(ws, 'A', 1)
-    cell.set_explicit_value(value='=if(A1<4;-1;1)', data_type='f')
-    assert cell.data_type == cell.TYPE_FORMULA
-    assert cell.value == '=if(A1<4;-1;1)'
-    raise ValueError("This cell serialises incorrectly")

@@ -66,6 +66,25 @@ Using number formats
     print ws.cell('B1').style.number_format.format_code # returns '0%'
 
 
+Using formulae
+--------------
+::
+
+    from openpyxl import Workbook
+
+    wb = Workbook()
+    ws = wb.worksheets[0]
+
+    # add a simple formula
+    ws.cell("A1").value = "=SUM(1, 1)"
+    wb.save("formula.xlsx")
+
+.. warning::
+    NB function arguments *must* be separated by commas and not other
+    punctuation such as semi-colons
+
+
+
 Inserting an image
 -------------------
 ::
@@ -151,48 +170,48 @@ Other validation examples
 
 Any whole number:
 ::
-    
+
     dv = DataValidation(ValidationType.WHOLE)
 
 Any whole number above 100:
 ::
-    
+
     dv = DataValidation(ValidationType.WHOLE,
                         ValidationOperator.GREATER_THAN,
                         100)
 
 Any decimal number:
 ::
-    
+
     dv = DataValidation(ValidationType.DECIMAL)
 
 Any decimal number between 0 and 1:
 ::
-    
+
     dv = DataValidation(ValidationType.DECIMAL,
                         ValidationOperator.BETWEEN,
                         0, 1)
 
 Any date:
 ::
-    
+
     dv = DataValidation(ValidationType.DATE)
 
 or time:
 ::
-    
+
     dv = DataValidation(ValidationType.TIME)
 
 Any string at most 15 characters:
 ::
-    
+
     dv = DataValidation(ValidationType.TEXT_LENGTH,
                         ValidationOperator.LESS_THAN_OR_EQUAL,
                         15)
 
 Custom rule:
 ::
-    
+
     dv = DataValidation(ValidationType.CUSTOM,
                         None,
                         "=SOMEFORMULA")
