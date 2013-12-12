@@ -89,7 +89,7 @@ def test_column_index(column, idx):
                          ('JJJJ', '', '$', '1',)
                          )
 def test_bad_column_index(column):
-    with pytest.raises(ColumnStringIndexException):
+    with pytest.raises(ValueError):
         column_index_from_string(column)
 
 
