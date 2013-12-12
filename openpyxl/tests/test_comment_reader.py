@@ -29,6 +29,8 @@ from zipfile import ZipFile, ZIP_DEFLATED
 import os.path
 from collections import namedtuple
 
+from openpyxl.workbook import Workbook
+from openpyxl.worksheet import Worksheet
 from openpyxl.comments import Comment
 from openpyxl.reader import comments
 from openpyxl.reader.excel import load_workbook
@@ -41,21 +43,6 @@ def test_get_author_list():
     <author>Cuke</author><author>Not Cuke</author></authors><commentList>
     </commentList></comments>"""
     assert comments._get_author_list(fromstring(xml)) == ['Cuke', 'Not Cuke']
-
-class DummyCell(object):
-    __slots__ = ('_comment',)
-    @property
-    def comment(self):
-        return self._comment
-
-class DummyWorksheet(object):
-    def __init__(self):
-        self.cells = {}
-
-    def cell(self, coordinate):
-        if coordinate not in self.cells:
-            self.cells[coordinate] = DummyCell()
-        return self.cells[coordinate]
 
 def test_read_comments():
     xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -72,16 +59,17 @@ def test_read_comments():
     indexed="81"/><rFont val="Tahoma"/><charset val="1"/></rPr><t>Not Cuke:\n</t></r><r><rPr>
     <sz val="9"/><color indexed="81"/><rFont val="Tahoma"/><charset val="1"/></rPr>
     <t xml:space="preserve">Third Comment</t></r></text></comment></commentList></comments>"""
-    ws = DummyWorksheet()
+    wb = Workbook()
+    ws = Worksheet(wb)
     comments.read_comments(ws, xml)
     comments_expected = [['A1', 'Cuke', 'Cuke:\nFirst Comment'],
                          ['D1', 'Cuke', 'Cuke:\nSecond Comment'],
                          ['A2', 'Not Cuke', 'Not Cuke:\nThird Comment']
                         ]
     for cell, author, text in comments_expected:
-        assert ws.cells[cell].comment.author == author
-        assert ws.cells[cell].comment.text == text
-        assert ws.cells[cell].comment.parent == ws
+        assert ws.cell(coordinate=cell).comment.author == author
+        assert ws.cell(coordinate=cell).comment.text == text
+        assert ws.cell(coordinate=cell).comment.parent == ws
 
 def test_get_comments_file():
     path = os.path.join(DATADIR, 'reader', 'comments.xlsx')

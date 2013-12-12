@@ -476,7 +476,7 @@ class Cell(object):
             top_anchor += default_height
 
         return (left_anchor, top_anchor)
-
+    
     @property
     def comment(self):
         """ Returns the comment associated with this cell
@@ -484,6 +484,7 @@ class Cell(object):
             :rtype: :class:`openpyxl.comments.Comment`
         """
         return self._comment
+        
     @comment.setter
     def comment(self, value):
         if value is None and self._comment is not None:

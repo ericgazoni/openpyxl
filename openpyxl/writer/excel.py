@@ -35,7 +35,7 @@ from openpyxl.shared.compat import BytesIO, StringIO
 from openpyxl.shared.ooxml import ARC_SHARED_STRINGS, ARC_CONTENT_TYPES, \
         ARC_ROOT_RELS, ARC_WORKBOOK_RELS, ARC_APP, ARC_CORE, ARC_THEME, \
         ARC_STYLE, ARC_WORKBOOK, ARC_VBA,\
-        PACKAGE_WORKSHEETS, PACKAGE_DRAWINGS, PACKAGE_CHARTS, PACKAGE_IMAGES
+        PACKAGE_WORKSHEETS, PACKAGE_DRAWINGS, PACKAGE_CHARTS, PACKAGE_IMAGES, PACKAGE_XL
 from openpyxl.writer.strings import create_string_table, write_string_table
 from openpyxl.writer.workbook import write_content_types, write_root_rels, \
         write_workbook_rels, write_properties_app, write_properties_core, \
@@ -45,6 +45,7 @@ from openpyxl.writer.styles import StyleWriter
 from openpyxl.writer.drawings import DrawingWriter, ShapeWriter
 from openpyxl.writer.charts import ChartWriter
 from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
+from openpyxl.writer.comments import write_comments
 
 
 class ExcelWriter(object):
@@ -137,7 +138,8 @@ class ExcelWriter(object):
                     archive.writestr(PACKAGE_IMAGES + '/image%d.png' % image_id, buf.getvalue())
                     image_id += 1
             if sheet._comment_count > 0:
-                print "Should be writing comments"
+                archive.writestr(PACKAGE_XL + '/comments%d.xml' % comments_id,
+                    write_comments(sheet))
                 comments_id += 1
 
     def save(self, filename):
