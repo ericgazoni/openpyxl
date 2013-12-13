@@ -33,7 +33,6 @@ class Comment(object):
         self._text = text
         self._author = author
     
-    # No setters because comments can't be written
     @property
     def author(self):
         """ The name recorded for the author 
@@ -41,6 +40,9 @@ class Comment(object):
             :rtype: string
         """
         return self._author
+    @author.setter
+    def author(self, value):
+        self._author = value
 
     @property
     def text(self):
@@ -49,5 +51,6 @@ class Comment(object):
             :rtype: string
         """
         return self._text
-    
-
+    @text.setter
+    def text(self, value):
+        self._text = value
