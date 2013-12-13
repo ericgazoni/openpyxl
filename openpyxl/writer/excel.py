@@ -121,7 +121,7 @@ class ExcelWriter(object):
                 archive.writestr(PACKAGE_DRAWINGS + '/drawing%d.xml' % drawing_id,
                     dw.write())
                 archive.writestr(PACKAGE_DRAWINGS + '/_rels/drawing%d.xml.rels' % drawing_id,
-                    dw.write_rels(chart_id, image_id))
+                    dw.write_rels(chart_id, image_id)) # TODO remove this dependency
                 drawing_id += 1
 
                 for chart in sheet._charts:
@@ -131,10 +131,10 @@ class ExcelWriter(object):
 
                     if chart._shapes:
                         archive.writestr(PACKAGE_CHARTS + '/_rels/chart%d.xml.rels' % chart_id,
-                            cw.write_rels(drawing_id))
+                            cw.write_rels(drawing_id)) # TODO remove this dependency
                         sw = ShapeWriter(chart._shapes)
                         archive.writestr(PACKAGE_DRAWINGS + '/drawing%d.xml' % drawing_id,
-                            sw.write(shape_id))
+                            sw.write(shape_id)) # TODO remove this dependency
                         shape_id += len(chart._shapes)
                         drawing_id += 1
 
