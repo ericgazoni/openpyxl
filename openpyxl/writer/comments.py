@@ -56,7 +56,8 @@ class CommentWriter(object):
 		commentlist_tag = SubElement(root, "{%s}commentList" % SHEET_MAIN_NS)
 		for comment in self.comments:
 			attrs = {'ref': comment.parent.get_coordinate(),
-					 'authorId': self.author_to_id[comment.author]}
+					 'authorId': self.author_to_id[comment.author],
+					 'shapeId': '0'}
 			comment_tag = SubElement(commentlist_tag, "{%s}comment" % SHEET_MAIN_NS, attrs)
 
 			text_tag = SubElement(comment_tag, "{%s}text" % SHEET_MAIN_NS)
@@ -81,7 +82,7 @@ class CommentWriter(object):
 		root = Element("xml", nsmap=nsmap)
 		shape_layout = SubElement(root, "{%s}shapelayout" % officens, {"{%s}ext" % vmlns: "edit"})
 		SubElement(shape_layout, "{%s}idmap" % officens, {"{%s}ext" % vmlns: "edit", "data": "1"})
-		shape_type=SubElement(root, "{%s}shapetype" % vmlns, {"id": "commentshapetype",
+		shape_type=SubElement(root, "{%s}shapetype" % vmlns, {"id": "_x0000_t202",
 													           "coordsize": "21600,21600",
 													           "{%s}spt" % officens: "202",
 													           "path": "m,l,21600r21600,l21600,xe"})
@@ -95,8 +96,8 @@ class CommentWriter(object):
 			column = column_index_from_string(comment.parent.column) - 1
 
 			attrs = {
-				"id": "commentshape%s" % i,
-				"type": "#commentshapetype",
+				"id": "_x0000_s%s" % (i+1026),
+				"type": "#_x0000_t202",
 				"style": "position:absolute; margin-left:59.25pt;margin-top:1.5pt;width:108pt;height:59.25pt;z-index:1;visibility:hidden",
 				"fillcolor": "#ffffe1",
 				"{%s}insetmode" % officens: "auto"
@@ -111,7 +112,6 @@ class CommentWriter(object):
 			client_data = SubElement(shape, "{%s}ClientData" % excelns, {"ObjectType": "Note"})
 			SubElement(client_data, "{%s}MoveWithCells" % excelns)
 			SubElement(client_data, "{%s}SizeWithCells" % excelns)
-			#SubElement(client_data, "{%s}Anchor" % excelns).text = "4, 15, 0, 2, 6, 31, 4, 1"
 			SubElement(client_data, "{%s}AutoFill" % excelns).text = "False"
 			SubElement(client_data, "{%s}Row" % excelns).text = str(row)
 			SubElement(client_data, "{%s}Column" % excelns).text = str(column)
