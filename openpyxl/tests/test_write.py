@@ -196,7 +196,7 @@ def test_write_hyperlink_rels():
     ws.cell('A2').value = "test"
     ws.cell('A2').hyperlink = "http://test2.com/"
     eq_(2, len(ws.relationships))
-    content = write_worksheet_rels(ws, 1)
+    content = write_worksheet_rels(ws, 1, 1)
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_hyperlink.xml.rels')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
