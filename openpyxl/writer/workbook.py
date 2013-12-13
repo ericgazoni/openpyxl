@@ -67,6 +67,7 @@ static_content_types_config = [
     ('Default', 'rels', 'application/vnd.openxmlformats-package.relationships+xml'),
     ('Default', 'xml', 'application/xml'),
     ('Default', 'png', 'image/png'),
+    ('Default', 'vml', 'application/vnd.openxmlformats-officedocument.vmlDrawing'),
 
     ('Override', ARC_WORKBOOK,
      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'),
@@ -100,6 +101,7 @@ def write_content_types(workbook):
 
     drawing_id = 1
     chart_id = 1
+    comments_id = 1
 
     for sheet_id, sheet in enumerate(workbook.worksheets):
         SubElement(root, '{%s}Override' % CONTYPES_NS,
@@ -121,6 +123,11 @@ def write_content_types(workbook):
                         {'PartName' : '/xl/drawings/drawing%d.xml' % drawing_id,
                         'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml'})
                     drawing_id += 1
+        if sheet._comment_count > 0:
+            SubElement(root, '{%s}Override' % CONTYPES_NS,
+                {'PartName': '/xl/comments%d.xml' % comments_id,
+                 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml'})
+            comments_id += 1
 
     return get_document_content(root)
 

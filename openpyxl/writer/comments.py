@@ -25,39 +25,101 @@
 
 from openpyxl.shared.ooxml import COMMENTS_NS, REL_NS, PKG_REL_NS, SHEET_MAIN_NS
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
+from openpyxl.cell import column_index_from_string
 
-def write_comments(sheet):
-	# get list of comments
-	comments = []
-	for coord, cell in sheet._cells.iteritems():
-		if cell.comment is not None:
-			comments.append(cell.comment)
+class CommentWriter(object):
+	def __init__(self, sheet):
+		self.sheet = sheet
 
-	# get list of authors
-	authors = []
-	author_to_id = {}
-	for comment in comments:
-		if comment.author not in author_to_id:
-			author_to_id[comment.author] = str(len(authors))
-			authors.append(comment.author)
+		# get list of comments
+		self.comments = []
+		for coord, cell in sheet._cells.iteritems():
+			if cell.comment is not None:
+				self.comments.append(cell.comment)
 
-	# produce xml
-	root = Element("{%s}comments" % SHEET_MAIN_NS)
-	authorlist_tag = SubElement(root, "{%s}authors" % SHEET_MAIN_NS)
-	for author in authors:
-		leaf = SubElement(authorlist_tag, "{%s}author" % SHEET_MAIN_NS)
-		leaf.text = author
+		# get list of authors
+		self.authors = []
+		self.author_to_id = {}
+		for comment in self.comments:
+			if comment.author not in self.author_to_id:
+				self.author_to_id[comment.author] = str(len(self.authors))
+				self.authors.append(comment.author)
 
-	commentlist_tag = SubElement(root, "{%s}commentList" % SHEET_MAIN_NS)
-	for comment in comments:
-		attrs = {'ref': comment.parent.get_coordinate(),
-				 'authorId': author_to_id[comment.author]}
-		comment_tag = SubElement(commentlist_tag, "{%s}comment" % SHEET_MAIN_NS, attrs)
+	def write_comments(self):
+		# produce xml
+		root = Element("{%s}comments" % SHEET_MAIN_NS)
+		authorlist_tag = SubElement(root, "{%s}authors" % SHEET_MAIN_NS)
+		for author in self.authors:
+			leaf = SubElement(authorlist_tag, "{%s}author" % SHEET_MAIN_NS)
+			leaf.text = author
 
-		text_tag = SubElement(comment_tag, "{%s}text" % SHEET_MAIN_NS)
-		SubElement(text_tag, "{%s}rPr" % SHEET_MAIN_NS)
-		run_tag = SubElement(text_tag, "{%s}r" % SHEET_MAIN_NS)
-		run_tag.text = comment.text.replace("\n", '')
+		commentlist_tag = SubElement(root, "{%s}commentList" % SHEET_MAIN_NS)
+		for comment in self.comments:
+			attrs = {'ref': comment.parent.get_coordinate(),
+					 'authorId': self.author_to_id[comment.author]}
+			comment_tag = SubElement(commentlist_tag, "{%s}comment" % SHEET_MAIN_NS, attrs)
 
-	return get_document_content(root)
+			text_tag = SubElement(comment_tag, "{%s}text" % SHEET_MAIN_NS)
+			run_tag = SubElement(text_tag, "{%s}r" % SHEET_MAIN_NS)
+			SubElement(run_tag, "{%s}rPr" % SHEET_MAIN_NS)
+			t_tag = SubElement(run_tag, "{%s}t" % SHEET_MAIN_NS)
+			t_tag.text = comment.text
+
+		return get_document_content(root)
+
+	def write_comments_vml(self):
+		vmlns="urn:schemas-microsoft-com:vml"
+		officens="urn:schemas-microsoft-com:office:office"
+		excelns="urn:schemas-microsoft-com:office:excel"
+
+		nsmap = {
+			'v': vmlns,
+			'o': officens,
+			'x': excelns
+		}
+
+		root = Element("xml", nsmap=nsmap)
+		shape_layout = SubElement(root, "{%s}shapelayout" % officens, {"{%s}ext" % vmlns: "edit"})
+		SubElement(shape_layout, "{%s}idmap" % officens, {"{%s}ext" % vmlns: "edit", "data": "1"})
+		shape_type=SubElement(root, "{%s}shapetype" % vmlns, {"id": "commentshapetype",
+													           "coordsize": "21600,21600",
+													           "{%s}spt" % officens: "202",
+													           "path": "m,l,21600r21600,l21600,xe"})
+		SubElement(shape_type, "{%s}stroke" % vmlns, {"joinstyle": "miter"})
+		SubElement(shape_type, "{%s}path" % vmlns, {"gradientshapeok": "t",
+			                                        "{%s}connecttype" % officens: "rect"})
+
+		for i, comment in enumerate(self.comments):
+			# get zero-indexed coordinates of the comment
+			row = comment.parent.row - 1
+			column = column_index_from_string(comment.parent.column) - 1
+
+			attrs = {
+				"id": "commentshape%s" % i,
+				"type": "#commentshapetype",
+				"style": "position:absolute; margin-left:59.25pt;margin-top:1.5pt;width:108pt;height:59.25pt;z-index:1;visibility:hidden",
+				"fillcolor": "#ffffe1",
+				"{%s}insetmode" % officens: "auto"
+			}
+			shape = SubElement(root, "{%s}shape" % vmlns, attrs)
+
+			SubElement(shape, "{%s}fill" % vmlns, {"color2":"#ffffe1"})
+			SubElement(shape, "{%s}shadow" % vmlns, {"color":"black", "obscured":"t"})
+			SubElement(shape, "{%s}path" % vmlns, {"{%s}connecttype"%officens:"none"})
+			textbox = SubElement(shape, "{%s}textbox" % vmlns, {"style":"mso-direction-alt:auto"})
+			SubElement(textbox, "div", {"style": "text-align:left"})
+			client_data = SubElement(shape, "{%s}ClientData" % excelns, {"ObjectType": "Note"})
+			SubElement(client_data, "{%s}MoveWithCells" % excelns)
+			SubElement(client_data, "{%s}SizeWithCells" % excelns)
+			#SubElement(client_data, "{%s}Anchor" % excelns).text = "4, 15, 0, 2, 6, 31, 4, 1"
+			SubElement(client_data, "{%s}AutoFill" % excelns).text = "False"
+			SubElement(client_data, "{%s}Row" % excelns).text = str(row)
+			SubElement(client_data, "{%s}Column" % excelns).text = str(column)
+
+		return get_document_content(root)
+
+
+
+
+
 
