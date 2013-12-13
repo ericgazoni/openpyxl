@@ -183,3 +183,11 @@ def tag(doc, name, attr=None, body=None, namespace=None):
         attr = {}
     start_tag(doc, name, attr, body, namespace)
     end_tag(doc, name, namespace)
+
+
+def safe_iterator(node, tag=None):
+    """Return an iterator that is compatible with Python 2.6"""
+    if hasattr(node, "iter"):
+        return node.iter(tag)
+    else:
+        return node.getiterator(tag)

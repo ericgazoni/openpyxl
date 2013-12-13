@@ -79,7 +79,8 @@ class Workbook(object):
     def __init__(self, optimized_write=False, encoding='utf-8',
                  worksheet_class=Worksheet,
                  optimized_worksheet_class=DumpWorksheet,
-                 guess_types=True):
+                 guess_types=True,
+                 data_only=False):
         self.worksheets = []
         self._active_sheet_index = 0
         self._named_ranges = []
@@ -96,6 +97,9 @@ class Workbook(object):
         self.vba_archive = None
         self.style_properties = None
         self._guess_types = guess_types
+        self.data_only = data_only
+        self.relationships = []
+        self.drawings = []
 
         self.encoding = encoding
 

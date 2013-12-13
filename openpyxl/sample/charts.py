@@ -45,8 +45,8 @@ def dates(wb):
     for i in range(1, 10):
         ws.append([date(2013, i, 1), i])
     chart = BarChart()
-    values = Reference(ws, (0, 1), (9, 1))
-    labels = Reference(ws, (0, 0), (9, 0))
+    values = Reference(ws, (0, 1), (8, 1))
+    labels = Reference(ws, (0, 0), (8, 0))
     labels.number_format = 'd-mmm'
     series = Serie(values, labels=labels)
     chart.add_serie(series)
@@ -57,7 +57,7 @@ def pie(wb):
     for i in range(1, 5):
         ws.append([i])
     chart = PieChart()
-    values = Reference(ws, (0, 0), (9, 0))
+    values = Reference(ws, (0, 0), (3, 0))
     series = Serie(values, labels=values)
     chart.add_serie(series)
     ws.add_chart(chart)
@@ -67,7 +67,7 @@ def line(wb):
     for i in range(1, 5):
         ws.append([i])
     chart = LineChart()
-    values = Reference(ws, (0, 0), (4,0))
+    values = Reference(ws, (0, 0), (3,0))
     series = Serie(values)
     chart.add_serie(series)
     ws.add_chart(chart)
@@ -77,8 +77,8 @@ def scatter(wb):
     for i in range(10):
         ws.append([i, i])
     chart = ScatterChart()
-    xvalues = Reference(ws, (0, 1), (10, 1))
-    values = Reference(ws, (0, 0), (10, 0))
+    xvalues = Reference(ws, (0, 1), (9, 1))
+    values = Reference(ws, (0, 0), (9, 0))
     series = Serie(values, xvalues=xvalues)
     chart.add_serie(series)
     ws.add_chart(chart)

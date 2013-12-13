@@ -25,6 +25,7 @@
 
 # 3rd party imports
 from nose.tools import eq_, raises, assert_raises
+import pytest
 
 # package imports
 from openpyxl.workbook import Workbook
@@ -60,6 +61,12 @@ class TestWorksheet(object):
     @raises(SheetTitleException)
     def test_set_bad_title(self):
         Worksheet(self.wb, 'X' * 50)
+
+    def test_increment_title(self):
+        ws1 = self.wb.create_sheet(title="Test")
+        assert ws1.title == "Test"
+        ws2 = self.wb.create_sheet(title="Test")
+        assert ws2.title == "Test1"
 
     def test_set_bad_title_character(self):
         assert_raises(SheetTitleException, Worksheet, self.wb, '[')
@@ -202,9 +209,12 @@ class TestWorksheet(object):
         ws.append(['This is A2', 'This is B2'])
 
         vals = ws.range('A1:B2')
-
-        eq_((('This is A1', 'This is B1'),
-             ('This is A2', 'This is B2'),), flatten(vals))
+        expected = (
+            ('This is A1', 'This is B1'),
+            ('This is A2', 'This is B2'),
+        )
+        for e, v in zip(expected, flatten(vals)):
+            assert e == tuple(v)
 
     def test_rows(self):
 
@@ -361,3 +371,24 @@ class TestPositioning(object):
             eq_(ws.point_pos(*ws.cell(address).anchor),
                 coordinate_from_string(address))
 
+
+@pytest.fixture
+def PageSetup():
+    from openpyxl.worksheet import PageSetup
+    return PageSetup
+
+
+@pytest.mark.xfail
+def test_page_setup(PageSetup):
+    p = PageSetup()
+    assert p.setup == {}
+    p.scale = 1
+    assert p.setup['scale'] == 1
+
+
+def test_page_options(PageSetup):
+    p = PageSetup()
+    assert p.options == {}
+    p.horizontalCentered = True
+    p.verticalCentered = True
+    assert p.options == {'verticalCentered': '1', 'horizontalCentered': '1'}

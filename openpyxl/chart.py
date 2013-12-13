@@ -155,13 +155,15 @@ class ValueAxis(Axis):
 class Reference(object):
     """ a simple wrapper around a serie of reference data """
 
+    _data_type = None
 
-    def __init__(self, sheet, pos1, pos2=None, data_type='n', number_format=None):
+    def __init__(self, sheet, pos1, pos2=None, data_type=None, number_format=None):
 
         self.sheet = sheet
         self.pos1 = pos1
         self.pos2 = pos2
-        self.data_type = data_type
+        if data_type is not None:
+            self.data_type = data_type
         self.number_format = number_format
 
     @property
@@ -202,9 +204,8 @@ class Reference(object):
                     cell = self.sheet.cell(row=row, column=col)
                     self._values.append(cell.internal_value)
 
-            if self.data_type is None:
-                self.data_type = 'n'
-
+                    if self.data_type is None and cell.data_type is not None:
+                        self.data_type = cell.data_type
         return self._values
 
     def __str__(self):
@@ -217,10 +218,6 @@ class Reference(object):
         else:
             return "'%s'!$%s$%s" % (self.sheet.title,
                 get_column_letter(self.pos1[1] + 1), self.pos1[0] + 1)
-
-    def _get_cache(self):
-        """ legacy method """
-        return self.values
 
 
 class Serie(object):
@@ -280,6 +277,21 @@ class Serie(object):
         else:
             self._xvalues = None
         self.xreference = reference
+
+    @property
+    def labels(self):
+        """Return values from reference set as label"""
+        return self._labels
+
+    @labels.setter
+    def labels(self, reference):
+        if reference is not None:
+            if not isinstance(reference, Reference):
+                raise TypeError("Series labels must be a Reference instance")
+            reference.values
+            self._labels = reference
+        else:
+            self._labels = None
 
     def max(self, attr='values'):
         """

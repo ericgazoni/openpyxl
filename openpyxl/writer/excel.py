@@ -93,6 +93,14 @@ class ExcelWriter(object):
 
         return shared_string_table
 
+    def _write_images(self, images, archive, image_id):
+        for img in images:
+            buf = BytesIO()
+            img.image.save(buf, format= 'PNG')
+            archive.writestr(PACKAGE_IMAGES + '/image%d.png' % image_id, buf.getvalue())
+            image_id += 1
+        return image_id
+
     def _write_worksheets(self, archive, shared_string_table, style_writer):
         drawing_id = 1
         chart_id = 1
@@ -132,11 +140,8 @@ class ExcelWriter(object):
 
                     chart_id += 1
 
-                for img in sheet._images:
-                    buf = BytesIO()
-                    img.image.save(buf, format= 'PNG')
-                    archive.writestr(PACKAGE_IMAGES + '/image%d.png' % image_id, buf.getvalue())
-                    image_id += 1
+                image_id = self._write_images(sheet._images, archive, image_id)
+
             if sheet._comment_count > 0:
                 cw = CommentWriter(sheet)
                 archive.writestr(PACKAGE_XL + '/comments%d.xml' % comments_id,

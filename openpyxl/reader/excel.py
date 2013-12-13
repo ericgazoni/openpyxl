@@ -80,7 +80,7 @@ def repair_central_directory(zipFile, is_file_instance):
     return f
 
 
-def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=True):
+def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=True, data_only=False):
     """Open the given filename and return the workbook
 
     :param filename: the path to open or a file-like object
@@ -124,7 +124,7 @@ def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=Tru
     except (BadZipfile, RuntimeError, IOError, ValueError):
         e = exc_info()[1]
         raise InvalidFileException(unicode(e))
-    wb = Workbook(guess_types=guess_types)
+    wb = Workbook(guess_types=guess_types, data_only=data_only)
 
     if use_iterators:
         wb._set_optimized_read()

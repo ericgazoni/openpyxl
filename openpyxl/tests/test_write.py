@@ -26,12 +26,14 @@
 # stdlib imports
 import decimal
 import os.path
+import zipfile
 
 # compatibility imports
 from openpyxl.shared.compat import BytesIO, StringIO
 
 # 3rd party imports
 from nose.tools import eq_, with_setup, raises
+import pytest
 
 # package imports
 from openpyxl.tests.helper import (
@@ -201,6 +203,21 @@ def test_write_hyperlink_rels():
         assert diff is None, diff
 
 
+@pytest.mark.xfail
+@pytest.mark.pil_required
+def test_write_hyperlink_image_rels(Workbook, Image):
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('A1').value = "test"
+    ws.cell('A1').hyperlink = "http://test.com/"
+    img = os.path.join(DATADIR, "plain.png")
+    i = Image(img)
+    ws.add_image(i)
+    raise ValueError("Resulting file is invalid")
+    # TODO write integration test with duplicate relation ids then fix
+
+
+
 def test_hyperlink_value():
     wb = Workbook()
     ws = wb.create_sheet()
@@ -289,3 +306,24 @@ def test_short_number():
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
         assert diff is None, diff
+
+
+@pytest.mark.pil_required
+def test_write_images():
+    wb = Workbook()
+    ew = ExcelWriter(workbook=wb)
+    from openpyxl.drawing import Image
+    imagepath = os.path.join(DATADIR, "plain.png")
+    img = Image(imagepath)
+
+    buf = BytesIO()
+
+    archive = zipfile.ZipFile(buf, 'w')
+    ew._write_images([img], archive, 1)
+    archive.close()
+
+    buf.seek(0)
+    archive = zipfile.ZipFile(buf, 'r')
+    zipinfo = archive.infolist()
+    assert len(zipinfo) == 1
+    assert zipinfo[0].filename == 'xl/media/image1.png'

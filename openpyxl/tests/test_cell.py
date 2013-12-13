@@ -28,6 +28,7 @@ from datetime import time, datetime, timedelta
 
 # 3rd party imports
 from nose.tools import eq_, raises, assert_raises #pylint: disable=E0611
+import pytest
 
 # package imports
 from openpyxl.worksheet import Worksheet
@@ -73,35 +74,41 @@ def test_absolute_multiple():
 
     eq_('$ZF$51:$ZF$53', absolute_coordinate('ZF51:ZF$53'))
 
-
-def test_column_index():
-    eq_(10, column_index_from_string('J'))
-    eq_(270, column_index_from_string('jJ'))
-    eq_(7030, column_index_from_string('jjj'))
-
-
-def test_bad_column_index():
-
-    @raises(ColumnStringIndexException)
-    def _check(bad_string):
-        column_index_from_string(bad_string)
-
-    bad_strings = ('JJJJ', '', '$', '1',)
-    for bad_string in bad_strings:
-        yield _check, bad_string
+@pytest.mark.parametrize("column, idx",
+                         [
+                         ('j', 10),
+                         ('Jj', 270),
+                         ('JJj', 7030)
+                         ]
+                         )
+def test_column_index(column, idx):
+    assert column_index_from_string(column) == idx
 
 
-def test_column_letter_boundries():
-    assert_raises(ColumnStringIndexException, get_column_letter, 0)
-    assert_raises(ColumnStringIndexException, get_column_letter, 18279)
+@pytest.mark.parametrize("column",
+                         ('JJJJ', '', '$', '1',)
+                         )
+def test_bad_column_index(column):
+    with pytest.raises(ValueError):
+        column_index_from_string(column)
 
 
-def test_column_letter():
-    eq_('ZZZ', get_column_letter(18278))
-    eq_('JJJ', get_column_letter(7030))
-    eq_('AB', get_column_letter(28))
-    eq_('AA', get_column_letter(27))
-    eq_('Z', get_column_letter(26))
+@pytest.mark.parametrize("value", (0, 18729))
+def test_column_letter_boundries(value):
+    with pytest.raises(ValueError):
+        get_column_letter(value)
+
+@pytest.mark.parametrize("value, expected",
+                         [
+                        (18278, "ZZZ"),
+                        (7030, "JJJ"),
+                        (28, "AB"),
+                        (27, "AA"),
+                        (26, "Z")
+                         ]
+                         )
+def test_column_letter(value, expected):
+    assert get_column_letter(value) == expected
 
 
 def test_initial_value():

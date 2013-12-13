@@ -81,15 +81,7 @@ def compare_xml(generated, expected):
     ob = DummyDocTest()
     ob.want = generated
 
-    check = checker.check_output(generated, expected, PARSE_XML)
+    check = checker.check_output(expected, generated, PARSE_XML)
     if check is False:
         diff = checker.output_difference(ob, expected, PARSE_XML)
         return diff
-
-
-def safe_iterator(node):
-    """Return an iterator that is compatible with Python 2.6"""
-    if hasattr(node, "iter"):
-        return node.iter()
-    else:
-        return node.getiterator()

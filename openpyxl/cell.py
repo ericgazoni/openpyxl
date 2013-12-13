@@ -82,36 +82,22 @@ def absolute_coordinate(coord_string):
         return coord_string
 
 
+COLUMN_RE = re.compile("^[A-Z]{1,3}$")
 def column_index_from_string(column, fast=False):
     """Convert a column letter into a column number (e.g. B -> 2)
 
     Excel only supports 1-3 letter column names from A -> ZZZ, so we
     restrict our column names to 1-3 characters, each in the range A-Z.
-
-    .. note::
-
-        Fast mode is faster but does not check that all letters
-        are capitals between A and Z
-
     """
-    column = column.upper()
-
-    clen = len(column)
-
-    if not fast and not all('A' <= char <= 'Z' for char in column):
-        msg = 'Column string must contain only characters A-Z: got %s' % column
-        raise ColumnStringIndexException(msg)
-
-    if clen == 1:
-        return ord(column[0]) - 64
-    elif clen == 2:
-        return ((1 + (ord(column[0]) - 65)) * 26) + (ord(column[1]) - 64)
-    elif clen == 3:
-        return ((1 + (ord(column[0]) - 65)) * 676) + ((1 + (ord(column[1]) - 65)) * 26) + (ord(column[2]) - 64)
-    elif clen > 3:
-        raise ColumnStringIndexException('Column string index can not be longer than 3 characters')
-    else:
-        raise ColumnStringIndexException('Column string index can not be empty')
+    if len(column) > 3:
+        raise ValueError("Column string index can not be longer than 3 characters")
+    m = COLUMN_RE.match(column.upper())
+    if not m:
+        raise ValueError('Column string must contain only characters A-Z: got %s' % column)
+    idx = 0
+    for i, l in enumerate(m.group(0)):
+        idx += (ord(l) - 64) * pow(26, i)
+    return idx
 
 
 def get_column_letter(col_idx):
@@ -126,19 +112,17 @@ def get_column_letter(col_idx):
     # columns
     if not 1 <= col_idx <= 18278:
         msg = 'Column index out of bounds: %s' % col_idx
-        raise ColumnStringIndexException(msg)
-    ordinals = []
-    temp = col_idx
-    while temp:
-        quotient, remainder = divmod(temp, 26)
+        raise ValueError(msg)
+    letters = []
+    while col_idx > 0:
+        col_idx, remainder = divmod(col_idx, 26)
         # check for exact division and borrow if needed
         if remainder == 0:
-            quotient -= 1
             remainder = 26
-        ordinals.append(remainder + 64)
-        temp = quotient
-    ordinals.reverse()
-    return ''.join([chr(ordinal) for ordinal in ordinals])
+            col_idx -= 1
+        letters.append(chr(remainder+64))
+    return ''.join(reversed(letters))
+
 
 
 class Cell(object):
@@ -356,26 +340,24 @@ class Cell(object):
         """Always returns the value for excel."""
         return self._value
 
-    def _set_hyperlink(self, val):
-        """Set value and display for hyperlinks in a cell"""
+    @property
+    def hyperlink(self):
+        """Return the hyperlink target or an empty string"""
+        return self._hyperlink_rel is not None and \
+                self._hyperlink_rel.target or ''
+
+    @hyperlink.setter
+    def hyperlink(self, val):
+        """Set value and display for hyperlinks in a cell.
+        Automatically setsthe `value` of the cell with link text,
+        but you can modify it afterwards by setting the `value`
+        property, and the hyperlink will remain.\n\n' ':rtype: string"""
         if self._hyperlink_rel is None:
             self._hyperlink_rel = self.parent.create_relationship("hyperlink")
         self._hyperlink_rel.target = val
         self._hyperlink_rel.target_mode = "External"
         if self._value is None:
             self.value = val
-
-    def _get_hyperlink(self):
-        """Return the hyperlink target or an empty string"""
-        return self._hyperlink_rel is not None and \
-                self._hyperlink_rel.target or ''
-
-    hyperlink = property(_get_hyperlink, _set_hyperlink,
-            doc='Get or set the hyperlink held in the cell.  '
-            'Automatically sets the `value` of the cell with link text, '
-            'but you can modify it afterwards by setting the '
-            '`value` property, and the hyperlink will remain.\n\n'
-            ':rtype: string')
 
     @property
     def hyperlink_rel_id(self):
