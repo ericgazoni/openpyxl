@@ -69,7 +69,7 @@ def test_read_comments():
     for cell, author, text in comments_expected:
         assert ws.cell(coordinate=cell).comment.author == author
         assert ws.cell(coordinate=cell).comment.text == text
-        assert ws.cell(coordinate=cell).comment.parent == ws
+        assert ws.cell(coordinate=cell).comment.parent == ws.cell(coordinate=cell)
 
 def test_get_comments_file():
     path = os.path.join(DATADIR, 'reader', 'comments.xlsx')
