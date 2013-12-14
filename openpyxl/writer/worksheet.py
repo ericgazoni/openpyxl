@@ -75,8 +75,7 @@ def write_worksheet(worksheet, string_table, style_table):
     xml_file = StringIO()
     doc = XMLGenerator(out=xml_file, encoding='utf-8')
     start_tag(doc, 'worksheet',
-            {'xml:space': 'preserve',
-            'xmlns': SHEET_MAIN_NS,
+            {'xmlns': SHEET_MAIN_NS,
             'xmlns:r': REL_NS})
     if vba_root is not None:
         codename = vba_root.find('{%s}sheetPr' % SHEET_MAIN_NS).get('codeName', worksheet.title)

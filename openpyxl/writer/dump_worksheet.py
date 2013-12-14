@@ -138,7 +138,7 @@ class DumpWorksheet(Worksheet):
         doc = XMLGenerator(fobj, 'utf-8')
 
         start_tag(doc, 'worksheet',
-                {'xml:space': 'preserve',
+                {
                 'xmlns': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
                 'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
         start_tag(doc, 'sheetPr')

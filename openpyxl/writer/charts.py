@@ -206,7 +206,6 @@ class BaseChartWriter(object):
         raise NotImplemented("""x values not possible for this chart type""")
 
     def _write_serial(self, node, reference, literal=False):
-
         is_ref = hasattr(reference, 'pos1')
         data_type = reference.data_type
         number_format = getattr(reference, 'number_format')

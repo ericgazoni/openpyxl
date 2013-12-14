@@ -171,7 +171,7 @@ def write_root_rels(workbook):
 
 def write_workbook(workbook):
     """Write the core workbook xml."""
-    root = Element('{%s}workbook' % SHEET_MAIN_NS, {'{%s}space' % XML_NS: 'preserve'})
+    root = Element('{%s}workbook' % SHEET_MAIN_NS)
     SubElement(root, '{%s}fileVersion' % SHEET_MAIN_NS,
                {'appName': 'xl', 'lastEdited': '4', 'lowestEdited': '4', 'rupBuild': '4505'})
     SubElement(root, '{%s}workbookPr' % SHEET_MAIN_NS,

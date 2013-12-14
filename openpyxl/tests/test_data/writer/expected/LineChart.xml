@@ -1,29 +1,30 @@
+<?xml version="1.0"?>
 <c:chartSpace xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-  <c:lang val="en-GB" />
+  <c:lang val="en-GB"/>
   <c:chart>
     <c:plotArea>
       <c:layout>
         <c:manualLayout>
-          <c:layoutTarget val="inner" />
-          <c:xMode val="edge" />
-          <c:yMode val="edge" />
-          <c:x val="0.03375" />
-          <c:y val="0.31" />
-          <c:w val="0.6" />
-          <c:h val="0.6" />
+          <c:layoutTarget val="inner"/>
+          <c:xMode val="edge"/>
+          <c:yMode val="edge"/>
+          <c:x val="0.03375"/>
+          <c:y val="0.31"/>
+          <c:w val="0.6"/>
+          <c:h val="0.6"/>
         </c:manualLayout>
       </c:layout>
       <c:lineChart>
-        <c:grouping val="standard" />
+        <c:grouping val="standard"/>
         <c:ser>
-          <c:idx val="0" />
-          <c:order val="0" />
+          <c:idx val="0"/>
+          <c:order val="0"/>
           <c:val>
             <c:numRef>
               <c:f>'Line'!$A$1:$A$5</c:f>
               <c:numCache>
                 <c:formatCode>General</c:formatCode>
-                <c:ptCount val="5" />
+                <c:ptCount val="5"/>
                 <c:pt idx="0">
                   <c:v>1</c:v>
                 </c:pt>
@@ -43,48 +44,48 @@
             </c:numRef>
           </c:val>
         </c:ser>
-        <c:axId val="60871424" />
-        <c:axId val="60873344" />
+        <c:axId val="60871424"/>
+        <c:axId val="60873344"/>
       </c:lineChart>
       <c:catAx>
-        <c:axId val="60871424" />
+        <c:axId val="60871424"/>
         <c:scaling>
-          <c:orientation val="minMax" />
+          <c:orientation val="minMax"/>
         </c:scaling>
-        <c:axPos val="b" />
-        <c:tickLblPos val="nextTo" />
-        <c:crossAx val="60873344" />
-        <c:crosses val="autoZero" />
-        <c:auto val="1" />
-        <c:lblAlgn val="ctr" />
-        <c:lblOffset val="100" />
+        <c:axPos val="b"/>
+        <c:tickLblPos val="nextTo"/>
+        <c:crossAx val="60873344"/>
+        <c:crosses val="autoZero"/>
+        <c:auto val="1"/>
+        <c:lblAlgn val="ctr"/>
+        <c:lblOffset val="100"/>
       </c:catAx>
       <c:valAx>
-        <c:axId val="60873344" />
+        <c:axId val="60873344"/>
         <c:scaling>
-          <c:orientation val="minMax" />
-          <c:max val="5.0" />
-          <c:min val="0.0" />
+          <c:orientation val="minMax"/>
+          <c:max val="5.0"/>
+          <c:min val="0.0"/>
         </c:scaling>
-        <c:axPos val="l" />
-        <c:majorGridlines />
-        <c:numFmt formatCode="General" sourceLinked="1" />
-        <c:tickLblPos val="nextTo" />
-        <c:crossAx val="60871424" />
-        <c:crosses val="autoZero" />
-        <c:crossBetween val="between" />
-        <c:majorUnit val="1.0" />
+        <c:axPos val="l"/>
+        <c:majorGridlines/>
+        <c:numFmt formatCode="General" sourceLinked="1"/>
+        <c:tickLblPos val="nextTo"/>
+        <c:crossAx val="60871424"/>
+        <c:crosses val="autoZero"/>
+        <c:crossBetween val="between"/>
+        <c:majorUnit val="1.0"/>
       </c:valAx>
     </c:plotArea>
     <c:legend>
-      <c:legendPos val="r" />
-      <c:layout />
+      <c:legendPos val="r"/>
+      <c:layout/>
     </c:legend>
-    <c:plotVisOnly val="1" />
+    <c:plotVisOnly val="1"/>
   </c:chart>
   <c:printSettings>
-    <c:headerFooter />
-    <c:pageMargins b="0.75" footer="0.3" header="0.3" l="0.7" r="0.7" t="0.75" />
-    <c:pageSetup />
+    <c:headerFooter/>
+    <c:pageMargins b="0.75" footer="0.3" header="0.3" l="0.7" r="0.7" t="0.75"/>
+    <c:pageSetup/>
   </c:printSettings>
 </c:chartSpace>
