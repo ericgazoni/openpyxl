@@ -32,10 +32,26 @@ from openpyxl.shared.xmltools import Element, SubElement
 from openpyxl.cell import absolute_coordinate
 from openpyxl.shared.xmltools import get_document_content
 from openpyxl.shared.ooxml import (
-    ARC_CORE, ARC_WORKBOOK, ARC_APP, ARC_THEME, ARC_STYLE, ARC_SHARED_STRINGS,
+    ARC_CORE,
+    ARC_WORKBOOK,
+    ARC_APP,
+    ARC_THEME,
+    ARC_STYLE,
+    ARC_SHARED_STRINGS,
     ARC_CONTENT_TYPES,
-    COREPROPS_NS, VTYPES_NS, XPROPS_NS, DCORE_NS, DCTERMS_NS, DCTERMS_PREFIX,
-    XSI_NS, XML_NS, SHEET_MAIN_NS, CONTYPES_NS, PKG_REL_NS, REL_NS)
+    COREPROPS_NS,
+    VTYPES_NS,
+    XPROPS_NS,
+    DCORE_NS,
+    DCTERMS_NS,
+    DCTERMS_PREFIX,
+    XSI_NS,
+    XML_NS,
+    SHEET_MAIN_NS,
+    CONTYPES_NS,
+    PKG_REL_NS,
+    REL_NS
+)
 from openpyxl.shared.xmltools import get_document_content, fromstring
 from openpyxl.shared.date_time import datetime_to_W3CDTF
 from openpyxl.namedrange import NamedRange, NamedRangeContainingValue
