@@ -168,36 +168,44 @@ class BaseChartWriter(object):
             SubElement(ser, '{%s}order' % CHART_NS, {'val':safe_string(i)})
 
             if serie.legend:
-                tx = SubElement(ser, '{%s}tx' % CHART_NS)
-                self._write_serial(tx, serie.legend)
+                self._write_legend(ser)
 
             if serie.color:
                 sppr = SubElement(ser, '{%s}spPr' % CHART_NS)
-                if self.chart.TYPE == "barChart":
-                    # fill color
-                    fillc = SubElement(sppr, '{%s}solidFill' % DRAWING_NS)
-                    SubElement(fillc, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
-                # edge color
-                ln = SubElement(sppr, '{%s}ln' % DRAWING_NS)
-                fill = SubElement(ln, '{%s}solidFill' % DRAWING_NS)
-                SubElement(fill, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
+                self._write_series_color(sppr, serie)
 
             if serie.error_bar:
                 self._write_error_bar(ser, serie)
 
             if serie.labels:
-                cat = SubElement(ser, '{%s}cat' % CHART_NS)
-                self._write_serial(cat, serie.labels)
+                self._write_series_labels(ser, serie)
 
-            if self.chart.TYPE == "scatterChart":
-                if serie.xvalues:
-                    xval = SubElement(ser, '{%s}xVal' % CHART_NS)
-                    self._write_serial(xval, serie.xreference)
+            if serie.xvalues:
+                self._write_series_xvalues(ser, serie)
+            val = self._write_series_values(ser)
 
-                val = SubElement(ser, '{%s}yVal' % CHART_NS)
-            else:
-                val = SubElement(ser, '{%s}val' % CHART_NS)
             self._write_serial(val, serie.reference)
+
+    def _write_series_legend(self, node):
+        tx = SubElement(node, '{%s}tx' % CHART_NS)
+        self._write_serial(tx, serie.legend)
+
+    def _write_series_color(self, node, serie):
+        # edge color
+        ln = SubElement(node, '{%s}ln' % DRAWING_NS)
+        fill = SubElement(ln, '{%s}solidFill' % DRAWING_NS)
+        SubElement(fill, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
+
+    def _write_series_labels(self, node, serie):
+            cat = SubElement(node, '{%s}cat' % CHART_NS)
+            self._write_serial(cat, serie.labels)
+
+    def _write_series_xvalues(self, node, serie):
+        raise NotImplemented("""x values not possible for this chart type""")
+
+    def _write_series_values(self, node):
+        val = SubElement(node, '{%s}val' % CHART_NS)
+        return val
 
     def _write_serial(self, node, reference, literal=False):
 
@@ -298,11 +306,25 @@ class BarChartWriter(LineChartWriter):
         SubElement(subchart, '{%s}barDir' % CHART_NS, {'val':'col'})
         SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':self.chart.GROUPING})
 
+    def _write_series_color(self, node, serie):
+        # fill color
+        fillc = SubElement(node, '{%s}solidFill' % DRAWING_NS)
+        SubElement(fillc, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
+        super(BarChartWriter, self)._write_series_color(node, serie)
+
 
 class ScatterChartWriter(LineChartWriter):
 
     def _write_options(self, subchart):
         SubElement(subchart, '{%s}scatterStyle' % CHART_NS, {'val':'lineMarker'})
+
+    def _write_series_xvalues(self, node, serie):
+        if serie.xvalues:
+            xval = SubElement(node, '{%s}xVal' % CHART_NS)
+            self._write_serial(xval, serie.xreference)
+
+    def _write_series_values(self, node):
+        return SubElement(node, '{%s}yVal' % CHART_NS)
 
 
 class ChartWriter(object):
