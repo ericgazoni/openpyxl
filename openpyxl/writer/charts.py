@@ -184,6 +184,7 @@ class BaseChartWriter(object):
 
             if serie.xvalues:
                 self._write_series_xvalues(ser, serie)
+
             val = SubElement(ser, self.series_type)
             self._write_serial(val, serie.reference)
 
@@ -198,8 +199,8 @@ class BaseChartWriter(object):
         SubElement(fill, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
 
     def _write_series_labels(self, node, serie):
-            cat = SubElement(node, '{%s}cat' % CHART_NS)
-            self._write_serial(cat, serie.labels)
+        cat = SubElement(node, '{%s}cat' % CHART_NS)
+        self._write_serial(cat, serie.labels)
 
     def _write_series_xvalues(self, node, serie):
         raise NotImplemented("""x values not possible for this chart type""")
