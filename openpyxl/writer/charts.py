@@ -51,6 +51,8 @@ from openpyxl.chart import (
 
 class BaseChartWriter(object):
 
+    series_type = '{%s}val' % CHART_NS
+
     def __init__(self, chart):
         self.chart = chart
         self.root = Element("{%s}chartSpace" % CHART_NS)
@@ -182,8 +184,7 @@ class BaseChartWriter(object):
 
             if serie.xvalues:
                 self._write_series_xvalues(ser, serie)
-            val = self._write_series_values(ser)
-
+            val = SubElement(ser, self.series_type)
             self._write_serial(val, serie.reference)
 
     def _write_series_legend(self, node):
@@ -202,10 +203,6 @@ class BaseChartWriter(object):
 
     def _write_series_xvalues(self, node, serie):
         raise NotImplemented("""x values not possible for this chart type""")
-
-    def _write_series_values(self, node):
-        val = SubElement(node, '{%s}val' % CHART_NS)
-        return val
 
     def _write_serial(self, node, reference, literal=False):
 
@@ -315,16 +312,16 @@ class BarChartWriter(LineChartWriter):
 
 class ScatterChartWriter(LineChartWriter):
 
+    series_type = '{%s}yVal' % CHART_NS
+
     def _write_options(self, subchart):
-        SubElement(subchart, '{%s}scatterStyle' % CHART_NS, {'val':'lineMarker'})
+        SubElement(subchart, '{%s}scatterStyle' % CHART_NS,
+                   {'val':'lineMarker'})
 
     def _write_series_xvalues(self, node, serie):
         if serie.xvalues:
             xval = SubElement(node, '{%s}xVal' % CHART_NS)
             self._write_serial(xval, serie.xreference)
-
-    def _write_series_values(self, node):
-        return SubElement(node, '{%s}yVal' % CHART_NS)
 
 
 class ChartWriter(object):
