@@ -170,7 +170,7 @@ class BaseChartWriter(object):
             SubElement(ser, '{%s}order' % CHART_NS, {'val':safe_string(i)})
 
             if serie.legend:
-                self._write_legend(ser)
+                self._write_series_legend(ser, serie.legend)
 
             if serie.color:
                 sppr = SubElement(ser, '{%s}spPr' % CHART_NS)
@@ -188,9 +188,10 @@ class BaseChartWriter(object):
             val = SubElement(ser, self.series_type)
             self._write_serial(val, serie.reference)
 
-    def _write_series_legend(self, node):
+    # Todo, this can be better handled by a series attribute as the reference is not serialised.
+    def _write_series_legend(self, node, legend):
         tx = SubElement(node, '{%s}tx' % CHART_NS)
-        self._write_serial(tx, serie.legend)
+        SubElement(tx, '{%s}v' % CHART_NS).text = legend.values[0]
 
     def _write_series_color(self, node, serie):
         # edge color
