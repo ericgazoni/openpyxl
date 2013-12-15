@@ -203,8 +203,9 @@ class Reference(object):
                 for col in range(int(self.pos1[1]), int(self.pos2[1] + 1)):
                     cell = self.sheet.cell(row=row, column=col)
                     self._values.append(cell.internal_value)
-
-                    if self.data_type is None and cell.data_type is not None:
+                    if cell.internal_value == '':
+                        continue
+                    if self.data_type is None and cell.data_type:
                         self.data_type = cell.data_type
         return self._values
 

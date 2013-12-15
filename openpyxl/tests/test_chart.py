@@ -95,6 +95,14 @@ def empty_range(sheet, Reference):
     return Reference(sheet, (0, 1), (9, 1))
 
 
+@pytest.fixture()
+def missing_values(sheet, Reference):
+    vals = [None, None, 1, 2, 3, 4, 5, 6, 7, 8]
+    for idx, val in enumerate(vals):
+        sheet.cell(row=idx, column=2).value = val
+    return Reference(sheet, (0, 2), (9, 2))
+
+
 @pytest.fixture
 def column_of_letters(sheet, Reference):
     for idx, l in enumerate("ABCDEFGHIJ"):
@@ -124,7 +132,8 @@ class TestReference(object):
             cell.data_type = 'f'
             cell.data_type = None
 
-    def test_type_inference(self, cell, cell_range, column_of_letters):
+    def test_type_inference(self, cell, cell_range, column_of_letters,
+                            missing_values):
         assert cell.values == [0]
         assert cell.data_type == 'n'
 
@@ -133,6 +142,10 @@ class TestReference(object):
 
         assert column_of_letters.values == list("ABCDEFGHIJ")
         assert column_of_letters.data_type == "s"
+
+        assert missing_values.values == ['', '', 1, 2, 3, 4, 5, 6, 7, 8]
+        missing_values.values
+        assert missing_values.data_type == 'n'
 
     def test_number_format(self, cell):
         with pytest.raises(ValueError):
