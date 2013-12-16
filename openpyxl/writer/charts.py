@@ -164,7 +164,7 @@ class BaseChartWriter(object):
 
     def _write_series(self, subchart):
 
-        for i, serie in enumerate(self.chart._series):
+        for i, serie in enumerate(self.chart):
             ser = SubElement(subchart, '{%s}ser' % CHART_NS)
             SubElement(ser, '{%s}idx' % CHART_NS, {'val':safe_string(i)})
             SubElement(ser, '{%s}order' % CHART_NS, {'val':safe_string(i)})
@@ -265,7 +265,7 @@ class BaseChartWriter(object):
 
     def _write_shapes(self):
 
-        if self.chart._shapes:
+        if self.chart.shapes:
             SubElement(self.root, '{%s}userShapes' % CHART_NS, {'{%s}id' % REL_NS:'rId1'})
 
     def write_rels(self, drawing_id):

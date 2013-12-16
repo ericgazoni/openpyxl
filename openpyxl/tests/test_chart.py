@@ -247,7 +247,8 @@ class TestChart(object):
         assert c.width == 0.6
         assert c.height == 0.6
         assert c.margin_top == 0.31
-        assert c._shapes == []
+        assert c.series == []
+        assert c.shapes == []
         with pytest.raises(ValueError):
             assert c.margin_left == 0
 
@@ -273,7 +274,7 @@ class TestChart(object):
 
     def test_margin_left(self, series, Chart):
         c = Chart()
-        c._series.append(series)
+        c.append(series)
         assert c.margin_left == 0.03375
 
     def test_set_margin_top(self, Chart):
@@ -283,7 +284,7 @@ class TestChart(object):
 
     def test_set_margin_left(self, series, Chart):
         c = Chart()
-        c._series.append(series)
+        c.append(series)
         c.margin_left = 0
         assert c.margin_left  == 0.03375
 
@@ -297,23 +298,23 @@ class TestGraphChart(object):
 
     def test_get_x_unit(self, GraphChart, series):
         c = GraphChart()
-        c._series.append(series)
+        c.append(series)
         assert c.get_x_units() == 10
 
     def test_get_y_unit(self, GraphChart, series):
         c = GraphChart()
-        c._series.append(series)
+        c.append(series)
         c.y_axis.max = 10
         assert c.get_y_units() == 190500
 
     def test_get_y_char(self, GraphChart, series):
         c = GraphChart()
-        c._series.append(series)
+        c.append(series)
         assert c.get_y_chars() == 1
 
     def test_compute_series_extremes(self, GraphChart, series):
         c = GraphChart()
-        c._series.append(series)
+        c.append(series)
         mini, maxi = c._get_extremes()
         assert mini == 0
         assert maxi == 9
@@ -324,7 +325,7 @@ class TestGraphChart(object):
         c = GraphChart()
         ref = Reference(ws, (0, 0), (9, 0))
         series = Series(ref)
-        c._series.append(series)
+        c.append(series)
         mini, maxi = c._get_extremes()
         assert mini == 0
         assert maxi == 41518.0

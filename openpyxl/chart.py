@@ -411,7 +411,8 @@ class Chart(object):
 
     def __init__(self):
 
-        self._series = []
+        self.series = []
+        self._series = self.series # backwards compatible
 
         # public api
         self.legend = Legend()
@@ -435,21 +436,24 @@ class Chart(object):
         self._margin_left = 0
 
         # the user defined shapes
-        self._shapes = []
+        self.shapes = []
+        self._shapes = self.shapes # backwards compatible
 
-    def add_serie(self, serie):
+    def append(self, obj):
+        """Add a series or a shape"""
+        if isinstance(obj, Series):
+            self.series.append(obj)
+        elif isinstance(obj, Shape):
+            self.shapes.append(obj)
 
-        serie.id = len(self._series)
-        self._series.append(serie)
+    add_shape = add_serie = add_series = append
 
-    def add_shape(self, shape):
-
-        shape._chart = self
-        self._shapes.append(shape)
+    def __iter__(self):
+        return iter(self.series)
 
     def get_y_chars(self):
         """ estimate nb of chars for y axis """
-        _max = max([s.max() for s in self._series])
+        _max = max([s.max() for s in self])
         return len(str(int(_max)))
 
     @property
@@ -508,7 +512,7 @@ class GraphChart(Chart):
         self.y_axis.max = maxi
         self.y_axis._max_min()
 
-        if not None in [s.xvalues for s in self._series]:
+        if not None in [s.xvalues for s in self]:
             mini, maxi = self._get_extremes('xvalues')
             self.x_axis.min = mini
             self.x_axis.max = maxi
@@ -516,7 +520,7 @@ class GraphChart(Chart):
 
     def get_x_units(self):
         """ calculate one unit for x axis in EMU """
-        return max([len(s.values) for s in self._series])
+        return max([len(s.values) for s in self])
 
     def get_y_units(self):
         """ calculate one unit for y axis in EMU """
@@ -532,7 +536,7 @@ class GraphChart(Chart):
         # calculate the maximum and minimum for all series
         series_max = [0]
         series_min = [0]
-        for s in self._series:
+        for s in self:
             if s is not None:
                 series_max.append(s.max(attr))
                 series_min.append(s.min(attr))
