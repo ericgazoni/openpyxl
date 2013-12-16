@@ -221,7 +221,7 @@ class Reference(object):
                 get_column_letter(self.pos1[1] + 1), self.pos1[0] + 1)
 
 
-class Serie(object):
+class Series(object):
     """ a serie of data and possibly associated labels """
 
     MARKER_NONE = 'none'
@@ -231,7 +231,7 @@ class Serie(object):
     def __init__(self, values, title=None, labels=None, color=None,
                  xvalues=None, legend=None):
 
-        self.marker = Serie.MARKER_NONE
+        self.marker = Series.MARKER_NONE
         self.values = values
         self.xvalues = xvalues
         self.labels = labels
@@ -357,6 +357,9 @@ class Serie(object):
     def __len__(self):
 
         return len(self.values)
+
+# backwards compatibility
+Serie = Series
 
 
 class Legend(object):
