@@ -65,7 +65,7 @@ class CommentWriter(object):
 
         commentlist_tag = SubElement(root, "{%s}commentList" % SHEET_MAIN_NS)
         for comment in self.comments:
-            attrs = {'ref': comment.parent.get_coordinate(),
+            attrs = {'ref': comment._parent.get_coordinate(),
                      'authorId': self.author_to_id[comment.author],
                      'shapeId': '0'}
             comment_tag = SubElement(commentlist_tag, "{%s}comment" % SHEET_MAIN_NS, attrs)
@@ -97,8 +97,8 @@ class CommentWriter(object):
 
     def _write_comment_shape(self, root, comment, idx):
     	# get zero-indexed coordinates of the comment
-    	row = comment.parent.row - 1
-        column = column_index_from_string(comment.parent.column) - 1
+    	row = comment._parent.row - 1
+        column = column_index_from_string(comment._parent.column) - 1
 
         attrs = {
             "id": "_x0000_s%s" % (idx+1026),

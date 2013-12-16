@@ -36,9 +36,9 @@ from openpyxl.tests.helper import DATADIR, compare_xml
 def _create_ws():
     wb = Workbook()
     ws = Worksheet(wb)
-    comment1 = Comment(ws.cell(coordinate="B2"), "text", "author")
-    comment2 = Comment(ws.cell(coordinate="C7"), "text2", "author2")
-    comment3 = Comment(ws.cell(coordinate="D9"), "text3", "author3")
+    comment1 = Comment("text", "author")
+    comment2 = Comment("text2", "author2")
+    comment3 = Comment("text3", "author3")
     ws.cell(coordinate="B2").comment = comment1
     ws.cell(coordinate="C7").comment = comment2
     ws.cell(coordinate="D9").comment = comment3

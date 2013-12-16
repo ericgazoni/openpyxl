@@ -38,6 +38,7 @@ from openpyxl.shared.exc import ColumnStringIndexException, \
 from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
 from openpyxl.cell import column_index_from_string, \
         coordinate_from_string, get_column_letter, Cell, absolute_coordinate
+from openpyxl.comments import Comment
 
 import decimal
 
@@ -265,3 +266,31 @@ def test_is_not_date_color_format():
     cell.style.number_format.format_code = '0.00_);[Red]\(0.00\)'
 
     assert cell.is_date() is False
+
+def test_comment_count():
+    wb = Workbook()
+    ws = Worksheet(wb)
+    cell = ws.cell(coordinate="A1")
+    assert ws._comment_count == 0
+    cell.comment = Comment("text", "author")
+    assert ws._comment_count == 1
+    cell.comment = Comment("text", "author")
+    assert ws._comment_count == 1
+    cell.comment = None
+    assert ws._comment_count == 0
+    cell.comment = None
+    assert ws._comment_count == 0
+
+def test_comment_assignment():
+    wb = Workbook()
+    ws = Worksheet(wb)
+    c = Comment("text", "author")
+    ws.cell(coordinate="A1").comment = c
+    with pytest.raises(AttributeError):
+        ws.cell(coordinate="A2").commment = c
+    ws.cell(coordinate="A2").comment = Comment("text2", "author2")
+    with pytest.raises(AttributeError):
+        ws.cell(coordinate="A1").comment = ws.cell(coordinate="A2").comment
+    # this should orphan c, so that assigning it to A2 does not raise AttributeError
+    ws.cell(coordinate="A1").comment = None
+    ws.cell(coordinate="A2").comment = c

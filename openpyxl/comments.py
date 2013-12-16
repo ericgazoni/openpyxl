@@ -24,14 +24,14 @@
 # @author: see AUTHORS file
 
 class Comment(object):
-    __slots__ = ('parent',
+    __slots__ = ('_parent',
                  '_text',
                  '_author')
     
-    def __init__(self, parent=None, text=None, author=None):
-        self.parent = parent
+    def __init__(self, text, author):
         self._text = text
         self._author = author
+        self._parent = None
     
     @property
     def author(self):

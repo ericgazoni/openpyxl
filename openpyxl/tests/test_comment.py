@@ -33,24 +33,11 @@ from openpyxl.cell import Cell
 def test_init():
     wb = Workbook()
     ws = Worksheet(wb)
-    c = Comment(ws.cell(coordinate="A1"), "text", "author")
-    assert c.parent == ws.cell(coordinate="A1")
+    c = Comment("text", "author")
+    ws.cell(coordinate="A1").comment = c
+    assert c._parent == ws.cell(coordinate="A1")
     assert c.text == "text"
     assert c.author == "author"
-
-def test_comment_count():
-    wb = Workbook()
-    ws = Worksheet(wb)
-    cell = ws.cell(coordinate="A1")
-    assert ws._comment_count == 0
-    cell.comment = Comment(cell, "text", "author")
-    assert ws._comment_count == 1
-    cell.comment = Comment(cell, "text", "author")
-    assert ws._comment_count == 1
-    cell.comment = None
-    assert ws._comment_count == 0
-    cell.comment = None
-    assert ws._comment_count == 0
 
 
 
