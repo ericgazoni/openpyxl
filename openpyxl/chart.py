@@ -225,18 +225,31 @@ class Serie(object):
     """ a serie of data and possibly associated labels """
 
     MARKER_NONE = 'none'
+    _title = None
 
-    def __init__(self, values, labels=None, legend=None, color=None,
+    def __init__(self, values, title=None, labels=None, legend=None, color=None,
                  xvalues=None):
 
         self.marker = Serie.MARKER_NONE
         self.values = values
         self.xvalues = xvalues
         self.labels = labels
+        self.title = title
         self.legend = legend
         if legend is not None:
             self.legend.data_type = 's'
         self.error_bar = None
+
+    @property
+    def title(self):
+        if self._title is not None:
+            return self._title
+        if self.legend is not None:
+            return self.legend.values[0]
+
+    @title.setter
+    def title(self, value):
+        self._title = value
 
     @property
     def color(self):
