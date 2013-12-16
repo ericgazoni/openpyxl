@@ -2,7 +2,7 @@
 from datetime import date
 import os
 from openpyxl import Workbook
-from openpyxl.chart import Chart, Serie, Reference, BarChart, PieChart, LineChart, ScatterChart
+from openpyxl.chart import Chart, Series, Reference, BarChart, PieChart, LineChart, ScatterChart
 
 
 def numbers(wb):
@@ -11,8 +11,8 @@ def numbers(wb):
         ws.append([i])
     chart = BarChart()
     values = Reference(ws, (0, 0), (9, 0))
-    series = Serie(values)
-    chart.add_serie(series)
+    series = Series(values)
+    chart.append(series)
     ws.add_chart(chart)
 
 def negative(wb):
@@ -21,8 +21,8 @@ def negative(wb):
         ws.append([i])
     chart = BarChart()
     values = Reference(ws, (0, 0), (9, 0))
-    series = Serie(values)
-    chart.add_serie(series)
+    series = Series(values)
+    chart.append(series)
     ws.add_chart(chart)
 
 def letters(wb):
@@ -32,12 +32,12 @@ def letters(wb):
     chart = BarChart()
     labels = Reference(ws, (0, 0), (9, 0))
     values = Reference(ws, (0, 1), (9, 1))
-    series = Serie(values, labels=labels)
-    chart.add_serie(series)
+    series = Series(values, labels=labels)
+    chart.append(series)
     #  add second series
     values = Reference(ws, (0, 2), (9, 2))
-    series = Serie(values, labels=labels)
-    chart.add_serie(series)
+    series = Series(values, labels=labels)
+    chart.append(series)
     ws.add_chart(chart)
 
 def dates(wb):
@@ -48,8 +48,8 @@ def dates(wb):
     values = Reference(ws, (0, 1), (8, 1))
     labels = Reference(ws, (0, 0), (8, 0))
     labels.number_format = 'd-mmm'
-    series = Serie(values, labels=labels)
-    chart.add_serie(series)
+    series = Series(values, labels=labels)
+    chart.append(series)
     ws.add_chart(chart)
 
 def pie(wb):
@@ -58,8 +58,8 @@ def pie(wb):
         ws.append([i])
     chart = PieChart()
     values = Reference(ws, (0, 0), (3, 0))
-    series = Serie(values, labels=values)
-    chart.add_serie(series)
+    series = Series(values, labels=values)
+    chart.append(series)
     ws.add_chart(chart)
 
 def line(wb):
@@ -68,8 +68,8 @@ def line(wb):
         ws.append([i])
     chart = LineChart()
     values = Reference(ws, (0, 0), (3,0))
-    series = Serie(values)
-    chart.add_serie(series)
+    series = Series(values)
+    chart.append(series)
     ws.add_chart(chart)
 
 def scatter(wb):
@@ -79,8 +79,8 @@ def scatter(wb):
     chart = ScatterChart()
     xvalues = Reference(ws, (0, 1), (9, 1))
     values = Reference(ws, (0, 0), (9, 0))
-    series = Serie(values, xvalues=xvalues)
-    chart.add_serie(series)
+    series = Series(values, xvalues=xvalues)
+    chart.append(series)
     ws.add_chart(chart)
 
 if __name__ == "__main__":
