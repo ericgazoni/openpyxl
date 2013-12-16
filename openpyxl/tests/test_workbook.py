@@ -91,6 +91,38 @@ def test_get_sheet_by_name():
     eq_(new_sheet, found_sheet)
 
 
+def test_getitem(Workbook, Worksheet):
+    wb = Workbook()
+    ws = wb['Sheet']
+    assert isinstance(ws, Worksheet)
+    with pytest.raises(KeyError):
+        wb['NotThere']
+
+
+def test_delitem(Workbook):
+    wb = Workbook()
+    del wb['Sheet']
+    assert wb.worksheets == []
+
+
+def test_contains(Workbook):
+    wb = Workbook()
+    assert "Sheet" in wb
+    assert "NotThere" not in wb
+
+def test_iter(Workbook):
+    wb = Workbook()
+    for i, ws in enumerate(wb):
+        pass
+    assert i == 0
+    assert ws.title == "Sheet"
+
+
+def test_get_index():
+    wb = Workbook()
+    new_sheet = wb.create_sheet(0)
+
+
 def test_get_index():
     wb = Workbook()
     new_sheet = wb.create_sheet(0)
