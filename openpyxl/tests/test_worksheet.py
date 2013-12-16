@@ -355,6 +355,24 @@ class TestWorksheet(object):
         assert "<oddHeader>" not in xml_string
         assert "<oddFooter>" not in xml_string
 
+    def test_getitem(self):
+        ws = Worksheet(self.wb)
+        c = ws['A1']
+        assert isinstance(c, Cell)
+        assert c.get_coordinate() == "A1"
+        assert ws['A1'].value is None
+
+    def test_setitem(self):
+        ws = Worksheet(self.wb)
+        ws['A12'] = 5
+        assert ws['A12'].value == 5
+
+    def test_getslice(self):
+        ws = Worksheet(self.wb)
+        cell_range = ws['A1':'B2']
+        assert isinstance(cell_range, tuple)
+        assert (cell_range) == ((ws['A1'], ws['B1']), (ws['A2'], ws['B2']))
+
 
 class TestPositioning(object):
     def test_point(self):
