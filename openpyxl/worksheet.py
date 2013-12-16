@@ -633,6 +633,15 @@ class Worksheet(object):
                 self.row_dimensions[row] = RowDimension(row)
         return self._cells[coordinate]
 
+    def __getitem__(self, key):
+        """Convenience access by Excel style address"""
+        if isinstance(key, slice):
+            return self.range("{0}:{1}".format(key.start, key.stop))
+        return self._get_cell(key)
+
+    def __setitem__(self, key, value):
+        self[key].value = value
+
     def get_highest_row(self):
         """Returns the maximum row index containing data
 
