@@ -170,7 +170,7 @@ class TestSerie(object):
         assert series.error_bar == None
         assert series.xvalues == None
         assert series.labels == None
-        assert series.legend == None
+        assert series.title == None
 
     def test_invalid_values(self, Serie, cell):
         series = Serie(cell)

@@ -226,19 +226,19 @@ class Serie(object):
 
     MARKER_NONE = 'none'
     _title = None
+    _legend = None
 
-    def __init__(self, values, title=None, labels=None, legend=None, color=None,
-                 xvalues=None):
+    def __init__(self, values, title=None, labels=None, color=None,
+                 xvalues=None, legend=None):
 
         self.marker = Serie.MARKER_NONE
         self.values = values
         self.xvalues = xvalues
         self.labels = labels
         self.title = title
-        self.legend = legend
-        if legend is not None:
-            self.legend.data_type = 's'
         self.error_bar = None
+        if legend is not None:
+            self.legend = legend
 
     @property
     def title(self):
@@ -250,6 +250,17 @@ class Serie(object):
     @title.setter
     def title(self, value):
         self._title = value
+
+    @property
+    def legend(self):
+        return self._legend
+
+    @legend.setter
+    def legend(self, value):
+        from warnings import warn
+        warn("Series titles can be set directly using series.title. Series legend will be removed in 2.0")
+        value.data_type = 's'
+        self._legend = value
 
     @property
     def color(self):
