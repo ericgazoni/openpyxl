@@ -35,6 +35,7 @@ from openpyxl.namedrange import NamedRange
 from openpyxl.shared.exc import ReadOnlyWorkbookException
 
 # test imports
+import pytest
 from nose.tools import eq_, with_setup, raises
 from openpyxl.tests.helper import TMPDIR, clean_tmpdir, make_tmpdir
 from openpyxl.tests.schema import validate_archive
@@ -62,10 +63,10 @@ def test_add_correct_sheet():
     wb.add_sheet(new_sheet)
     eq_(new_sheet, wb.worksheets[2])
 
-@raises(AssertionError)
 def test_add_incorrect_sheet():
     wb = Workbook()
-    wb.add_sheet("Test")
+    with pytest.raises(TypeError):
+        wb.add_sheet("Test")
 
 @raises(ReadOnlyWorkbookException)
 def test_create_sheet_readonly():
@@ -225,8 +226,8 @@ def test_worksheet_class():
     assert isinstance(wb.worksheets[0], AlternativeWorksheet)
 
 
-@raises(AssertionError)
 def test_add_invalid_worksheet_class_instance():
     wb = Workbook()
     ws = AlternativeWorksheet(parent_workbook=wb)
-    wb.add_sheet(worksheet=ws)
+    with pytest.raises(TypeError):
+        wb.add_sheet(worksheet=ws)

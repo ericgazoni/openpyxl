@@ -154,12 +154,13 @@ class Workbook(object):
 
     def add_sheet(self, worksheet, index=None):
         """Add an existing worksheet (at an optional index)."""
-
-        assert isinstance(worksheet, self._worksheet_class), "The parameter you have given is not of the type '%s'" % self._worksheet_class.__name__
+        if not isinstance(worksheet, self._worksheet_class):
+            raise TypeError("The parameter you have given is not of the type '%s'" % self._worksheet_class.__name__)
 
         if index is None:
-            index = len(self.worksheets)
-        self.worksheets.insert(index, worksheet)
+            self.worksheets.append(worksheet)
+        else:
+            self.worksheets.insert(index, worksheet)
 
     def remove_sheet(self, worksheet):
         """Remove a worksheet from this workbook."""
@@ -181,9 +182,25 @@ class Workbook(object):
                 break
         return requested_sheet
 
+    def __contains__(self, key):
+        return self.get_sheet_by_name(key) and True or False
+
     def get_index(self, worksheet):
         """Return the index of the worksheet."""
         return self.worksheets.index(worksheet)
+
+    def __getitem__(self, key):
+        sheet = self.get_sheet_by_name(key)
+        if sheet is None:
+            raise KeyError("Worksheet {} does not exist.".format(key))
+        return sheet
+
+    def __delitem__(self, key):
+        sheet = self[key]
+        self.remove_sheet(sheet)
+
+    def __iter__(self):
+        return iter(self.worksheets)
 
     def get_sheet_names(self):
         """Returns the list of the names of worksheets in the workbook.
@@ -197,7 +214,8 @@ class Workbook(object):
 
     def create_named_range(self, name, worksheet, range, scope=None):
         """Create a new named_range on a worksheet"""
-        assert isinstance(worksheet, self._worksheet_class)
+        if not isinstance(worksheet, self._worksheet_class):
+            raise TypeError("Worksheet is not of the right type")
         named_range = NamedRange(name, [(worksheet, range)], scope)
         self.add_named_range(named_range)
 
