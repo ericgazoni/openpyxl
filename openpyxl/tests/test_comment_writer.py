@@ -53,6 +53,7 @@ def test_comment_writer_init():
     assert cw.author_to_id[cw.authors[2]] == "2"
     assert set(cw.comments) == set([comment1, comment2, comment3])
 
+@pytest.skip("not_py33")
 def test_write_comments():
     ws = _create_ws()[0]
 
