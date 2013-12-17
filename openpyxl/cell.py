@@ -45,6 +45,7 @@ from openpyxl.shared.exc import (CellCoordinatesException,
     ColumnStringIndexException, DataTypeException)
 from openpyxl.shared.units import points_to_pixels
 from openpyxl.style import NumberFormat
+from openpyxl.comments import Comment
 
 
 # package imports
@@ -139,7 +140,8 @@ class Cell(object):
                  'xf_index',
                  '_hyperlink_rel',
                  '_shared_date',
-                 'merged')
+                 'merged',
+                 '_comment')
 
     ERROR_CODES = {'#NULL!': 0,
                    '#DIV/0!': 1,
@@ -180,6 +182,7 @@ class Cell(object):
         self.xf_index = 0
         self._shared_date = SharedDate(base_date=worksheet.parent.excel_base_date)
         self.merged = False
+        self._comment = None   
 
     @property
     def encoding(self):
@@ -456,3 +459,32 @@ class Cell(object):
             top_anchor += default_height
 
         return (left_anchor, top_anchor)
+    
+    @property
+    def comment(self):
+        """ Returns the comment associated with this cell
+
+            :rtype: :class:`openpyxl.comments.Comment`
+        """
+        return self._comment
+        
+    @comment.setter
+    def comment(self, value):
+        if value is not None and value._parent is not None and value is not self.comment:
+            raise AttributeError("""Comment already assigned to %s in worksheet %s.
+                                    Cannot assign a comment to more than one cell""" % 
+                                    (value._parent.get_coordinate(), value._parent._parent.title))
+
+        # Ensure the number of comments for the parent worksheet is up-to-date
+        if value is None and self._comment is not None:
+            self.parent._comment_count -= 1
+        if value is not None and self._comment is None:
+            self.parent._comment_count += 1
+
+        # orphan the old comment
+        if self._comment is not None:
+            self._comment._parent = None
+
+        self._comment = value
+        if value is not None:
+            self._comment._parent = self

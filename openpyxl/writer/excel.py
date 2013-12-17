@@ -62,6 +62,7 @@ from openpyxl.writer.styles import StyleWriter
 from openpyxl.writer.drawings import DrawingWriter, ShapeWriter
 from openpyxl.writer.charts import ChartWriter
 from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
+from openpyxl.writer.comments import CommentWriter
 
 
 class ExcelWriter(object):
@@ -122,15 +123,16 @@ class ExcelWriter(object):
         chart_id = 1
         image_id = 1
         shape_id = 1
+        comments_id = 1
 
         for i, sheet in enumerate(self.workbook.worksheets):
             archive.writestr(PACKAGE_WORKSHEETS + '/sheet%d.xml' % (i + 1),
                     write_worksheet(sheet, shared_string_table,
                             style_writer.get_style_by_hash()))
-            if sheet._charts or sheet._images or sheet.relationships:
+            if sheet._charts or sheet._images or sheet.relationships or sheet._comment_count > 0:
                 archive.writestr(PACKAGE_WORKSHEETS +
                         '/_rels/sheet%d.xml.rels' % (i + 1),
-                        write_worksheet_rels(sheet, drawing_id))
+                        write_worksheet_rels(sheet, drawing_id, comments_id))
             if sheet._charts or sheet._images:
                 dw = DrawingWriter(sheet)
                 archive.writestr(PACKAGE_DRAWINGS + '/drawing%d.xml' % drawing_id,
@@ -156,6 +158,14 @@ class ExcelWriter(object):
                     chart_id += 1
 
                 image_id = self._write_images(sheet._images, archive, image_id)
+
+            if sheet._comment_count > 0:
+                cw = CommentWriter(sheet)
+                archive.writestr(PACKAGE_XL + '/comments%d.xml' % comments_id,
+                    cw.write_comments())
+                archive.writestr(PACKAGE_XL + '/drawings/commentsDrawing%d.vml' % comments_id,
+                    cw.write_comments_vml())
+                comments_id += 1
 
     def save(self, filename):
         """Write data into the archive."""

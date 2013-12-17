@@ -9,6 +9,8 @@
         Extension="rels" />
     <Default ContentType="application/xml" Extension="xml" />
     <Default ContentType="image/png" Extension="png" />
+    <Default ContentType="application/vnd.openxmlformats-officedocument.vmlDrawing"
+        Extension="vml" />
     <Override
         ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"
         PartName="/xl/workbook.xml" />

@@ -48,6 +48,7 @@ from openpyxl.reader.workbook import (read_sheets_titles, read_named_ranges,
         read_content_types)
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.iter_worksheet import unpack_worksheet
+from openpyxl.reader.comments import read_comments, get_comments_file
 # Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
 
 
@@ -194,5 +195,10 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
             xml_source = unpack_worksheet(archive, worksheet_path)
             new_ws = read_worksheet(xml_source, wb, sheet_name, string_table, style_table, style_properties['color_index'], filename, sheet_codename)
         wb.add_sheet(new_ws, index=i)
+
+        # load comments into the worksheet cells
+        comments_file = get_comments_file(sheet_codename, archive, valid_files)
+        if comments_file is not None:
+            read_comments(new_ws, archive.read(comments_file))
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)

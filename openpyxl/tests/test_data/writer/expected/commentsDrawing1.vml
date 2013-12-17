@@ -1,0 +1,54 @@
+<xml xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">
+  <o:shapelayout v:ext="edit">
+    <o:idmap data="1" v:ext="edit"/>
+  </o:shapelayout>
+  <v:shapetype coordsize="21600,21600" id="_x0000_t202" path="m,l,21600r21600,l21600,xe" o:spt="202">
+    <v:stroke joinstyle="miter"/>
+    <v:path gradientshapeok="t" o:connecttype="rect"/>
+  </v:shapetype>
+  <v:shape fillcolor="#ffffe1" id="_x0000_s1026" style="position:absolute; margin-left:59.25pt;margin-top:1.5pt;width:108pt;height:59.25pt;z-index:1;visibility:hidden" type="#_x0000_t202" o:insetmode="auto">
+    <v:fill color2="#ffffe1"/>
+    <v:shadow color="black" obscured="t"/>
+    <v:path o:connecttype="none"/>
+    <v:textbox style="mso-direction-alt:auto">
+      <div style="text-align:left"/>
+    </v:textbox>
+    <x:ClientData ObjectType="Note">
+      <x:MoveWithCells/>
+      <x:SizeWithCells/>
+      <x:AutoFill>False</x:AutoFill>
+      <x:Row>6</x:Row>
+      <x:Column>2</x:Column>
+    </x:ClientData>
+  </v:shape>
+  <v:shape fillcolor="#ffffe1" id="_x0000_s1027" style="position:absolute; margin-left:59.25pt;margin-top:1.5pt;width:108pt;height:59.25pt;z-index:1;visibility:hidden" type="#_x0000_t202" o:insetmode="auto">
+    <v:fill color2="#ffffe1"/>
+    <v:shadow color="black" obscured="t"/>
+    <v:path o:connecttype="none"/>
+    <v:textbox style="mso-direction-alt:auto">
+      <div style="text-align:left"/>
+    </v:textbox>
+    <x:ClientData ObjectType="Note">
+      <x:MoveWithCells/>
+      <x:SizeWithCells/>
+      <x:AutoFill>False</x:AutoFill>
+      <x:Row>1</x:Row>
+      <x:Column>1</x:Column>
+    </x:ClientData>
+  </v:shape>
+  <v:shape fillcolor="#ffffe1" id="_x0000_s1028" style="position:absolute; margin-left:59.25pt;margin-top:1.5pt;width:108pt;height:59.25pt;z-index:1;visibility:hidden" type="#_x0000_t202" o:insetmode="auto">
+    <v:fill color2="#ffffe1"/>
+    <v:shadow color="black" obscured="t"/>
+    <v:path o:connecttype="none"/>
+    <v:textbox style="mso-direction-alt:auto">
+      <div style="text-align:left"/>
+    </v:textbox>
+    <x:ClientData ObjectType="Note">
+      <x:MoveWithCells/>
+      <x:SizeWithCells/>
+      <x:AutoFill>False</x:AutoFill>
+      <x:Row>8</x:Row>
+      <x:Column>3</x:Column>
+    </x:ClientData>
+  </v:shape>
+</xml>

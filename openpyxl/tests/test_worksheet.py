@@ -32,6 +32,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet, Relationship, flatten
 from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.cell import Cell, coordinate_from_string
+from openpyxl.comments import Comment
 from openpyxl.shared.exc import CellCoordinatesException, \
         SheetTitleException, InsufficientCoordinatesException, \
         NamedRangeException
@@ -145,8 +146,9 @@ class TestWorksheet(object):
         ws.cell('A1').value = ''
         ws.cell('B2').value = '0'
         ws.cell('C4').value = 0
+        ws.cell('D1').comment = Comment('Comment', 'Comment')
         ws.garbage_collect()
-        eq_(set(ws.get_cell_collection()), set([ws.cell('B2'), ws.cell('C4')]))
+        eq_(set(ws.get_cell_collection()), set([ws.cell('B2'), ws.cell('C4'), ws.cell('D1')]))
 
     def test_hyperlink_relationships(self):
         ws = Worksheet(self.wb)

@@ -192,7 +192,7 @@ class Workbook(object):
     def __getitem__(self, key):
         sheet = self.get_sheet_by_name(key)
         if sheet is None:
-            raise KeyError("Worksheet {} does not exist.".format(key))
+            raise KeyError("Worksheet {0} does not exist.".format(key))
         return sheet
 
     def __delitem__(self, key):

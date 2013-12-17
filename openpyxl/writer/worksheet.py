@@ -50,7 +50,9 @@ from openpyxl.shared.xmltools import (
 from openpyxl.shared.ooxml import (
     SHEET_MAIN_NS,
     PKG_REL_NS,
-    REL_NS
+    REL_NS,
+    COMMENTS_NS,
+    VML_NS
 )
 from openpyxl.shared.compat.itertools import iteritems, iterkeys
 from openpyxl.styles.formatting import ConditionalFormatting
@@ -138,6 +140,10 @@ def write_worksheet(worksheet, string_table, style_table):
         for b in breaks:
             tag(doc, 'brk', {'id': str(b), 'man': 'true', 'max': '16383', 'min': '0'})
         end_tag(doc, 'rowBreaks')
+
+    # add a legacyDrawing so that excel can draw comments
+    if worksheet._comment_count > 0:
+        tag(doc, 'legacyDrawing', {'r:id':'commentsvml'})
 
     end_tag(doc, 'worksheet')
     doc.endDocument()
@@ -364,7 +370,7 @@ def write_worksheet_hyperlinks(doc, worksheet):
         end_tag(doc, 'hyperlinks')
 
 
-def write_worksheet_rels(worksheet, idx):
+def write_worksheet_rels(worksheet, drawing_id, comments_id):
     """Write relationships for the worksheet to xml."""
     root = Element('{%s}Relationships' % PKG_REL_NS)
     for rel in worksheet.relationships:
@@ -375,6 +381,17 @@ def write_worksheet_rels(worksheet, idx):
     if worksheet._charts or worksheet._images:
         attrs = {'Id' : 'rId1',
             'Type' : '%s/drawing' % REL_NS,
-            'Target' : '../drawings/drawing%s.xml' % idx }
+            'Target' : '../drawings/drawing%s.xml' % drawing_id }
+        SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
+    if worksheet._comment_count > 0:
+        # there's only one comments sheet per worksheet, 
+        # so there's no reason to call the Id rIdx
+        attrs = {'Id': 'comments',
+            'Type': COMMENTS_NS,
+            'Target' : '../comments%s.xml' % comments_id}
+        SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
+        attrs = {'Id': 'commentsvml',
+            'Type': VML_NS,
+            'Target': '../drawings/commentsDrawing%s.vml' % comments_id}
         SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
     return get_document_content(root)
