@@ -16,7 +16,7 @@ Introduction
 
 OpenPyxl is a Python library to read/write Excel 2007 xlsx/xlsm files.
 
-It was born from lack of existing library to read/write natively from Python the new Open Office XML format.
+It was born from lack of existing library to read/write natively from Python the new Office Open XML format.
 
 All kudos to the PHPExcel team as openpyxl is a Python port of PHPExcel http://www.phpexcel.net/
 
