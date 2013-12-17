@@ -86,9 +86,3 @@ def test_comments_cell_association():
     assert wb.worksheets[0].cell(coordinate="A1").comment.text == "Cuke:\nFirst Comment"
     assert wb.worksheets[1].cell(coordinate="A1").comment is None
     assert wb.worksheets[0].cell(coordinate="D1").comment.text == "Cuke:\nSecond Comment"
-
-
-
-    
-
-
