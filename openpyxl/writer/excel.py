@@ -45,7 +45,8 @@ from openpyxl.shared.ooxml import (
     PACKAGE_WORKSHEETS,
     PACKAGE_DRAWINGS,
     PACKAGE_CHARTS,
-    PACKAGE_IMAGES
+    PACKAGE_IMAGES,
+    PACKAGE_XL
     )
 from openpyxl.writer.strings import create_string_table, write_string_table
 from openpyxl.writer.workbook import (
