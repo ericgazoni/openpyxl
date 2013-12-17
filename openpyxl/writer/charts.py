@@ -140,6 +140,8 @@ class BaseChartWriter(object):
 
         scaling = SubElement(ax, '{%s}scaling' % CHART_NS)
         SubElement(scaling, '{%s}orientation' % CHART_NS, {'val':axis.orientation})
+        if axis.delete_axis:
+            SubElement(scaling, '{%s}' % CHART_NS, {'val':'1'})
         if axis.type == "valAx":
             SubElement(scaling, '{%s}max' % CHART_NS, {'val':str(float(axis.max))})
             SubElement(scaling, '{%s}min' % CHART_NS, {'val':str(float(axis.min))})

@@ -55,6 +55,7 @@ class Axis(object):
     cross_between = None
     orientation = ORIENTATION_MIN_MAX
     number_format = NumberFormat()
+    delete_axis = False
 
     def __init__(self, auto_axis=True):
         self.auto_axis = auto_axis
