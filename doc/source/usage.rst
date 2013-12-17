@@ -42,6 +42,12 @@ Read an existing workbook
 
     print sheet_ranges.cell('D18').value # D18
 
+.. warning ::
+
+    openpyxl does currently not read all possible items in an Excel file so
+    images and charts will be lost from existing files if they are opened and
+    saved with the same name.
+
 
 Using number formats
 ----------------------
