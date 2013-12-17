@@ -68,6 +68,3 @@ def get_comments_file(sheet_codename, archive, valid_files):
             if comments_file in valid_files:
                 return comments_file
     return None
-
-
-

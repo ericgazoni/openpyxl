@@ -38,8 +38,3 @@ def test_init():
     assert c._parent == ws.cell(coordinate="A1")
     assert c.text == "text"
     assert c.author == "author"
-
-
-
-
-

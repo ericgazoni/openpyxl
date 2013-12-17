@@ -31,12 +31,6 @@ vmlns="urn:schemas-microsoft-com:vml"
 officens="urn:schemas-microsoft-com:office:office"
 excelns="urn:schemas-microsoft-com:office:excel"
 
-nsmap = {
-    'v': vmlns,
-    'o': officens,
-    'x': excelns
-}
-
 class CommentWriter(object):
     def __init__(self, sheet):
         self.sheet = sheet
@@ -79,7 +73,7 @@ class CommentWriter(object):
         return get_document_content(root)
 
     def write_comments_vml(self):
-        root = Element("xml", nsmap=nsmap)
+        root = Element("xml")
         shape_layout = SubElement(root, "{%s}shapelayout" % officens, {"{%s}ext" % vmlns: "edit"})
         SubElement(shape_layout, "{%s}idmap" % officens, {"{%s}ext" % vmlns: "edit", "data": "1"})
         shape_type=SubElement(root, "{%s}shapetype" % vmlns, {"id": "_x0000_t202",
@@ -120,9 +114,3 @@ class CommentWriter(object):
         SubElement(client_data, "{%s}AutoFill" % excelns).text = "False"
         SubElement(client_data, "{%s}Row" % excelns).text = str(row)
         SubElement(client_data, "{%s}Column" % excelns).text = str(column)
-
-
-
-
-
-

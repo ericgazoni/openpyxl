@@ -202,5 +202,3 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
             read_comments(new_ws, archive.read(comments_file))
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
-
-
