@@ -96,14 +96,23 @@ class TestRule:
         r.aboveAverage = 1
         assert len(r) == 1
 
-    def test_keys():
-        pass
+    def test_keys(self, Rule):
+        r = Rule()
+        assert r.keys() == []
+        r['operator'] = True
+        assert r.keys() == ['operator']
 
-    def test_values():
-        pass
+    def test_values(self, Rule):
+        r = Rule()
+        assert r.values() == []
+        r['rank'] = 1
+        assert r.values() == [1]
 
-    def test_items():
-        pass
+    def test_items(self, Rule):
+        r = Rule()
+        assert r.items() == []
+        r['stopIfTrue'] = False
+        assert r.items() == [('stopIfTrue', False)]
 
 
 class TestConditionalFormatting(object):

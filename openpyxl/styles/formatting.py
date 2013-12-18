@@ -53,7 +53,7 @@ class Rule(Mapping):
 
     def iterkeys(self):
         for key in self.__slots__:
-            if getattr(self, key, None):
+            if getattr(self, key, None) is not None:
                 yield key
             continue
 
@@ -72,10 +72,10 @@ class Rule(Mapping):
             yield key, getattr(self, key)
 
     def items(self):
-        return [(key, value) for key, value in self.iteritems() if value is not None]
+        return [(key, value) for key, value in self.iteritems()]
 
     def __len__(self):
-        return len(self.items())
+        return len(self.keys())
 
 
 
