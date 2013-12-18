@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_named_range.py
 
-# Copyright (c) 2010-2011 openpyxl
-# 
+# Copyright (c) 2010-2013 openpyxl
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -49,7 +49,7 @@ def test_split_no_quotes():
 
 def test_bad_range_name():
     assert_raises(NamedRangeException, split_named_range, 'HYPOTHESES$B$3')
-    
+
 def test_range_name_worksheet_special_chars():
         class DummyWs(object):
             title = 'My Sheeet with a , and \''
@@ -190,7 +190,7 @@ class TestNameRefersToValue(object):
 
     def test_handles_scope(self):
         ranges = self.wb.get_named_ranges()
-        eq_(['MyRef: Workbook', 'MySheetRef: Sheet1', 'MySheetRef: Sheet2', 'MySheetValue: Sheet1', 'MySheetValue: Sheet2', 'MyValue: Workbook'], 
+        eq_(['MyRef: Workbook', 'MySheetRef: Sheet1', 'MySheetRef: Sheet2', 'MySheetValue: Sheet1', 'MySheetValue: Sheet2', 'MyValue: Workbook'],
             [self.range_as_string(range) for range in ranges])
 
     def test_can_be_saved(self):
@@ -198,5 +198,5 @@ class TestNameRefersToValue(object):
         self.wb.save(FNAME)
 
         wbcopy = load_workbook(FNAME)
-        eq_(['MyRef: Workbook=[range]', 'MySheetRef: Sheet1=[range]', 'MySheetRef: Sheet2=[range]', 'MySheetValue: Sheet1=3.33', 'MySheetValue: Sheet2=14.4', 'MyValue: Workbook=9.99'], 
+        eq_(['MyRef: Workbook=[range]', 'MySheetRef: Sheet1=[range]', 'MySheetRef: Sheet2=[range]', 'MySheetValue: Sheet1=3.33', 'MySheetValue: Sheet2=14.4', 'MyValue: Workbook=9.99'],
             [self.range_as_string(range, include_value=True) for range in wbcopy.get_named_ranges()])

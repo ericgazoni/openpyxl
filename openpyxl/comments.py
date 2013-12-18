@@ -1,6 +1,6 @@
 # file openpyxl/comments.py
 
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,15 +27,15 @@ class Comment(object):
     __slots__ = ('_parent',
                  '_text',
                  '_author')
-    
+
     def __init__(self, text, author):
         self._text = text
         self._author = author
         self._parent = None
-    
+
     @property
     def author(self):
-        """ The name recorded for the author 
+        """ The name recorded for the author
 
             :rtype: string
         """

@@ -1,6 +1,6 @@
 # file openpyxl/tests/test_comment_reader.py
 
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -92,7 +92,7 @@ def test_write_comments():
         check_authors.sort(key=lambda tag:tag.text)
         correct.find('{%s}authors' % SHEET_MAIN_NS)[:] = correct_authors
         check.find('{%s}authors' % SHEET_MAIN_NS)[:] = check_authors
-        
+
         diff = compare_xml(get_document_content(correct), get_document_content(check))
         assert diff is None, diff
 

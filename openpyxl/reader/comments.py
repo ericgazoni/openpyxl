@@ -1,6 +1,6 @@
 # file openpyxl/reader/comments.py
 
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -49,7 +49,7 @@ def read_comments(ws, xml_source):
             runtext = ''.join([t.text for t in run.findall('{%s}t' % SHEET_MAIN_NS)])
             substrs.append(runtext)
         comment_text = ''.join(substrs)
-        
+
         comment = Comment(comment_text, author)
         ws.cell(coordinate=cell).comment = comment
 

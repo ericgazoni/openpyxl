@@ -1,6 +1,6 @@
 # file openpyxl/cell.py
 
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -182,7 +182,7 @@ class Cell(object):
         self.xf_index = 0
         self._shared_date = SharedDate(base_date=worksheet.parent.excel_base_date)
         self.merged = False
-        self._comment = None   
+        self._comment = None
 
     @property
     def encoding(self):
@@ -459,7 +459,7 @@ class Cell(object):
             top_anchor += default_height
 
         return (left_anchor, top_anchor)
-    
+
     @property
     def comment(self):
         """ Returns the comment associated with this cell
@@ -467,12 +467,12 @@ class Cell(object):
             :rtype: :class:`openpyxl.comments.Comment`
         """
         return self._comment
-        
+
     @comment.setter
     def comment(self, value):
         if value is not None and value._parent is not None and value is not self.comment:
             raise AttributeError(
-                "Comment already assigned to %s in worksheet %s. Cannot assign a comment to more than one cell" % 
+                "Comment already assigned to %s in worksheet %s. Cannot assign a comment to more than one cell" %
                 (value._parent.get_coordinate(), value._parent.parent.title)
                 )
 

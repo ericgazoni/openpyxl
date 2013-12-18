@@ -1,8 +1,5 @@
 # file openpyxl/worksheet.py
-from openpyxl.shared.units import points_to_pixels
-from openpyxl.shared import DEFAULT_COLUMN_WIDTH, DEFAULT_ROW_HEIGHT
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +40,8 @@ from openpyxl.shared.exc import (
     CellCoordinatesException,
     NamedRangeException
     )
+from openpyxl.shared.units import points_to_pixels
+from openpyxl.shared import DEFAULT_COLUMN_WIDTH, DEFAULT_ROW_HEIGHT
 from openpyxl.shared.password_hasher import hash_password
 from openpyxl.styles import Style, DEFAULTS as DEFAULTS_STYLE
 from openpyxl.styles.formatting import ConditionalFormatting

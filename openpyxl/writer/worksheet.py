@@ -1,6 +1,6 @@
 # file openpyxl/writer/worksheet.py
 
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -384,7 +384,7 @@ def write_worksheet_rels(worksheet, drawing_id, comments_id):
             'Target' : '../drawings/drawing%s.xml' % drawing_id }
         SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
     if worksheet._comment_count > 0:
-        # there's only one comments sheet per worksheet, 
+        # there's only one comments sheet per worksheet,
         # so there's no reason to call the Id rIdx
         attrs = {'Id': 'comments',
             'Type': COMMENTS_NS,

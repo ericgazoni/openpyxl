@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2013 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -470,7 +470,7 @@ class Image(object):
         self.drawing.anchortype = None
 
     def anchor(self, cell, anchortype="absolute"):
-        """ anchors the image to the given cell 
+        """ anchors the image to the given cell
             optional parameter anchortype supports 'absolute' or 'oneCell'"""
         self.drawing.anchortype = anchortype
         if anchortype == "absolute":
