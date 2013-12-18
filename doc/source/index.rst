@@ -149,6 +149,13 @@ Charts
 
     charts
 
+Comments
+++++++++
+
+.. toctree::
+
+    comments
+
 Read/write large files
 ++++++++++++++++++++++
 
