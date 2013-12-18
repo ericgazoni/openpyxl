@@ -32,6 +32,8 @@ from openpyxl.worksheet import Worksheet
 from openpyxl.writer.comments import CommentWriter
 from openpyxl.comments import Comment
 from openpyxl.tests.helper import DATADIR, compare_xml
+from openpyxl.shared.xmltools import fromstring, get_document_content
+from openpyxl.shared.ooxml import SHEET_MAIN_NS
 
 def _create_ws():
     wb = Workbook()
@@ -53,7 +55,6 @@ def test_comment_writer_init():
     assert cw.author_to_id[cw.authors[2]] == "2"
     assert set(cw.comments) == set([comment1, comment2, comment3])
 
-@pytest.skip("not_py33")
 def test_write_comments():
     ws = _create_ws()[0]
 
@@ -62,10 +63,43 @@ def test_write_comments():
     cw = CommentWriter(ws)
     content = cw.write_comments()
     with open(reference_file) as expected:
-        diff = compare_xml(content, expected.read())
+        correct = fromstring(expected.read())
+        check = fromstring(content)
+        # check top-level elements have the same name
+        for i, j in zip(correct.getchildren(), check.getchildren()):
+            assert i.tag == j.tag
+
+        correct_comments = correct.find('{%s}commentList' % SHEET_MAIN_NS).getchildren()
+        check_comments = check.find('{%s}commentList' % SHEET_MAIN_NS).getchildren()
+        correct_authors = correct.find('{%s}authors' % SHEET_MAIN_NS).getchildren()
+        check_authors = check.find('{%s}authors' % SHEET_MAIN_NS).getchildren()
+
+        # replace author ids with author names
+        for i in correct_comments:
+            i.attrib["authorId"] = correct_authors[int(i.attrib["authorId"])].text
+        for i in check_comments:
+            i.attrib["authorId"] = check_authors[int(i.attrib["authorId"])].text
+
+        # sort the comment list
+        correct_comments.sort(key=lambda tag: tag.attrib["ref"])
+        check_comments.sort(key=lambda tag: tag.attrib["ref"])
+        correct.find('{%s}commentList' % SHEET_MAIN_NS)[:] = correct_comments
+        check.find('{%s}commentList' % SHEET_MAIN_NS)[:] = check_comments
+
+        # sort the author list
+        correct_authors.sort(key=lambda tag: tag.text)
+        check_authors.sort(key=lambda tag:tag.text)
+        correct.find('{%s}authors' % SHEET_MAIN_NS)[:] = correct_authors
+        check.find('{%s}authors' % SHEET_MAIN_NS)[:] = check_authors
+        
+        diff = compare_xml(get_document_content(correct), get_document_content(check))
         assert diff is None, diff
 
 
+
+        
+
+@pytest.mark.skipif("sys.version_info[:2] == (3,3)")
 def test_write_comments_vml():
     ws = _create_ws()[0]
     cw = CommentWriter(ws)
