@@ -13,7 +13,7 @@ Major changes
 * Support lxml as backend
 * Support reading and writing comments
 * pytest as testrunner now required
-* Improvements in charts: new types, more reliable, still write-only
+* Improvements in charts: new types, more reliable
 
 
 Minor changes
