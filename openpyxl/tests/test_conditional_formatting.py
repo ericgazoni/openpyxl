@@ -46,11 +46,10 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from openpyxl.tests.helper import DATADIR, get_xml, compare_xml
 
 
-@pytest.mark.usefixtures("Rule")
 class TestRule:
 
-    def test_ctor(self, Rule):
-        r = Rule()
+    def test_ctor(self, FormatRule):
+        r = FormatRule()
         assert r == {}
 
     @pytest.mark.parametrize("key, value",
@@ -66,50 +65,50 @@ class TestRule:
                               ('stopIfTrue', False),
                               ('text', "Once upon a time"),
                              ])
-    def test_setitem(self, Rule, key, value):
-        r1 = Rule()
-        r2 = Rule()
+    def test_setitem(self, FormatRule, key, value):
+        r1 = FormatRule()
+        r2 = FormatRule()
         r1[key] = value
         setattr(r2, key, value)
         assert r1 == r2
 
-    def test_getitem(self, Rule):
-        r = Rule()
+    def test_getitem(self, FormatRule):
+        r = FormatRule()
         r.aboveAverage = 1
         assert r.aboveAverage == r['aboveAverage']
 
-    def test_invalid_key(self, Rule):
-        r = Rule()
+    def test_invalid_key(self, FormatRule):
+        r = FormatRule()
         with pytest.raises(KeyError):
             r['randomkey'] = 1
         with pytest.raises(KeyError):
             r['randomkey']
 
-    def test_update_from_dict(self, Rule):
-        r = Rule()
+    def test_update_from_dict(self, FormatRule):
+        r = FormatRule()
         d = {'aboveAverage':1}
         r.update(d)
 
-    def test_len(self, Rule):
-        r = Rule()
+    def test_len(self, FormatRule):
+        r = FormatRule()
         assert len(r) == 0
         r.aboveAverage = 1
         assert len(r) == 1
 
-    def test_keys(self, Rule):
-        r = Rule()
+    def test_keys(self, FormatRule):
+        r = FormatRule()
         assert r.keys() == []
         r['operator'] = True
         assert r.keys() == ['operator']
 
-    def test_values(self, Rule):
-        r = Rule()
+    def test_values(self, FormatRule):
+        r = FormatRule()
         assert r.values() == []
         r['rank'] = 1
         assert r.values() == [1]
 
-    def test_items(self, Rule):
-        r = Rule()
+    def test_items(self, FormatRule):
+        r = FormatRule()
         assert r.items() == []
         r['stopIfTrue'] = False
         assert r.items() == [('stopIfTrue', False)]

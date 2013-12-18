@@ -27,7 +27,7 @@ from openpyxl.shared.compat import iteritems, OrderedDict
 from .colors import Color
 
 
-class Rule(Mapping):
+class FormatRule(Mapping):
     """Utility dictionary for formatting rules with specified keys only"""
 
     __slots__ = ('aboveAverage', 'bottom', 'dxfId', 'equalAverage',
