@@ -51,9 +51,25 @@ class Rule(Mapping):
     def __iter__(self):
         return iter(self.__slots__)
 
-    def iteritems(self):
+    def iterkeys(self):
         for key in self.__slots__:
-            yield key, getattr(self, key, None)
+            if getattr(self, key, None):
+                yield key
+            continue
+
+    def keys(self):
+        return list(self.iterkeys())
+
+    def itervalues(self):
+        for key in self.iterkeys():
+            yield self[key]
+
+    def values(self):
+        return list(self.itervalues())
+
+    def iteritems(self):
+        for key in self.iterkeys():
+            yield key, getattr(self, key)
 
     def items(self):
         return [(key, value) for key, value in self.iteritems() if value is not None]

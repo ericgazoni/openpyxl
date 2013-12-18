@@ -49,6 +49,10 @@ from openpyxl.tests.helper import DATADIR, get_xml, compare_xml
 @pytest.mark.usefixtures("Rule")
 class TestRule:
 
+    def test_ctor(self, Rule):
+        r = Rule()
+        assert r == {}
+
     @pytest.mark.parametrize("key, value",
                              [('aboveAverage', 1),
                               ('bottom', 0),
@@ -91,6 +95,15 @@ class TestRule:
         assert len(r) == 0
         r.aboveAverage = 1
         assert len(r) == 1
+
+    def test_keys():
+        pass
+
+    def test_values():
+        pass
+
+    def test_items():
+        pass
 
 
 class TestConditionalFormatting(object):
