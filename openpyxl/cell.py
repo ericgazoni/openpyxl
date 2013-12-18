@@ -471,9 +471,10 @@ class Cell(object):
     @comment.setter
     def comment(self, value):
         if value is not None and value._parent is not None and value is not self.comment:
-            raise AttributeError("""Comment already assigned to %s in worksheet %s.
-                                    Cannot assign a comment to more than one cell""" % 
-                                    (value._parent.get_coordinate(), value._parent._parent.title))
+            raise AttributeError(
+                "Comment already assigned to %s in worksheet %s. Cannot assign a comment to more than one cell" % 
+                (value._parent.get_coordinate(), value._parent.parent.title)
+                )
 
         # Ensure the number of comments for the parent worksheet is up-to-date
         if value is None and self._comment is not None:

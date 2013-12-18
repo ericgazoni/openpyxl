@@ -40,6 +40,7 @@ from openpyxl import worksheet
 from openpyxl import reader
 from openpyxl import shared
 from openpyxl import writer
+from openpyxl import comments
 
 # shortcuts
 from openpyxl.workbook import Workbook
