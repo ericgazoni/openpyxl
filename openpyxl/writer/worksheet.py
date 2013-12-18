@@ -79,8 +79,12 @@ def write_worksheet(worksheet, string_table, style_table):
             'xmlns': SHEET_MAIN_NS,
             'xmlns:r': REL_NS})
     if vba_root is not None:
-        codename = vba_root.find('{%s}sheetPr' % SHEET_MAIN_NS).get('codeName', worksheet.title)
-        start_tag(doc, 'sheetPr', {"codeName": codename})
+        el = vba_root.find('{%s}sheetPr' % SHEET_MAIN_NS)
+	if el is not None:
+		codename =el.get('codeName', worksheet.title)
+		start_tag(doc, 'sheetPr', {"codeName": codename})
+	else:
+		start_tag(doc, 'sheetPr')
     else:
         start_tag(doc, 'sheetPr')
     tag(doc, 'outlinePr',
