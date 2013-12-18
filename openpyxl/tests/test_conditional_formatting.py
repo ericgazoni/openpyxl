@@ -41,8 +41,56 @@ from openpyxl.writer.styles import StyleWriter
 from openpyxl.style import Border, Color, Fill, Font, Borders, HashableObject
 
 # test imports
+import pytest
 from zipfile import ZIP_DEFLATED, ZipFile
 from openpyxl.tests.helper import DATADIR, get_xml, compare_xml
+
+
+@pytest.mark.usefixtures("Rule")
+class TestRule:
+
+    @pytest.mark.parametrize("key, value",
+                             [('aboveAverage', 1),
+                              ('bottom', 0),
+                              ('dxfId', True),
+                              ('equalAverage', False),
+                              ('operator', ""),
+                              ('percent', 0),
+                              ('priority', 1),
+                              ('rank', 4),
+                              ('stdDev', 2),
+                              ('stopIfTrue', False),
+                              ('text', "Once upon a time"),
+                             ])
+    def test_setitem(self, Rule, key, value):
+        r1 = Rule()
+        r2 = Rule()
+        r1[key] = value
+        setattr(r2, key, value)
+        assert r1 == r2
+
+    def test_getitem(self, Rule):
+        r = Rule()
+        r.aboveAverage = 1
+        assert r.aboveAverage == r['aboveAverage']
+
+    def test_invalid_key(self, Rule):
+        r = Rule()
+        with pytest.raises(KeyError):
+            r['randomkey'] = 1
+        with pytest.raises(KeyError):
+            r['randomkey']
+
+    def test_update_from_dict(self, Rule):
+        r = Rule()
+        d = {'aboveAverage':1}
+        r.update(d)
+
+    def test_len(self, Rule):
+        r = Rule()
+        assert len(r) == 0
+        r.aboveAverage = 1
+        assert len(r) == 1
 
 
 class TestConditionalFormatting(object):

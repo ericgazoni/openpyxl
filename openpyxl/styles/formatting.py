@@ -21,9 +21,46 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+from collections import Mapping
 
 from openpyxl.shared.compat import iteritems, OrderedDict
 from .colors import Color
+
+
+class Rule(Mapping):
+    """Utility dictionary for formatting rules with specified keys only"""
+
+    __slots__ = ('aboveAverage', 'bottom', 'dxfId', 'equalAverage',
+                 'operator', 'percent', 'priority', 'rank', 'stdDev', 'stopIfTrue',
+                 'text')
+
+    def update(self, dictionary):
+        for k, v in iteritems(dictionary):
+            self[k] = v
+
+    def __getitem__(self, key):
+        if key not in self.__slots__:
+            raise KeyError("{0} is not a valid key for a formatting rule".format(key))
+        return getattr(self, key)
+
+    def __setitem__(self, key, value):
+        if key not in self.__slots__:
+            raise KeyError("{0} is not a valid key for a formatting rule".format(key))
+        setattr(self, key, value)
+
+    def __iter__(self):
+        return iter(self.__slots__)
+
+    def iteritems(self):
+        for key in self.__slots__:
+            yield key, getattr(self, key, None)
+
+    def items(self):
+        return [(key, value) for key, value in self.iteritems() if value is not None]
+
+    def __len__(self):
+        return len(self.items())
+
 
 
 class ConditionalFormatting(object):
