@@ -34,6 +34,7 @@ from openpyxl.comments import Comment
 from openpyxl.tests.helper import DATADIR, compare_xml
 from openpyxl.shared.xmltools import fromstring, get_document_content
 from openpyxl.shared.ooxml import SHEET_MAIN_NS
+from openpyxl.writer.comments import vmlns, excelns, officens
 
 def _create_ws():
     wb = Workbook()
@@ -95,11 +96,6 @@ def test_write_comments():
         diff = compare_xml(get_document_content(correct), get_document_content(check))
         assert diff is None, diff
 
-
-
-        
-
-@pytest.mark.skipif("sys.version_info[:2] == (3,3)")
 def test_write_comments_vml():
     ws = _create_ws()[0]
     cw = CommentWriter(ws)
@@ -107,5 +103,34 @@ def test_write_comments_vml():
             'commentsDrawing1.vml')
     content = cw.write_comments_vml()
     with open(reference_file) as expected:
-        diff = compare_xml(content, expected.read())
+        correct = fromstring(expected.read())
+        check = fromstring(content)
+        correct_ids = []
+        correct_coords = []
+        check_ids = []
+        check_coords = []
+
+        for i in correct.findall("{%s}shape" % vmlns):
+            correct_ids.append(i.attrib["id"])
+            row = i.find("{%s}ClientData" % excelns).find("{%s}Row" % excelns).text
+            col = i.find("{%s}ClientData" % excelns).find("{%s}Column" % excelns).text
+            correct_coords.append((row,col))
+            # blank the data we are checking separately
+            i.attrib["id"] = "0"
+            i.find("{%s}ClientData" % excelns).find("{%s}Row" % excelns).text="0"
+            i.find("{%s}ClientData" % excelns).find("{%s}Column" % excelns).text="0"
+
+        for i in check.findall("{%s}shape" % vmlns):
+            check_ids.append(i.attrib["id"])
+            row = i.find("{%s}ClientData" % excelns).find("{%s}Row" % excelns).text
+            col = i.find("{%s}ClientData" % excelns).find("{%s}Column" % excelns).text
+            check_coords.append((row,col))
+            # blank the data we are checking separately
+            i.attrib["id"] = "0"
+            i.find("{%s}ClientData" % excelns).find("{%s}Row" % excelns).text="0"
+            i.find("{%s}ClientData" % excelns).find("{%s}Column" % excelns).text="0"
+
+        assert set(correct_coords) == set(check_coords)
+        assert set(correct_ids) == set(check_ids)
+        diff = compare_xml(get_document_content(correct), get_document_content(check))
         assert diff is None, diff
