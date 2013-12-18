@@ -1,4 +1,4 @@
-w# file openpyxl/tests/test_password_hash.py
+# file openpyxl/tests/test_password_hash.py
 
 # Copyright (c) 2010-2013 openpyxl
 #
