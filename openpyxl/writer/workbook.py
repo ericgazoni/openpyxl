@@ -33,7 +33,7 @@ from openpyxl.cell import absolute_coordinate
 from openpyxl.shared.xmltools import get_document_content
 from openpyxl.shared.ooxml import (
     ARC_CORE, ARC_WORKBOOK, ARC_APP, ARC_THEME, ARC_STYLE, ARC_SHARED_STRINGS,
-    ARC_CONTENT_TYPES,
+    ARC_CONTENT_TYPES, ARC_CUSTOM_UI,
     COREPROPS_NS, VTYPES_NS, XPROPS_NS, DCORE_NS, DCTERMS_NS, DCTERMS_PREFIX,
     XSI_NS, XML_NS, SHEET_MAIN_NS, CONTYPES_NS, PKG_REL_NS, REL_NS)
 from openpyxl.shared.xmltools import get_document_content, fromstring
@@ -102,23 +102,27 @@ def write_content_types(workbook):
     chart_id = 1
 
     for sheet_id, sheet in enumerate(workbook.worksheets):
-        SubElement(root, '{%s}Override' % CONTYPES_NS,
-                {'PartName': '/xl/worksheets/sheet%d.xml' % (sheet_id + 1),
+    	name = '/xl/worksheets/sheet%d.xml' % (sheet_id + 1)
+	if name not in seen:
+		SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName': name,
                 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'})
         if sheet._charts or sheet._images:
-            SubElement(root, '{%s}Override' % CONTYPES_NS,
-                {'PartName' : '/xl/drawings/drawing%d.xml' % drawing_id,
+	    name = '/xl/drawings/drawing%d.xml' % drawing_id
+	    if name not in seen:
+                SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName' : name,
                 'ContentType' : 'application/vnd.openxmlformats-officedocument.drawing+xml'})
             drawing_id += 1
 
             for chart in sheet._charts:
-                SubElement(root, '{%s}Override' % CONTYPES_NS,
-                    {'PartName' : '/xl/charts/chart%d.xml' % chart_id,
+		name = '/xl/charts/chart%d.xml' % chart_id
+		if name not in seen:
+                    SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName' : name,
                     'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml'})
                 chart_id += 1
                 if chart._shapes:
-                    SubElement(root, '{%s}Override' % CONTYPES_NS,
-                        {'PartName' : '/xl/drawings/drawing%d.xml' % drawing_id,
+		    name = '/xl/drawings/drawing%d.xml' % drawing_id
+		    if name not in seen:
+                        SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName' : name,
                         'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml'})
                     drawing_id += 1
 
@@ -166,6 +170,9 @@ def write_root_rels(workbook):
             'Type': '%s/metadata/core-properties' % PKG_REL_NS})
     SubElement(root, relation_tag, {'Id': 'rId3', 'Target': ARC_APP,
             'Type': '%s/extended-properties' % REL_NS})
+    if workbook.vba_archive is not None and ARC_CUSTOM_UI in workbook.vba_archive.namelist():
+        SubElement(root, relation_tag, {'Id': 'rId4', 'Target': ARC_CUSTOM_UI,
+	    'Type': '%s/ui/extensibility' % REL_NS})
     return get_document_content(root)
 
 

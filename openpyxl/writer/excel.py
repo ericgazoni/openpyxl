@@ -60,8 +60,7 @@ class ExcelWriter(object):
         shared_string_table = self._write_string_table(archive)
         
         archive.writestr(ARC_CONTENT_TYPES, write_content_types(self.workbook))
-        if not self.workbook.vba_archive:
-            archive.writestr(ARC_ROOT_RELS, write_root_rels(self.workbook))
+        archive.writestr(ARC_ROOT_RELS, write_root_rels(self.workbook))
         archive.writestr(ARC_WORKBOOK_RELS, write_workbook_rels(self.workbook))
         archive.writestr(ARC_APP, write_properties_app(self.workbook))
         archive.writestr(ARC_CORE, write_properties_core(self.workbook.properties))
