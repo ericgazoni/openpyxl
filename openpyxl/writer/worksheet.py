@@ -177,7 +177,11 @@ def write_worksheet(worksheet, string_table, style_table):
         for t in ('{%s}legacyDrawing' % SHEET_MAIN_NS,
                   '{%s}controls' % SHEET_MAIN_NS):
             for elem in vba_root.findall(t):
-                xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem).decode("utf-8")))
+	        s = tostring(elem).decode("utf-8")
+		s = re.sub(r' xmlns[^ >]*', '', s)
+		s = re.sub(r's:', '', s)
+		xml_file.write(s)
+#               xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem).decode("utf-8")))
 
     breaks = worksheet.page_breaks
     if breaks:
