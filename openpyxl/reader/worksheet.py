@@ -39,7 +39,6 @@ from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
 from openpyxl.shared.ooxml import SHEET_MAIN_NS
 from openpyxl.style import Color
 from openpyxl.styles.formatting import ConditionalFormatting
-from openpyxl.reader.iter_worksheet import IterableWorksheet
 
 
 def _get_xml_iter(xml_source):
@@ -321,6 +320,7 @@ def read_worksheet(xml_source, parent, preset_title, string_table,
                    style_table, color_index=None, workbook_name=None, sheet_codename=None, keep_vba=False):
     """Read an xml worksheet"""
     if workbook_name and sheet_codename:
+        from openpyxl.reader.iter_worksheet import IterableWorksheet
         ws = IterableWorksheet(parent, preset_title, workbook_name,
                 sheet_codename, xml_source, string_table)
     else:
