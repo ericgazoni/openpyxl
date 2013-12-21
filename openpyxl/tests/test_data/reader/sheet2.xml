@@ -8,12 +8,15 @@
   </sheetViews>
   <sheetFormatPr defaultRowHeight="15"/>
   <sheetData>
-    <row r="1" spans="4:11">
+    <row r="1" spans="4:27">
       <c r="D1">
         <v>1</v>
       </c>
       <c r="K1" s="1">
         <v>0.01</v>
+      </c>
+      <c r="AA1">
+        <v>100</v>
       </c>
     </row>
     <row r="2" spans="4:11">
