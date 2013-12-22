@@ -39,7 +39,7 @@ class TestWorksheet(object):
         return load_workbook(filename = self.workbook_name, use_iterators = True)
 
 class TestDims(TestWorksheet):
-    expected = [ 'A1:G5', 'D1:K30', 'D2:D2', 'A1:C1' ]
+    expected = [ 'A1:G5', 'D1:AA30', 'D2:D2', 'A1:C1' ]
     def test_get_dimensions(self):
         wb = self._open_wb()
         for i, sheetn in enumerate(wb.get_sheet_names()):
