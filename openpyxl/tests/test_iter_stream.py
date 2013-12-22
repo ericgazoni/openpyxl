@@ -22,14 +22,16 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
+import os.path
+import datetime
 
 from nose.tools import eq_, raises, assert_raises
-import os.path
+import pytest
+
 from openpyxl.tests.helper import DATADIR
 from openpyxl.reader.iter_worksheet import get_range_boundaries
 from openpyxl.reader.excel import load_workbook
 import openpyxl.tests.test_iter as test_iter
-import datetime
 
 class StreamTestWorksheet(object):
     workbook_name = os.path.join(DATADIR, 'genuine', 'empty_no_dimensions.xlsx')
@@ -38,6 +40,7 @@ class StreamTestWorksheet(object):
         ff = open(self.workbook_name, 'rb')
         return load_workbook(filename = ff, use_iterators = True)
 
+@pytest.mark.xfail
 class TestDims(StreamTestWorksheet, test_iter.TestDims):
     pass
 
