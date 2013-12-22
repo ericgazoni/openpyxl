@@ -113,17 +113,11 @@ def test_read_empty_archive():
     wb = load_workbook(null_file)
 
 def test_read_dimension():
-
     path = os.path.join(DATADIR, 'reader', 'sheet2.xml')
-
     dimension = None
-    handle = open(path)
-    try:
-        dimension = read_dimension(xml_source=handle.read())
-    finally:
-        handle.close()
-
-    eq_(('D', 1, 'AA', 30), dimension)
+    with open(path) as handle:
+        dimension = read_dimension(handle.read())
+    assert dimension == ('D', 1, 'AA', 30)
 
 def test_calculate_dimension_iter():
     path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')

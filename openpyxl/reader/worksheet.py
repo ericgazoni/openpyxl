@@ -26,6 +26,7 @@
 """Reader for a single worksheet."""
 
 # Python stdlib imports
+from warnings import warn
 
 # compatibility imports
 from openpyxl.shared.compat import BytesIO, StringIO
@@ -52,51 +53,37 @@ def _get_xml_iter(xml_source):
         xml_source.seek(0)
         return xml_source
 
+
 def read_dimension(xml_source):
-
+    min_row = min_col =  max_row = max_col = None
     source = _get_xml_iter(xml_source)
-
     it = iterparse(source)
-
-    smax_col = None
-    smax_row = None
-    smin_col = None
-    smin_row = None
-
-    for event, element in it:
-
-        if element.tag == '{%s}dimension' % SHEET_MAIN_NS:
-            ref = element.get('ref')
-
-            if ':' in ref:
-                min_range, max_range = ref.split(':')
+    for event, el in it:
+        if el.tag == '{%s}dimension' % SHEET_MAIN_NS:
+            dim = el.get("ref")
+            if ':' in dim:
+                start, stop = dim.split(':')
             else:
-                min_range = max_range = ref
-
-            min_col, min_row = coordinate_from_string(min_range)
-            max_col, max_row = coordinate_from_string(max_range)
-
+                start = stop = dim
+            min_col, min_row = coordinate_from_string(start)
+            max_col, max_row = coordinate_from_string(stop)
             return min_col, min_row, max_col, max_row
 
-        if element.tag == '{%s}c' % SHEET_MAIN_NS:
-            # Supposedly the dimension is mandatory, but in practice it can be
-            # left off sometimes, if so, observe the max/min extants and return
-            # those instead.
-            col, row = coordinate_from_string(element.get('r'))
-            if smin_row is None:
-                # initialize the observed max/min values
-                smin_col = smax_col = col
-                smin_row = smax_row = row
+        if el.tag == '{%s}row' % SHEET_MAIN_NS:
+            row = el.get("r")
+            if min_row is None:
+                min_row = int(row)
+            span = el.get("spans")
+            start, stop = span.split(":")
+            if min_col is None:
+                min_col = int(start)
             else:
-                # Keep track of the seen max and min (fallback if there's no dimension)
-                smin_col = min(smin_col, col)
-                smin_row = min(smin_row, row)
-                smax_col = max(smax_col, col)
-                smax_row = max(smax_row, row)
-        else:
-            element.clear()
+                min_col = min(min_col, int(start))
+            max_col = max(max_col, int(stop))
+    max_row = int(row)
+    warn("Unsized worksheet")
+    return get_column_letter(min_col), min_row, get_column_letter(max_col),  max_row
 
-    return smin_col, smin_row, smax_col, smax_row
 
 def filter_cells(pair):
     (event, element) = pair
