@@ -70,9 +70,9 @@ class TestReaderProps(object):
         except NameError:
             # Python 3
             eacute = chr(233)
-        eq_(prop.last_modified_by, 'Aur' + eacute + 'lien Camp' + eacute + 'as')
+        eq_(prop.last_modified_by, 'Charlie Clark')
         eq_(prop.created, datetime(2010, 4, 9, 20, 43, 12))
-        eq_(prop.modified, datetime(2011, 2, 9, 13, 49, 32))
+        eq_(prop.modified, datetime(2013, 12, 22, 11, 11, 28))
 
     def test_read_sheets_titles(self):
         content = self.archive.read(ARC_WORKBOOK)
