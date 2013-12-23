@@ -323,6 +323,7 @@ def unpack_worksheet(archive, filename):
     else:
         raise zipfile.BadZipFile("Unrecognized compression method")
 
+    # this can probably be refactored now that Python 2.5 is no longer supported.
     archive.fp.seek(_get_file_offset(archive, zinfo))
     bytes_to_read = zinfo.compress_size
 
