@@ -86,12 +86,6 @@ def read_dimension(xml_source):
     return get_column_letter(min_col), min_row, get_column_letter(max_col),  max_row
 
 
-def filter_cells(pair):
-    (event, element) = pair
-
-    return element.tag == '{%s}c' % SHEET_MAIN_NS
-
-
 class WorkSheetParser(object):
 
     def __init__(self, ws, xml_source, string_table, style_table, color_index=None):
