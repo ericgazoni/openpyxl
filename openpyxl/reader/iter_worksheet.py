@@ -41,16 +41,26 @@ from openpyxl.shared.compat import iterparse, xrange
 
 # package
 from openpyxl.worksheet import Worksheet
-from openpyxl.cell import (coordinate_from_string, get_column_letter, Cell,
-                            column_index_from_string)
+from openpyxl.cell import (
+    coordinate_from_string,
+    get_column_letter,
+    Cell,
+    column_index_from_string
+)
 from openpyxl.reader.style import read_style_table
 from openpyxl.styles import is_date_format
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.shared.compat import unicode
-from openpyxl.shared.ooxml import (MIN_COLUMN, MAX_COLUMN, PACKAGE_WORKSHEETS,
-    MAX_ROW, MIN_ROW, ARC_STYLE, SHEET_MAIN_NS)
-
+from openpyxl.shared.ooxml import (
+    MIN_COLUMN,
+    MAX_COLUMN,
+    PACKAGE_WORKSHEETS,
+    MAX_ROW,
+    MIN_ROW,
+    ARC_STYLE,
+    SHEET_MAIN_NS
+)
 
 TYPE_NULL = Cell.TYPE_NULL
 MISSING_VALUE = None
@@ -65,7 +75,8 @@ def column_index_from_string(str_col, _col_conversion_cache=_COL_CONVERSION_CACH
     return _col_conversion_cache[str_col]
 del _COL_CONVERSION_CACHE
 
-RAW_ATTRIBUTES = ['row', 'column', 'coordinate', 'internal_value', 'data_type', 'style_id', 'number_format']
+RAW_ATTRIBUTES = ['row', 'column', 'coordinate', 'internal_value',
+                  'data_type', 'style_id', 'number_format']
 
 
 BaseRawCell = namedtuple('RawCell', RAW_ATTRIBUTES)
@@ -92,7 +103,8 @@ class RawCell(BaseRawCell):
     def is_date(self):
         return is_date_format(self.number_format)
 
-def iter_rows(workbook_name, sheet_name, xml_source, shared_date, string_table, range_string='', row_offset=0, column_offset=0):
+def iter_rows(workbook_name, sheet_name, xml_source, shared_date,
+              string_table, range_string='', row_offset=0, column_offset=0):
 
     archive = get_archive_file(workbook_name)
 
@@ -112,14 +124,18 @@ def iter_rows(workbook_name, sheet_name, xml_source, shared_date, string_table, 
     source.seek(0)
     p = iterparse(source)
 
-    return get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table, shared_date)
+    return get_squared_range(p, min_col, min_row, max_col, max_row,
+                             string_table, style_table, shared_date)
 
 
-def get_rows(p, min_column=MIN_COLUMN, min_row=MIN_ROW, max_column=MAX_COLUMN, max_row=MAX_ROW):
+def get_rows(p, min_column=MIN_COLUMN, min_row=MIN_ROW,
+             max_column=MAX_COLUMN, max_row=MAX_ROW):
 
-    return groupby(get_cells(p, min_row, min_column, max_row, max_column), operator.attrgetter('row'))
+    return groupby(get_cells(p, min_row, min_column, max_row, max_column),
+                   operator.attrgetter('row'))
 
-def get_cells(p, min_row, min_col, max_row, max_col, _re_coordinate=RE_COORDINATE):
+def get_cells(p, min_row, min_col, max_row, max_col,
+              _re_coordinate=RE_COORDINATE):
 
     for _event, element in p:
 
@@ -172,14 +188,17 @@ def get_xml_source(archive_file, sheet_name):
 
 def get_missing_cells(row, columns):
 
-    return dict([(column, RawCell(row, column, '%s%s' % (column, row), MISSING_VALUE, TYPE_NULL, None, None)) for column in columns])
+    return dict([(column, RawCell(row, column, '%s%s' % (column, row),
+                                  MISSING_VALUE, TYPE_NULL, None, None)) for column in columns])
 
-def get_squared_range(p, min_col, min_row, max_col, max_row, string_table, style_table, shared_date):
+def get_squared_range(p, min_col, min_row, max_col, max_row, string_table,
+                      style_table, shared_date):
 
     expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
 
     current_row = min_row
-    for row, cells in get_rows(p, min_row=min_row, max_row=max_row, min_column=min_col, max_column=max_col):
+    for row, cells in get_rows(p, min_row=min_row, max_row=max_row,
+                               min_column=min_col, max_column=max_col):
         full_row = []
         if current_row < row:
 
@@ -292,7 +311,8 @@ class IterableWorksheet(Worksheet):
 
 def unpack_worksheet(archive, filename):
 
-    temp_file = tempfile.TemporaryFile(mode='rb+', prefix='openpyxl.', suffix='.unpack.temp')
+    temp_file = tempfile.TemporaryFile(mode='rb+', prefix='openpyxl.',
+                                       suffix='.unpack.temp')
 
     zinfo = archive.getinfo(filename)
 
