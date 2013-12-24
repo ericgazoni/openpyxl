@@ -323,31 +323,5 @@ def unpack_worksheet(archive, filename):
     else:
         raise zipfile.BadZipFile("Unrecognized compression method")
 
-    # this can probably be refactored now that Python 2.5 is no longer supported.
-    archive.fp.seek(_get_file_offset(archive, zinfo))
-    bytes_to_read = zinfo.compress_size
-
-    while True:
-        buff = archive.fp.read(min(bytes_to_read, 102400))
-        if not buff:
-            break
-        bytes_to_read -= len(buff)
-        if decoder:
-            buff = decoder.decompress(buff)
-        temp_file.write(buff)
-
+    temp_file.write(archive.read(filename))
     return temp_file
-
-def _get_file_offset(archive, zinfo):
-
-    try:
-        return zinfo.file_offset
-    except AttributeError:
-        # From http://stackoverflow.com/questions/3781261/how-to-simulate-zipfile-open-in-python-2-5
-
-        # Seek over the fixed size fields to the "file name length" field in
-        # the file header (26 bytes). Unpack this and the "extra field length"
-        # field ourselves as info.extra doesn't seem to be the correct length.
-        archive.fp.seek(zinfo.header_offset + 26)
-        file_name_len, extra_len = struct.unpack("<HH", archive.fp.read(4))
-        return zinfo.header_offset + 30 + file_name_len + extra_len
