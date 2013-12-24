@@ -313,15 +313,5 @@ def unpack_worksheet(archive, filename):
 
     temp_file = tempfile.TemporaryFile(mode='rb+', prefix='openpyxl.',
                                        suffix='.unpack.temp')
-
-    zinfo = archive.getinfo(filename)
-
-    if zinfo.compress_type == zipfile.ZIP_STORED:
-        decoder = None
-    elif zinfo.compress_type == zipfile.ZIP_DEFLATED:
-        decoder = zlib.decompressobj(-zlib.MAX_WBITS)
-    else:
-        raise zipfile.BadZipFile("Unrecognized compression method")
-
     temp_file.write(archive.read(filename))
     return temp_file
