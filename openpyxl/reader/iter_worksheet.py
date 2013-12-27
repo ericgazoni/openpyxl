@@ -103,31 +103,6 @@ class RawCell(BaseRawCell):
     def is_date(self):
         return is_date_format(self.number_format)
 
-def iter_rows(workbook_name, sheet_name, xml_source, shared_date,
-              string_table, range_string='', row_offset=0, column_offset=0):
-
-    archive = get_archive_file(workbook_name)
-
-    source = xml_source
-
-    if range_string:
-        min_col, min_row, max_col, max_row = get_range_boundaries(range_string, row_offset, column_offset)
-    else:
-        min_col, min_row, max_col, max_row = read_dimension(xml_source=source)
-        min_col = column_index_from_string(min_col)
-        max_col = column_index_from_string(max_col) + 1
-        max_row += 6
-
-    style_properties = read_style_table(archive.read(ARC_STYLE))
-    style_table = style_properties.pop('table')
-
-    source.seek(0)
-    p = iterparse(source)
-
-    return get_squared_range(p, min_col, min_row, max_col, max_row,
-                             string_table, style_table, shared_date)
-
-
 def get_rows(p, min_column=MIN_COLUMN, min_row=MIN_ROW,
              max_column=MAX_COLUMN, max_row=MAX_ROW):
 
@@ -284,15 +259,25 @@ class IterableWorksheet(Worksheet):
         :rtype: generator
 
         """
+        archive = get_archive_file(self._workbook_name)
 
-        return iter_rows(workbook_name=self._workbook_name,
-                         sheet_name=self._sheet_codename,
-                         xml_source=self._xml_source,
-                         range_string=range_string,
-                         row_offset=row_offset,
-                         column_offset=column_offset,
-                         shared_date=self._shared_date,
-                         string_table=self._string_table)
+        if range_string:
+            min_col, min_row, max_col, max_row = get_range_boundaries(range_string, row_offset, column_offset)
+        else:
+            min_col, min_row, max_col, max_row = read_dimension(xml_source=self._xml_source)
+            min_col = column_index_from_string(min_col)
+            max_col = column_index_from_string(max_col) + 1
+            max_row += 6
+
+        style_properties = read_style_table(archive.read(ARC_STYLE))
+        style_table = style_properties.pop('table')
+
+        self._xml_source.seek(0)
+        p = iterparse(self._xml_source)
+
+        return get_squared_range(p, min_col, min_row, max_col, max_row,
+                                 self._string_table, style_table, self._shared_date)
+
 
     def cell(self, *args, **kwargs):
         raise NotImplementedError("use 'iter_rows()' instead")
