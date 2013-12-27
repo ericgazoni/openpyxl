@@ -42,7 +42,7 @@ from openpyxl.style import NumberFormat, Border, Color, Fill, Font, HashableObje
 
 # test imports
 from zipfile import ZIP_DEFLATED, ZipFile
-from openpyxl.tests.helper import DATADIR, get_xml, compare_xml
+from openpyxl.tests.helper import DATADIR, get_xml, compare_xml, canon_repr
 
 
 class TestCreateStyle(object):
@@ -340,7 +340,7 @@ class TestStyleWriter(object):
         dxfId = self.worksheet.conditional_formatting.addDxfStyle(self.workbook, None, None, fill)
         assert dxfId == 1
         assert len(self.workbook.style_properties['dxf_list']) == 2
-        assert repr(self.workbook.style_properties['dxf_list'][0]) == "{'font': ['Arial':12:True:False:False:False:'single':False:'FF000000'], 'border': ['none':'FF000000':'none':'FF000000':'thin':'FF808000':'thin':'FF000000':'none':'FF000000':0:'none':'FF000000':'none':'FF000000':'none':'FF000000':'none':'FF000000':'none':'FF000000'], 'fill': ['solid':0:'FFEE1111':'FFEE1111']}"
+        assert canon_repr(self.workbook.style_properties['dxf_list'][0]) == "{'border': ['none':'FF000000':'none':'FF000000':'thin':'FF808000':'thin':'FF000000':'none':'FF000000':0:'none':'FF000000':'none':'FF000000':'none':'FF000000':'none':'FF000000':'none':'FF000000'], 'fill': ['solid':0:'FFEE1111':'FFEE1111'], 'font': ['Arial':12:True:False:False:False:'single':False:'FF000000']}"
         assert repr(self.workbook.style_properties['dxf_list'][1]) == "{'fill': ['solid':0:'FFEE1111':'FFEE1111']}"
 
     def test_conditional_formatting_setRules(self):
@@ -449,7 +449,7 @@ def compare_complex(a, b):
         if not isinstance(b, dict):
             return False
         else:
-            for k in a.iterkeys():
+            for k in a:
                 if isinstance(a[k], (list, dict)):
                     if not compare_complex(a[k], b[k]):
                         return False
@@ -650,7 +650,7 @@ def test_parse_dxfs():
     read_xml = archive.read(ARC_STYLE)
 
     # Verify length
-    assert '<dxfs count="164">' in read_xml
+    assert '<dxfs count="164">' in str(read_xml)
     assert len(wb.style_properties['dxf_list']) == 164
 
     # Verify first dxf style
@@ -658,7 +658,7 @@ def test_parse_dxfs():
     with open(reference_file) as expected:
         diff = compare_xml(read_xml, expected.read())
         assert diff is None, diff
-    assert repr(wb.style_properties['dxf_list'][0]) == "{'font': {'color': 'FF9C0006', 'bold': False, 'italic': False}, 'border': [], 'fill': [None:0:'FFFFFFFF':'FFFFC7CE']}"
+    assert canon_repr(wb.style_properties['dxf_list'][0]) == "{'border': [], 'fill': [None:0:'FFFFFFFF':'FFFFC7CE'], 'font': {'bold': False, 'color': 'FF9C0006', 'italic': False}}"
 
     # Verify that the dxf styles stay the same when they're written and read back in.
     w = StyleWriter(wb)

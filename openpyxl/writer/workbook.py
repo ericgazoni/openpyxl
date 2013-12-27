@@ -102,26 +102,26 @@ def write_content_types(workbook):
     chart_id = 1
 
     for sheet_id, sheet in enumerate(workbook.worksheets):
-    	name = '/xl/worksheets/sheet%d.xml' % (sheet_id + 1)
-	if name not in seen:
-		SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName': name,
+        name = '/xl/worksheets/sheet%d.xml' % (sheet_id + 1)
+        if name not in seen:
+            SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName': name,
                 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'})
         if sheet._charts or sheet._images:
-	    name = '/xl/drawings/drawing%d.xml' % drawing_id
-	    if name not in seen:
+            name = '/xl/drawings/drawing%d.xml' % drawing_id
+            if name not in seen:
                 SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName' : name,
                 'ContentType' : 'application/vnd.openxmlformats-officedocument.drawing+xml'})
             drawing_id += 1
 
             for chart in sheet._charts:
-		name = '/xl/charts/chart%d.xml' % chart_id
-		if name not in seen:
+                name = '/xl/charts/chart%d.xml' % chart_id
+                if name not in seen:
                     SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName' : name,
                     'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml'})
                 chart_id += 1
                 if chart._shapes:
-		    name = '/xl/drawings/drawing%d.xml' % drawing_id
-		    if name not in seen:
+                    name = '/xl/drawings/drawing%d.xml' % drawing_id
+                    if name not in seen:
                         SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName' : name,
                         'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml'})
                     drawing_id += 1
@@ -172,7 +172,7 @@ def write_root_rels(workbook):
             'Type': '%s/extended-properties' % REL_NS})
     if workbook.vba_archive is not None and ARC_CUSTOM_UI in workbook.vba_archive.namelist():
         SubElement(root, relation_tag, {'Id': 'rId4', 'Target': ARC_CUSTOM_UI,
-	    'Type': '%s/ui/extensibility' % REL_NS})
+            'Type': '%s/ui/extensibility' % REL_NS})
     return get_document_content(root)
 
 

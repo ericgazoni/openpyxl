@@ -80,11 +80,11 @@ def write_worksheet(worksheet, string_table, style_table):
             'xmlns:r': REL_NS})
     if vba_root is not None:
         el = vba_root.find('{%s}sheetPr' % SHEET_MAIN_NS)
-	if el is not None:
-		codename =el.get('codeName', worksheet.title)
-		start_tag(doc, 'sheetPr', {"codeName": codename})
-	else:
-		start_tag(doc, 'sheetPr')
+        if el is not None:
+                codename =el.get('codeName', worksheet.title)
+                start_tag(doc, 'sheetPr', {"codeName": codename})
+        else:
+                start_tag(doc, 'sheetPr')
     else:
         start_tag(doc, 'sheetPr')
     tag(doc, 'outlinePr',
@@ -104,7 +104,8 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_datavalidations(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
 
-    for range_string, rules in worksheet.conditional_formatting.cf_rules.items():
+    # sort items to get a predictable order for testing
+    for range_string, rules in sorted(worksheet.conditional_formatting.cf_rules.items()):
         if not len(rules):
             # Skip if there are no rules.  This is possible if a dataBar rule was read in and ignored.
             continue
@@ -177,10 +178,10 @@ def write_worksheet(worksheet, string_table, style_table):
         for t in ('{%s}legacyDrawing' % SHEET_MAIN_NS,
                   '{%s}controls' % SHEET_MAIN_NS):
             for elem in vba_root.findall(t):
-	        s = tostring(elem).decode("utf-8")
-		s = re.sub(r' xmlns[^ >]*', '', s)
-		s = re.sub(r's:', '', s)
-		xml_file.write(s)
+                s = tostring(elem).decode("utf-8")
+                s = re.sub(r' xmlns[^ >]*', '', s)
+                s = re.sub(r's:', '', s)
+                xml_file.write(s)
 #               xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem).decode("utf-8")))
 
     breaks = worksheet.page_breaks
@@ -235,7 +236,7 @@ def write_worksheet_cols(doc, worksheet, style_table):
     if worksheet.column_dimensions:
         start_tag(doc, 'cols')
         for column_string, columndimension in \
-                iteritems(worksheet.column_dimensions):
+                sorted(iteritems(worksheet.column_dimensions)):
             col_index = column_index_from_string(column_string)
             col_def = {'min': str(col_index), 'max': str(col_index)}
             if columndimension.width != -1:
