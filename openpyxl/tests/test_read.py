@@ -346,6 +346,10 @@ def test_guess_types():
 
 
 def test_get_xml_iter():
+    #1 file object
+    #2 stream (file-like)
+    #3 string
+    #4 zipfile
     from openpyxl.reader.worksheet import _get_xml_iter
     from tempfile import TemporaryFile
     FUT = _get_xml_iter
@@ -361,3 +365,11 @@ def test_get_xml_iter():
     stream = FUT(f)
     assert isinstance(stream, tempfile), type(stream)
     f.close()
+
+    from zipfile import ZipFile
+    t = TemporaryFile()
+    z = ZipFile(t, mode="w")
+    z.writestr("test", "whatever")
+    stream = FUT(z.open("test"))
+    assert hasattr(stream, "read")
+    z.close()

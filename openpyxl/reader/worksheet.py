@@ -44,13 +44,16 @@ from openpyxl.styles.formatting import ConditionalFormatting
 
 def _get_xml_iter(xml_source):
 
-    if not hasattr(xml_source, 'name'):
+    if not hasattr(xml_source, 'read'):
         if hasattr(xml_source, 'decode'):
             return BytesIO(xml_source)
         else:
             return BytesIO(xml_source.encode('utf-8'))
     else:
-        xml_source.seek(0)
+        try:
+            xml_source.seek(0)
+        except:
+            pass
         return xml_source
 
 
