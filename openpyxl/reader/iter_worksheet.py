@@ -166,60 +166,6 @@ def get_missing_cells(row, columns):
     return dict([(column, RawCell(row, column, '%s%s' % (column, row),
                                   MISSING_VALUE, TYPE_NULL, None, None)) for column in columns])
 
-def get_squared_range(p, min_col, min_row, max_col, max_row, string_table,
-                      style_table, shared_date):
-
-    expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
-
-    current_row = min_row
-    for row, cells in get_rows(p, min_row=min_row, max_row=max_row,
-                               min_column=min_col, max_column=max_col):
-        full_row = []
-        if current_row < row:
-
-            for gap_row in xrange(current_row, row):
-
-                dummy_cells = get_missing_cells(gap_row, expected_columns)
-
-                yield tuple([dummy_cells[column] for column in expected_columns])
-
-                current_row = row
-
-        temp_cells = list(cells)
-
-        retrieved_columns = dict([(c.column, c) for c in temp_cells])
-
-        missing_columns = list(set(expected_columns) - set(retrieved_columns.keys()))
-
-        replacement_columns = get_missing_cells(row, missing_columns)
-
-        for column in expected_columns:
-
-            if column in retrieved_columns:
-                cell = retrieved_columns[column]
-
-                if cell.style_id is not None:
-                    style = style_table[int(cell.style_id)]
-                    cell = cell._replace(number_format=style.number_format.format_code) #pylint: disable-msg=W0212
-                if cell.internal_value is not None:
-                    if cell.data_type in Cell.TYPE_STRING:
-                        cell = cell._replace(internal_value=unicode(string_table[int(cell.internal_value)])) #pylint: disable-msg=W0212
-                    elif cell.data_type == Cell.TYPE_BOOL:
-                        cell = cell._replace(internal_value=cell.internal_value == '1')
-                    elif cell.is_date:
-                        cell = cell._replace(internal_value=shared_date.from_julian(float(cell.internal_value)))
-                    elif cell.data_type == Cell.TYPE_NUMERIC:
-                        cell = cell._replace(internal_value=float(cell.internal_value))
-                    elif cell.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
-                        cell = cell._replace(internal_value=unicode(cell.internal_value))
-                full_row.append(cell)
-
-            else:
-                full_row.append(replacement_columns[column])
-
-        current_row = row + 1
-
-        yield tuple(full_row)
 
 #------------------------------------------------------------------------------
 
@@ -275,9 +221,50 @@ class IterableWorksheet(Worksheet):
         self._xml_source.seek(0)
         p = iterparse(self._xml_source)
 
-        return get_squared_range(p, min_col, min_row, max_col, max_row,
-                                 self._string_table, style_table, self._shared_date)
+        return self.get_squared_range(p, min_col, min_row, max_col, max_row,
+                                      style_table)
 
+    def get_squared_range(self, p, min_col, min_row, max_col, max_row,
+                          style_table):
+        expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
+        current_row = min_row
+        for row, cells in get_rows(p, min_row=min_row, max_row=max_row,
+                                   min_column=min_col, max_column=max_col):
+            full_row = []
+            if current_row < row:
+
+                for gap_row in xrange(current_row, row):
+                    dummy_cells = get_missing_cells(gap_row, expected_columns)
+                    yield tuple([dummy_cells[column] for column in expected_columns])
+                    current_row = row
+
+            temp_cells = list(cells)
+            retrieved_columns = dict([(c.column, c) for c in temp_cells])
+            missing_columns = list(set(expected_columns) - set(retrieved_columns.keys()))
+            replacement_columns = get_missing_cells(row, missing_columns)
+
+            for column in expected_columns:
+                if column in retrieved_columns:
+                    cell = retrieved_columns[column]
+                    if cell.style_id is not None:
+                        style = style_table[int(cell.style_id)]
+                        cell = cell._replace(number_format=style.number_format.format_code) #pylint: disable-msg=W0212
+                    if cell.internal_value is not None:
+                        if cell.data_type in Cell.TYPE_STRING:
+                            cell = cell._replace(internal_value=unicode(self._string_table[int(cell.internal_value)])) #pylint: disable-msg=W0212
+                        elif cell.data_type == Cell.TYPE_BOOL:
+                            cell = cell._replace(internal_value=cell.internal_value == '1')
+                        elif cell.is_date:
+                            cell = cell._replace(internal_value=self._shared_date.from_julian(float(cell.internal_value)))
+                        elif cell.data_type == Cell.TYPE_NUMERIC:
+                            cell = cell._replace(internal_value=float(cell.internal_value))
+                        elif cell.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
+                            cell = cell._replace(internal_value=unicode(cell.internal_value))
+                    full_row.append(cell)
+                else:
+                    full_row.append(replacement_columns[column])
+            current_row = row + 1
+            yield tuple(full_row)
 
     def cell(self, *args, **kwargs):
         raise NotImplementedError("use 'iter_rows()' instead")
