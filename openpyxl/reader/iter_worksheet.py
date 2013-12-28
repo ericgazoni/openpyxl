@@ -227,7 +227,6 @@ class IterableWorksheet(Worksheet):
         style_properties = read_style_table(self.archive.read(ARC_STYLE))
         style_table = style_properties.pop('table')
 
-        #self._xml_source.seek(0)
         p = iterparse(self.xml_source)
 
         return self.get_squared_range(p, min_col, min_row, max_col, max_row,
@@ -289,10 +288,3 @@ class IterableWorksheet(Worksheet):
 
     def get_highest_row(self):
         return self._max_row
-
-def unpack_worksheet(archive, filename):
-
-    temp_file = tempfile.TemporaryFile(mode='rb+', prefix='openpyxl.',
-                                       suffix='.unpack.temp')
-    temp_file.write(archive.read(filename))
-    return temp_file
