@@ -85,3 +85,13 @@ def compare_xml(generated, expected):
     if check is False:
         diff = checker.output_difference(ob, expected, PARSE_XML)
         return diff
+
+
+def canon_repr(el):
+    """Return a canonical repr string of el that has dictionary keys in sorted order"""
+    if isinstance(el, dict):
+        return '{' + ', '.join(["%s: %s" % (repr(k), canon_repr(el[k])) for k in sorted(el.keys())]) + '}'
+    elif isinstance(el, list):
+        return '[' + ', '.join([canon_repr(x) for x in el]) + ']'
+    else:
+        return repr(el)
