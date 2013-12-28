@@ -190,10 +190,16 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
             continue
 
         if not use_iterators:
-            new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table, style_properties['color_index'], keep_vba=keep_vba)
+            new_ws = read_worksheet(archive.read(worksheet_path), wb,
+                                    sheet_name, string_table, style_table,
+                                    color_index=style_properties['color_index'],
+                                    keep_vba=keep_vba)
         else:
-            xml_source = unpack_worksheet(archive, worksheet_path)
-            new_ws = read_worksheet(xml_source, wb, sheet_name, string_table, style_table, style_properties['color_index'], filename, sheet_codename)
+            new_ws = read_worksheet(None, wb, sheet_name, string_table,
+                                    style_table,
+                                    color_index=style_properties['color_index'],
+                                    workbook_name=filename,
+                                    sheet_codename=sheet_codename)
         wb.add_sheet(new_ws, index=i)
 
         # load comments into the worksheet cells

@@ -175,12 +175,12 @@ class IterableWorksheet(Worksheet):
             sheet_codename, xml_source, string_table):
 
         Worksheet.__init__(self, parent_workbook, title)
+        self.archive = zipfile.ZipFile(workbook_name, 'r')
         self._workbook_name = workbook_name
         self._sheet_codename = sheet_codename
-        self._xml_source = xml_source
         self._string_table = string_table
 
-        min_col, min_row, max_col, max_row = read_dimension(xml_source=xml_source)
+        min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
 
         self._max_row = max_row
         self._max_column = max_col
@@ -188,6 +188,15 @@ class IterableWorksheet(Worksheet):
 
         self._shared_date = SharedDate(base_date=parent_workbook.excel_base_date)
 
+    @property
+    def xml_source(self):
+        worksheet_path = '%s/%s' % (PACKAGE_WORKSHEETS, self._sheet_codename)
+        return self.archive.open(worksheet_path)
+
+    @xml_source.setter
+    def xml_source(self, value):
+        """Base class is always supplied XML source, IteratableWorksheet obtains it on demand."""
+        pass
 
     def iter_rows(self, range_string='', row_offset=0, column_offset=0):
         """ Returns a squared range based on the `range_string` parameter,
@@ -205,21 +214,21 @@ class IterableWorksheet(Worksheet):
         :rtype: generator
 
         """
-        archive = get_archive_file(self._workbook_name)
+        #archive = get_archive_file(self._workbook_name)
 
         if range_string:
             min_col, min_row, max_col, max_row = get_range_boundaries(range_string, row_offset, column_offset)
         else:
-            min_col, min_row, max_col, max_row = read_dimension(xml_source=self._xml_source)
+            min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
             min_col = column_index_from_string(min_col)
             max_col = column_index_from_string(max_col) + 1
             max_row += 6
 
-        style_properties = read_style_table(archive.read(ARC_STYLE))
+        style_properties = read_style_table(self.archive.read(ARC_STYLE))
         style_table = style_properties.pop('table')
 
-        self._xml_source.seek(0)
-        p = iterparse(self._xml_source)
+        #self._xml_source.seek(0)
+        p = iterparse(self.xml_source)
 
         return self.get_squared_range(p, min_col, min_row, max_col, max_row,
                                       style_table)
