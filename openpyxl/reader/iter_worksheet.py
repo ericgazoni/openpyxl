@@ -220,25 +220,21 @@ class IterableWorksheet(Worksheet):
         if range_string:
             min_col, min_row, max_col, max_row = get_range_boundaries(range_string, row_offset, column_offset)
         else:
-            #min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
             min_col = column_index_from_string(self._min_col)
             max_col = column_index_from_string(self._max_col) + 1
             min_row = self._min_row
             max_row = self._max_row + 6
 
-        style_properties = read_style_table(self.archive.read(ARC_STYLE))
-        style_table = style_properties.pop('table')
+        return self.get_squared_range(min_col, min_row, max_col, max_row)
 
-        p = iterparse(self.xml_source)
-
-        return self.get_squared_range(p, min_col, min_row, max_col, max_row,
-                                      style_table)
-
-    def get_squared_range(self, p, min_col, min_row, max_col, max_row,
-                          style_table):
+    def get_squared_range(self, min_col, min_row, max_col, max_row):
         p = iterparse(self.xml_source)
         expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
         current_row = min_row
+
+        style_properties = read_style_table(self.archive.read(ARC_STYLE))
+        style_table = style_properties.pop('table')
+
         for row, cells in get_rows(p, min_row=min_row, max_row=max_row,
                                    min_column=min_col, max_column=max_col):
             full_row = []
