@@ -103,36 +103,6 @@ class RawCell(BaseRawCell):
     def is_date(self):
         return is_date_format(self.number_format)
 
-def get_rows(p, min_column=MIN_COLUMN, min_row=MIN_ROW,
-             max_column=MAX_COLUMN, max_row=MAX_ROW):
-
-    return groupby(get_cells(p, min_row, min_column, max_row, max_column),
-                   operator.attrgetter('row'))
-
-def get_cells(p, min_row, min_col, max_row, max_col,
-              _re_coordinate=RE_COORDINATE):
-
-    for _event, element in p:
-
-        if element.tag == '{%s}c' % SHEET_MAIN_NS:
-            coord = element.get('r')
-            column_str, row = _re_coordinate.match(coord).groups()
-
-            row = int(row)
-            column = column_index_from_string(column_str)
-
-            if min_col <= column <= max_col and min_row <= row <= max_row:
-                data_type = element.get('t', 'n')
-                style_id = element.get('s')
-                formula = element.findtext('{%s}f' % SHEET_MAIN_NS)
-                value = element.findtext('{%s}v' % SHEET_MAIN_NS)
-                if formula is not None:
-                    data_type = Cell.TYPE_FORMULA
-                    value = "=" + formula
-                yield RawCell(row, column_str, coord, value, data_type, style_id, None)
-
-            element.clear()
-
 def get_range_boundaries(range_string, row=0, column=0):
 
     if ':' in range_string:
@@ -228,14 +198,13 @@ class IterableWorksheet(Worksheet):
         return self.get_squared_range(min_col, min_row, max_col, max_row)
 
     def get_squared_range(self, min_col, min_row, max_col, max_row):
-        p = iterparse(self.xml_source)
         expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
         current_row = min_row
 
         style_properties = read_style_table(self.archive.read(ARC_STYLE))
         style_table = style_properties.pop('table')
 
-        for row, cells in get_rows(p, min_row=min_row, max_row=max_row,
+        for row, cells in self.get_rows(min_row=min_row, max_row=max_row,
                                    min_column=min_col, max_column=max_col):
             full_row = []
             if current_row < row:
@@ -272,6 +241,39 @@ class IterableWorksheet(Worksheet):
                     full_row.append(replacement_columns[column])
             current_row = row + 1
             yield tuple(full_row)
+
+
+    def get_rows(self, min_column=MIN_COLUMN, min_row=MIN_ROW,
+                 max_column=MAX_COLUMN, max_row=MAX_ROW):
+
+        return groupby(self.get_cells(min_row, min_column, max_row, max_column),
+                       operator.attrgetter('row'))
+
+    def get_cells(self, min_row, min_col, max_row, max_col,
+                  _re_coordinate=RE_COORDINATE):
+        p = iterparse(self.xml_source)
+
+        for _event, element in p:
+
+            if element.tag == '{%s}c' % SHEET_MAIN_NS:
+                coord = element.get('r')
+                column_str, row = _re_coordinate.match(coord).groups()
+
+                row = int(row)
+                column = column_index_from_string(column_str)
+
+                if min_col <= column <= max_col and min_row <= row <= max_row:
+                    data_type = element.get('t', 'n')
+                    style_id = element.get('s')
+                    formula = element.findtext('{%s}f' % SHEET_MAIN_NS)
+                    value = element.findtext('{%s}v' % SHEET_MAIN_NS)
+                    if formula is not None:
+                        data_type = Cell.TYPE_FORMULA
+                        value = "=" + formula
+                    yield RawCell(row, column_str, coord, value, data_type, style_id, None)
+
+                #element.clear()
+
 
     def cell(self, *args, **kwargs):
         raise NotImplementedError("use 'iter_rows()' instead")
