@@ -123,13 +123,6 @@ def get_range_boundaries(range_string, row=0, column=0):
 
     return (min_col, min_row, max_col, max_row)
 
-def get_archive_file(archive_name):
-
-    return zipfile.ZipFile(archive_name, 'r')
-
-def get_xml_source(archive_file, sheet_name):
-
-    return archive_file.read('%s/%s' % (PACKAGE_WORKSHEETS, sheet_name))
 
 def get_missing_cells(row, columns):
 
@@ -185,8 +178,6 @@ class IterableWorksheet(Worksheet):
         :rtype: generator
 
         """
-        #archive = get_archive_file(self._workbook_name)
-
         if range_string:
             min_col, min_row, max_col, max_row = get_range_boundaries(range_string, row_offset, column_offset)
         else:
