@@ -50,7 +50,8 @@ from openpyxl.shared.ooxml import (
     CONTYPES_NS,
     PKG_REL_NS,
     REL_NS,
-    ARC_CUSTOM_UI
+    ARC_CUSTOM_UI,
+    ARC_CONTENT_TYPES
 )
 from openpyxl.shared.xmltools import get_document_content, fromstring
 from openpyxl.shared.date_time import datetime_to_W3CDTF
