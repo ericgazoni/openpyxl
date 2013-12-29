@@ -181,9 +181,10 @@ class IterableWorksheet(Worksheet):
         self._string_table = string_table
 
         min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
-
+        self._min_col = min_col
+        self._min_row = min_row
         self._max_row = max_row
-        self._max_column = max_col
+        self._max_col = max_col
         self._dimensions = '%s%s:%s%s' % (min_col, min_row, max_col, max_row)
 
         self._shared_date = SharedDate(base_date=parent_workbook.excel_base_date)
@@ -219,10 +220,11 @@ class IterableWorksheet(Worksheet):
         if range_string:
             min_col, min_row, max_col, max_row = get_range_boundaries(range_string, row_offset, column_offset)
         else:
-            min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
-            min_col = column_index_from_string(min_col)
-            max_col = column_index_from_string(max_col) + 1
-            max_row += 6
+            #min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
+            min_col = column_index_from_string(self._min_col)
+            max_col = column_index_from_string(self._max_col) + 1
+            min_row = self._min_row
+            max_row = self._max_row + 6
 
         style_properties = read_style_table(self.archive.read(ARC_STYLE))
         style_table = style_properties.pop('table')
@@ -234,6 +236,7 @@ class IterableWorksheet(Worksheet):
 
     def get_squared_range(self, p, min_col, min_row, max_col, max_row,
                           style_table):
+        p = iterparse(self.xml_source)
         expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
         current_row = min_row
         for row, cells in get_rows(p, min_row=min_row, max_row=max_row,
@@ -284,7 +287,7 @@ class IterableWorksheet(Worksheet):
         return self._dimensions
 
     def get_highest_column(self):
-        return column_index_from_string(self._max_column)
+        return column_index_from_string(self._max_col)
 
     def get_highest_row(self):
         return self._max_row
