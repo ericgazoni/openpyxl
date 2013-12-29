@@ -258,13 +258,10 @@ class IterableWorksheet(Worksheet):
                     style_id = element.get('s')
                     formula = element.findtext('{%s}f' % SHEET_MAIN_NS)
                     value = element.findtext('{%s}v' % SHEET_MAIN_NS)
-                    if formula is not None:
+                    if formula is not None and not self.parent.data_only:
                         data_type = Cell.TYPE_FORMULA
                         value = "=" + formula
                     yield RawCell(row, column_str, coord, value, data_type, style_id, None)
-
-                #element.clear()
-
 
     def cell(self, *args, **kwargs):
         raise NotImplementedError("use 'iter_rows()' instead")
