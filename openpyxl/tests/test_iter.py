@@ -23,13 +23,15 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-from nose.tools import eq_, raises, assert_raises
+import datetime
 import os.path
+
+import pytest
+
 from openpyxl.tests.helper import DATADIR
 from openpyxl.reader.iter_worksheet import get_range_boundaries
 from openpyxl.reader.excel import load_workbook
 from openpyxl.shared.compat import xrange
-import datetime
 
 class TestWorksheet(object):
 
@@ -38,6 +40,7 @@ class TestWorksheet(object):
     def _open_wb(self):
         return load_workbook(filename = self.workbook_name, use_iterators = True)
 
+
 class TestDims(TestWorksheet):
     expected = [ 'A1:G5', 'D1:AA30', 'D2:D2', 'A1:C1' ]
     def test_get_dimensions(self):
@@ -45,12 +48,12 @@ class TestDims(TestWorksheet):
         for i, sheetn in enumerate(wb.get_sheet_names()):
             ws = wb.get_sheet_by_name(name = sheetn)
 
-            eq_(ws._dimensions, self.expected[i])
+            assert ws._dimensions == self.expected[i]
 
     def test_get_highest_column_iter(self):
         wb = self._open_wb()
         ws = wb.worksheets[0]
-        eq_(ws.get_highest_column(), 7)
+        assert ws.get_highest_column() == 7
 
 class TestText(TestWorksheet):
     sheet_name = 'Sheet1 - Text'
@@ -70,24 +73,24 @@ class TestText(TestWorksheet):
 
             row_values = [x.internal_value for x in row]
 
-            eq_(row_values, expected_row)
+            assert row_values == expected_row
 
 
     def test_get_boundaries_range(self):
 
-        eq_(get_range_boundaries('C1:C4'), (3, 1, 3, 4))
+        assert get_range_boundaries('C1:C4') == (3, 1, 3, 4)
 
     def test_get_boundaries_one(self):
 
 
-        eq_(get_range_boundaries('C1'), (3, 1, 4, 1))
+        assert get_range_boundaries('C1') == (3, 1, 4, 1)
 
     def test_read_single_cell_range(self):
 
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
 
-        eq_('This is cell A1 in Sheet 1', list(ws.iter_rows('A1'))[0][0].internal_value)
+        'This is cell A1 in Sheet 1' == list(ws.iter_rows('A1'))[0][0].internal_value
 
 class TestIntegers(TestWorksheet):
 
@@ -106,7 +109,7 @@ class TestIntegers(TestWorksheet):
 
             row_values = [x.internal_value for x in row]
 
-            eq_(row_values, expected_row)
+            assert row_values == expected_row
 
 class TestFloats(TestWorksheet):
 
@@ -119,7 +122,7 @@ class TestFloats(TestWorksheet):
         ws = wb.get_sheet_by_name(name = self.sheet_name)
         for row, expected_row in zip(ws.iter_rows(self.query_range), self.expected):
             row_values = [x.internal_value for x in row]
-            eq_(row_values, expected_row)
+            assert row_values == expected_row
 
 
 class TestDates(TestWorksheet):
@@ -131,8 +134,5 @@ class TestDates(TestWorksheet):
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
 
-        eq_(datetime.datetime(1973, 5, 20), list(ws.iter_rows('A1'))[0][0].internal_value)
-        eq_(datetime.datetime(1973, 5, 20, 9, 15, 2), list(ws.iter_rows('C1'))[0][0].internal_value)
-
-
-
+        assert datetime.datetime(1973, 5, 20) == list(ws.iter_rows('A1'))[0][0].internal_value
+        assert datetime.datetime(1973, 5, 20, 9, 15, 2), list(ws.iter_rows('C1'))[0][0].internal_value
