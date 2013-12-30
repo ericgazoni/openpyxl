@@ -19,5 +19,3 @@ syntax: glob
 .git
 travis.yml
 cover
-env2
-env3

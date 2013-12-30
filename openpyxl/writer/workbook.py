@@ -195,6 +195,8 @@ def write_root_rels(workbook):
     SubElement(root, relation_tag, {'Id': 'rId3', 'Target': ARC_APP,
             'Type': '%s/extended-properties' % REL_NS})
     if workbook.vba_archive is not None and ARC_CUSTOM_UI in workbook.vba_archive.namelist():
+	# The id rId4 is used by excel in an example and appears to work in
+	# practice. It looks likely that these root_rels ids are not used.
         SubElement(root, relation_tag, {'Id': 'rId4', 'Target': ARC_CUSTOM_UI,
             'Type': '%s/ui/extensibility' % REL_NS})
     return get_document_content(root)
