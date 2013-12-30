@@ -66,9 +66,9 @@ class TestDims(TestWorksheet):
         ws = wb.get_sheet_by_name(sheetname)
         assert ws.get_highest_column() == col
 
+
 class TestText(TestWorksheet):
     sheet_name = 'Sheet1 - Text'
-
     expected = [['This is cell A1 in Sheet 1', None, None, None, None, None, None],
                 [None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None],
@@ -76,50 +76,34 @@ class TestText(TestWorksheet):
                 [None, None, None, None, None, None, 'This is cell G5'], ]
 
     def test_read_fast_integrated(self):
-
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-
         for row, expected_row in zip(ws.iter_rows(), self.expected):
-
             row_values = [x.internal_value for x in row]
-
             assert row_values == expected_row
 
-
     def test_get_boundaries_range(self):
-
         assert get_range_boundaries('C1:C4') == (3, 1, 3, 4)
 
     def test_get_boundaries_one(self):
-
-
         assert get_range_boundaries('C1') == (3, 1, 4, 1)
 
     def test_read_single_cell_range(self):
-
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-
-        'This is cell A1 in Sheet 1' == list(ws.iter_rows('A1'))[0][0].internal_value
+        assert 'This is cell A1 in Sheet 1' == list(ws.iter_rows('A1'))[0][0].internal_value
 
 class TestIntegers(TestWorksheet):
 
     sheet_name = 'Sheet2 - Numbers'
-
     expected = [[x + 1] for x in xrange(30)]
-
     query_range = 'D1:E30'
 
     def test_read_fast_integrated(self):
-
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-
         for row, expected_row in zip(ws.iter_rows(self.query_range), self.expected):
-
             row_values = [x.internal_value for x in row]
-
             assert row_values == expected_row
 
 class TestFloats(TestWorksheet):
@@ -141,9 +125,7 @@ class TestDates(TestWorksheet):
     sheet_name = 'Sheet4 - Dates'
 
     def test_read_single_cell_date(self):
-
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-
         assert datetime.datetime(1973, 5, 20) == list(ws.iter_rows('A1'))[0][0].internal_value
         assert datetime.datetime(1973, 5, 20, 9, 15, 2), list(ws.iter_rows('C1'))[0][0].internal_value
