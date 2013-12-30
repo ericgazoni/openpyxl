@@ -54,10 +54,17 @@ class TestDims(TestWorksheet):
         ws = wb.get_sheet_by_name(sheetname)
         assert ws.calculate_dimension() == dims
 
-    def test_get_highest_column_iter(self):
+    expected = [
+        ("Sheet1 - Text", 7),
+        ("Sheet2 - Numbers", 27),
+        ("Sheet3 - Formulas", 4),
+        ("Sheet4 - Dates", 3)
+                 ]
+    @pytest.mark.parametrize("sheetname, col", expected)
+    def test_get_highest_column_iter(self, sheetname, col):
         wb = self._open_wb()
-        ws = wb.worksheets[0]
-        assert ws.get_highest_column() == 7
+        ws = wb.get_sheet_by_name(sheetname)
+        assert ws.get_highest_column() == col
 
 class TestText(TestWorksheet):
     sheet_name = 'Sheet1 - Text'
