@@ -37,8 +37,10 @@ class TestWorksheet(object):
 
     workbook_name = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
 
-    def _open_wb(self):
-        return load_workbook(filename = self.workbook_name, use_iterators = True)
+    def _open_wb(self, data_only=False):
+        return load_workbook(filename=self.workbook_name,
+                             use_iterators=True,
+                             data_only=data_only)
 
 
 class TestDims(TestWorksheet):
@@ -81,7 +83,6 @@ class TestText(TestWorksheet):
                 [None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, 'This is cell G5'], ]
-
     def test_read_fast_integrated(self):
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
@@ -107,6 +108,7 @@ class TestIntegers(TestWorksheet):
             row_values = [x.internal_value for x in row]
             assert row_values == expected_row
 
+
 class TestFloats(TestWorksheet):
 
     sheet_name = 'Sheet2 - Numbers'
@@ -130,3 +132,18 @@ class TestDates(TestWorksheet):
         ws = wb.get_sheet_by_name(name = self.sheet_name)
         assert datetime.datetime(1973, 5, 20) == list(ws.iter_rows('A1'))[0][0].internal_value
         assert datetime.datetime(1973, 5, 20, 9, 15, 2), list(ws.iter_rows('C1'))[0][0].internal_value
+
+
+class TestFormula(TestWorksheet):
+
+    @pytest.mark.parametrize("data_only, expected", (
+        (True, 5),
+        (False, "='Sheet2 - Numbers'!D5")
+        ))
+    def test_read_single_cell_formula(self, data_only, expected):
+        wb = self._open_wb(data_only)
+        ws = wb.get_sheet_by_name("Sheet3 - Formulas")
+        rows = ws.iter_rows("D2")
+        cell = list(rows)[0][0]
+        assert ws.parent.data_only == data_only
+        assert cell.internal_value == expected
