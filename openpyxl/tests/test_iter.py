@@ -67,6 +67,13 @@ class TestDims(TestWorksheet):
         assert ws.get_highest_column() == col
 
 
+def test_get_boundaries_range():
+    assert get_range_boundaries('C1:C4') == (3, 1, 3, 4)
+
+def test_get_boundaries_one():
+    assert get_range_boundaries('C1') == (3, 1, 4, 1)
+
+
 class TestText(TestWorksheet):
     sheet_name = 'Sheet1 - Text'
     expected = [['This is cell A1 in Sheet 1', None, None, None, None, None, None],
@@ -81,12 +88,6 @@ class TestText(TestWorksheet):
         for row, expected_row in zip(ws.iter_rows(), self.expected):
             row_values = [x.internal_value for x in row]
             assert row_values == expected_row
-
-    def test_get_boundaries_range(self):
-        assert get_range_boundaries('C1:C4') == (3, 1, 3, 4)
-
-    def test_get_boundaries_one(self):
-        assert get_range_boundaries('C1') == (3, 1, 4, 1)
 
     def test_read_single_cell_range(self):
         wb = self._open_wb()
