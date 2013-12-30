@@ -127,19 +127,27 @@ class TestDates(TestWorksheet):
 
     sheet_name = 'Sheet4 - Dates'
 
-    def test_read_single_cell_date(self):
+    @pytest.mark.parametrize("cell, value",
+        [
+        ("A1", datetime.datetime(1973, 5, 20)),
+        ("C1", datetime.datetime(1973, 5, 20, 9, 15, 2))
+        ]
+        )
+    def test_read_single_cell_date(self, cell, value):
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-        assert datetime.datetime(1973, 5, 20) == list(ws.iter_rows('A1'))[0][0].internal_value
-        assert datetime.datetime(1973, 5, 20, 9, 15, 2), list(ws.iter_rows('C1'))[0][0].internal_value
-
+        rows = ws.iter_rows(cell)
+        cell = list(rows)[0][0]
+        assert cell.internal_value == value
 
 class TestFormula(TestWorksheet):
 
-    @pytest.mark.parametrize("data_only, expected", (
+    @pytest.mark.parametrize("data_only, expected",
+        [
         (True, 5),
         (False, "='Sheet2 - Numbers'!D5")
-        ))
+        ]
+        )
     def test_read_single_cell_formula(self, data_only, expected):
         wb = self._open_wb(data_only)
         ws = wb.get_sheet_by_name("Sheet3 - Formulas")
