@@ -111,7 +111,7 @@ class Workbook(object):
         view = root.find('*/' '{%s}workbookView' % SHEET_MAIN_NS)
 
         if 'activeTab' in view.attrib:
-            self._active_sheet_index = int(view.attrib['activeTab'])
+            self.active = int(view.attrib['activeTab'])
 
     @property
     def _local_data(self):
@@ -126,7 +126,17 @@ class Workbook(object):
 
     def get_active_sheet(self):
         """Returns the current active sheet."""
+        return self.active
+
+    @property
+    def active(self):
+        """Get the currently active sheet"""
         return self.worksheets[self._active_sheet_index]
+
+    @active.setter
+    def active(self, value):
+        """Set the active sheet"""
+        self._active_sheet_index = value
 
     def create_sheet(self, index=None, title=None):
         """Create a worksheet (at an optional index).
