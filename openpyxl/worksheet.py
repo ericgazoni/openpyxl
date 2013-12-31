@@ -757,9 +757,10 @@ class Worksheet(object):
     def set_printer_settings(self, paper_size, orientation):
         """Set printer settings """
 
-        self.paper_size = paper_size
-        assert orientation in (self.ORIENTATION_PORTRAIT, self.ORIENTATION_LANDSCAPE), "Values should be %s or %s" % (self.ORIENTATION_PORTRAIT, self.ORIENTATION_LANDSCAPE)
-        self.orientation = orientation
+        self.page_setup.paperSize = paper_size
+        if orientation not in (self.ORIENTATION_PORTRAIT, self.ORIENTATION_LANDSCAPE),:
+            raise ValueError("Values should be %s or %s" % (self.ORIENTATION_PORTRAIT, self.ORIENTATION_LANDSCAPE))
+        self.page_setup.orientation = orientation
 
     def create_relationship(self, rel_type):
         """Add a relationship for this sheet."""
