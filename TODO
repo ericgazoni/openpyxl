@@ -7,7 +7,7 @@ Roadmap for next version
 
 [x] allow lxml as backend
 
-[X] Always use qualified namespaces
+[x] Always use qualified namespaces
 
 [x] Merge chart improvements
 
@@ -23,7 +23,7 @@ Roadmap for next version
 
 [ ] No longer infer data types when reading files? -> 1.9
 
-[ ] Use data_only to get only the values from formulae
+[x] Use data_only to get only the values from formulae
 
 [ ] Support cells with formulae in charts -> 1.9 / 2.0
 
