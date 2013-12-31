@@ -36,7 +36,6 @@ from openpyxl.shared.ooxml import (
     ARC_THEME,
     ARC_STYLE,
     ARC_SHARED_STRINGS,
-    ARC_CONTENT_TYPES,
     COREPROPS_NS,
     VTYPES_NS,
     XPROPS_NS,
@@ -48,7 +47,11 @@ from openpyxl.shared.ooxml import (
     SHEET_MAIN_NS,
     CONTYPES_NS,
     PKG_REL_NS,
-    REL_NS
+    CUSTOMUI_NS,
+    REL_NS,
+    ARC_CUSTOM_UI,
+    ARC_CONTENT_TYPES,
+    ARC_ROOT_RELS
 )
 from openpyxl.shared.xmltools import get_document_content, fromstring
 from openpyxl.shared.date_time import datetime_to_W3CDTF
@@ -118,23 +121,27 @@ def write_content_types(workbook):
     comments_id = 1
 
     for sheet_id, sheet in enumerate(workbook.worksheets):
-        SubElement(root, '{%s}Override' % CONTYPES_NS,
-                {'PartName': '/xl/worksheets/sheet%d.xml' % (sheet_id + 1),
+        name = '/xl/worksheets/sheet%d.xml' % (sheet_id + 1)
+        if name not in seen:
+            SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName': name,
                 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'})
         if sheet._charts or sheet._images:
-            SubElement(root, '{%s}Override' % CONTYPES_NS,
-                {'PartName' : '/xl/drawings/drawing%d.xml' % drawing_id,
+            name = '/xl/drawings/drawing%d.xml' % drawing_id
+            if name not in seen:
+                SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName' : name,
                 'ContentType' : 'application/vnd.openxmlformats-officedocument.drawing+xml'})
             drawing_id += 1
 
             for chart in sheet._charts:
-                SubElement(root, '{%s}Override' % CONTYPES_NS,
-                    {'PartName' : '/xl/charts/chart%d.xml' % chart_id,
+                name = '/xl/charts/chart%d.xml' % chart_id
+                if name not in seen:
+                    SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName' : name,
                     'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml'})
                 chart_id += 1
                 if chart._shapes:
-                    SubElement(root, '{%s}Override' % CONTYPES_NS,
-                        {'PartName' : '/xl/drawings/drawing%d.xml' % drawing_id,
+                    name = '/xl/drawings/drawing%d.xml' % drawing_id
+                    if name not in seen:
+                        SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName' : name,
                         'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml'})
                     drawing_id += 1
         if sheet._comment_count > 0:
@@ -187,6 +194,18 @@ def write_root_rels(workbook):
             'Type': '%s/metadata/core-properties' % PKG_REL_NS})
     SubElement(root, relation_tag, {'Id': 'rId3', 'Target': ARC_APP,
             'Type': '%s/extended-properties' % REL_NS})
+    if workbook.vba_archive is not None:
+        # See if there was a customUI relation and reuse its id
+        arc = fromstring(workbook.vba_archive.read(ARC_ROOT_RELS))
+        rels = arc.findall(relation_tag)
+        rId = None
+        for rel in rels:
+                if rel.get('Target') == ARC_CUSTOM_UI:
+                        rId = rel.get('Id')
+                        break
+        if rId is not None:
+            SubElement(root, relation_tag, {'Id': rId, 'Target': ARC_CUSTOM_UI,
+                'Type': '%s' % CUSTOMUI_NS})
     return get_document_content(root)
 
 

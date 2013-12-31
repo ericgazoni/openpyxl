@@ -78,8 +78,12 @@ def write_worksheet(worksheet, string_table, style_table):
             {'xmlns': SHEET_MAIN_NS,
             'xmlns:r': REL_NS})
     if vba_root is not None:
-        codename = vba_root.find('{%s}sheetPr' % SHEET_MAIN_NS).get('codeName', worksheet.title)
-        start_tag(doc, 'sheetPr', {"codeName": codename})
+        el = vba_root.find('{%s}sheetPr' % SHEET_MAIN_NS)
+        if el is not None:
+                codename =el.get('codeName', worksheet.title)
+                start_tag(doc, 'sheetPr', {"codeName": codename})
+        else:
+                start_tag(doc, 'sheetPr')
     else:
         start_tag(doc, 'sheetPr')
     tag(doc, 'outlinePr',
@@ -99,6 +103,7 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_datavalidations(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
     write_worksheet_conditional_formatting(doc, worksheet)
+
 
     options = worksheet.page_setup.options
     if options:
@@ -123,14 +128,13 @@ def write_worksheet(worksheet, string_table, style_table):
     if worksheet._charts or worksheet._images:
         tag(doc, 'drawing', {'r:id':'rId1'})
 
-    # if the sheet has an xml_source field then the workbook must have
-    # been loaded with keep-vba true and we need to extract any control
-    # elements.
+    # If vba is being preserved then add a legacyDrawing element so
+    # that any controls can be drawn.
     if vba_root is not None:
-        for t in ('{%s}legacyDrawing' % SHEET_MAIN_NS,
-                  '{%s}controls' % SHEET_MAIN_NS):
-            for elem in vba_root.findall(t):
-                xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem).decode("utf-8")))
+        el = vba_root.find('{%s}legacyDrawing' % SHEET_MAIN_NS)
+        if el is not None:
+            rId = el.get('{%s}id' % REL_NS)
+            tag(doc, 'legacyDrawing', {'r:id': rId})
 
     breaks = worksheet.page_breaks
     if breaks:
@@ -188,7 +192,7 @@ def write_worksheet_cols(doc, worksheet, style_table):
     if worksheet.column_dimensions:
         start_tag(doc, 'cols')
         for column_string, columndimension in \
-                iteritems(worksheet.column_dimensions):
+                sorted(iteritems(worksheet.column_dimensions)):
             col_index = column_index_from_string(column_string)
             col_def = {'min': str(col_index), 'max': str(col_index)}
             if columndimension.width != -1:
