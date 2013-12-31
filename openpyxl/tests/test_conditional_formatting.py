@@ -1,5 +1,3 @@
-# file openpyxl/tests/test_conditional_formatting.py
-
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
