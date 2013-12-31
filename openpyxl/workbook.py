@@ -107,6 +107,8 @@ class Workbook(object):
     def read_workbook_settings(self, xml_source):
         root = fromstring(xml_source)
         view = root.find('*/' '{%s}workbookView' % SHEET_MAIN_NS)
+        if view is None:
+            return
 
         if 'activeTab' in view.attrib:
             self.active = int(view.attrib['activeTab'])
