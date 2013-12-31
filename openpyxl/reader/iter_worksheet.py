@@ -193,8 +193,9 @@ class IterableWorksheet(Worksheet):
         style_properties = read_style_table(self.archive.read(ARC_STYLE))
         style_table = style_properties.pop('table')
 
-        for row, cells in self.get_rows(min_row=min_row, max_row=max_row,
-                                   min_column=min_col, max_column=max_col):
+        for row, cells in groupby(self.get_cells(min_row, min_col,
+                                                 max_row, max_col),
+                                  operator.attrgetter('row')):
             full_row = []
             if current_row < row:
 
@@ -231,11 +232,6 @@ class IterableWorksheet(Worksheet):
             current_row = row + 1
             yield tuple(full_row)
 
-
-    def get_rows(self, min_column, min_row, max_column, max_row):
-
-        return groupby(self.get_cells(min_row, min_column, max_row, max_column),
-                       operator.attrgetter('row'))
 
     def get_cells(self, min_row, min_col, max_row, max_col):
         p = iterparse(self.xml_source)
