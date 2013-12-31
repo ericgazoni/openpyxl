@@ -1,6 +1,4 @@
-# file openpyxl/tests/test_write.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +24,14 @@
 # stdlib imports
 import decimal
 import os.path
+import zipfile
 
 # compatibility imports
 from openpyxl.shared.compat import BytesIO, StringIO
 
 # 3rd party imports
 from nose.tools import eq_, with_setup, raises
+import pytest
 
 # package imports
 from openpyxl.tests.helper import (
@@ -194,11 +194,26 @@ def test_write_hyperlink_rels():
     ws.cell('A2').value = "test"
     ws.cell('A2').hyperlink = "http://test2.com/"
     eq_(2, len(ws.relationships))
-    content = write_worksheet_rels(ws, 1)
+    content = write_worksheet_rels(ws, 1, 1)
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_hyperlink.xml.rels')
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
         assert diff is None, diff
+
+
+@pytest.mark.xfail
+@pytest.mark.pil_required
+def test_write_hyperlink_image_rels(Workbook, Image):
+    wb = Workbook()
+    ws = wb.create_sheet()
+    ws.cell('A1').value = "test"
+    ws.cell('A1').hyperlink = "http://test.com/"
+    img = os.path.join(DATADIR, "plain.png")
+    i = Image(img)
+    ws.add_image(i)
+    raise ValueError("Resulting file is invalid")
+    # TODO write integration test with duplicate relation ids then fix
+
 
 
 def test_hyperlink_value():
@@ -289,3 +304,24 @@ def test_short_number():
     with open(reference_file) as expected:
         diff = compare_xml(content, expected.read())
         assert diff is None, diff
+
+
+@pytest.mark.pil_required
+def test_write_images():
+    wb = Workbook()
+    ew = ExcelWriter(workbook=wb)
+    from openpyxl.drawing import Image
+    imagepath = os.path.join(DATADIR, "plain.png")
+    img = Image(imagepath)
+
+    buf = BytesIO()
+
+    archive = zipfile.ZipFile(buf, 'w')
+    ew._write_images([img], archive, 1)
+    archive.close()
+
+    buf.seek(0)
+    archive = zipfile.ZipFile(buf, 'r')
+    zipinfo = archive.infolist()
+    assert len(zipinfo) == 1
+    assert zipinfo[0].filename == 'xl/media/image1.png'

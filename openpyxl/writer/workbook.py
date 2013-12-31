@@ -1,6 +1,4 @@
-# file openpyxl/writer/workbook.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,10 +30,29 @@ from openpyxl.shared.xmltools import Element, SubElement
 from openpyxl.cell import absolute_coordinate
 from openpyxl.shared.xmltools import get_document_content
 from openpyxl.shared.ooxml import (
-    ARC_CORE, ARC_WORKBOOK, ARC_APP, ARC_THEME, ARC_STYLE, ARC_SHARED_STRINGS,
-    ARC_CONTENT_TYPES, ARC_CUSTOM_UI,
-    COREPROPS_NS, VTYPES_NS, XPROPS_NS, DCORE_NS, DCTERMS_NS, DCTERMS_PREFIX,
-    XSI_NS, XML_NS, SHEET_MAIN_NS, CONTYPES_NS, PKG_REL_NS, REL_NS)
+    ARC_CORE,
+    ARC_WORKBOOK,
+    ARC_APP,
+    ARC_THEME,
+    ARC_STYLE,
+    ARC_SHARED_STRINGS,
+    COREPROPS_NS,
+    VTYPES_NS,
+    XPROPS_NS,
+    DCORE_NS,
+    DCTERMS_NS,
+    DCTERMS_PREFIX,
+    XSI_NS,
+    XML_NS,
+    SHEET_MAIN_NS,
+    CONTYPES_NS,
+    PKG_REL_NS,
+    CUSTOMUI_NS,
+    REL_NS,
+    ARC_CUSTOM_UI,
+    ARC_CONTENT_TYPES,
+    ARC_ROOT_RELS
+)
 from openpyxl.shared.xmltools import get_document_content, fromstring
 from openpyxl.shared.date_time import datetime_to_W3CDTF
 from openpyxl.namedrange import NamedRange, NamedRangeContainingValue
@@ -67,6 +84,7 @@ static_content_types_config = [
     ('Default', 'rels', 'application/vnd.openxmlformats-package.relationships+xml'),
     ('Default', 'xml', 'application/xml'),
     ('Default', 'png', 'image/png'),
+    ('Default', 'vml', 'application/vnd.openxmlformats-officedocument.vmlDrawing'),
 
     ('Override', ARC_WORKBOOK,
      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'),
@@ -100,6 +118,7 @@ def write_content_types(workbook):
 
     drawing_id = 1
     chart_id = 1
+    comments_id = 1
 
     for sheet_id, sheet in enumerate(workbook.worksheets):
         name = '/xl/worksheets/sheet%d.xml' % (sheet_id + 1)
@@ -125,6 +144,11 @@ def write_content_types(workbook):
                         SubElement(root, '{%s}Override' % CONTYPES_NS, {'PartName' : name,
                         'ContentType' : 'application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml'})
                     drawing_id += 1
+        if sheet._comment_count > 0:
+            SubElement(root, '{%s}Override' % CONTYPES_NS,
+                {'PartName': '/xl/comments%d.xml' % comments_id,
+                 'ContentType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml'})
+            comments_id += 1
 
     return get_document_content(root)
 
@@ -170,15 +194,24 @@ def write_root_rels(workbook):
             'Type': '%s/metadata/core-properties' % PKG_REL_NS})
     SubElement(root, relation_tag, {'Id': 'rId3', 'Target': ARC_APP,
             'Type': '%s/extended-properties' % REL_NS})
-    if workbook.vba_archive is not None and ARC_CUSTOM_UI in workbook.vba_archive.namelist():
-        SubElement(root, relation_tag, {'Id': 'rId4', 'Target': ARC_CUSTOM_UI,
-            'Type': '%s/ui/extensibility' % REL_NS})
+    if workbook.vba_archive is not None:
+        # See if there was a customUI relation and reuse its id
+        arc = fromstring(workbook.vba_archive.read(ARC_ROOT_RELS))
+        rels = arc.findall(relation_tag)
+        rId = None
+        for rel in rels:
+                if rel.get('Target') == ARC_CUSTOM_UI:
+                        rId = rel.get('Id')
+                        break
+        if rId is not None:
+            SubElement(root, relation_tag, {'Id': rId, 'Target': ARC_CUSTOM_UI,
+                'Type': '%s' % CUSTOMUI_NS})
     return get_document_content(root)
 
 
 def write_workbook(workbook):
     """Write the core workbook xml."""
-    root = Element('{%s}workbook' % SHEET_MAIN_NS, {'{%s}space' % XML_NS: 'preserve'})
+    root = Element('{%s}workbook' % SHEET_MAIN_NS)
     SubElement(root, '{%s}fileVersion' % SHEET_MAIN_NS,
                {'appName': 'xl', 'lastEdited': '4', 'lowestEdited': '4', 'rupBuild': '4505'})
     SubElement(root, '{%s}workbookPr' % SHEET_MAIN_NS,

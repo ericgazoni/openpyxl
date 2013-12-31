@@ -1,6 +1,4 @@
-# file openpyxl/tests/helper.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -81,24 +79,7 @@ def compare_xml(generated, expected):
     ob = DummyDocTest()
     ob.want = generated
 
-    check = checker.check_output(generated, expected, PARSE_XML)
+    check = checker.check_output(expected, generated, PARSE_XML)
     if check is False:
         diff = checker.output_difference(ob, expected, PARSE_XML)
         return diff
-
-
-def safe_iterator(node):
-    """Return an iterator that is compatible with Python 2.6"""
-    if hasattr(node, "iter"):
-        return node.iter()
-    else:
-        return node.getiterator()
-
-def canon_repr(el):
-    """Return a canonical repr string of el that has dictionary keys in sorted order"""
-    if isinstance(el, dict):
-        return '{' + ', '.join(["%s: %s" % (repr(k), canon_repr(el[k])) for k in sorted(el.keys())]) + '}'
-    elif isinstance(el, list):
-        return '[' + ', '.join([canon_repr(x) for x in el]) + ']'
-    else:
-        return repr(el)

@@ -1,6 +1,4 @@
-# file openpyxl/workbook.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -79,7 +77,8 @@ class Workbook(object):
     def __init__(self, optimized_write=False, encoding='utf-8',
                  worksheet_class=Worksheet,
                  optimized_worksheet_class=DumpWorksheet,
-                 guess_types=True):
+                 guess_types=True,
+                 data_only=False):
         self.worksheets = []
         self._active_sheet_index = 0
         self._named_ranges = []
@@ -96,6 +95,9 @@ class Workbook(object):
         self.vba_archive = None
         self.style_properties = None
         self._guess_types = guess_types
+        self.data_only = data_only
+        self.relationships = []
+        self.drawings = []
 
         self.encoding = encoding
 
@@ -105,9 +107,11 @@ class Workbook(object):
     def read_workbook_settings(self, xml_source):
         root = fromstring(xml_source)
         view = root.find('*/' '{%s}workbookView' % SHEET_MAIN_NS)
+        if view is None:
+            return
 
         if 'activeTab' in view.attrib:
-            self._active_sheet_index = int(view.attrib['activeTab'])
+            self.active = int(view.attrib['activeTab'])
 
     @property
     def _local_data(self):
@@ -122,7 +126,17 @@ class Workbook(object):
 
     def get_active_sheet(self):
         """Returns the current active sheet."""
+        return self.active
+
+    @property
+    def active(self):
+        """Get the currently active sheet"""
         return self.worksheets[self._active_sheet_index]
+
+    @active.setter
+    def active(self, value):
+        """Set the active sheet"""
+        self._active_sheet_index = value
 
     def create_sheet(self, index=None, title=None):
         """Create a worksheet (at an optional index).
@@ -150,12 +164,13 @@ class Workbook(object):
 
     def add_sheet(self, worksheet, index=None):
         """Add an existing worksheet (at an optional index)."""
-
-        assert isinstance(worksheet, self._worksheet_class), "The parameter you have given is not of the type '%s'" % self._worksheet_class.__name__
+        if not isinstance(worksheet, self._worksheet_class):
+            raise TypeError("The parameter you have given is not of the type '%s'" % self._worksheet_class.__name__)
 
         if index is None:
-            index = len(self.worksheets)
-        self.worksheets.insert(index, worksheet)
+            self.worksheets.append(worksheet)
+        else:
+            self.worksheets.insert(index, worksheet)
 
     def remove_sheet(self, worksheet):
         """Remove a worksheet from this workbook."""
@@ -177,9 +192,25 @@ class Workbook(object):
                 break
         return requested_sheet
 
+    def __contains__(self, key):
+        return self.get_sheet_by_name(key) and True or False
+
     def get_index(self, worksheet):
         """Return the index of the worksheet."""
         return self.worksheets.index(worksheet)
+
+    def __getitem__(self, key):
+        sheet = self.get_sheet_by_name(key)
+        if sheet is None:
+            raise KeyError("Worksheet {0} does not exist.".format(key))
+        return sheet
+
+    def __delitem__(self, key):
+        sheet = self[key]
+        self.remove_sheet(sheet)
+
+    def __iter__(self):
+        return iter(self.worksheets)
 
     def get_sheet_names(self):
         """Returns the list of the names of worksheets in the workbook.
@@ -193,7 +224,8 @@ class Workbook(object):
 
     def create_named_range(self, name, worksheet, range, scope=None):
         """Create a new named_range on a worksheet"""
-        assert isinstance(worksheet, self._worksheet_class)
+        if not isinstance(worksheet, self._worksheet_class):
+            raise TypeError("Worksheet is not of the right type")
         named_range = NamedRange(name, [(worksheet, range)], scope)
         self.add_named_range(named_range)
 

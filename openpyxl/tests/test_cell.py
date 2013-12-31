@@ -1,6 +1,4 @@
-# file openpyxl/tests/test_cell.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +26,7 @@ from datetime import time, datetime, timedelta
 
 # 3rd party imports
 from nose.tools import eq_, raises, assert_raises #pylint: disable=E0611
+import pytest
 
 # package imports
 from openpyxl.worksheet import Worksheet
@@ -37,6 +36,7 @@ from openpyxl.shared.exc import ColumnStringIndexException, \
 from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
 from openpyxl.cell import column_index_from_string, \
         coordinate_from_string, get_column_letter, Cell, absolute_coordinate
+from openpyxl.comments import Comment
 
 import decimal
 
@@ -73,35 +73,41 @@ def test_absolute_multiple():
 
     eq_('$ZF$51:$ZF$53', absolute_coordinate('ZF51:ZF$53'))
 
-
-def test_column_index():
-    eq_(10, column_index_from_string('J'))
-    eq_(270, column_index_from_string('jJ'))
-    eq_(7030, column_index_from_string('jjj'))
-
-
-def test_bad_column_index():
-
-    @raises(ColumnStringIndexException)
-    def _check(bad_string):
-        column_index_from_string(bad_string)
-
-    bad_strings = ('JJJJ', '', '$', '1',)
-    for bad_string in bad_strings:
-        yield _check, bad_string
+@pytest.mark.parametrize("column, idx",
+                         [
+                         ('j', 10),
+                         ('Jj', 270),
+                         ('JJj', 7030)
+                         ]
+                         )
+def test_column_index(column, idx):
+    assert column_index_from_string(column) == idx
 
 
-def test_column_letter_boundries():
-    assert_raises(ColumnStringIndexException, get_column_letter, 0)
-    assert_raises(ColumnStringIndexException, get_column_letter, 18279)
+@pytest.mark.parametrize("column",
+                         ('JJJJ', '', '$', '1',)
+                         )
+def test_bad_column_index(column):
+    with pytest.raises(ValueError):
+        column_index_from_string(column)
 
 
-def test_column_letter():
-    eq_('ZZZ', get_column_letter(18278))
-    eq_('JJJ', get_column_letter(7030))
-    eq_('AB', get_column_letter(28))
-    eq_('AA', get_column_letter(27))
-    eq_('Z', get_column_letter(26))
+@pytest.mark.parametrize("value", (0, 18729))
+def test_column_letter_boundries(value):
+    with pytest.raises(ValueError):
+        get_column_letter(value)
+
+@pytest.mark.parametrize("value, expected",
+                         [
+                        (18278, "ZZZ"),
+                        (7030, "JJJ"),
+                        (28, "AB"),
+                        (27, "AA"),
+                        (26, "Z")
+                         ]
+                         )
+def test_column_letter(value, expected):
+    assert get_column_letter(value) == expected
 
 
 def test_initial_value():
@@ -246,7 +252,7 @@ def test_is_date():
     eq_(cell.is_date(), True)
     cell.value = 'testme'
     eq_('testme', cell.value)
-    eq_(cell.is_date(), False)
+    assert cell.is_date() is False
 
 def test_is_not_date_color_format():
 
@@ -257,4 +263,32 @@ def test_is_not_date_color_format():
     cell.value = -13.5
     cell.style.number_format.format_code = '0.00_);[Red]\(0.00\)'
 
-    eq_(cell.is_date(), False)
+    assert cell.is_date() is False
+
+def test_comment_count():
+    wb = Workbook()
+    ws = Worksheet(wb)
+    cell = ws.cell(coordinate="A1")
+    assert ws._comment_count == 0
+    cell.comment = Comment("text", "author")
+    assert ws._comment_count == 1
+    cell.comment = Comment("text", "author")
+    assert ws._comment_count == 1
+    cell.comment = None
+    assert ws._comment_count == 0
+    cell.comment = None
+    assert ws._comment_count == 0
+
+def test_comment_assignment():
+    wb = Workbook()
+    ws = Worksheet(wb)
+    c = Comment("text", "author")
+    ws.cell(coordinate="A1").comment = c
+    with pytest.raises(AttributeError):
+        ws.cell(coordinate="A2").commment = c
+    ws.cell(coordinate="A2").comment = Comment("text2", "author2")
+    with pytest.raises(AttributeError):
+        ws.cell(coordinate="A1").comment = ws.cell(coordinate="A2").comment
+    # this should orphan c, so that assigning it to A2 does not raise AttributeError
+    ws.cell(coordinate="A1").comment = None
+    ws.cell(coordinate="A2").comment = c

@@ -1,6 +1,4 @@
-# file openpyxl/tests/test_read.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +27,7 @@ from datetime import datetime, date
 
 # 3rd party imports
 from nose.tools import eq_, raises
+import pytest
 
 # compatibility imports
 from openpyxl.shared.compat import BytesIO, StringIO, unicode, file, tempfile
@@ -52,9 +51,13 @@ def test_read_standalone_worksheet():
 
         excel_base_date = CALENDAR_WINDOWS_1900
         _guess_types = True
+        data_only = False
 
         def get_sheet_by_name(self, value):
             return None
+
+        def get_sheet_names(self):
+            return []
 
     path = os.path.join(DATADIR, 'reader', 'sheet2.xml')
     ws = None
@@ -107,25 +110,20 @@ def test_read_empty_archive():
     null_file = os.path.join(DATADIR, 'reader', 'null_archive.xlsx')
     wb = load_workbook(null_file)
 
-def test_read_dimension():
-
-    path = os.path.join(DATADIR, 'reader', 'sheet2.xml')
-
+@pytest.mark.parametrize("filename", ["sheet2.xml", "sheet2_no_dimension.xml"])
+def test_read_dimension(filename):
+    path = os.path.join(DATADIR, 'reader', filename)
     dimension = None
-    handle = open(path)
-    try:
-        dimension = read_dimension(xml_source=handle.read())
-    finally:
-        handle.close()
-
-    eq_(('D', 1, 'K', 30), dimension)
+    with open(path) as handle:
+        dimension = read_dimension(handle.read())
+    assert dimension == ('D', 1, 'AA', 30)
 
 def test_calculate_dimension_iter():
     path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
     wb = load_workbook(filename=path, use_iterators=True)
     sheet2 = wb.get_sheet_by_name('Sheet2 - Numbers')
     dimensions = sheet2.calculate_dimension()
-    eq_('%s%s:%s%s' % ('D', 1, 'K', 30), dimensions)
+    eq_('%s%s:%s%s' % ('D', 1, 'AA', 30), dimensions)
 
 def test_get_highest_row_iter():
     path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
@@ -300,6 +298,18 @@ def test_read_complex_formulae():
     assert ws.cell('C11').data_type != 'f'
 
 
+def test_data_only():
+    null_file = os.path.join(DATADIR, 'reader', 'formulae.xlsx')
+    wb = load_workbook(null_file, data_only=True)
+    ws = wb.get_active_sheet()
+    ws.parent.data_only = True
+    # Test cells returning values only, not formulae
+    assert ws.formula_attributes == {}
+    assert ws.cell('A2').data_type == 'n' and ws.cell('A2').value == 12345
+    assert ws.cell('A3').data_type == 'n' and ws.cell('A3').value == 12345
+    assert ws.cell('A4').data_type == 'n' and ws.cell('A4').value == 24690
+    assert ws.cell('A5').data_type == 'n' and ws.cell('A5').value == 49380
+
 
 def test_read_contains_chartsheet():
     """
@@ -334,6 +344,10 @@ def test_guess_types():
 
 
 def test_get_xml_iter():
+    #1 file object
+    #2 stream (file-like)
+    #3 string
+    #4 zipfile
     from openpyxl.reader.worksheet import _get_xml_iter
     from tempfile import TemporaryFile
     FUT = _get_xml_iter
@@ -349,3 +363,11 @@ def test_get_xml_iter():
     stream = FUT(f)
     assert isinstance(stream, tempfile), type(stream)
     f.close()
+
+    from zipfile import ZipFile
+    t = TemporaryFile()
+    z = ZipFile(t, mode="w")
+    z.writestr("test", "whatever")
+    stream = FUT(z.open("test"))
+    assert hasattr(stream, "read")
+    z.close()

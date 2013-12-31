@@ -9,9 +9,9 @@ Basic Font Colors
     from openpyxl.style import Color
 
     wb = Workbook()
-    ws = wb.worksheets[0]
-    ws.cell('A1').value = 'This is red'
-    ws.cell('A1').style.font.color.index = Color.RED
+    ws = wb.active
+    ws['A1'] = 'This is red'
+    ws['A1'].style.font.color.index = Color.RED
 
 
 Edit Print Settings
@@ -21,7 +21,7 @@ Edit Print Settings
     from openpyxl.workbook import Workbook
 
     wb = Workbook()
-    ws = wb.worksheets[0]
+    ws = wb.active
 
     ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
     ws.page_setup.paperSize = ws.PAPERSIZE_TABLOID
@@ -39,7 +39,7 @@ Merge / Unmerge cells
     from openpyxl.workbook import Workbook
 
     wb = Workbook()
-    ws = wb.worksheets[0]
+    ws = wb.active
 
     ws.merge_cells('A1:B1')
     ws.unmerge_cells('A1:B1')
@@ -77,7 +77,7 @@ There are many types of conditional formatting - below are some examples for set
     from openpyxl import Workbook
     from openpyxl.style import Color, Fill
     wb = Workbook()
-    ws = wb.get_active_sheet()
+    ws = wb.active
 
     # Create fill
     redFill = Fill()

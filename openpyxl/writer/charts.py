@@ -1,5 +1,5 @@
 # coding=UTF-8
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,40 +22,52 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-from numbers import Number
 
-from openpyxl.shared.xmltools import Element, SubElement, get_document_content
-from openpyxl.shared.ooxml import CHART_NS, DRAWING_NS, REL_NS, PKG_REL_NS
-from openpyxl.shared.compat import iteritems, basestring
-from openpyxl.chart import Chart, ErrorBar, BarChart, LineChart, PieChart, ScatterChart, GraphChart
+from openpyxl.shared.xmltools import (
+    Element,
+    SubElement,
+    get_document_content
+    )
+from openpyxl.shared.ooxml import (
+    CHART_NS,
+    DRAWING_NS,
+    REL_NS,
+    PKG_REL_NS
+    )
+from openpyxl.shared.compat import (
+    iteritems,
+    safe_string
+    )
+from openpyxl.chart import (
+    Chart,
+    ErrorBar,
+    BarChart,
+    LineChart,
+    PieChart,
+    ScatterChart,
+    GraphChart
+    )
 
-
-def safe_string(value):
-    """Safely and consistently format numeric values"""
-    if isinstance(value, Number):
-        value = "%.15g" % value
-    elif not isinstance(value, basestring):
-        value = str(value)
-    return value
 
 class BaseChartWriter(object):
 
+    series_type = '{%s}val' % CHART_NS
+
     def __init__(self, chart):
         self.chart = chart
+        self.root = Element("{%s}chartSpace" % CHART_NS)
 
     def write(self):
         """ write a chart """
-        root = Element("{%s}chartSpace" % CHART_NS)
+        SubElement(self.root, '{%s}lang' % CHART_NS, {'val':self.chart.lang})
+        self._write_chart()
+        self._write_print_settings()
+        self._write_shapes()
 
-        SubElement(root, '{%s}lang' % CHART_NS, {'val':self.chart.lang})
-        self._write_chart(root)
-        self._write_print_settings(root)
-        self._write_shapes(root)
+        return get_document_content(self.root)
 
-        return get_document_content(root)
-
-    def _write_chart(self, root):
-        ch = SubElement(root, '{%s}chart' % CHART_NS)
+    def _write_chart(self):
+        ch = SubElement(self.root, '{%s}chart' % CHART_NS)
         self._write_title(ch)
         self._write_layout(ch)
         self._write_legend(ch)
@@ -120,13 +132,16 @@ class BaseChartWriter(object):
 
     def _write_axis(self, plot_area, axis, label):
 
-        self.chart.compute_axes()
+        if self.chart.auto_axis:
+            self.chart.compute_axes()
 
         ax = SubElement(plot_area, label)
         SubElement(ax, '{%s}axId' % CHART_NS, {'val':safe_string(axis.id)})
 
         scaling = SubElement(ax, '{%s}scaling' % CHART_NS)
         SubElement(scaling, '{%s}orientation' % CHART_NS, {'val':axis.orientation})
+        if axis.delete_axis:
+            SubElement(scaling, '{%s}' % CHART_NS, {'val':'1'})
         if axis.type == "valAx":
             SubElement(scaling, '{%s}max' % CHART_NS, {'val':str(float(axis.max))})
             SubElement(scaling, '{%s}min' % CHART_NS, {'val':str(float(axis.min))})
@@ -151,45 +166,45 @@ class BaseChartWriter(object):
 
     def _write_series(self, subchart):
 
-        for i, serie in enumerate(self.chart._series):
+        for i, serie in enumerate(self.chart):
             ser = SubElement(subchart, '{%s}ser' % CHART_NS)
             SubElement(ser, '{%s}idx' % CHART_NS, {'val':safe_string(i)})
             SubElement(ser, '{%s}order' % CHART_NS, {'val':safe_string(i)})
 
-            if serie.legend:
+            if serie.title:
                 tx = SubElement(ser, '{%s}tx' % CHART_NS)
-                self._write_serial(tx, serie.legend)
+                SubElement(tx, '{%s}v' % CHART_NS).text = serie.title
 
             if serie.color:
                 sppr = SubElement(ser, '{%s}spPr' % CHART_NS)
-                if self.chart.TYPE == "barChart":
-                    # fill color
-                    fillc = SubElement(sppr, '{%s}solidFill' % DRAWING_NS)
-                    SubElement(fillc, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
-                # edge color
-                ln = SubElement(sppr, '{%s}ln' % DRAWING_NS)
-                fill = SubElement(ln, '{%s}solidFill' % DRAWING_NS)
-                SubElement(fill, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
+                self._write_series_color(sppr, serie)
 
             if serie.error_bar:
                 self._write_error_bar(ser, serie)
 
             if serie.labels:
-                cat = SubElement(ser, '{%s}cat' % CHART_NS)
-                self._write_serial(cat, serie.labels)
+                self._write_series_labels(ser, serie)
 
-            if self.chart.TYPE == "scatterChart":
-                if serie.xvalues:
-                    xval = SubElement(ser, '{%s}xVal' % CHART_NS)
-                    self._write_serial(xval, serie.xreference)
+            if serie.xvalues:
+                self._write_series_xvalues(ser, serie)
 
-                val = SubElement(ser, '{%s}yVal' % CHART_NS)
-            else:
-                val = SubElement(ser, '{%s}val' % CHART_NS)
+            val = SubElement(ser, self.series_type)
             self._write_serial(val, serie.reference)
 
-    def _write_serial(self, node, reference, literal=False):
+    def _write_series_color(self, node, serie):
+        # edge color
+        ln = SubElement(node, '{%s}ln' % DRAWING_NS)
+        fill = SubElement(ln, '{%s}solidFill' % DRAWING_NS)
+        SubElement(fill, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
 
+    def _write_series_labels(self, node, serie):
+        cat = SubElement(node, '{%s}cat' % CHART_NS)
+        self._write_serial(cat, serie.labels)
+
+    def _write_series_xvalues(self, node, serie):
+        raise NotImplemented("""x values not possible for this chart type""")
+
+    def _write_serial(self, node, reference, literal=False):
         is_ref = hasattr(reference, 'pos1')
         data_type = reference.data_type
         number_format = getattr(reference, 'number_format')
@@ -212,8 +227,7 @@ class BaseChartWriter(object):
         SubElement(data, '{%s}ptCount' % CHART_NS, {'val':str(len(values))})
         for j, val in enumerate(values):
             point = SubElement(data, '{%s}pt' % CHART_NS, {'idx':str(j)})
-            if not isinstance(val, basestring):
-                val = safe_string(val)
+            val = safe_string(val)
             SubElement(point, '{%s}v' % CHART_NS).text = val
 
     def _write_error_bar(self, node, serie):
@@ -243,25 +257,18 @@ class BaseChartWriter(object):
             SubElement(legend, '{%s}legendPos' % CHART_NS, {'val':self.chart.legend.position})
             SubElement(legend, '{%s}layout' % CHART_NS)
 
-    def _write_print_settings(self, root):
+    def _write_print_settings(self):
 
-        settings = SubElement(root, '{%s}printSettings' % CHART_NS)
+        settings = SubElement(self.root, '{%s}printSettings' % CHART_NS)
         SubElement(settings, '{%s}headerFooter' % CHART_NS)
-        try:
-            # Python 2
-            print_margins_items = iteritems(self.chart.print_margins)
-        except AttributeError:
-            # Python 3
-            print_margins_items = self.chart.print_margins.items()
-
-        margins = dict([(k, safe_string(v)) for (k, v) in print_margins_items])
+        margins = dict([(k, safe_string(v)) for (k, v) in iteritems(self.chart.print_margins)])
         SubElement(settings, '{%s}pageMargins' % CHART_NS, margins)
         SubElement(settings, '{%s}pageSetup' % CHART_NS)
 
-    def _write_shapes(self, root):
+    def _write_shapes(self):
 
-        if self.chart._shapes:
-            SubElement(root, '{%s}userShapes' % CHART_NS, {'{%s}id' % REL_NS:'rId1'})
+        if self.chart.shapes:
+            SubElement(self.root, '{%s}userShapes' % CHART_NS, {'{%s}id' % REL_NS:'rId1'})
 
     def write_rels(self, drawing_id):
         root = Element("{%s}Relationships" % PKG_REL_NS)
@@ -295,11 +302,25 @@ class BarChartWriter(LineChartWriter):
         SubElement(subchart, '{%s}barDir' % CHART_NS, {'val':'col'})
         SubElement(subchart, '{%s}grouping' % CHART_NS, {'val':self.chart.GROUPING})
 
+    def _write_series_color(self, node, serie):
+        # fill color
+        fillc = SubElement(node, '{%s}solidFill' % DRAWING_NS)
+        SubElement(fillc, '{%s}srgbClr' % DRAWING_NS, {'val':serie.color})
+        super(BarChartWriter, self)._write_series_color(node, serie)
+
 
 class ScatterChartWriter(LineChartWriter):
 
+    series_type = '{%s}yVal' % CHART_NS
+
     def _write_options(self, subchart):
-        SubElement(subchart, '{%s}scatterStyle' % CHART_NS, {'val':'lineMarker'})
+        SubElement(subchart, '{%s}scatterStyle' % CHART_NS,
+                   {'val':'lineMarker'})
+
+    def _write_series_xvalues(self, node, serie):
+        if serie.xvalues:
+            xval = SubElement(node, '{%s}xVal' % CHART_NS)
+            self._write_serial(xval, serie.xreference)
 
 
 class ChartWriter(object):

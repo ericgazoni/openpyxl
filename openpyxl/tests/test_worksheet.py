@@ -1,6 +1,4 @@
-# file openpyxl/tests/test_worksheet.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +23,14 @@
 
 # 3rd party imports
 from nose.tools import eq_, raises, assert_raises
+import pytest
 
 # package imports
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet, Relationship, flatten
 from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.cell import Cell, coordinate_from_string
+from openpyxl.comments import Comment
 from openpyxl.shared.exc import CellCoordinatesException, \
         SheetTitleException, InsufficientCoordinatesException, \
         NamedRangeException
@@ -59,6 +59,12 @@ class TestWorksheet(object):
     @raises(SheetTitleException)
     def test_set_bad_title(self):
         Worksheet(self.wb, 'X' * 50)
+
+    def test_increment_title(self):
+        ws1 = self.wb.create_sheet(title="Test")
+        assert ws1.title == "Test"
+        ws2 = self.wb.create_sheet(title="Test")
+        assert ws2.title == "Test1"
 
     def test_set_bad_title_character(self):
         assert_raises(SheetTitleException, Worksheet, self.wb, '[')
@@ -138,8 +144,9 @@ class TestWorksheet(object):
         ws.cell('A1').value = ''
         ws.cell('B2').value = '0'
         ws.cell('C4').value = 0
+        ws.cell('D1').comment = Comment('Comment', 'Comment')
         ws.garbage_collect()
-        eq_(set(ws.get_cell_collection()), set([ws.cell('B2'), ws.cell('C4')]))
+        eq_(set(ws.get_cell_collection()), set([ws.cell('B2'), ws.cell('C4'), ws.cell('D1')]))
 
     def test_hyperlink_relationships(self):
         ws = Worksheet(self.wb)
@@ -200,9 +207,12 @@ class TestWorksheet(object):
         ws.append(['This is A2', 'This is B2'])
 
         vals = ws.range('A1:B2')
-
-        eq_((('This is A1', 'This is B1'),
-             ('This is A2', 'This is B2'),), flatten(vals))
+        expected = (
+            ('This is A1', 'This is B1'),
+            ('This is A2', 'This is B2'),
+        )
+        for e, v in zip(expected, flatten(vals)):
+            assert e == tuple(v)
 
     def test_rows(self):
 
@@ -345,6 +355,24 @@ class TestWorksheet(object):
         assert "<oddHeader>" not in xml_string
         assert "<oddFooter>" not in xml_string
 
+    def test_getitem(self):
+        ws = Worksheet(self.wb)
+        c = ws['A1']
+        assert isinstance(c, Cell)
+        assert c.get_coordinate() == "A1"
+        assert ws['A1'].value is None
+
+    def test_setitem(self):
+        ws = Worksheet(self.wb)
+        ws['A12'] = 5
+        assert ws['A12'].value == 5
+
+    def test_getslice(self):
+        ws = Worksheet(self.wb)
+        cell_range = ws['A1':'B2']
+        assert isinstance(cell_range, tuple)
+        assert (cell_range) == ((ws['A1'], ws['B1']), (ws['A2'], ws['B2']))
+
 
 class TestPositioning(object):
     def test_point(self):
@@ -359,3 +387,24 @@ class TestPositioning(object):
             eq_(ws.point_pos(*ws.cell(address).anchor),
                 coordinate_from_string(address))
 
+
+@pytest.fixture
+def PageSetup():
+    from openpyxl.worksheet import PageSetup
+    return PageSetup
+
+
+@pytest.mark.xfail
+def test_page_setup(PageSetup):
+    p = PageSetup()
+    assert p.setup == {}
+    p.scale = 1
+    assert p.setup['scale'] == 1
+
+
+def test_page_options(PageSetup):
+    p = PageSetup()
+    assert p.options == {}
+    p.horizontalCentered = True
+    p.verticalCentered = True
+    assert p.options == {'verticalCentered': '1', 'horizontalCentered': '1'}

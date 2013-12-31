@@ -1,6 +1,4 @@
-# file openpyxl/shared/ooxml.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +37,7 @@ PACKAGE_WORKSHEETS = PACKAGE_XL + '/' + 'worksheets'
 PACKAGE_DRAWINGS = PACKAGE_XL + '/' + 'drawings'
 PACKAGE_CHARTS = PACKAGE_XL + '/' + 'charts'
 PACKAGE_IMAGES = PACKAGE_XL + '/' + 'media'
+PACKAGE_WORKSHEET_RELS = PACKAGE_WORKSHEETS + '/' + '_rels'
 
 ARC_CONTENT_TYPES = '[Content_Types].xml'
 ARC_ROOT_RELS = PACKAGE_RELS + '/.rels'
@@ -55,6 +54,8 @@ ARC_VBA = ('xl/vba', 'xl/activeX', 'xl/drawings', 'xl/media', 'xl/ctrlProps', 'x
 # namespaces
 CHART_NS = "http://schemas.openxmlformats.org/drawingml/2006/chart"
 DRAWING_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
+COMMENTS_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments"
+VML_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing"
 SHEET_DRAWING_NS = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
 CHART_DRAWING_NS = "http://schemas.openxmlformats.org/drawingml/2006/chartDrawing"
 REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
@@ -69,6 +70,7 @@ DCTERMS_PREFIX = 'dcterms'
 XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance'
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
 SHEET_MAIN_NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+CUSTOMUI_NS = 'http://schemas.microsoft.com/office/2006/relationships/ui/extensibility'
 
 
 NAMESPACES = {

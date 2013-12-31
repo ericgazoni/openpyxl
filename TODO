@@ -1,20 +1,14 @@
 Roadmap for next version
 ========================
 
-[x] Drop Python 2.5 support
-
-[x] lxml required for tests
-
-[x] allow lxml as backend
-
-[X] Always use qualified namespaces
-
-[x] Merge chart improvements
-
-[x] Add support for preserving formulae
-
 [ ] Harmonise cells for reader and optimised reader -> 1.9 / 2.0
 
-[ ] Fix inference for "=IF"
+[ ] No longer infer data types when reading files? -> 1.9
 
-[ ] Add tests for Drawing - fix problems with Charts & Excel for Windows
+[ ] Support cells with formulae in charts -> 1.9 / 2.0
+
+[ ] Better handling of styles for multiple cells -> 1.9 / 2.0
+
+[ ] Merge existing patches for charts -> 1.9
+
+[ ] Default to using an iterator when working with charts? 1.9 / 2.0

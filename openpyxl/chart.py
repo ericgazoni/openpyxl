@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 import math
 from numbers import Number
 
-from openpyxl.style import NumberFormat
+from openpyxl.style import NumberFormat, is_date_format, is_builtin
 from openpyxl.drawing import Drawing, Shape
 from openpyxl.shared.units import pixels_to_EMU, short_color
 from openpyxl.cell import get_column_letter
@@ -55,17 +55,14 @@ class Axis(object):
     cross_between = None
     orientation = ORIENTATION_MIN_MAX
     number_format = NumberFormat()
+    delete_axis = False
 
-    def __init__(self):
-
+    def __init__(self, auto_axis=True):
+        self.auto_axis = auto_axis
         self.min = 0
         self.max = 0
         self.unit = None
         self.title = ''
-
-    def set_values(self, mini, maxi):
-        self.min = mini
-        self.max = maxi
 
     def _max_min(self):
         """
@@ -100,8 +97,9 @@ class Axis(object):
 
     @property
     def min(self):
-        mini, maxi = self._max_min()
-        return mini
+        if self.auto_axis:
+            return self._max_min()[0]
+        return self._min
 
     @min.setter
     def min(self, value):
@@ -109,8 +107,9 @@ class Axis(object):
 
     @property
     def max(self):
-        mini, maxi = self._max_min()
-        return maxi
+        if self.auto_axis:
+            return self._max_min()[1]
+        return self._max
 
     @max.setter
     def max(self, value):
@@ -118,7 +117,8 @@ class Axis(object):
 
     @property
     def unit(self):
-        self._max_min
+        if self.auto_axis:
+            self._max_min()
         return self._unit
 
     @unit.setter
@@ -153,19 +153,18 @@ class ValueAxis(Axis):
     type= "valAx"
 
 
-formatter = NumberFormat()
-
-
 class Reference(object):
     """ a simple wrapper around a serie of reference data """
 
+    _data_type = None
 
-    def __init__(self, sheet, pos1, pos2=None, data_type='n', number_format=None):
+    def __init__(self, sheet, pos1, pos2=None, data_type=None, number_format=None):
 
         self.sheet = sheet
         self.pos1 = pos1
         self.pos2 = pos2
-        self.data_type = data_type
+        if data_type is not None:
+            self.data_type = data_type
         self.number_format = number_format
 
     @property
@@ -184,8 +183,9 @@ class Reference(object):
 
     @number_format.setter
     def number_format(self, value):
-        if not formatter.is_builtin(value):
-            raise ValueError("Invalid number format")
+        if value is not None:
+            if not is_builtin(value):
+                raise ValueError("Invalid number format")
         self._number_format = value
 
     @property
@@ -204,10 +204,10 @@ class Reference(object):
                 for col in range(int(self.pos1[1]), int(self.pos2[1] + 1)):
                     cell = self.sheet.cell(row=row, column=col)
                     self._values.append(cell.internal_value)
-
-            if self.data_type is None:
-                self.data_type = 'n'
-
+                    if cell.internal_value == '':
+                        continue
+                    if self.data_type is None and cell.data_type:
+                        self.data_type = cell.data_type
         return self._values
 
     def __str__(self):
@@ -221,27 +221,47 @@ class Reference(object):
             return "'%s'!$%s$%s" % (self.sheet.title,
                 get_column_letter(self.pos1[1] + 1), self.pos1[0] + 1)
 
-    def _get_cache(self):
-        """ legacy method """
-        return self.values
 
-
-class Serie(object):
+class Series(object):
     """ a serie of data and possibly associated labels """
 
     MARKER_NONE = 'none'
+    _title = None
+    _legend = None
 
-    def __init__(self, values, labels=None, legend=None, color=None,
-                 xvalues=None):
+    def __init__(self, values, title=None, labels=None, color=None,
+                 xvalues=None, legend=None):
 
-        self.marker = Serie.MARKER_NONE
+        self.marker = Series.MARKER_NONE
         self.values = values
         self.xvalues = xvalues
         self.labels = labels
-        self.legend = legend
-        if legend is not None:
-            self.legend.data_type = 's'
+        self.title = title
         self.error_bar = None
+        if legend is not None:
+            self.legend = legend
+
+    @property
+    def title(self):
+        if self._title is not None:
+            return self._title
+        if self.legend is not None:
+            return self.legend.values[0]
+
+    @title.setter
+    def title(self, value):
+        self._title = value
+
+    @property
+    def legend(self):
+        return self._legend
+
+    @legend.setter
+    def legend(self, value):
+        from warnings import warn
+        warn("Series titles can be set directly using series.title. Series legend will be removed in 2.0")
+        value.data_type = 's'
+        self._legend = value
 
     @property
     def color(self):
@@ -284,6 +304,21 @@ class Serie(object):
             self._xvalues = None
         self.xreference = reference
 
+    @property
+    def labels(self):
+        """Return values from reference set as label"""
+        return self._labels
+
+    @labels.setter
+    def labels(self, reference):
+        if reference is not None:
+            if not isinstance(reference, Reference):
+                raise TypeError("Series labels must be a Reference instance")
+            reference.values
+            self._labels = reference
+        else:
+            self._labels = None
+
     def max(self, attr='values'):
         """
         Return the maximum value for numeric series.
@@ -323,6 +358,9 @@ class Serie(object):
     def __len__(self):
 
         return len(self.values)
+
+# backwards compatibility
+Serie = Series
 
 
 class Legend(object):
@@ -374,7 +412,8 @@ class Chart(object):
 
     def __init__(self):
 
-        self._series = []
+        self.series = []
+        self._series = self.series # backwards compatible
 
         # public api
         self.legend = Legend()
@@ -398,46 +437,25 @@ class Chart(object):
         self._margin_left = 0
 
         # the user defined shapes
-        self._shapes = []
+        self.shapes = []
+        self._shapes = self.shapes # backwards compatible
 
-    def add_serie(self, serie):
+    def append(self, obj):
+        """Add a series or a shape"""
+        if isinstance(obj, Series):
+            self.series.append(obj)
+        elif isinstance(obj, Shape):
+            self.shapes.append(obj)
 
-        serie.id = len(self._series)
-        self._series.append(serie)
+    add_shape = add_serie = add_series = append
 
-    def add_shape(self, shape):
-
-        shape._chart = self
-        self._shapes.append(shape)
-
-    def get_x_units(self):
-        """ calculate one unit for x axis in EMU """
-        return max([len(s.values) for s in self._series])
-
-    def get_y_units(self):
-        """ calculate one unit for y axis in EMU """
-
-        dh = pixels_to_EMU(self.drawing.height)
-        return (dh * self.height) / self.y_axis.max
+    def __iter__(self):
+        return iter(self.series)
 
     def get_y_chars(self):
         """ estimate nb of chars for y axis """
-        _max = max([s.max() for s in self._series])
+        _max = max([s.max() for s in self])
         return len(str(int(_max)))
-
-    def _get_extremes(self, attr='values'):
-        """Calculate the maximum and minimum values of all series for an axis
-        'values' for columns
-        'xvalues for rows
-        """
-        # calculate the maximum and minimum for all series
-        series_max = [0]
-        series_min = [0]
-        for s in self._series:
-            if s is not None:
-                series_max.append(s.max(attr))
-                series_min.append(s.min(attr))
-        return min(series_min), max(series_max)
 
     @property
     def margin_top(self):
@@ -482,19 +500,48 @@ class GraphChart(Chart):
     x_axis = CategoryAxis
     y_axis = ValueAxis
 
-    def __init__(self):
+    def __init__(self, auto_axis=True):
         super(GraphChart, self).__init__()
-        self.x_axis = getattr(self, "x_axis")()
-        self.y_axis = getattr(self, "y_axis")()
+        self.auto_axis = auto_axis
+        self.x_axis = getattr(self, "x_axis")(auto_axis)
+        self.y_axis = getattr(self, "y_axis")(auto_axis)
 
     def compute_axes(self):
         """Calculate maximum value and units for axes"""
         mini, maxi = self._get_extremes()
-        self.y_axis.set_values(mini, maxi)
+        self.y_axis.min = mini
+        self.y_axis.max = maxi
+        self.y_axis._max_min()
 
-        if not None in [s.xvalues for s in self._series]:
+        if not None in [s.xvalues for s in self]:
             mini, maxi = self._get_extremes('xvalues')
-            self.x_axis.set_values(mini, maxi)
+            self.x_axis.min = mini
+            self.x_axis.max = maxi
+            self.x_axis._max_min()
+
+    def get_x_units(self):
+        """ calculate one unit for x axis in EMU """
+        return max([len(s.values) for s in self])
+
+    def get_y_units(self):
+        """ calculate one unit for y axis in EMU """
+
+        dh = pixels_to_EMU(self.drawing.height)
+        return (dh * self.height) / self.y_axis.max
+
+    def _get_extremes(self, attr='values'):
+        """Calculate the maximum and minimum values of all series for an axis
+        'values' for columns
+        'xvalues for rows
+        """
+        # calculate the maximum and minimum for all series
+        series_max = [0]
+        series_min = [0]
+        for s in self:
+            if s is not None:
+                series_max.append(s.max(attr))
+                series_min.append(s.min(attr))
+        return min(series_min), max(series_max)
 
 
 class BarChart(GraphChart):

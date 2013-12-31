@@ -1,6 +1,4 @@
-# file openpyxl/reader/excel.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +45,7 @@ from openpyxl.reader.workbook import (read_sheets_titles, read_named_ranges,
         read_properties_core, read_excel_base_date, get_sheet_ids,
         read_content_types)
 from openpyxl.reader.worksheet import read_worksheet
-from openpyxl.reader.iter_worksheet import unpack_worksheet
+from openpyxl.reader.comments import read_comments, get_comments_file
 # Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
 
 
@@ -79,7 +77,7 @@ def repair_central_directory(zipFile, is_file_instance):
     return f
 
 
-def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=True):
+def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=True, data_only=False):
     """Open the given filename and return the workbook
 
     :param filename: the path to open or a file-like object
@@ -123,7 +121,7 @@ def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=Tru
     except (BadZipfile, RuntimeError, IOError, ValueError):
         e = exc_info()[1]
         raise InvalidFileException(unicode(e))
-    wb = Workbook(guess_types=guess_types)
+    wb = Workbook(guess_types=guess_types, data_only=data_only)
 
     if use_iterators:
         wb._set_optimized_read()
@@ -189,10 +187,21 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
             continue
 
         if not use_iterators:
-            new_ws = read_worksheet(archive.read(worksheet_path), wb, sheet_name, string_table, style_table, style_properties['color_index'], keep_vba=keep_vba)
+            new_ws = read_worksheet(archive.read(worksheet_path), wb,
+                                    sheet_name, string_table, style_table,
+                                    color_index=style_properties['color_index'],
+                                    keep_vba=keep_vba)
         else:
-            xml_source = unpack_worksheet(archive, worksheet_path)
-            new_ws = read_worksheet(xml_source, wb, sheet_name, string_table, style_table, style_properties['color_index'], filename, sheet_codename)
+            new_ws = read_worksheet(None, wb, sheet_name, string_table,
+                                    style_table,
+                                    color_index=style_properties['color_index'],
+                                    workbook_name=filename,
+                                    sheet_codename=sheet_codename)
         wb.add_sheet(new_ws, index=i)
+
+        # load comments into the worksheet cells
+        comments_file = get_comments_file(sheet_codename, archive, valid_files)
+        if comments_file is not None:
+            read_comments(new_ws, archive.read(comments_file))
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)

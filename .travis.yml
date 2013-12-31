@@ -7,12 +7,7 @@ python:
 # command to run tests
 
 install:
-  pip install lxml pytest nose
+  pip install lxml pytest nose 
 
 script:  
-  py.test
-
-notifications:
-  email:
-    recipients:
-      - web@myemptybucket.com
+  py.test openpyxl

@@ -1,6 +1,6 @@
 # coding=UTF-8
 
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,7 @@ from openpyxl.shared.ooxml import (
     CHART_DRAWING_NS,
     PKG_REL_NS
 )
+from openpyxl.shared.compat.strings import safe_string
 
 
 class DrawingWriter(object):
@@ -98,40 +99,57 @@ class DrawingWriter(object):
         SubElement(anchor, '{%s}clientData' % SHEET_DRAWING_NS)
         return node
 
-    def _write_image(self, node, img, idx):
-        drawing = img.drawing
-
+    def _write_anchor(self, node, drawing):
         x, y, w, h = drawing.get_emu_dimensions()
-        anchor = SubElement(node, '{%s}absoluteAnchor' % SHEET_DRAWING_NS)
-        SubElement(anchor, '{%s}pos' % SHEET_DRAWING_NS, {'x':str(x), 'y':str(y)})
-        SubElement(anchor, '{%s}ext' % SHEET_DRAWING_NS, {'cx':str(w), 'cy':str(h)})
+
+        if drawing.anchortype == "oneCell":
+            anchor = SubElement(node, '{%s}oneCellAnchor' % SHEET_DRAWING_NS)
+            xdrfrom = SubElement(anchor, '{%s}from' % SHEET_DRAWING_NS)
+            SubElement(xdrfrom, '{%s}col' % SHEET_DRAWING_NS).text = safe_string(drawing.anchorcol)
+            SubElement(xdrfrom, '{%s}colOff' % SHEET_DRAWING_NS).text = safe_string(x)
+            SubElement(xdrfrom, '{%s}row' % SHEET_DRAWING_NS).text = safe_string(drawing.anchorrow)
+            SubElement(xdrfrom, '{%s}rowOff' % SHEET_DRAWING_NS).text = safe_string(y)
+        else:
+            anchor = SubElement(node, '{%s}absoluteAnchor' % SHEET_DRAWING_NS)
+            SubElement(anchor, '{%s}pos' % SHEET_DRAWING_NS, {'x':safe_string(x), 'y':safe_string(y)})
+
+        SubElement(anchor, '{%s}ext' % SHEET_DRAWING_NS, {'cx':safe_string(w), 'cy':safe_string(h)})
+
+        return anchor
+
+    def _write_image(self, node, img, idx):
+        anchor = self._write_anchor(node, img.drawing)
 
         pic = SubElement(anchor, '{%s}pic' % SHEET_DRAWING_NS)
         name = SubElement(pic, '{%s}nvPicPr' % SHEET_DRAWING_NS)
-        SubElement(name, '{%s}cNvPr' % SHEET_DRAWING_NS, {'id':'%s' % (idx + 1), 'name':'Picture %s' % idx})
-        SubElement(SubElement(name, '{%s}cNvPicPr' % SHEET_DRAWING_NS),
-                   '{%s}picLocks' % DRAWING_NS, {'noChangeAspect':"1" if img.nochangeaspect\
-                                    else '0','noChangeArrowheads':"1" if img.nochangearrowheads\
-                                    else '0'})
+        SubElement(name, '{%s}cNvPr' % SHEET_DRAWING_NS,
+                   {'id':'%s' % (idx + 1),
+                    'name':'Picture %s' % idx})
+        cNvPicPr = SubElement(name, '{%s}cNvPicPr' % SHEET_DRAWING_NS)
+        paras = {"noChangeAspect": "0"}
+        if img.nochangeaspect:
+            paras["noChangeAspect"] = "1"
+        if img.nochangearrowheads:
+            paras["noChangeArrowheads"] = "1"
+
+        SubElement(cNvPicPr, '{%s}picLocks' % DRAWING_NS, paras)
+
         blipfill = SubElement(pic, '{%s}blipFill' % SHEET_DRAWING_NS)
         SubElement(blipfill, '{%s}blip' % DRAWING_NS, {
             '{%s}embed' % REL_NS: 'rId%s' % idx,
             'cstate':'print'
         })
         SubElement(blipfill, '{%s}srcRect' % DRAWING_NS)
-        SubElement(
-            SubElement(blipfill, '{%s}stretch' % DRAWING_NS),
-            '{%s}fillRect' % DRAWING_NS)
+        stretch = SubElement(blipfill, '{%s}stretch' % DRAWING_NS)
+        SubElement(stretch, '{%s}fillRect' % DRAWING_NS)
 
         sppr = SubElement(pic, '{%s}spPr' % SHEET_DRAWING_NS, {'bwMode':'auto'})
         frm = SubElement(sppr, '{%s}xfrm' % DRAWING_NS)
         # no transformation
         SubElement(frm, '{%s}off' % DRAWING_NS, {'x':'0', 'y':'0'})
         SubElement(frm, '{%s}ext' % DRAWING_NS, {'cx':'0', 'cy':'0'})
-
-        SubElement(
-            SubElement(sppr, '{%s}prstGeom' % DRAWING_NS, {'prst':'rect'})
-            , '{%s}avLst' % DRAWING_NS)
+        prstGeom = SubElement(sppr, '{%s}prstGeom' % DRAWING_NS, {'prst':'rect'})
+        SubElement(prstGeom, '{%s}avLst' % DRAWING_NS)
 
         SubElement(sppr, '{%s}noFill' % DRAWING_NS)
 
@@ -147,13 +165,14 @@ class DrawingWriter(object):
     def write_rels(self, chart_id, image_id):
 
         root = Element("{%s}Relationships" % PKG_REL_NS)
+        i = 0
         for i, chart in enumerate(self._sheet._charts):
             attrs = {'Id' : 'rId%s' % (i + 1),
                 'Type' : '%s/chart' % REL_NS,
                 'Target' : '../charts/chart%s.xml' % (chart_id + i) }
             SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
         for j, img in enumerate(self._sheet._images):
-            attrs = {'Id' : 'rId%s' % (i + 1 + j + 1),
+            attrs = {'Id' : 'rId%s' % (i + j + 1),
                 'Type' : '%s/image' % REL_NS,
                 'Target' : '../media/image%s.png' % (image_id + j) }
             SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
@@ -162,8 +181,6 @@ class DrawingWriter(object):
 
 class ShapeWriter(object):
     """ one file per shape """
-
-    schema = "http://schemas.openxmlformats.org/drawingml/2006/main"
 
     def __init__(self, shapes):
 

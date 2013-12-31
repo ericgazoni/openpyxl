@@ -1,8 +1,5 @@
 # file openpyxl/worksheet.py
-from openpyxl.shared.units import points_to_pixels
-from openpyxl.shared import DEFAULT_COLUMN_WIDTH, DEFAULT_ROW_HEIGHT
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,69 +29,76 @@ import re
 
 # package imports
 import openpyxl.cell
-from openpyxl.cell import coordinate_from_string, \
-    column_index_from_string, get_column_letter
-from openpyxl.shared.exc import SheetTitleException, \
-    InsufficientCoordinatesException, CellCoordinatesException, \
+from openpyxl.cell import (
+    coordinate_from_string,
+    column_index_from_string,
+    get_column_letter
+    )
+from openpyxl.shared.exc import (
+    SheetTitleException,
+    InsufficientCoordinatesException,
+    CellCoordinatesException,
     NamedRangeException
+    )
+from openpyxl.shared.units import points_to_pixels
+from openpyxl.shared import DEFAULT_COLUMN_WIDTH, DEFAULT_ROW_HEIGHT
 from openpyxl.shared.password_hasher import hash_password
-from openpyxl.style import Style, DEFAULTS as DEFAULTS_STYLE
+from openpyxl.styles import Style, DEFAULTS as DEFAULTS_STYLE
+from openpyxl.styles.formatting import ConditionalFormatting
 from openpyxl.drawing import Drawing
 from openpyxl.namedrange import NamedRangeContainingValue
 from openpyxl.shared.compat import OrderedDict, unicode, xrange, basestring
 from openpyxl.shared.compat.itertools import iteritems
-from openpyxl.style import Color
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
-def flatten(results):
 
-    rows = []
+def flatten(results):
+    """Return cell values row-by-row"""
 
     for row in results:
+        yield(c.value for c in row)
 
-        cells = []
-
-        for cell in row:
-
-            cells.append(cell.value)
-
-        rows.append(tuple(cells))
-
-    return tuple(rows)
+from openpyxl.shared.ooxml import REL_NS, PKG_REL_NS
+from openpyxl.shared.xmltools import Element, SubElement, get_document_content
 
 
 class Relationship(object):
     """Represents many kinds of relationships."""
     # TODO: Use this object for workbook relationships as well as
     # worksheet relationships
-    TYPES = {
-        'hyperlink': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
-        'drawing':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
-        'image':'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing'
-        # 'worksheet': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
-        # 'sharedStrings': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
-        # 'styles': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
-        # 'theme': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
-    }
 
-    def __init__(self, rel_type):
+    TYPES = ("hyperlink", "drawing", "image")
+
+    def __init__(self, rel_type, target=None, target_mode=None, id=None):
         if rel_type not in self.TYPES:
             raise ValueError("Invalid relationship type %s" % rel_type)
-        self.type = self.TYPES[rel_type]
-        self.target = ""
-        self.target_mode = ""
-        self.id = ""
+        self.type = "%s/%s" % (REL_NS, rel_type)
+        self.target = target
+        self.target_mode = target_mode
+        self.id = id
+
+    def __repr__(self):
+        root = Element("{%s}Relationships" % PKG_REL_NS)
+        body = SubElement(root, "{%s}Relationship" % PKG_REL_NS, self.__dict__)
+        return get_document_content(root)
 
 
 class PageSetup(object):
     """Information about page layout for this sheet"""
-    valid_setup = ("orientation", "paperSize", "scale", "fitToPage", "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber")
+    valid_setup = ("orientation", "paperSize", "scale", "fitToPage",
+                   "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber")
     valid_options = ("horizontalCentered", "verticalCentered")
-
-    def __init__(self):
-        self.orientation = self.paperSize = self.scale = self.fitToPage = self.fitToHeight = self.fitToWidth = self.firstPageNumber = self.useFirstPageNumber = None
-        self.horizontalCentered = self.verticalCentered = None
+    orientation = None
+    paperSize = None
+    scale = None
+    fitToPage = None
+    fitToHeight = None
+    fitToWidth = None
+    firstPageNumber = None
+    useFirstPageNumber = None
+    horizontalCentered = None
+    verticalCentered = None
 
     @property
     def setup(self):
@@ -117,8 +121,7 @@ class PageSetup(object):
         for options_name in self.valid_options:
             options_value = getattr(self, options_name)
             if options_value is not None:
-                if options_name in ('horizontalCentered', 'verticalCentered') and options_value:
-                    optionsGroup[options_name] = '1'
+                optionsGroup[options_name] = '1'
 
         return optionsGroup
 
@@ -330,153 +333,21 @@ class ColumnDimension(object):
                  'collapsed',
                  'style_index',)
 
-    def __init__(self, index='A'):
+    def __init__(self,
+                 index='A',
+                 width=-1,
+                 auto_size=False,
+                 visible=True,
+                 outline_level=0,
+                 collapsed=False,
+                 style_index=0):
         self.column_index = index
-        self.width = -1
+        self.width = float(width)
         self.auto_size = False
-        self.visible = True
-        self.outline_level = 0
-        self.collapsed = False
-        self.style_index = 0
-
-class ConditionalFormatting(object):
-    """Conditional formatting rules."""
-    rule_attributes = ['aboveAverage', 'bottom', 'dxfId', 'equalAverage', 'operator', 'percent', 'priority', 'rank',
-                       'stdDev', 'stopIfTrue', 'text']
-    icon_attributes = ['iconSet', 'showValue', 'reverse']
-
-    def __init__(self):
-        self.cf_rules = {}
-        self.max_priority = 0
-
-    def setRules(self, cfRules):
-        """Set the conditional formatting rules from a dictionary.  Intended for use when loading a document.
-        cfRules use the structure: {range_string: [rule1, rule2]}, eg:
-        {'A1:A4': [{'type': 'colorScale', 'priority': '13', 'colorScale': {'cfvo': [{'type': 'min'}, {'type': 'max'}],
-        'color': [Color('FFFF7128'), Color('FFFFEF9C')]}]}
-        """
-        self.cf_rules = {}
-        self.max_priority = 0
-        priorityMap = []
-        if not isinstance(cfRules, dict):
-            return
-        for range_string, rules in cfRules.items():
-            self.cf_rules[range_string] = rules
-            for rule in rules:
-                priorityMap.append(int(rule['priority']))
-        priorityMap.sort()
-        for range_string, rules in cfRules.items():
-            self.cf_rules[range_string] = rules
-            for rule in rules:
-                priority = priorityMap.index(int(rule['priority'])) + 1
-                rule['priority'] = str(priority)
-                if 'priority' in rule and priority > self.max_priority:
-                    self.max_priority = priority
-
-    def addDxfStyle(self, wb, font, border, fill):
-        """Formatting for non color scale conditional formatting uses the dxf style list in styles.xml.  Add a style
-        and get the corresponding style id to use in the conditional formatting rule.
-
-        Excel adds a dxf style for each conditional formatting, even if it already exists.
-
-        :param wb: the workbook
-        :param font: openpyxl.style.Font
-        :param border: openpyxl.style.Border
-        :param fill: openpyxl.style.Fill
-        :return: dxfId (excel uses a 0 based index for the dxfId)
-        """
-        if not wb.style_properties:
-            wb.style_properties = {'dxf_list': []}
-        elif 'dxf_list' not in wb.style_properties:
-            wb.style_properties['dxf_list'] = []
-
-        dxf = {}
-        if font:
-            dxf['font'] = [font]
-        if border:
-            dxf['border'] = [border]
-        if fill:
-            dxf['fill'] = [fill]
-
-        wb.style_properties['dxf_list'].append(dxf)
-        return len(wb.style_properties['dxf_list']) - 1
-
-    def addCustomRule(self, range_string, rule):
-        """Add a custom rule.  Rule is a dictionary containing a key called type, and other keys, as found in
-        `ConditionalFormatting.rule_attributes`.  The priority will be added automatically.
-
-        For example:
-        {'type': 'colorScale', 'colorScale': {'cfvo': [{'type': 'min'}, {'type': 'max'}],
-                                              'color': [Color('FFFF7128'), Color('FFFFEF9C')]}
-        """
-        rule['priority'] = self.max_priority + 1
-        self.max_priority += 1
-        if range_string not in self.cf_rules:
-            self.cf_rules[range_string] = []
-        self.cf_rules[range_string].append(rule)
-
-    def add2ColorScale(self, range_string, start_type, start_value, start_rgb, end_type, end_value, end_rgb):
-        """
-        Add a 2-color scale to the conditional formatting.
-
-        :param range_string: Range of the conditional formatting, eg "B1:B10" or "A1:A1048576" for the whole column.
-        :param start_type: Starting color reference - can be: num, percent, percentile, min, max, formula
-        :param start_value: Starting value.  Percent expressed in integer from 0 - 100. (Ignored for min / max.)
-        :param start_rgb: Start RGB color, such as 'FFAABB11'
-        :param end_type: Ending color reference - can be: num, percent, percentile, min, max, formula
-        :param end_value: Ending value.
-        :param end_rgb: End RGB color, such as 'FFAABB11'
-        """
-        rule = {'type': 'colorScale', 'colorScale': {'color': [Color(start_rgb), Color(end_rgb)], 'cfvo': []}}
-        if start_type in ('max', 'min'):
-            rule['colorScale']['cfvo'].append({'type': start_type})
-        else:
-            rule['colorScale']['cfvo'].append({'type': start_type, 'val': str(start_value)})
-        if end_type in ('max', 'min'):
-            rule['colorScale']['cfvo'].append({'type': end_type})
-        else:
-            rule['colorScale']['cfvo'].append({'type': end_type, 'val': str(end_value)})
-        self.addCustomRule(range_string, rule)
-
-    def add3ColorScale(self, range_string, start_type, start_value, start_rgb, mid_type, mid_value, mid_rgb, end_type,
-                       end_value, end_rgb):
-        """Add a 3-color scale to the conditional formatting.  See `add2ColorScale` for parameter descriptions."""
-        rule = {'type': 'colorScale', 'colorScale': {'color': [Color(start_rgb), Color(mid_rgb), Color(end_rgb)],
-                                                     'cfvo': []}}
-        if start_type in ('max', 'min'):
-            rule['colorScale']['cfvo'].append({'type': start_type})
-        else:
-            rule['colorScale']['cfvo'].append({'type': start_type, 'val': str(start_value)})
-        if mid_type in ('max', 'min'):
-            rule['colorScale']['cfvo'].append({'type': mid_type})
-        else:
-            rule['colorScale']['cfvo'].append({'type': mid_type, 'val': str(mid_value)})
-        if end_type in ('max', 'min'):
-            rule['colorScale']['cfvo'].append({'type': end_type})
-        else:
-            rule['colorScale']['cfvo'].append({'type': end_type, 'val': str(end_value)})
-        self.addCustomRule(range_string, rule)
-
-    def addCellIs(self, range_string, operator, formula, stopIfTrue, wb, font, border, fill):
-        """Add a conditional formatting of type cellIs.
-
-        Formula is in a list to handle multiple formula's, such as ['a1']
-
-        Valid values for operator are:
-        'between', 'notBetween', 'equal', 'notEqual', 'greaterThan', 'lessThan', 'greaterThanOrEqual', 'lessThanOrEqual'
-        """
-        # Excel doesn't use >, >=, etc, but allow for ease of python development
-        expand = {">": "greaterThan", ">=": "greaterThanOrEqual", "<": "lessThan", "<=": "lessThanOrEqual",
-                  "=": "equal", "==": "equal", "!=": "notEqual"}
-        operator = expand[operator] if operator in expand else operator
-
-        if operator in ('between', 'notBetween', 'equal', 'notEqual', 'greaterThan', 'lessThan', 'greaterThanOrEqual',
-                        'lessThanOrEqual'):
-            dxfId = self.addDxfStyle(wb, font, border, fill)
-            rule = {'type': 'cellIs', 'dxfId': dxfId, 'operator': operator, 'formula': formula}
-            if stopIfTrue:
-                rule['stopIfTrue'] = '1'
-            self.addCustomRule(range_string, rule)
+        self.visible = visible
+        self.outline_level = int(outline_level)
+        self.collapsed = collapsed
+        self.style_index = style_index
 
 
 class PageMargins(object):
@@ -546,6 +417,8 @@ class Worksheet(object):
 
     """
     repr_format = unicode('<Worksheet "%s">')
+    bad_title_char_re = re.compile(r'[\\*?:/\[\]]')
+
 
     BREAK_NONE = 0
     BREAK_ROW = 1
@@ -580,12 +453,13 @@ class Worksheet(object):
         else:
             self.title = title
         self.row_dimensions = {}
-        self.column_dimensions = {}
+        self.column_dimensions = OrderedDict([])
         self.page_breaks = []
         self._cells = {}
         self._styles = {}
         self._charts = []
         self._images = []
+        self._comment_count = 0
         self._merged_cells = []
         self.relationships = []
         self._data_validations = []
@@ -626,7 +500,7 @@ class Worksheet(object):
         """Delete cells that are not storing a value."""
         delete_list = [coordinate for coordinate, cell in \
             iteritems(self._cells) if (not cell.merged and cell.value in ('', None) and \
-            (coordinate not in self._styles or
+            cell.comment is None and (coordinate not in self._styles or
             hash(cell.style) == _DEFAULTS_STYLE_HASH))]
         for coordinate in delete_list:
             del self._cells[coordinate]
@@ -635,50 +509,60 @@ class Worksheet(object):
         """Return an unordered list of the cells in this worksheet."""
         return self._cells.values()
 
-    def _set_title(self, value):
-        """Set a sheet title, ensuring it is valid."""
-        bad_title_char_re = re.compile(r'[\\*?:/\[\]]')
-        if bad_title_char_re.search(value):
+    @property
+    def title(self):
+        """Return the title for this sheet."""
+        return self._title
+
+    @title.setter
+    def title(self, value):
+        """Set a sheet title, ensuring it is valid.
+           Limited to 31 characters, no special characters."""
+        if self.bad_title_char_re.search(value):
             msg = 'Invalid character found in sheet title'
             raise SheetTitleException(msg)
 
         # check if sheet_name already exists
         # do this *before* length check
-        if self._parent.get_sheet_by_name(value):
-            # use name, but append with lowest possible integer
-            i = 1
-            while self._parent.get_sheet_by_name('%s%d' % (value, i)):
-                i += 1
-            value = '%s%d' % (value, i)
+        sheets = self._parent.get_sheet_names()
+        sheets = ",".join(sheets)
+        sheet_title_regex=re.compile("(?P<title>%s)(?P<count>\d?),?" % value)
+        matches = sheet_title_regex.findall(sheets)
+        if matches:
+            # use name, but append with the next highest integer
+            counts = [int(idx) for (t, idx) in matches if idx.isdigit()]
+            if counts:
+                highest = max(counts)
+            else:
+                highest = 0
+            value = "%s%d" % (value, highest+1)
+
         if len(value) > 31:
             msg = 'Maximum 31 characters allowed in sheet title'
             raise SheetTitleException(msg)
         self._title = value
 
-    def _get_title(self):
-        """Return the title for this sheet."""
-        return self._title
-
-    title = property(_get_title, _set_title, doc=
-                     'Get or set the title of the worksheet. '
-                     'Limited to 31 characters, no special characters.')
-
-    def _set_auto_filter(self, range):
-        # Normalize range to a str or None
-        if not range:
-            range = None
-        elif isinstance(range, str):
-            range = range.upper()
-        else:  # Assume a range
-            range = range[0][0].address + ':' + range[-1][-1].address
-        self._auto_filter = range
-
-    def _get_auto_filter(self):
+    @property
+    def auto_filter(self):
         return self._auto_filter
 
-    auto_filter = property(_get_auto_filter, _set_auto_filter, doc=
-                           'get or set auto filtering on columns')
-    def _set_freeze_panes(self, topLeftCell):
+    @auto_filter.setter
+    def auto_filter(self, cell_range):
+        # Normalize range to a str or None
+        if not cell_range:
+            cell_range = None
+        elif isinstance(cell_range, str):
+            cell_range = cell_range.upper()
+        else:  # Assume a range
+            cell_range = cell_range[0][0].address + ':' + cell_range[-1][-1].address
+        self._auto_filter = cell_range
+
+    @property
+    def freeze_panes(self):
+        return self._freeze_panes
+
+    @freeze_panes.setter
+    def freeze_panes(self, topLeftCell):
         if not topLeftCell:
             topLeftCell = None
         elif isinstance(topLeftCell, str):
@@ -688,12 +572,6 @@ class Worksheet(object):
         if topLeftCell == 'A1':
             topLeftCell = None
         self._freeze_panes = topLeftCell
-
-    def _get_freeze_panes(self):
-        return self._freeze_panes
-
-    freeze_panes = property(_get_freeze_panes, _set_freeze_panes, doc=
-                           "Get or set frozen panes")
 
     def add_print_title(self, n, rows_or_cols='rows'):
         """ Print Titles are rows or columns that are repeated on each printed sheet.
@@ -754,6 +632,15 @@ class Worksheet(object):
             if row not in self.row_dimensions:
                 self.row_dimensions[row] = RowDimension(row)
         return self._cells[coordinate]
+
+    def __getitem__(self, key):
+        """Convenience access by Excel style address"""
+        if isinstance(key, slice):
+            return self.range("{0}:{1}".format(key.start, key.stop))
+        return self._get_cell(key)
+
+    def __setitem__(self, key, value):
+        self[key].value = value
 
     def get_highest_row(self):
         """Returns the maximum row index containing data
@@ -870,9 +757,10 @@ class Worksheet(object):
     def set_printer_settings(self, paper_size, orientation):
         """Set printer settings """
 
-        self.paper_size = paper_size
-        assert orientation in (self.ORIENTATION_PORTRAIT, self.ORIENTATION_LANDSCAPE), "Values should be %s or %s" % (self.ORIENTATION_PORTRAIT, self.ORIENTATION_LANDSCAPE)
-        self.orientation = orientation
+        self.page_setup.paperSize = paper_size
+        if orientation not in (self.ORIENTATION_PORTRAIT, self.ORIENTATION_LANDSCAPE):
+            raise ValueError("Values should be %s or %s" % (self.ORIENTATION_PORTRAIT, self.ORIENTATION_LANDSCAPE))
+        self.page_setup.orientation = orientation
 
     def create_relationship(self, rel_type):
         """Add a relationship for this sheet."""
@@ -889,18 +777,26 @@ class Worksheet(object):
         """
         data_validation._sheet = self
         self._data_validations.append(data_validation)
-                
+
     def add_chart(self, chart):
         """ Add a chart to the sheet """
-
         chart._sheet = self
         self._charts.append(chart)
+        self.add_drawing(chart)
 
     def add_image(self, img):
         """ Add an image to the sheet """
-
         img._sheet = self
         self._images.append(img)
+        self.add_drawing(img)
+
+    def add_drawing(self, obj):
+        """Images and charts both create drawings"""
+        self._parent.drawings.append(obj)
+
+    def add_rel(self, obj):
+        """Drawings and hyperlinks create relationships"""
+        self._parent.relationships.append(obj)
 
     def merge_cells(self, range_string=None, start_row=None, start_column=None, end_row=None, end_column=None):
         """ Set merge on a cell range.  Range is a cell range (e.g. A1:E1) """

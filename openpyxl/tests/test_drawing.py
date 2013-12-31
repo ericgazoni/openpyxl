@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2013 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,12 +20,15 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
+import os
+
 import pytest
 
 from openpyxl.shared.ooxml import CHART_DRAWING_NS, SHEET_DRAWING_NS, DRAWING_NS
-from openpyxl.shared.xmltools import Element, SubElement
+from openpyxl.shared.xmltools import Element, SubElement, fromstring
 
-from .helper import compare_xml, get_xml
+from .helper import compare_xml, get_xml, DATADIR
+from .schema import drawing_schema, chart_schema
 
 def test_bounding_box():
     from openpyxl.drawing import bounding_box
@@ -194,15 +197,6 @@ class TestShadow(object):
         assert s.alpha == 50
 
 
-try:
-    from PIL import Image
-except ImportError:
-    Image = False
-
-import os
-from .helper import DATADIR
-
-
 class DummySheet(object):
     """Required for images"""
 
@@ -214,13 +208,12 @@ class DummyCell(object):
     """Required for images"""
 
     column = "A"
-    row = "1"
+    row = 1
     anchor = (0, 0)
 
     def __init__(self):
         self.parent = DummySheet()
 
-pil_required = pytest.mark.skipif("Image is False", reason="PIL must be installed")
 
 class TestImage(object):
 
@@ -231,13 +224,13 @@ class TestImage(object):
         from openpyxl.drawing import Image
         return Image
 
-    @pytest.mark.skipif("Image", reason="PIL is installed")
+    @pytest.mark.pil_not_installed
     def test_import(self):
         Image = self.make_one()
         with pytest.raises(ImportError):
             i = Image._import_image(self.img)
 
-    @pil_required
+    @pytest.mark.pil_required
     def test_ctor(self):
         Image = self.make_one()
         i = Image(img=self.img)
@@ -248,13 +241,21 @@ class TestImage(object):
         assert d.width == 118
         assert d.height == 118
 
-    @pil_required
+    @pytest.mark.pil_required
     def test_anchor(self):
         Image = self.make_one()
         i = Image(self.img)
         c = DummyCell()
         vals = i.anchor(c)
-        assert vals == (('A', '1'), (118, 118))
+        assert vals == (('A', 1), (118, 118))
+
+    @pytest.mark.pil_required
+    def test_anchor_onecell(self):
+        Image = self.make_one()
+        i = Image(self.img)
+        c = DummyCell()
+        vals = i.anchor(c, anchortype="oneCell")
+        assert vals == ((0, 0), None)
 
 
 class TestDrawingWriter(object):
@@ -275,13 +276,14 @@ class TestDrawingWriter(object):
 
     def test_write_chart(self):
         from openpyxl.drawing import Drawing
-        root = Element("{%s}test" % SHEET_DRAWING_NS)
+        root = Element("{%s}wsDr" % SHEET_DRAWING_NS)
         chart = DummyChart()
         drawing = Drawing()
         chart.drawing = drawing
         self.dw._write_chart(root, chart, 1)
+        drawing_schema.assertValid(root)
         xml = get_xml(root)
-        expected = """<xdr:test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+        expected = """<xdr:wsDr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
         xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
   <xdr:absoluteAnchor>
     <xdr:pos x="0" y="0"/>
@@ -303,19 +305,20 @@ class TestDrawingWriter(object):
     </xdr:graphicFrame>
     <xdr:clientData/>
   </xdr:absoluteAnchor>
-</xdr:test>"""
+</xdr:wsDr>"""
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
-    @pil_required
+    @pytest.mark.pil_required
     def test_write_images(self):
         from openpyxl.drawing import Image
         path = os.path.join(DATADIR, "plain.png")
         img = Image(path)
-        root = Element("test")
+        root = Element("{%s}wsDr" % SHEET_DRAWING_NS)
         self.dw._write_image(root, img, 1)
+        drawing_schema.assertValid(root)
         xml = get_xml(root)
-        expected = """<test xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
+        expected = """<xdr:wsDr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
   <xdr:absoluteAnchor>
     <xdr:pos x="0" y="0"/>
     <xdr:ext cx="1123950" cy="1123950"/>
@@ -353,11 +356,37 @@ class TestDrawingWriter(object):
     </xdr:pic>
     <xdr:clientData/>
   </xdr:absoluteAnchor>
-</test>
+</xdr:wsDr>
 """
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
+    @pytest.mark.pil_required
+    def test_write_anchor(self):
+        from openpyxl.drawing import Image
+        path = os.path.join(DATADIR, "plain.png")
+        drawing = Image(path).drawing
+        root = Element("test")
+        self.dw._write_anchor(root, drawing)
+        xml = get_xml(root)
+        expected = """<test><xdr:absoluteAnchor xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"><xdr:pos x="0" y="0"/><xdr:ext cx="1123950" cy="1123950"/></xdr:absoluteAnchor></test>"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+    @pytest.mark.pil_required
+    def test_write_anchor_onecell(self):
+        from openpyxl.drawing import Image
+        path = os.path.join(DATADIR, "plain.png")
+        drawing = Image(path).drawing
+        drawing.anchortype =  "oneCell"
+        drawing.anchorcol = 0
+        drawing.anchorrow = 0
+        root = Element("test")
+        self.dw._write_anchor(root, drawing)
+        xml = get_xml(root)
+        expected = """<test><xdr:oneCellAnchor xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"><xdr:from><xdr:col>0</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from><xdr:ext cx="1123950" cy="1123950"/></xdr:oneCellAnchor></test>"""
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
 
     def test_write_rels(self):
         self.dw._sheet._charts.append(None)
@@ -365,7 +394,7 @@ class TestDrawingWriter(object):
         xml = self.dw.write_rels(1, 1)
         expected = """<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Target="../charts/chart1.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
-  <Relationship Id="rId2" Target="../media/image1.png" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"/>
+  <Relationship Id="rId1" Target="../media/image1.png" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"/>
 </Relationships>
 """
         diff = compare_xml(xml, expected)
@@ -383,6 +412,8 @@ class TestShapeWriter(object):
 
     def test_write(self):
         xml = self.sw.write(0)
+        tree = fromstring(xml)
+        chart_schema.assertValid(tree)
         expected = """
            <c:userShapes xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
              <cdr:relSizeAnchor xmlns:cdr="http://schemas.openxmlformats.org/drawingml/2006/chartDrawing">

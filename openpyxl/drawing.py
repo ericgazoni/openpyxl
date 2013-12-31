@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 import math
 from openpyxl.style import Color
 from openpyxl.shared.units import pixels_to_EMU, EMU_to_pixels, short_color
-
+from openpyxl.cell import column_index_from_string
 
 class Shadow(object):
 
@@ -467,9 +467,21 @@ class Image(object):
         self.drawing.width = size[0]
         self.drawing.height = size[1]
 
-    def anchor(self, cell):
-        """ anchors the image to the given cell """
-        self.drawing.left, self.drawing.top = cell.anchor
-        return ((cell.column, cell.row),
-                cell.parent.point_pos(self.drawing.top + self.drawing.height,
-                                      self.drawing.left + self.drawing.width))
+        self.drawing.anchortype = None
+
+    def anchor(self, cell, anchortype="absolute"):
+        """ anchors the image to the given cell
+            optional parameter anchortype supports 'absolute' or 'oneCell'"""
+        self.drawing.anchortype = anchortype
+        if anchortype == "absolute":
+            self.drawing.left, self.drawing.top = cell.anchor
+            return ((cell.column, cell.row),
+                    cell.parent.point_pos(self.drawing.top + self.drawing.height,
+                                          self.drawing.left + self.drawing.width))
+        elif anchortype == "oneCell":
+            self.drawing.anchorcol = column_index_from_string(cell.column) - 1
+            self.drawing.anchorrow = cell.row - 1
+            return ((self.drawing.anchorcol, self.drawing.anchorrow), None)
+        else:
+            raise ValueError("unknown anchortype %s" % anchortype)
+

@@ -1,6 +1,4 @@
-# file openpyxl/writer/worksheet.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -50,10 +48,12 @@ from openpyxl.shared.xmltools import (
 from openpyxl.shared.ooxml import (
     SHEET_MAIN_NS,
     PKG_REL_NS,
-    REL_NS
+    REL_NS,
+    COMMENTS_NS,
+    VML_NS
 )
 from openpyxl.shared.compat.itertools import iteritems, iterkeys
-from openpyxl.worksheet import ConditionalFormatting
+from openpyxl.styles.formatting import ConditionalFormatting
 
 
 def row_sort(cell):
@@ -75,8 +75,7 @@ def write_worksheet(worksheet, string_table, style_table):
     xml_file = StringIO()
     doc = XMLGenerator(out=xml_file, encoding='utf-8')
     start_tag(doc, 'worksheet',
-            {'xml:space': 'preserve',
-            'xmlns': SHEET_MAIN_NS,
+            {'xmlns': SHEET_MAIN_NS,
             'xmlns:r': REL_NS})
     if vba_root is not None:
         el = vba_root.find('{%s}sheetPr' % SHEET_MAIN_NS)
@@ -103,50 +102,8 @@ def write_worksheet(worksheet, string_table, style_table):
     write_worksheet_mergecells(doc, worksheet)
     write_worksheet_datavalidations(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
+    write_worksheet_conditional_formatting(doc, worksheet)
 
-    # sort items to get a predictable order for testing
-    for range_string, rules in sorted(worksheet.conditional_formatting.cf_rules.items()):
-        if not len(rules):
-            # Skip if there are no rules.  This is possible if a dataBar rule was read in and ignored.
-            continue
-        start_tag(doc, 'conditionalFormatting', {'sqref': range_string})
-        for rule in rules:
-            if rule['type'] == 'dataBar':
-                # Ignore - uses extLst tag which is currently unsupported.
-                continue
-            attr = {'type': rule['type']}
-            for rule_attr in ConditionalFormatting.rule_attributes:
-                if rule_attr in rule:
-                    attr[rule_attr] = str(rule[rule_attr])
-            start_tag(doc, 'cfRule', attr)
-            if 'formula' in rule:
-                for f in rule['formula']:
-                    tag(doc, 'formula', None, f)
-            if 'colorScale' in rule:
-                start_tag(doc, 'colorScale')
-                for cfvo in rule['colorScale']['cfvo']:
-                    tag(doc, 'cfvo', cfvo)
-                for color in rule['colorScale']['color']:
-                    if str(color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such
-                        if str(color.index).split(':')[2]:
-                            tag(doc, 'color', {'theme': str(color.index).split(':')[1],
-                                               'tint': str(color.index).split(':')[2]})
-                        else:
-                            tag(doc, 'color', {'theme': str(color.index).split(':')[1]})
-                    else:
-                        tag(doc, 'color', {'rgb': str(color.index)})
-                end_tag(doc, 'colorScale')
-            if 'iconSet' in rule:
-                iconAttr = {}
-                for icon_attr in ConditionalFormatting.icon_attributes:
-                    if icon_attr in rule['iconSet']:
-                        iconAttr[icon_attr] = rule['iconSet'][icon_attr]
-                start_tag(doc, 'iconSet', iconAttr)
-                for cfvo in rule['iconSet']['cfvo']:
-                    tag(doc, 'cfvo', cfvo)
-                end_tag(doc, 'iconSet')
-            end_tag(doc, 'cfRule')
-        end_tag(doc, 'conditionalFormatting')
 
     options = worksheet.page_setup.options
     if options:
@@ -171,18 +128,13 @@ def write_worksheet(worksheet, string_table, style_table):
     if worksheet._charts or worksheet._images:
         tag(doc, 'drawing', {'r:id':'rId1'})
 
-    # if the sheet has an xml_source field then the workbook must have
-    # been loaded with keep-vba true and we need to extract any control
-    # elements.
+    # If vba is being preserved then add a legacyDrawing element so
+    # that any controls can be drawn.
     if vba_root is not None:
-        for t in ('{%s}legacyDrawing' % SHEET_MAIN_NS,
-                  '{%s}controls' % SHEET_MAIN_NS):
-            for elem in vba_root.findall(t):
-                s = tostring(elem).decode("utf-8")
-                s = re.sub(r' xmlns[^ >]*', '', s)
-                s = re.sub(r's:', '', s)
-                xml_file.write(s)
-#               xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem).decode("utf-8")))
+        el = vba_root.find('{%s}legacyDrawing' % SHEET_MAIN_NS)
+        if el is not None:
+            rId = el.get('{%s}id' % REL_NS)
+            tag(doc, 'legacyDrawing', {'r:id': rId})
 
     breaks = worksheet.page_breaks
     if breaks:
@@ -190,6 +142,10 @@ def write_worksheet(worksheet, string_table, style_table):
         for b in breaks:
             tag(doc, 'brk', {'id': str(b), 'man': 'true', 'max': '16383', 'min': '0'})
         end_tag(doc, 'rowBreaks')
+
+    # add a legacyDrawing so that excel can draw comments
+    if worksheet._comment_count > 0:
+        tag(doc, 'legacyDrawing', {'r:id':'commentsvml'})
 
     end_tag(doc, 'worksheet')
     doc.endDocument()
@@ -257,6 +213,52 @@ def write_worksheet_cols(doc, worksheet, style_table):
                 col_def['width'] = '9.10'
             tag(doc, 'col', col_def)
         end_tag(doc, 'cols')
+
+
+def write_worksheet_conditional_formatting(doc, worksheet):
+    """Write conditional formatting to xml."""
+    for range_string, rules in iteritems(worksheet.conditional_formatting.cf_rules):
+        if not len(rules):
+            # Skip if there are no rules.  This is possible if a dataBar rule was read in and ignored.
+            continue
+        start_tag(doc, 'conditionalFormatting', {'sqref': range_string})
+        for rule in rules:
+            if rule['type'] == 'dataBar':
+                # Ignore - uses extLst tag which is currently unsupported.
+                continue
+            attr = {'type': rule['type']}
+            for rule_attr in ConditionalFormatting.rule_attributes:
+                if rule_attr in rule:
+                    attr[rule_attr] = str(rule[rule_attr])
+            start_tag(doc, 'cfRule', attr)
+            if 'formula' in rule:
+                for f in rule['formula']:
+                    tag(doc, 'formula', None, f)
+            if 'colorScale' in rule:
+                start_tag(doc, 'colorScale')
+                for cfvo in rule['colorScale']['cfvo']:
+                    tag(doc, 'cfvo', cfvo)
+                for color in rule['colorScale']['color']:
+                    if str(color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such
+                        if str(color.index).split(':')[2]:
+                            tag(doc, 'color', {'theme': str(color.index).split(':')[1],
+                                               'tint': str(color.index).split(':')[2]})
+                        else:
+                            tag(doc, 'color', {'theme': str(color.index).split(':')[1]})
+                    else:
+                        tag(doc, 'color', {'rgb': str(color.index)})
+                end_tag(doc, 'colorScale')
+            if 'iconSet' in rule:
+                iconAttr = {}
+                for icon_attr in ConditionalFormatting.icon_attributes:
+                    if icon_attr in rule['iconSet']:
+                        iconAttr[icon_attr] = rule['iconSet'][icon_attr]
+                start_tag(doc, 'iconSet', iconAttr)
+                for cfvo in rule['iconSet']['cfvo']:
+                    tag(doc, 'cfvo', cfvo)
+                end_tag(doc, 'iconSet')
+            end_tag(doc, 'cfRule')
+        end_tag(doc, 'conditionalFormatting')
 
 
 def write_worksheet_data(doc, worksheet, string_table, style_table):
@@ -370,7 +372,7 @@ def write_worksheet_hyperlinks(doc, worksheet):
         end_tag(doc, 'hyperlinks')
 
 
-def write_worksheet_rels(worksheet, idx):
+def write_worksheet_rels(worksheet, drawing_id, comments_id):
     """Write relationships for the worksheet to xml."""
     root = Element('{%s}Relationships' % PKG_REL_NS)
     for rel in worksheet.relationships:
@@ -381,6 +383,17 @@ def write_worksheet_rels(worksheet, idx):
     if worksheet._charts or worksheet._images:
         attrs = {'Id' : 'rId1',
             'Type' : '%s/drawing' % REL_NS,
-            'Target' : '../drawings/drawing%s.xml' % idx }
+            'Target' : '../drawings/drawing%s.xml' % drawing_id }
+        SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
+    if worksheet._comment_count > 0:
+        # there's only one comments sheet per worksheet,
+        # so there's no reason to call the Id rIdx
+        attrs = {'Id': 'comments',
+            'Type': COMMENTS_NS,
+            'Target' : '../comments%s.xml' % comments_id}
+        SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
+        attrs = {'Id': 'commentsvml',
+            'Type': VML_NS,
+            'Target': '../drawings/commentsDrawing%s.vml' % comments_id}
         SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
     return get_document_content(root)

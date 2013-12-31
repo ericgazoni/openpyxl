@@ -25,6 +25,12 @@ Module :mod:`openpyxl.cell` -- Worksheet Cell
 .. autoclass:: openpyxl.cell.Cell
        :members:
 
+Module :mod:`openpyxl.comments` -- Cell Comment
+=============================================================
+
+.. autoclass:: openpyxl.comments.Comment
+       :members:
+
 Module :mod:`openpyxl.reader.excel` -- Filesystem reader
 =============================================================
 

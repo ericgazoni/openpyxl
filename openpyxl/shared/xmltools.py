@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -183,3 +183,11 @@ def tag(doc, name, attr=None, body=None, namespace=None):
         attr = {}
     start_tag(doc, name, attr, body, namespace)
     end_tag(doc, name, namespace)
+
+
+def safe_iterator(node, tag=None):
+    """Return an iterator that is compatible with Python 2.6"""
+    if hasattr(node, "iter"):
+        return node.iter(tag)
+    else:
+        return node.getiterator(tag)
