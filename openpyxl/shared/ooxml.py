@@ -72,6 +72,7 @@ DCTERMS_PREFIX = 'dcterms'
 XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance'
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
 SHEET_MAIN_NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+CUSTOMUI_NS = 'http://schemas.microsoft.com/office/2006/relationships/ui/extensibility'
 
 
 NAMESPACES = {

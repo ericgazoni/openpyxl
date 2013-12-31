@@ -49,9 +49,11 @@ from openpyxl.shared.ooxml import (
     SHEET_MAIN_NS,
     CONTYPES_NS,
     PKG_REL_NS,
+    CUSTOMUI_NS,
     REL_NS,
     ARC_CUSTOM_UI,
-    ARC_CONTENT_TYPES
+    ARC_CONTENT_TYPES,
+    ARC_ROOT_RELS
 )
 from openpyxl.shared.xmltools import get_document_content, fromstring
 from openpyxl.shared.date_time import datetime_to_W3CDTF
@@ -194,11 +196,18 @@ def write_root_rels(workbook):
             'Type': '%s/metadata/core-properties' % PKG_REL_NS})
     SubElement(root, relation_tag, {'Id': 'rId3', 'Target': ARC_APP,
             'Type': '%s/extended-properties' % REL_NS})
-    if workbook.vba_archive is not None and ARC_CUSTOM_UI in workbook.vba_archive.namelist():
-	# The id rId4 is used by excel in an example and appears to work in
-	# practice. It looks likely that these root_rels ids are not used.
-        SubElement(root, relation_tag, {'Id': 'rId4', 'Target': ARC_CUSTOM_UI,
-            'Type': '%s/ui/extensibility' % REL_NS})
+    if workbook.vba_archive is not None:
+        # See if there was a customUI relation and reuse its id
+        arc = fromstring(workbook.vba_archive.read(ARC_ROOT_RELS))
+        rels = arc.findall(relation_tag)
+        rId = None
+        for rel in rels:
+                if rel.get('Target') == ARC_CUSTOM_UI:
+                        rId = rel.get('Id')
+                        break
+        if rId is not None:
+            SubElement(root, relation_tag, {'Id': rId, 'Target': ARC_CUSTOM_UI,
+                'Type': '%s' % CUSTOMUI_NS})
     return get_document_content(root)
 
 

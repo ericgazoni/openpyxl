@@ -130,18 +130,13 @@ def write_worksheet(worksheet, string_table, style_table):
     if worksheet._charts or worksheet._images:
         tag(doc, 'drawing', {'r:id':'rId1'})
 
-    # if the sheet has an xml_source field then the workbook must have
-    # been loaded with keep-vba true and we need to extract any control
-    # elements.
+    # If vba is being preserved then add a legacyDrawing element so
+    # that any controls can be drawn.
     if vba_root is not None:
-        for t in ('{%s}legacyDrawing' % SHEET_MAIN_NS,
-                  '{%s}controls' % SHEET_MAIN_NS):
-            for elem in vba_root.findall(t):
-                s = tostring(elem).decode("utf-8")
-                s = re.sub(r' xmlns[^ >]*', '', s)
-                s = re.sub(r's:', '', s)
-                xml_file.write(s)
-#               xml_file.write(re.sub(r' xmlns[^ >]*', '', tostring(elem).decode("utf-8")))
+        el = vba_root.find('{%s}legacyDrawing' % SHEET_MAIN_NS)
+        if el is not None:
+            rId = el.get('{%s}id' % REL_NS)
+            tag(doc, 'legacyDrawing', {'r:id': rId})
 
     breaks = worksheet.page_breaks
     if breaks:
