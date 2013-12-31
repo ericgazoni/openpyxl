@@ -76,7 +76,7 @@ class TestDims(TestWorksheet):
 
 
 def test_get_boundaries_range():
-    assert get_range_boundaries('C1:C4') == (3, 1, 3, 4)
+    assert get_range_boundaries('C1:C4') == (3, 1, 4, 4)
 
 def test_get_boundaries_one():
     assert get_range_boundaries('C1') == (3, 1, 4, 1)
@@ -105,7 +105,7 @@ class TestIntegers(TestWorksheet):
 
     sheet_name = 'Sheet2 - Numbers'
     expected = [[x + 1] for x in xrange(30)]
-    query_range = 'D1:E30'
+    query_range = 'D1:D30'
 
     def test_read_fast_integrated(self):
         wb = self._open_wb()
@@ -118,7 +118,7 @@ class TestIntegers(TestWorksheet):
 class TestFloats(TestWorksheet):
 
     sheet_name = 'Sheet2 - Numbers'
-    query_range = 'K1:L30'
+    query_range = 'K1:K30'
     expected = expected = [[(x + 1) / 100.0] for x in xrange(30)]
 
     def test_read_fast_integrated(self):

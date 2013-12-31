@@ -103,23 +103,21 @@ class RawCell(BaseRawCell):
     def is_date(self):
         return is_date_format(self.number_format)
 
-def get_range_boundaries(range_string, row=0, column=0):
+def get_range_boundaries(range_string, row_offset=0, column_offset=1):
 
     if ':' in range_string:
         min_range, max_range = range_string.split(':')
         min_col, min_row = coordinate_from_string(min_range)
         max_col, max_row = coordinate_from_string(max_range)
 
-        min_col = column_index_from_string(min_col) + column
-        max_col = column_index_from_string(max_col) + column
-        min_row += row
-        max_row += row
+        min_col = column_index_from_string(min_col)
+        max_col = column_index_from_string(max_col) + 1
 
     else:
         min_col, min_row = coordinate_from_string(range_string)
         min_col = column_index_from_string(min_col)
-        max_col = min_col + 1
-        max_row = min_row
+        max_col = min_col + column_offset
+        max_row = min_row + row_offset
 
     return (min_col, min_row, max_col, max_row)
 
@@ -166,17 +164,17 @@ class IterableWorksheet(Worksheet):
             key = "{0}:{1}".format(key)
         return self.iter_rows(key)
 
-    def iter_rows(self, range_string='', row_offset=0, column_offset=0):
+    def iter_rows(self, range_string='', row_offset=0, column_offset=1):
         """ Returns a squared range based on the `range_string` parameter,
         using generators.
 
         :param range_string: range of cells (e.g. 'A1:C4')
         :type range_string: string
 
-        :param row: row index of the cell (e.g. 4)
+        :param row_offset: additional rows (e.g. 4)
         :type row: int
 
-        :param column: column index of the cell (e.g. 3)
+        :param column_offset: additonal columns (e.g. 3)
         :type column: int
 
         :rtype: generator
