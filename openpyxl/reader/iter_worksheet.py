@@ -53,11 +53,7 @@ from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.shared.compat import unicode
 from openpyxl.shared.ooxml import (
-    MIN_COLUMN,
-    MAX_COLUMN,
     PACKAGE_WORKSHEETS,
-    MAX_ROW,
-    MIN_ROW,
     ARC_STYLE,
     SHEET_MAIN_NS
 )
@@ -236,8 +232,7 @@ class IterableWorksheet(Worksheet):
             yield tuple(full_row)
 
 
-    def get_rows(self, min_column=MIN_COLUMN, min_row=MIN_ROW,
-                 max_column=MAX_COLUMN, max_row=MAX_ROW):
+    def get_rows(self, min_column, min_row, max_column, max_row):
 
         return groupby(self.get_cells(min_row, min_column, max_row, max_column),
                        operator.attrgetter('row'))
