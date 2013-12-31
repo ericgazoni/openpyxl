@@ -161,6 +161,11 @@ class IterableWorksheet(Worksheet):
         """Base class is always supplied XML source, IteratableWorksheet obtains it on demand."""
         pass
 
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            key = "{0}:{1}".format(key)
+        return self.iter_rows(key)
+
     def iter_rows(self, range_string='', row_offset=0, column_offset=0):
         """ Returns a squared range based on the `range_string` parameter,
         using generators.

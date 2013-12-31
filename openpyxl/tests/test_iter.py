@@ -42,6 +42,12 @@ class TestWorksheet(object):
                              use_iterators=True,
                              data_only=data_only)
 
+    def test_getitem(self):
+        wb = self._open_wb()
+        ws = wb.get_active_sheet()
+        assert list(ws.iter_rows("A1")) == list(ws['A1'])
+        assert list(ws.iter_rows("A1:D30")) == list(ws["A1:D30"])
+
 
 class TestDims(TestWorksheet):
     expected = [
