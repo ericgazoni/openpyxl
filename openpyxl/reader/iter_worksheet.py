@@ -144,11 +144,10 @@ class IterableWorksheet(Worksheet):
         self._string_table = string_table
 
         min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
-        self._min_col = min_col
-        self._min_row = min_row
-        self._max_row = max_row
-        self._max_col = max_col
-        self._dimensions = '%s%s:%s%s' % (min_col, min_row, max_col, max_row)
+        self.min_col = min_col
+        self.min_row = min_row
+        self.max_row = max_row
+        self.max_col = max_col
 
         self._shared_date = SharedDate(base_date=parent_workbook.excel_base_date)
 
@@ -181,10 +180,10 @@ class IterableWorksheet(Worksheet):
         if range_string:
             min_col, min_row, max_col, max_row = get_range_boundaries(range_string, row_offset, column_offset)
         else:
-            min_col = column_index_from_string(self._min_col)
-            max_col = column_index_from_string(self._max_col) + 1
-            min_row = self._min_row
-            max_row = self._max_row + 6
+            min_col = column_index_from_string(self.min_col)
+            max_col = column_index_from_string(self.max_col) + 1
+            min_row = self.min_row
+            max_row = self.max_row + 6
 
         return self.get_squared_range(min_col, min_row, max_col, max_row)
 
@@ -270,10 +269,10 @@ class IterableWorksheet(Worksheet):
         raise NotImplementedError("use 'iter_rows()' instead")
 
     def calculate_dimension(self):
-        return self._dimensions
+        return '%s%s:%s%s' % (self.min_col, self.min_row, self.max_col, self.max_row)
 
     def get_highest_column(self):
-        return column_index_from_string(self._max_col)
+        return column_index_from_string(self.max_col)
 
     def get_highest_row(self):
-        return self._max_row
+        return self.max_row
