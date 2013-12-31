@@ -242,15 +242,14 @@ class IterableWorksheet(Worksheet):
         return groupby(self.get_cells(min_row, min_column, max_row, max_column),
                        operator.attrgetter('row'))
 
-    def get_cells(self, min_row, min_col, max_row, max_col,
-                  _re_coordinate=RE_COORDINATE):
+    def get_cells(self, min_row, min_col, max_row, max_col):
         p = iterparse(self.xml_source)
 
         for _event, element in p:
 
             if element.tag == '{%s}c' % SHEET_MAIN_NS:
                 coord = element.get('r')
-                column_str, row = _re_coordinate.match(coord).groups()
+                column_str, row = RE_COORDINATE.match(coord).groups()
 
                 row = int(row)
                 column = column_index_from_string(column_str)
