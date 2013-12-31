@@ -26,7 +26,7 @@ themselves are comprised of references to cell ranges.
 
 >>> from openpyxl import Workbook
 >>> wb = Workbook()
->>> ws = wb.get_active_sheet()
+>>> ws = wb.active
 >>> for i in range(10):
 >>>     ws.append(i)
 >>>

@@ -11,9 +11,9 @@ Just import the Worbook class and start using it ::
     >>> wb = Workbook()
 
 A workbook is always created with at least one worksheet. You can get it by
-using the :func:`openpyxl.workbook.Workbook.get_active_sheet` method ::
+using the :func:`openpyxl.workbook.Workbook.active` property ::
 
-    >>> ws = wb.get_active_sheet()
+    >>> ws = wb.active
 
 .. note::
 
@@ -34,11 +34,12 @@ You can change this name at any time with the `title` property::
 
     ws.title = "New Title"
 
-Once you gave a worksheet a name, you can get it using
-the :func:`openpyxl.workbook.Workbook.get_sheet_by_name` method ::
+Once you gave a worksheet a name, you can get it as a key of the workbook or
+using the :func:`openpyxl.workbook.Workbook.get_sheet_by_name` method ::
 
-    >>> ws3 = wb.get_sheet_by_name("New Title")
-    >>> ws is ws3
+    >>> ws3 = wb["New Title"]
+    >>> ws4 = wb.get_sheet_by_name("New Title")
+    >>> ws is ws3 is ws4
     True
 
 You can review the names of all worksheets of the workbook with the
@@ -46,6 +47,11 @@ You can review the names of all worksheets of the workbook with the
 
     >>> print wb.get_sheet_names()
     ['Sheet2', 'New Title', 'Sheet1']
+
+You can loop through worksheets ::
+
+    >>> for sheet in wb:
+    ...     print wb.name
 
 
 Playing with data
@@ -56,7 +62,16 @@ Accessing one cell
 
 Now we know how to access a worksheet, we can start modifying cells content.
 
-To access a cell, use the :func:`openpyxl.worksheet.Worksheet.cell` method::
+Cells can be accessed directly as keys of the worksheet ::
+
+    >>> c = ws['A4']
+
+This will return the cell at A4 or create one if it does not exist yet.
+Values can be directly assigned ::
+
+    >>> ws['A4'] = 4
+
+There is also the :func:`openpyxl.worksheet.Worksheet.cell` method::
 
     >>> c = ws.cell('A4')
 
@@ -88,8 +103,11 @@ You can also access a cell using row and column notation::
 Accessing many cells
 ++++++++++++++++++++
 
-If you want to access a `range`, wich is a two-dimension array of cells, you can use the
-:func:`openpyxl.worksheet.Worksheet.range` method::
+Ranges of cells can be accessed using slicing ::
+
+    >>> cell_range = ws['A1':'C2']
+
+You can also use the :func:`openpyxl.worksheet.Worksheet.range` method::
 
     >>> ws.range('A1:C2')
     ((<Cell Sheet1.A1>, <Cell Sheet1.B1>, <Cell Sheet1.C1>),
@@ -108,8 +126,8 @@ If you want to access a `range`, wich is a two-dimension array of cells, you can
 If you need to iterate through all the rows or columns of a file, you can instead use the
 :func:`openpyxl.worksheet.Worksheet.rows` property::
 
-    >>> ws = wb.get_active_sheet()
-    >>> ws.cell('C9').value = 'hello world'
+    >>> ws = wb.active
+    >>> ws.['C9'] = 'hello world'
     >>> ws.rows
     ((<Cell Sheet.A1>, <Cell Sheet.B1>, <Cell Sheet.C1>),
     (<Cell Sheet.A2>, <Cell Sheet.B2>, <Cell Sheet.C2>),

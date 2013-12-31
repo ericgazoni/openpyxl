@@ -36,7 +36,8 @@ Any help will be greatly appreciated, just follow those steps:
     feature, don't try to fix all problems at the same time, it's easier for
     those who will review and merge your changes ;-)
 
-    2. Hack hack hack
+    2.
+    Hack hack hack
 
     3. Don't forget to add unit tests for your changes ! (YES, even if it's a
     one-liner, or there is a high probability your work will not be taken
@@ -46,12 +47,14 @@ Any help will be greatly appreciated, just follow those steps:
     4. If you added a whole new feature, or just improved something, you can
     be proud of it, so add yourself to the AUTHORS file :-)
 
-    5. Let people know about the shiny thing you just implemented, update the docs !
+    5.
+    Let people know about the shiny thing you just implemented, update the docs !
 
     6. When it's done, just issue a pull request (click on the large "pull
     request" button on *your* repository) and wait for your code to be
     reviewed, and, if you followed all theses steps, merged into the main
     repository.
+
 
 For further information see :ref:`development`
 
@@ -66,20 +69,22 @@ Other ways to help
 
 There are several ways to contribute, even if you can't code (or can't code well):
 
-- triaging bugs on the bug tracker: closing bugs that have already been
-closed, are not relevant, cannot be reproduced, ...
+    - triaging bugs on the bug tracker: closing bugs that have already been
+      closed, are not relevant, cannot be reproduced, ...
 
-- updating documentation in virtually every area: many large features have
-been added (mainly about charts and images at the moment) but without any
-documentation, it's pretty hard to do anything with it
+    - updating documentation in virtually every area: many large features have
+      been added (mainly about charts and images at the moment) but without any
+      documentation, it's pretty hard to do anything with it
 
-- proposing compatibility fixes for different versions of Python: we support
-2.6 to 3.3, so if it does not work on your environment, let us know :-)
+    - proposing compatibility fixes for different versions of Python: we support
+      2.6 to 3.3, so if it does not work on your environment, let us know :-)
+
 
 Installation
 ------------
 
-The best method to install openpyxl is using a PyPi client such as easy_install (setuptools) or pip::
+The best method to install openpyxl is using a PyPi client such as
+easy_install (setuptools) or pip::
 
     $ pip install openpyxl
 

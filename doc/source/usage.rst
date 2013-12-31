@@ -13,7 +13,7 @@ Write a workbook
 
     dest_filename = r'empty_book.xlsx'
 
-    ws = wb.worksheets[0]
+    ws = wb.active
 
     ws.title = "range names"
 
@@ -26,21 +26,37 @@ Write a workbook
 
     ws.title = 'Pi'
 
-    ws.cell('F5').value = 3.14
+    ws['F5'] = 3.14
 
     wb.save(filename = dest_filename)
 
+
 Read an existing workbook
------------------------------
+-------------------------
 ::
 
     from openpyxl import load_workbook
 
     wb = load_workbook(filename = r'empty_book.xlsx')
 
-    sheet_ranges = wb.get_sheet_by_name(name = 'range names')
+    sheet_ranges = wb['range names']
 
-    print sheet_ranges.cell('D18').value # D18
+    print sheet_ranges['D18'].value # D18
+
+
+.. note ::
+
+    There are several flags that can be used in load_workbook.
+
+    - `guess_types` will enable (default) or disable type inference when
+      reading cells.
+
+    - `data_only` controls whether cells with formulae have either the
+      formula (default) or the value stored the last time Excel read the sheet.
+
+    - `keep_vba` controls whether any Visual Basic elements are preserved or
+      not (default). If they are preserved they are still not editable.
+
 
 .. warning ::
 
@@ -50,26 +66,25 @@ Read an existing workbook
 
 
 Using number formats
-----------------------
+--------------------
 ::
 
     import datetime
     from openpyxl import Workbook
 
     wb = Workbook()
-    ws = wb.worksheets[0]
-
+    ws = wb.active
     # set date using a Python datetime
-    ws.cell('A1').value = datetime.datetime(2010, 7, 21)
+    ws['A1'] = datetime.datetime(2010, 7, 21)
 
-    print ws.cell('A1').style.number_format.format_code # returns 'yyyy-mm-dd'
+    print ws['A1'].style.number_format.format_code # returns 'yyyy-mm-dd'
 
     # set percentage using a string followed by the percent sign
-    ws.cell('B1').value = '3.14%'
+    ws['B1'] = '3.14%'
 
-    print ws.cell('B1').value # returns 0.031400000000000004
+    print ws['B1'].value # returns 0.031400000000000004
 
-    print ws.cell('B1').style.number_format.format_code # returns '0%'
+    print ws['B1'].style.number_format.format_code # returns '0%'
 
 
 Using formulae
@@ -79,10 +94,10 @@ Using formulae
     from openpyxl import Workbook
 
     wb = Workbook()
-    ws = wb.worksheets[0]
+    ws = wb.active
 
     # add a simple formula
-    ws.cell("A1").value = "=SUM(1, 1)"
+    ws["A1"] = "=SUM(1, 1)"
     wb.save("formula.xlsx")
 
 .. warning::
@@ -99,9 +114,9 @@ Inserting an image
     from openpyxl.drawing import Image
 
     wb = Workbook()
-    ws = wb.get_active_sheet()
-    ws.cell('A1').value = 'You should see three logos below'
-    ws.cell('A2').value = 'Resize the rows and cells to see anchor differences'
+    ws = wb.active
+    ws['A1'] = 'You should see three logos below'
+    ws['A2'] = 'Resize the rows and cells to see anchor differences'
 
     # create image instances
     img = Image('logo.png')
@@ -114,12 +129,12 @@ Inserting an image
 
     # the top left offset needed to put the image
     # at a specific cell can be automatically calculated
-    img2.anchor(ws.cell('D12'))
+    img2.anchor(ws['D12'])
 
     # one can also position the image relative to the specified cell
     # this can be advantageous if the spreadsheet is later resized
     # (this might not work as expected in LibreOffice)
-    img3.anchor(ws.cell('G20'), anchortype='oneCell')
+    img3.anchor(ws['G20'], anchortype='oneCell')
 
     # afterwards one can still add additional offsets from the cell
     img3.drawing.left = 5
@@ -141,7 +156,7 @@ Validating cells
 
     # Create the workbook and worksheet we'll be working with
     wb = Workbook()
-    ws = wb.get_active_sheet()
+    ws = wb.active
 
     # Create a data-validation object with list validation
     dv = DataValidation(ValidationType.LIST, formula1='"Dog,Cat,Bat"', allow_blank=True)
@@ -156,10 +171,10 @@ Validating cells
     ws.add_data_validation(dv)
 
     # Create some cells, and add them to the data-validation object
-    c1 = ws.cell("A1")
+    c1 = ws["A1"]
     c1.value = "Dog"
     dv.add_cell(c1)
-    c2 = ws.cell("A2")
+    c2 = ws["A2"]
     c2.value = "An invalid value"
     dv.add_cell(c2)
 
