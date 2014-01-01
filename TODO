@@ -1,6 +1,62 @@
 Roadmap for next version
 ========================
 
+[ ] Bugfix # 181
+
+[ ] Bugfix # 88
+
+[ ] Bugfix # 103
+
+[ ] Bugfix # 46
+
+[ ] Bugfix # 152
+
+[ ] Bugfix # 198
+
+[ ] Bugfix # 243
+
+[ ] Bugfix # 172
+
+[ ] Bugfix # 230
+
+[ ] Bugfix # 216
+
+[ ] Bugfix # 215
+
+[ ] Bugfix # 169
+
+[ ] Bugfix # 163
+
+[ ] Bugfix # 85
+
+[ ] Bugfix # 101
+
+[ ] Bugfix # 108
+
+[ ] Bugfix # 105
+
+[ ] Bugfix # 95
+
+[ ] Bugfix # 99
+
+[ ] Bugfix # 98
+
+[ ] Bugfix # 97
+
+[ ] Bugfix # 96
+
+[ ] Add fixture for datadir
+
+[ ] Migrate tests from nose to pytest
+
+[ ] Add support for Python 3.4
+
+[ ] Improve handling of relationships
+
+[ ] Harmonise code in optimised writer and standard
+
+[ ] lxml based writer
+
 [ ] Harmonise cells for reader and optimised reader -> 1.9 / 2.0
 
 [ ] No longer infer data types when reading files? -> 1.9
