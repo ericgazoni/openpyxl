@@ -133,6 +133,8 @@ class WorkSheetParser(object):
             data_type = element.get('t', 'n')
             if data_type == Cell.TYPE_STRING:
                 value = self.string_table.get(int(value))
+            if data_type == Cell.TYPE_BOOL:
+                value = bool(int(value))
             if formula is not None and not self.data_only:
                 if formula.text:
                     value = "=" + str(formula.text)
