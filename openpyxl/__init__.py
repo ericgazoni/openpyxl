@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -48,7 +47,7 @@ from openpyxl.reader.excel import load_workbook
 # constants
 
 __major__ = 1  # for major interface/format changes
-__minor__ = 8  # for minor interface/format changes
+__minor__ = 9  # for minor interface/format changes
 __release__ = 0  # for tweaks, bug-fixes, or development
 
 __version__ = '%d.%d.%d' % (__major__, __minor__, __release__)
