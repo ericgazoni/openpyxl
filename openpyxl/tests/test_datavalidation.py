@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,9 +21,6 @@ from __future__ import absolute_import
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-# 3rd party imports
-from nose.tools import eq_, raises, assert_raises #pylint: disable=E0611
-
 # package imports
 from openpyxl.datavalidation import collapse_cell_addresses, DataValidation, ValidationType
 
@@ -45,7 +41,7 @@ def test_collapse_cell_addresses():
     def check_address(data):
         cells, expected = data
         collapsed = collapse_cell_addresses(cells)
-        eq_(collapsed, expected)
+        assert collapsed == expected
 
     for data in COLLAPSE_TEST_DATA:
         yield check_address, data
@@ -53,22 +49,22 @@ def test_collapse_cell_addresses():
 
 def test_list_validation():
     dv = DataValidation(ValidationType.LIST, formula1='"Dog,Cat,Fish"')
-    eq_(dv.formula1, '"Dog,Cat,Fish"')
-    eq_(dv.generate_attributes_map()['type'], 'list')
-    eq_(dv.generate_attributes_map()['allowBlank'], '0')
-    eq_(dv.generate_attributes_map()['showErrorMessage'], '1')
-    eq_(dv.generate_attributes_map()['showInputMessage'], '1')
+    assert dv.formula1, '"Dog,Cat == Fish"'
+    assert dv.generate_attributes_map()['type'] == 'list'
+    assert dv.generate_attributes_map()['allowBlank'] == '0'
+    assert dv.generate_attributes_map()['showErrorMessage'] == '1'
+    assert dv.generate_attributes_map()['showInputMessage'] == '1'
 
 
 def test_error_message():
     dv = DataValidation(ValidationType.LIST, formula1='"Dog,Cat,Fish"')
     dv.set_error_message('You done bad')
-    eq_(dv.generate_attributes_map()['errorTitle'], 'Validation Error')
-    eq_(dv.generate_attributes_map()['error'], 'You done bad')
+    assert dv.generate_attributes_map()['errorTitle'] == 'Validation Error'
+    assert dv.generate_attributes_map()['error'] == 'You done bad'
 
 
 def test_prompt_message():
     dv = DataValidation(ValidationType.LIST, formula1='"Dog,Cat,Fish"')
     dv.set_prompt_message('Please enter a value')
-    eq_(dv.generate_attributes_map()['promptTitle'], 'Validation Prompt')
-    eq_(dv.generate_attributes_map()['prompt'], 'Please enter a value')
+    assert dv.generate_attributes_map()['promptTitle'] == 'Validation Prompt'
+    assert dv.generate_attributes_map()['prompt'] == 'Please enter a value'
