@@ -70,7 +70,7 @@ class TestReaderProps(object):
             eacute = chr(233)
         eq_(prop.last_modified_by, 'Charlie Clark')
         eq_(prop.created, datetime(2010, 4, 9, 20, 43, 12))
-        eq_(prop.modified, datetime(2013, 12, 22, 11, 11, 28))
+        eq_(prop.modified, datetime(2014, 1, 2, 14, 53, 6))
 
     def test_read_sheets_titles(self):
         content = self.archive.read(ARC_WORKBOOK)
