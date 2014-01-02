@@ -91,7 +91,8 @@ def test_read_worksheet():
     assert isinstance(sheet2, Worksheet)
     assert 'This is cell G5' == sheet2['G5'].value
     assert 18 == sheet2['D18'].value
-
+    assert sheet2['G9'].value is True
+    assert sheet2['G10'].value is False
 
 def test_read_nostring_workbook():
     genuine_wb = os.path.join(DATADIR, 'genuine', 'empty-no-string.xlsx')
