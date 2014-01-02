@@ -89,8 +89,8 @@ def test_read_worksheet():
     wb = load_workbook(path)
     sheet2 = wb.get_sheet_by_name('Sheet2 - Numbers')
     assert isinstance(sheet2, Worksheet)
-    assert 'This is cell G5' == sheet2.cell('G5').value
-    assert 18 == sheet2.cell('D18').value
+    assert 'This is cell G5' == sheet2['G5'].value
+    assert 18 == sheet2['D18'].value
 
 
 def test_read_nostring_workbook():
