@@ -47,7 +47,7 @@ Roadmap for next version
 
 [ ] Add fixture for datadir
 
-[ ] Migrate tests from nose to pytest
+[x] Migrate tests from nose to pytest
 
 [ ] Add support for Python 3.4
 

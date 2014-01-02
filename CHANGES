@@ -1,6 +1,12 @@
 1.9.0 (unreleased)
 ==================
 
+Minor changes
+-------------
+
+* All tests converted to pytest
+
+
 
 1.8.0 (2013-12-31)
 ==================
