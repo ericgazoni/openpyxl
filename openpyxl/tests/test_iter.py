@@ -161,3 +161,20 @@ class TestFormula(TestWorksheet):
         cell = list(rows)[0][0]
         assert ws.parent.data_only == data_only
         assert cell.internal_value == expected
+
+
+class TestBoolean(TestWorksheet):
+
+    @pytest.mark.parametrize("cell, expected",
+        [
+        ("G9", True),
+        ("G10", False)
+        ]
+        )
+    def test_read_boolean(self, cell, expected):
+        wb = self._open_wb()
+        ws = wb["Sheet2 - Numbers"]
+        row = list(ws.iter_rows(cell))
+        assert row[0][0].coordinate == cell
+        assert row[0][0].data_type == 'b'
+        assert row[0][0].internal_value == expected
