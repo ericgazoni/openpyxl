@@ -30,70 +30,70 @@ def Worksheet():
 @pytest.fixture
 def Chart():
     """Chart class"""
-    from openpyxl.chart import Chart
+    from openpyxl.charts.chart import Chart
     return Chart
 
 
 @pytest.fixture
 def GraphChart():
     """GraphicChart class"""
-    from openpyxl.chart import GraphChart
+    from openpyxl.charts.chart import GraphChart
     return GraphChart
 
 
 @pytest.fixture
 def Axis():
     """Axis class"""
-    from openpyxl.chart import Axis
+    from openpyxl.charts.axis import Axis
     return Axis
 
 
 @pytest.fixture
 def PieChart():
     """PieChart class"""
-    from openpyxl.chart import PieChart
+    from openpyxl.charts import PieChart
     return PieChart
 
 
 @pytest.fixture
 def LineChart():
     """LineChart class"""
-    from openpyxl.chart import LineChart
+    from openpyxl.charts import LineChart
     return LineChart
 
 
 @pytest.fixture
 def BarChart():
     """BarChart class"""
-    from openpyxl.chart import BarChart
+    from openpyxl.charts import BarChart
     return BarChart
 
 
 @pytest.fixture
 def ScatterChart():
     """ScatterChart class"""
-    from openpyxl.chart import ScatterChart
+    from openpyxl.charts import ScatterChart
     return ScatterChart
 
 
 @pytest.fixture
 def Reference():
     """Reference class"""
-    from openpyxl.chart import Reference
+    from openpyxl.charts import Reference
     return Reference
 
 
 @pytest.fixture
 def Series():
     """Serie class"""
-    from openpyxl.chart import Series
+    from openpyxl.charts import Series
     return Series
 
 
 @pytest.fixture
 def ErrorBar():
     """ErrorBar class"""
-    from openpyxl.chart import ErrorBar
+    from openpyxl.charts import ErrorBar
     return ErrorBar
 
 
