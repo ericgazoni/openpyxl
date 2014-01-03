@@ -255,10 +255,15 @@ class IterableWorksheet(Worksheet):
                     yield RawCell(row, column_str, coord, value, data_type, style_id, None)
 
     def cell(self, *args, **kwargs):
+        # TODO return an individual cell
         raise NotImplementedError("use 'iter_rows()' instead")
 
     def range(self, *args, **kwargs):
+        # TODO return a range of cells, basically get_squared_range with same interface as Worksheet
         raise NotImplementedError("use 'iter_rows()' instead")
+
+    def rows(self):
+        return self.iter_rows()
 
     def calculate_dimension(self):
         return '%s%s:%s%s' % (self.min_col, self.min_row, self.max_col, self.max_row)

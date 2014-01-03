@@ -49,6 +49,8 @@ Roadmap for next version
 
 [x] Migrate tests from nose to pytest
 
+[ ] Cleanup API of IterableWorksheet
+
 [ ] Add support for Python 3.4
 
 [ ] Improve handling of relationships
