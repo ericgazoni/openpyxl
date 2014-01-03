@@ -29,6 +29,12 @@ try:
 except ImportError:
     LXML = False
 
+# Tests require lxml but openpyxl itself doesn't. Allow it to be overwritten by test configuration
+try:
+    from .tests import LXML
+except ImportError:
+    pass
+
 # package imports
 from openpyxl import cell
 from openpyxl import namedrange

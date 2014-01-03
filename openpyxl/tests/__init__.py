@@ -21,3 +21,7 @@ from __future__ import absolute_import
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
+
+import os
+
+LXML = os.environ.get("OPENPYXL_LXML", True)

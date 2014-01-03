@@ -22,11 +22,7 @@
 
 """Make sure we're using the fastest backend available"""
 
-try:
-    from lxml.etree import Element as lElement
-    LXML = True
-except ImportError:
-    LXML = False
+from openpyxl import LXML
 
 try:
     from xml.etree.cElementTree import Element as cElement
