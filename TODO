@@ -51,6 +51,8 @@ Roadmap for next version
 
 [ ] Cleanup API of IterableWorksheet
 
+[ ] Cleanup use of keys when writing styles
+
 [ ] Add support for Python 3.4
 
 [ ] Improve handling of relationships

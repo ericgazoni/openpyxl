@@ -5,7 +5,7 @@ Minor changes
 -------------
 
 * All tests converted to pytest
-
+* Pyflakes used for static code analysis
 
 
 1.8.0 (2013-12-31)
