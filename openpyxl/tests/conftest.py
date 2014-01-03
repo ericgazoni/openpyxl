@@ -160,3 +160,5 @@ def pytest_runtest_setup(item):
             pytest.skip("PIL is installed")
         elif item.get_marker("not_py33"):
             pytest.skip("Ordering is not a given in Python 3")
+        elif item.get_marker("lxml_required"):
+            pytest.skip("LXML is required for some features such as schema validation")

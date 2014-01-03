@@ -274,6 +274,7 @@ class TestDrawingWriter(object):
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
+    @pytest.mark.lxml_required
     def test_write_chart(self):
         from openpyxl.drawing import Drawing
         root = Element("{%s}wsDr" % SHEET_DRAWING_NS)
@@ -309,6 +310,7 @@ class TestDrawingWriter(object):
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
+    @pytest.mark.lxml_required
     @pytest.mark.pil_required
     def test_write_images(self):
         from openpyxl.drawing import Image
@@ -410,6 +412,7 @@ class TestShapeWriter(object):
         self.shape = Shape(chart=chart, text="My first chart")
         self.sw = ShapeWriter(shapes=[self.shape])
 
+    @pytest.mark.lxml_required
     def test_write(self):
         xml = self.sw.write(0)
         tree = fromstring(xml)
