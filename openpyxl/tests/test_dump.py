@@ -22,11 +22,10 @@
 # @author: see AUTHORS file
 
 # Python stdlib imports
-from datetime import time, datetime
+from datetime import datetime
 from tempfile import NamedTemporaryFile
 import os
 import os.path
-import shutil
 
 import pytest
 

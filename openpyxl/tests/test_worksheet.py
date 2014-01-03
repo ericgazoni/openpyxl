@@ -28,12 +28,14 @@ import pytest
 # package imports
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet, Relationship, flatten
-from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.comments import Comment
-from openpyxl.shared.exc import CellCoordinatesException, \
-        SheetTitleException, InsufficientCoordinatesException, \
-        NamedRangeException
+from openpyxl.shared.exc import (
+    CellCoordinatesException,
+    SheetTitleException,
+    InsufficientCoordinatesException,
+    NamedRangeException
+    )
 from openpyxl.writer.worksheet import write_worksheet
 
 class TestWorksheet(object):
@@ -130,7 +132,7 @@ class TestWorksheet(object):
     def test_cell_insufficient_coordinates(self):
         ws = Worksheet(self.wb)
         with pytest.raises(InsufficientCoordinatesException):
-            cell = ws.cell(row=8)
+            ws.cell(row=8)
 
     def test_cell_range_name(self):
         ws = Worksheet(self.wb)
@@ -172,7 +174,7 @@ class TestWorksheet(object):
 
     def test_bad_relationship_type(self):
         with pytest.raises(ValueError):
-            rel = Relationship('bad_type')
+            Relationship('bad_type')
 
     def test_append_list(self):
         ws = Worksheet(self.wb)

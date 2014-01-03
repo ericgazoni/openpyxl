@@ -24,7 +24,6 @@
 
 # stdlib
 import datetime
-import os.path
 
 # package imports
 from openpyxl.workbook import Workbook
@@ -34,7 +33,6 @@ from openpyxl.shared.exc import ReadOnlyWorkbookException
 
 # test imports
 import pytest
-from openpyxl.tests.helper import TMPDIR, clean_tmpdir, make_tmpdir
 from openpyxl.tests.schema import validate_archive
 
 
@@ -113,12 +111,6 @@ def test_iter(Workbook):
         pass
     assert i == 0
     assert ws.title == "Sheet"
-
-
-def test_get_index():
-    wb = Workbook()
-    new_sheet = wb.create_sheet(0)
-
 
 def test_get_index():
     wb = Workbook()

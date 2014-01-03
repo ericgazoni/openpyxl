@@ -1,5 +1,4 @@
 # Fixtures (pre-configured objects) for tests
-import sys
 import pytest
 
 # objects under test

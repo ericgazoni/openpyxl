@@ -29,10 +29,7 @@ from __future__ import absolute_import
 import operator
 from itertools import groupby
 import re
-import tempfile
-import zlib
 import zipfile
-import struct
 from collections import namedtuple
 
 # compatibility
@@ -44,7 +41,6 @@ from openpyxl.cell import (
     coordinate_from_string,
     get_column_letter,
     Cell,
-    column_index_from_string
 )
 from openpyxl.reader.style import read_style_table
 from openpyxl.styles import is_date_format

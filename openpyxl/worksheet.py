@@ -45,7 +45,6 @@ from openpyxl.shared import DEFAULT_COLUMN_WIDTH, DEFAULT_ROW_HEIGHT
 from openpyxl.shared.password_hasher import hash_password
 from openpyxl.styles import Style, DEFAULTS as DEFAULTS_STYLE
 from openpyxl.styles.formatting import ConditionalFormatting
-from openpyxl.drawing import Drawing
 from openpyxl.namedrange import NamedRangeContainingValue
 from openpyxl.shared.compat import OrderedDict, unicode, xrange, basestring
 from openpyxl.shared.compat.itertools import iteritems

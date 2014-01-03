@@ -111,7 +111,7 @@ class BaseChartWriter(object):
             SubElement(pPr, '{%s}defRPr' % DRAWING_NS)
             r = SubElement(p, '{%s}r' % DRAWING_NS)
             SubElement(r, '{%s}rPr' % DRAWING_NS, {'lang':self.chart.lang})
-            t = SubElement(r, '{%s}t' % DRAWING_NS).text = self.chart.title
+            SubElement(r, '{%s}t' % DRAWING_NS).text = self.chart.title
             SubElement(title, '{%s}layout' % CHART_NS)
 
     def _write_axis_title(self, axis, ax):
@@ -127,7 +127,7 @@ class BaseChartWriter(object):
             SubElement(pPr, '{%s}defRPr' % DRAWING_NS)
             r = SubElement(p, '{%s}r' % DRAWING_NS)
             SubElement(r, '{%s}rPr' % DRAWING_NS, {'lang':self.chart.lang})
-            t = SubElement(r, '{%s}t' % DRAWING_NS).text = axis.title
+            SubElement(r, '{%s}t' % DRAWING_NS).text = axis.title
             SubElement(title, '{%s}layout' % CHART_NS)
 
     def _write_axis(self, plot_area, axis, label):

@@ -24,7 +24,7 @@ from __future__ import absolute_import
 # @author: see AUTHORS file
 
 from openpyxl.shared.compat import iteritems
-from openpyxl.shared.ooxml import COMMENTS_NS, REL_NS, PKG_REL_NS, SHEET_MAIN_NS
+from openpyxl.shared.ooxml import SHEET_MAIN_NS
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
 from openpyxl.cell import column_index_from_string
 

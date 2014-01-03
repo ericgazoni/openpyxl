@@ -28,12 +28,12 @@ from __future__ import absolute_import
 from warnings import warn
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO, StringIO
+from openpyxl.shared.compat import BytesIO
 from openpyxl.shared.compat import iterparse
 
 # package imports
 from openpyxl.cell import get_column_letter
-from openpyxl.shared.xmltools import fromstring, safe_iterator
+from openpyxl.shared.xmltools import safe_iterator
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
 from openpyxl.shared.ooxml import SHEET_MAIN_NS
@@ -265,8 +265,8 @@ class WorkSheetParser(object):
                         c = Color(Color.BLACK)
                         if self.color_index\
                            and color.get('indexed') is not None\
-                           and 0 <= int(color.get('indexed')) < len(color_index):
-                            c.index = color_index[int(color.get('indexed'))]
+                           and 0 <= int(color.get('indexed')) < len(self.color_index):
+                            c.index = self.color_index[int(color.get('indexed'))]
                         if color.get('theme') is not None:
                             if color.get('tint') is not None:
                                 c.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))

@@ -25,7 +25,7 @@ from __future__ import absolute_import
 """Write the shared string table."""
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO, StringIO
+from openpyxl.shared.compat import StringIO
 
 # package imports
 from openpyxl.shared.xmltools import start_tag, end_tag, tag, XMLGenerator

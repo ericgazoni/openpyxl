@@ -32,7 +32,6 @@ from openpyxl.namedrange import split_named_range, NamedRange
 from openpyxl.reader.workbook import read_named_ranges
 from openpyxl.shared.exc import NamedRangeException
 from openpyxl.reader.excel import load_workbook
-from openpyxl.writer.workbook import write_workbook
 from openpyxl.workbook import Workbook
 
 
@@ -161,8 +160,10 @@ class TestNameRefersToValue(object):
         assert "MyValue" == value_range.name
         assert "9.99" == value_range.value
 
+    @pytest.mark.xfail
     def test_worksheet_range(self):
         range = self.ws.range("MyRef")
+        raise Exception("No test")
 
     def test_worksheet_range_error_on_value_range(self):
         with pytest.raises(NamedRangeException):

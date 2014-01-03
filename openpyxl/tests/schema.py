@@ -26,7 +26,7 @@ import os
 from zipfile import ZipFile
 
 from lxml.etree import XMLSchema
-from lxml.etree import tostring, fromstring, parse
+from lxml.etree import parse
 
 # Provide schema based validators, lxml required
 # use schema.validate(Element) or schema.assertValid(Element) for messages

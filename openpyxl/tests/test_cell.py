@@ -30,11 +30,18 @@ import pytest
 # package imports
 from openpyxl.worksheet import Worksheet
 from openpyxl.workbook import Workbook
-from openpyxl.shared.exc import ColumnStringIndexException, \
-        CellCoordinatesException, DataTypeException
+from openpyxl.shared.exc import (
+    CellCoordinatesException,
+    DataTypeException
+    )
 from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
-from openpyxl.cell import column_index_from_string, \
-        coordinate_from_string, get_column_letter, Cell, absolute_coordinate
+from openpyxl.cell import (
+    column_index_from_string,
+    coordinate_from_string,
+    get_column_letter,
+    Cell,
+    absolute_coordinate
+    )
 from openpyxl.comments import Comment
 
 import decimal

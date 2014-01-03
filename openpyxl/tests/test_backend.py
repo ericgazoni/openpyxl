@@ -30,6 +30,11 @@ try:
 except ImportError:
     C = False
 
+try:
+    from lxml.etree import Element as lElement
+except ImportError:
+    lElement is None
+
 from xml.etree.ElementTree import Element as pyElement
 
 def test_backend():

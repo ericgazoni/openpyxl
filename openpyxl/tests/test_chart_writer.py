@@ -129,6 +129,7 @@ class TestChartWriter(object):
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
+    @pytest.mark.xfail
     def test_write_no_ascii(self, ten_row_sheet, Series, BarChart, Reference):
         ws = ten_row_sheet
         ws.append(["D\xc3\xbcsseldorf"]*10)
@@ -138,6 +139,7 @@ class TestChartWriter(object):
         c = BarChart()
         c.add_serie(serie)
         cw = ChartWriter(c)
+        raise Exception("No test")
 
     def test_label_no_number_format(self, ten_column_sheet, Reference, Series, BarChart, root_xml):
         ws = ten_column_sheet

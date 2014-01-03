@@ -27,7 +27,6 @@ from __future__ import absolute_import
 # package imports
 from openpyxl.shared.xmltools import Element, SubElement
 from openpyxl.shared.xmltools import get_document_content
-from openpyxl.shared.ooxml import SHEET_MAIN_NS
 from openpyxl import style
 
 class StyleWriter(object):
@@ -176,7 +175,6 @@ class StyleWriter(object):
                     obj = getattr(st.borders, side)
                     if obj.border_style is None or obj.border_style == 'none':
                         node = SubElement(border, side)
-                        attrs = {}
                     else:
                         node = SubElement(border, side, {'style':obj.border_style})
                         if str(obj.color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
@@ -322,7 +320,6 @@ class StyleWriter(object):
                         obj = getattr(borders, side)
                         if obj.border_style is None or obj.border_style == 'none':
                             node = SubElement(border, side)
-                            attrs = {}
                         else:
                             node = SubElement(border, side, {'style': obj.border_style})
                             if str(obj.color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such

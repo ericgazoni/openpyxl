@@ -26,7 +26,6 @@ from __future__ import absolute_import
 
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
 from openpyxl.shared.ooxml import (
-    SHEET_MAIN_NS,
     DRAWING_NS,
     SHEET_DRAWING_NS,
     CHART_NS,

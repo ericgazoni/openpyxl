@@ -23,12 +23,12 @@
 
 # Python stdlib imports
 import os.path
-from datetime import datetime, date
+from datetime import datetime
 
 import pytest
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO, StringIO, unicode, file, tempfile
+from openpyxl.shared.compat import BytesIO, StringIO, unicode, tempfile
 
 # package imports
 from openpyxl.tests.helper import DATADIR
@@ -100,12 +100,12 @@ def test_read_nostring_workbook():
 def test_read_empty_file():
     null_file = os.path.join(DATADIR, 'reader', 'null_file.xlsx')
     with pytest.raises(InvalidFileException):
-        wb = load_workbook(null_file)
+        load_workbook(null_file)
 
 def test_read_empty_archive():
     null_file = os.path.join(DATADIR, 'reader', 'null_archive.xlsx')
     with pytest.raises(InvalidFileException):
-        wb = load_workbook(null_file)
+        load_workbook(null_file)
 
 @pytest.mark.parametrize("filename", ["sheet2.xml", "sheet2_no_dimension.xml"])
 def test_read_dimension(filename):
@@ -129,10 +129,12 @@ def test_get_highest_row_iter():
     max_row = sheet2.get_highest_row()
     assert 30 == max_row
 
+@pytest.mark.xfail
 def test_read_workbook_with_no_properties():
     genuine_wb = os.path.join(DATADIR, 'genuine', \
                 'empty_with_no_properties.xlsx')
-    wb = load_workbook(filename=genuine_wb)
+    load_workbook(filename=genuine_wb)
+    raise Exception("No test")
 
 class TestReadWorkbookWithStyles(object):
 

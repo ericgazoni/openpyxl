@@ -30,21 +30,29 @@ from sys import exc_info
 import warnings
 
 # compatibility imports
-
-from openpyxl.shared.compat import file
+from openpyxl.shared.compat import unicode, file, StringIO
 
 # package imports
 from openpyxl.shared.exc import OpenModeError, InvalidFileException
-from openpyxl.shared.ooxml import (ARC_SHARED_STRINGS, ARC_CORE, ARC_WORKBOOK,
-                                   PACKAGE_WORKSHEETS, ARC_STYLE, ARC_THEME,
-                                   ARC_CONTENT_TYPES)
-from openpyxl.shared.compat import unicode, file, BytesIO, StringIO
+from openpyxl.shared.ooxml import (
+    ARC_SHARED_STRINGS,
+    ARC_CORE,
+    ARC_WORKBOOK,
+    PACKAGE_WORKSHEETS,
+    ARC_STYLE,
+    ARC_THEME,
+    ARC_CONTENT_TYPES
+)
 from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
-from openpyxl.reader.workbook import (read_sheets_titles, read_named_ranges,
-        read_properties_core, read_excel_base_date, get_sheet_ids,
-        read_content_types)
+from openpyxl.reader.workbook import (
+    read_sheets_titles,
+    read_named_ranges,
+    read_properties_core,
+    read_excel_base_date,
+    read_content_types
+)
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.comments import read_comments, get_comments_file
 # Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"

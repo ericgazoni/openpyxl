@@ -25,9 +25,13 @@ from __future__ import absolute_import
 from os import path
 
 from openpyxl.comments import Comment
-from openpyxl.shared.ooxml import PACKAGE_WORKSHEET_RELS, PACKAGE_WORKSHEETS, \
-                                  SHEET_MAIN_NS, COMMENTS_NS
-from openpyxl.shared.xmltools import fromstring
+from openpyxl.shared.ooxml import (
+    PACKAGE_WORKSHEET_RELS,
+    PACKAGE_WORKSHEETS,
+    SHEET_MAIN_NS,
+    COMMENTS_NS
+    )
+from openpyxl.shared.xmltools import fromstring, safe_iterator
 
 def _get_author_list(root):
     author_subtree = root.find('{%s}authors' % SHEET_MAIN_NS)
@@ -37,12 +41,11 @@ def read_comments(ws, xml_source):
     """Given a worksheet and the XML of its comments file, assigns comments to cells"""
     root = fromstring(xml_source)
     authors = _get_author_list(root)
-    comment_nodes = root.iter('{%s}comment' % SHEET_MAIN_NS)
+    comment_nodes = safe_iterator(root, ('{%s}comment' % SHEET_MAIN_NS))
     for node in comment_nodes:
         author = authors[int(node.attrib['authorId'])]
         cell = node.attrib['ref']
         text_node = node.find('{%s}text' % SHEET_MAIN_NS)
-        text = ''
         substrs = []
         for run in text_node.findall('{%s}r' % SHEET_MAIN_NS):
             runtext = ''.join([t.text for t in run.findall('{%s}t' % SHEET_MAIN_NS)])

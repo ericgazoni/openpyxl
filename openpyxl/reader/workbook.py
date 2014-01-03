@@ -26,10 +26,21 @@ from __future__ import absolute_import
 
 # package imports
 from openpyxl.shared.xmltools import fromstring
-from openpyxl.shared.ooxml import NAMESPACES, DCORE_NS, COREPROPS_NS, DCTERMS_NS, SHEET_MAIN_NS, CONTYPES_NS
+from openpyxl.shared.ooxml import (
+    DCORE_NS,
+    COREPROPS_NS,
+    DCTERMS_NS,
+    SHEET_MAIN_NS,
+    CONTYPES_NS
+)
 from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import W3CDTF_to_datetime,CALENDAR_WINDOWS_1900,CALENDAR_MAC_1904
-from openpyxl.namedrange import NamedRange, NamedRangeContainingValue, split_named_range, refers_to_range
+from openpyxl.namedrange import (
+    NamedRange,
+    NamedRangeContainingValue,
+    split_named_range,
+    refers_to_range
+    )
 
 import datetime
 
