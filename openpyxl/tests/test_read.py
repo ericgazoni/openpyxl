@@ -134,7 +134,7 @@ def test_read_workbook_with_no_properties():
     genuine_wb = os.path.join(DATADIR, 'genuine', \
                 'empty_with_no_properties.xlsx')
     load_workbook(filename=genuine_wb)
-    raise Exception("No test")
+
 
 class TestReadWorkbookWithStyles(object):
 

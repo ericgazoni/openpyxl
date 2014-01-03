@@ -63,7 +63,6 @@ class TestCreateStyle(object):
     @pytest.mark.xfail
     def test_write_style_table(self):
         reference_file = os.path.join(DATADIR, 'writer', 'expected', 'simple-styles.xml')
-        raise Exception("No test")
 
 class TestStyleWriter(object):
 

@@ -163,7 +163,6 @@ class TestNameRefersToValue(object):
     @pytest.mark.xfail
     def test_worksheet_range(self):
         range = self.ws.range("MyRef")
-        raise Exception("No test")
 
     def test_worksheet_range_error_on_value_range(self):
         with pytest.raises(NamedRangeException):

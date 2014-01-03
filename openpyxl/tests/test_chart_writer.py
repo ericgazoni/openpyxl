@@ -139,7 +139,6 @@ class TestChartWriter(object):
         c = BarChart()
         c.add_serie(serie)
         cw = ChartWriter(c)
-        raise Exception("No test")
 
     def test_label_no_number_format(self, ten_column_sheet, Reference, Series, BarChart, root_xml):
         ws = ten_column_sheet
