@@ -326,6 +326,10 @@ def test_read_contains_chartsheet():
     assert sheet_names[0] == 'data'
     assert sheet_names[1] == 'moredata'
 
+    fname = os.path.join(DATADIR, 'reader', 'bug137.xlsx')
+    wb = load_workbook(fname)
+    assert wb.worksheets == ['Sheet1']
+
 
 def test_guess_types():
     filename = os.path.join(DATADIR, 'genuine', 'guess_types.xlsx')
