@@ -183,10 +183,7 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
 
     # get worksheets
     wb.worksheets = []  # remove preset worksheet
-    content_types = read_content_types(archive.read(ARC_CONTENT_TYPES))
-    sheet_types = [(sheet, contyp) for sheet, contyp in content_types if contyp in WORK_OR_CHART_TYPE]
-    sheet_names = read_sheets_titles(archive.read(ARC_WORKBOOK))
-    worksheet_names = [worksheet for worksheet, sheet_type in zip(sheet_names, sheet_types) if sheet_type[1] == VALID_WORKSHEET]
+    worksheet_names = detect_worksheets(archive)
     for i, sheet_name in enumerate(worksheet_names):
 
         sheet_codename = 'sheet%d.xml' % (i + 1)
@@ -214,3 +211,14 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
             read_comments(new_ws, archive.read(comments_file))
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
+
+
+def detect_worksheets(archive):
+    """Return a list of worksheets"""
+    content_types = read_content_types(archive.read(ARC_CONTENT_TYPES))
+    sheet_types = ((sheet, contyp) for sheet, contyp in content_types if contyp in WORK_OR_CHART_TYPE)
+    sheet_names = read_sheets_titles(archive.read(ARC_WORKBOOK))
+
+    for worksheet, sheet_type in zip(sheet_names, sheet_types):
+        if sheet_type[1] == VALID_WORKSHEET:
+            yield worksheet
