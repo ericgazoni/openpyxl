@@ -24,6 +24,7 @@
 # Python stdlib imports
 import os.path
 from datetime import datetime
+import zipfile
 
 import pytest
 
@@ -329,6 +330,18 @@ def test_read_contains_chartsheet():
     fname = os.path.join(DATADIR, 'reader', 'bug137.xlsx')
     wb = load_workbook(fname)
     assert wb.worksheets == ['Sheet1']
+
+expected = [
+    ("bug137.xlsx", ["Sheet1"]),
+    ("contains_chartsheets.xlsx", ["data", "moredata"])
+            ]
+@pytest.mark.parametrize("excel_file, sheetnames", expected)
+def test_detect_worksheets(excel_file, sheetnames):
+    from openpyxl.reader.excel import detect_worksheets
+    fname = os.path.join(DATADIR, "reader", excel_file)
+    archive = zipfile.ZipFile(fname)
+    assert list(detect_worksheets(archive)) == sheetnames
+
 
 
 def test_guess_types():
