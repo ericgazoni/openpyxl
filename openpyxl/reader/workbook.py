@@ -36,7 +36,11 @@ from openpyxl.shared.ooxml import (
     REL_NS
 )
 from openpyxl.workbook import DocumentProperties
-from openpyxl.shared.date_time import W3CDTF_to_datetime,CALENDAR_WINDOWS_1900,CALENDAR_MAC_1904
+from openpyxl.shared.date_time import (
+    W3CDTF_to_datetime,
+    CALENDAR_WINDOWS_1900,
+    CALENDAR_MAC_1904
+    )
 from openpyxl.namedrange import (
     NamedRange,
     NamedRangeContainingValue,
@@ -50,10 +54,9 @@ import datetime
 BUGGY_NAMED_RANGES = ['NA()', '#REF!']
 DISCARDED_RANGES = ['Excel_BuiltIn', 'Print_Area']
 
+# TODO check whether this is still used or can be replaced
 def get_sheet_ids(xml_source):
-
     sheet_names = read_sheets_titles(xml_source)
-
     return dict((sheet, 'sheet%d.xml' % (i + 1)) for i, sheet in enumerate(sheet_names))
 
 
@@ -84,17 +87,16 @@ def read_excel_base_date(xml_source):
     wbPr = root.find('{%s}workbookPr' % SHEET_MAIN_NS)
     if wbPr is not None and wbPr.get('date1904') in ('1', 'true'):
         return CALENDAR_MAC_1904
-
     return CALENDAR_WINDOWS_1900
 
 
-# Mark Mikofski, 2013-06-03
 def read_content_types(xml_source):
     """Read content types."""
     root = fromstring(xml_source)
     contents_root = root.findall('{%s}Override' % CONTYPES_NS)
     for type in contents_root:
         yield type.get('PartName'), type.get('ContentType')
+
 
 def read_sheets_titles(xml_source):
     """Read titles for all sheets."""
