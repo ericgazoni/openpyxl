@@ -357,6 +357,29 @@ def test_read_rels():
     }
 
 
+def test_read_content_types():
+    from openpyxl.reader.workbook import read_content_types
+    from openpyxl.shared.ooxml import ARC_CONTENT_TYPES
+    fname = os.path.join(DATADIR, "reader", "contains_chartsheets.xlsx")
+    archive = zipfile.ZipFile(fname)
+    assert list(read_content_types(archive.read(ARC_CONTENT_TYPES))) == [
+    ('/xl/workbook.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'),
+    ('/xl/worksheets/sheet1.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'),
+    ('/xl/chartsheets/sheet1.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml'),
+    ('/xl/worksheets/sheet2.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'),
+    ('/xl/theme/theme1.xml', 'application/vnd.openxmlformats-officedocument.theme+xml'),
+    ('/xl/styles.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml'),
+    ('/xl/sharedStrings.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml'),
+    ('/xl/drawings/drawing1.xml', 'application/vnd.openxmlformats-officedocument.drawing+xml'),
+    ('/xl/charts/chart1.xml', 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml'),
+    ('/xl/drawings/drawing2.xml', 'application/vnd.openxmlformats-officedocument.drawing+xml'),
+    ('/xl/charts/chart2.xml', 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml'),
+    ('/xl/calcChain.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml'),
+    ('/docProps/core.xml', 'application/vnd.openxmlformats-package.core-properties+xml'),
+    ('/docProps/app.xml', 'application/vnd.openxmlformats-officedocument.extended-properties+xml')
+    ]
+
+
 def test_read_sheets():
     from openpyxl.reader.workbook import read_sheets
     from openpyxl.shared.ooxml import ARC_WORKBOOK
