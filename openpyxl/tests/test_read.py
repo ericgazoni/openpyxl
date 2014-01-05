@@ -308,8 +308,8 @@ workbooks = [
     ("contains_chartsheets.xlsx", ['data', 'moredata']),
     ("bug137.xlsx", ["Sheet1"]),
 ]
-@pytest.mark.parametrize("workbook, expected", workbooks)
-def test_read_contains_chartsheet(workbook, expected):
+@pytest.mark.parametrize("excel_file, expected", workbooks)
+def test_read_contains_chartsheet(excel_file, expected):
     """
     Test reading workbook containing chartsheet.
 
@@ -324,7 +324,7 @@ def test_read_contains_chartsheet(workbook, expected):
     | 3 | "moredata" | worksheet  |
     +---+------------+------------+
     """
-    path = os.path.join(DATADIR, 'reader', workbook)
+    path = os.path.join(DATADIR, 'reader', excel_file)
     wb = load_workbook(path)
     sheet_names = wb.get_sheet_names()
     assert sheet_names == expected
