@@ -305,9 +305,15 @@ def test_data_only():
 
 
 workbooks = [
-    ("contains_chartsheets.xlsx", ['data', 'moredata']),
-    ("bug137.xlsx", ["Sheet1"]),
-]
+    ("bug137.xlsx", [
+        {'path': 'worksheets/sheet1.xml', 'title': 'Sheet1'}
+        ]
+     ),
+    ("contains_chartsheets.xlsx", [
+        {'path': 'worksheets/sheet1.xml', 'title': 'data'},
+        {'path': 'worksheets/sheet2.xml', 'title': 'moredata'}
+        ])
+            ]
 @pytest.mark.parametrize("excel_file, expected", workbooks)
 def test_read_contains_chartsheet(excel_file, expected):
     """
@@ -327,25 +333,15 @@ def test_read_contains_chartsheet(excel_file, expected):
     path = os.path.join(DATADIR, 'reader', excel_file)
     wb = load_workbook(path)
     sheet_names = wb.get_sheet_names()
-    assert sheet_names == expected
+    assert sheet_names == [sheet['title'] for sheet in expected]
 
 
-expected = [
-    ("bug137.xlsx", [
-        {'path': 'worksheets/sheet1.xml', 'title': 'Sheet1'}
-        ]
-     ),
-    ("contains_chartsheets.xlsx", [
-        {'path': 'worksheets/sheet1.xml', 'title': 'data'},
-        {'path': 'worksheets/sheet2.xml', 'title': 'moredata'}
-        ])
-            ]
-@pytest.mark.parametrize("excel_file, sheetnames", expected)
-def test_detect_worksheets(excel_file, sheetnames):
+@pytest.mark.parametrize("excel_file, expected", workbooks)
+def test_detect_worksheets(excel_file, expected):
     from openpyxl.reader.excel import detect_worksheets
     fname = os.path.join(DATADIR, "reader", excel_file)
     archive = zipfile.ZipFile(fname)
-    assert list(detect_worksheets(archive)) == sheetnames
+    assert list(detect_worksheets(archive)) == expected
 
 
 def test_read_rels():
