@@ -27,7 +27,7 @@ import os.path
 import pytest
 
 # package imports
-from openpyxl.tests.helper import DATADIR, TMPDIR, clean_tmpdir, make_tmpdir
+from openpyxl.tests.helper import DATADIR
 from openpyxl.namedrange import split_named_range, NamedRange
 from openpyxl.reader.workbook import read_named_ranges
 from openpyxl.shared.exc import NamedRangeException
@@ -93,6 +93,7 @@ def test_read_named_ranges():
     finally:
         handle.close()
 
+# TODO parametrize
 def test_oddly_shaped_named_ranges():
 
     ranges_counts = ((4, 'TEST_RANGE'),
@@ -141,10 +142,6 @@ class TestNameRefersToValue(object):
     def setup(self):
         self.wb = load_workbook(os.path.join(DATADIR, 'genuine', 'NameWithValueBug.xlsx'))
         self.ws = self.wb.get_sheet_by_name("Sheet1")
-        make_tmpdir()
-
-    def tearDown(self):
-        clean_tmpdir()
 
     def test_has_ranges(self):
         ranges = self.wb.get_named_ranges()
@@ -184,12 +181,13 @@ class TestNameRefersToValue(object):
 
     def test_handles_scope(self):
         ranges = self.wb.get_named_ranges()
-        assert ['MyRef: Workbook', 'MySheetRef: Sheet1', 'MySheetRef: Sheet2', 'MySheetValue: Sheet1',
-                'MySheetValue: Sheet2', 'MyValue: Workbook'] == [self.range_as_string(range) for range in ranges]
+        assert set(['MyRef: Workbook', 'MySheetRef: Sheet1', 'MySheetRef: Sheet2', 'MySheetValue: Sheet1',
+                'MySheetValue: Sheet2', 'MyValue: Workbook']) == set([self.range_as_string(range) for range in ranges])
 
-    def test_can_be_saved(self):
-        FNAME = os.path.join(TMPDIR, "foo.xlsx")
+    def test_can_be_saved(self, tmpdir):
+        tmpdir.chdir()
+        FNAME = "foo.xlsx"
         self.wb.save(FNAME)
 
         wbcopy = load_workbook(FNAME)
-        assert ['MyRef: Workbook=[range]', 'MySheetRef: Sheet1=[range]', 'MySheetRef: Sheet2=[range]', 'MySheetValue: Sheet1=3.33', 'MySheetValue: Sheet2=14.4', 'MyValue: Workbook=9.99'] ==             [self.range_as_string(range, include_value=True) for range in wbcopy.get_named_ranges()]
+        assert set(['MyRef: Workbook=[range]', 'MySheetRef: Sheet1=[range]', 'MySheetRef: Sheet2=[range]', 'MySheetValue: Sheet1=3.33', 'MySheetValue: Sheet2=14.4', 'MyValue: Workbook=9.99']) == set([self.range_as_string(range, include_value=True) for range in wbcopy.get_named_ranges()])
