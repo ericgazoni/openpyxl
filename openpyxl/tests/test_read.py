@@ -304,7 +304,12 @@ def test_data_only():
     assert ws.cell('A5').data_type == 'n' and ws.cell('A5').value == 49380
 
 
-def test_read_contains_chartsheet():
+workbooks = [
+    ("contains_chartsheets.xlsx", ['data', 'moredata']),
+    ("bug137.xlsx", ["Sheet1"]),
+]
+@pytest.mark.parametrize("workbook, expected", workbooks)
+def test_read_contains_chartsheet(workbook, expected):
     """
     Test reading workbook containing chartsheet.
 
@@ -319,16 +324,10 @@ def test_read_contains_chartsheet():
     | 3 | "moredata" | worksheet  |
     +---+------------+------------+
     """
-    # test data
-    path = os.path.join(DATADIR, 'reader', 'contains_chartsheets.xlsx')
+    path = os.path.join(DATADIR, 'reader', workbook)
     wb = load_workbook(path)
-    # workbook contains correct sheet names
     sheet_names = wb.get_sheet_names()
-    assert sheet_names == ['data', 'moredata']
-
-    fname = os.path.join(DATADIR, 'reader', 'bug137.xlsx')
-    wb = load_workbook(fname)
-    assert wb.get_sheet_names() == ['Sheet1']
+    assert sheet_names == expected
 
 
 expected = [
