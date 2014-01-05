@@ -324,12 +324,11 @@ def test_read_contains_chartsheet():
     wb = load_workbook(path)
     # workbook contains correct sheet names
     sheet_names = wb.get_sheet_names()
-    assert sheet_names[0] == 'data'
-    assert sheet_names[1] == 'moredata'
+    assert sheet_names == ['data', 'moredata']
 
     fname = os.path.join(DATADIR, 'reader', 'bug137.xlsx')
     wb = load_workbook(fname)
-    assert wb.worksheets == ['Sheet1']
+    assert wb.get_sheet_names() == ['Sheet1']
 
 
 expected = [

@@ -28,6 +28,7 @@ from __future__ import absolute_import
 from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 from sys import exc_info
 import warnings
+import os
 
 # compatibility imports
 from openpyxl.shared.compat import unicode, file, StringIO
@@ -184,12 +185,10 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
 
     # get worksheets
     wb.worksheets = []  # remove preset worksheet
-    worksheet_names = detect_worksheets(archive)
-    for i, sheet_name in enumerate(worksheet_names):
-
-        sheet_codename = 'sheet%d.xml' % (i + 1)
-        worksheet_path = '%s/%s' % (PACKAGE_WORKSHEETS, sheet_codename)
-
+    for sheet in detect_worksheets(archive):
+        sheet_name = sheet['title']
+        worksheet_path = 'xl/%s' % (sheet['path'])
+        sheet_codename = os.path.split(sheet['path'])[-1]
         if not worksheet_path in valid_files:
             continue
 
@@ -204,7 +203,7 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
                                     color_index=style_properties['color_index'],
                                     workbook_name=filename,
                                     sheet_codename=sheet_codename)
-        wb.add_sheet(new_ws, index=i)
+        wb.add_sheet(new_ws)
 
         # load comments into the worksheet cells
         comments_file = get_comments_file(sheet_codename, archive, valid_files)
@@ -213,16 +212,6 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
 
-
-def detect_worksheets(archive):
-    """Return a list of worksheets"""
-    content_types = read_content_types(archive.read(ARC_CONTENT_TYPES))
-    sheet_types = ((sheet, contyp) for sheet, contyp in content_types if contyp in WORK_OR_CHART_TYPE)
-    sheet_names = read_sheets_titles(archive.read(ARC_WORKBOOK))
-
-    for worksheet, sheet_type in zip(sheet_names, sheet_types):
-        if sheet_type[1] == VALID_WORKSHEET:
-            yield worksheet
 
 def detect_worksheets(archive):
     """Return a list of worksheets"""
