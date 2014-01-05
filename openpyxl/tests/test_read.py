@@ -331,9 +331,16 @@ def test_read_contains_chartsheet():
     wb = load_workbook(fname)
     assert wb.worksheets == ['Sheet1']
 
+
 expected = [
-    ("bug137.xlsx", ["Sheet1"]),
-    ("contains_chartsheets.xlsx", ["data", "moredata"])
+    ("bug137.xlsx", [
+        {'path': 'worksheets/sheet1.xml', 'title': 'Sheet1'}
+        ]
+     ),
+    ("contains_chartsheets.xlsx", [
+        {'path': 'worksheets/sheet1.xml', 'title': 'data'},
+        {'path': 'worksheets/sheet2.xml', 'title': 'moredata'}
+        ])
             ]
 @pytest.mark.parametrize("excel_file, sheetnames", expected)
 def test_detect_worksheets(excel_file, sheetnames):

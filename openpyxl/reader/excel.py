@@ -41,7 +41,8 @@ from openpyxl.shared.ooxml import (
     PACKAGE_WORKSHEETS,
     ARC_STYLE,
     ARC_THEME,
-    ARC_CONTENT_TYPES
+    ARC_CONTENT_TYPES,
+    ARC_WORKBOOK_RELS
 )
 from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
@@ -222,3 +223,23 @@ def detect_worksheets(archive):
     for worksheet, sheet_type in zip(sheet_names, sheet_types):
         if sheet_type[1] == VALID_WORKSHEET:
             yield worksheet
+
+def detect_worksheets(archive):
+    """Return a list of worksheets"""
+    # content types has a list of paths but no titles
+    # workbook has a list of titles and relIds but no paths
+    # workbook_rels has a list of relIds and paths but no titles
+    # rels = {'id':{'title':'', 'path':''} }
+    from openpyxl.reader.workbook import read_rels, read_sheets
+    content_types = read_content_types(archive.read(ARC_CONTENT_TYPES))
+    rels = read_rels(archive.read(ARC_WORKBOOK_RELS))
+    sheets = read_sheets(archive.read(ARC_WORKBOOK))
+    for sheet in sheets:
+        rels[sheet[1]]['title'] = sheet[0]
+    for ct in content_types:
+        if ct[1] == VALID_WORKSHEET:
+            path = ct[0].replace("/xl/", "")
+            for r in rels.values():
+                if r['path'] == path:
+                    yield r
+
