@@ -93,23 +93,19 @@ def test_read_named_ranges():
     finally:
         handle.close()
 
-# TODO parametrize
-def test_oddly_shaped_named_ranges():
 
-    ranges_counts = ((4, 'TEST_RANGE'),
-                     (3, 'TRAP_1'),
-                     (13, 'TRAP_2'))
-
-    def check_ranges(ws, count, range_name):
-        assert count == len(ws.range(range_name))
+ranges_counts = (
+    (4, 'TEST_RANGE'),
+    (3, 'TRAP_1'),
+    (13, 'TRAP_2')
+)
+@pytest.mark.parametrize("count, range_name", ranges_counts)
+def test_oddly_shaped_named_ranges(count, range_name):
 
     wb = load_workbook(os.path.join(DATADIR, 'genuine', 'merge_range.xlsx'),
                        use_iterators = False)
-
     ws = wb.worksheets[0]
-
-    for count, range_name in ranges_counts:
-        yield check_ranges, ws, count, range_name
+    assert len(ws.range(range_name)) == count
 
 
 def test_merged_cells_named_range():
