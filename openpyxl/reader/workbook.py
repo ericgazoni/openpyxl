@@ -25,13 +25,14 @@ from __future__ import absolute_import
 """Read in global settings to be maintained by the workbook object."""
 
 # package imports
-from openpyxl.shared.xmltools import fromstring
+from openpyxl.shared.xmltools import fromstring, safe_iterator
 from openpyxl.shared.ooxml import (
     DCORE_NS,
     COREPROPS_NS,
     DCTERMS_NS,
     SHEET_MAIN_NS,
-    CONTYPES_NS
+    CONTYPES_NS,
+    PKG_REL_NS
 )
 from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import W3CDTF_to_datetime,CALENDAR_WINDOWS_1900,CALENDAR_MAC_1904
@@ -100,6 +101,16 @@ def read_sheets_titles(xml_source):
     titles_root = root.find('{%s}sheets' % SHEET_MAIN_NS)
 
     return [sheet.get('name') for sheet in titles_root]
+
+
+def read_rels(xml_source):
+    """Read relationships for a workbook"""
+    rels = {}
+    tree = fromstring(xml_source)
+    for element in safe_iterator(tree, '{%s}Relationship' % PKG_REL_NS):
+        rels[element.get('Id')] = {'path':element.get('Target')}
+    return rels
+
 
 def read_named_ranges(xml_source, workbook):
     """Read named ranges, excluding poorly defined ranges."""

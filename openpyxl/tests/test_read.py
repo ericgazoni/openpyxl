@@ -343,6 +343,18 @@ def test_detect_worksheets(excel_file, sheetnames):
     assert list(detect_worksheets(archive)) == sheetnames
 
 
+def test_read_rels():
+    from openpyxl.reader.workbook import read_rels
+    from openpyxl.shared.ooxml import ARC_WORKBOOK_RELS
+    fname = os.path.join(DATADIR, "reader", "bug137.xlsx")
+    archive = zipfile.ZipFile(fname)
+    assert read_rels(archive.read(ARC_WORKBOOK_RELS)) == {
+        'rId1': {'path': 'chartsheets/sheet1.xml'},
+        'rId2': {'path': 'worksheets/sheet1.xml'},
+        'rId3': {'path': 'theme/theme1.xml'},
+        'rId4': {'path': 'styles.xml'},
+        'rId5': {'path': 'sharedStrings.xml'}
+    }
 
 def test_guess_types():
     filename = os.path.join(DATADIR, 'genuine', 'guess_types.xlsx')
