@@ -356,6 +356,17 @@ def test_read_rels():
         'rId5': {'path': 'sharedStrings.xml'}
     }
 
+
+def test_read_sheets():
+    from openpyxl.reader.workbook import read_sheets
+    from openpyxl.shared.ooxml import ARC_WORKBOOK
+    fname = os.path.join(DATADIR, "reader", "bug137.xlsx")
+    archive = zipfile.ZipFile(fname)
+    assert list(read_sheets(archive.read(ARC_WORKBOOK))) == [("Chart1", "rId1"),
+                                                             ("Sheet1", "rId2")
+                                                             ]
+
+
 def test_guess_types():
     filename = os.path.join(DATADIR, 'genuine', 'guess_types.xlsx')
     for guess, dtype in ((True, float), (False, unicode)):

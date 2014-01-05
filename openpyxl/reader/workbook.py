@@ -32,7 +32,8 @@ from openpyxl.shared.ooxml import (
     DCTERMS_NS,
     SHEET_MAIN_NS,
     CONTYPES_NS,
-    PKG_REL_NS
+    PKG_REL_NS,
+    REL_NS
 )
 from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import W3CDTF_to_datetime,CALENDAR_WINDOWS_1900,CALENDAR_MAC_1904
@@ -110,6 +111,13 @@ def read_rels(xml_source):
     for element in safe_iterator(tree, '{%s}Relationship' % PKG_REL_NS):
         rels[element.get('Id')] = {'path':element.get('Target')}
     return rels
+
+
+def read_sheets(xml_source):
+    """Read worksheet titles and ids for a workbook"""
+    tree = fromstring(xml_source)
+    for element in safe_iterator(tree, '{%s}sheet' % SHEET_MAIN_NS):
+        yield element.get('name'), element.get("{%s}id" % REL_NS)
 
 
 def read_named_ranges(xml_source, workbook):
