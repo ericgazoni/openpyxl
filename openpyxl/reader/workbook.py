@@ -24,8 +24,6 @@ from __future__ import absolute_import
 
 """Read in global settings to be maintained by the workbook object."""
 
-import zipfile
-
 # package imports
 from openpyxl.shared.xmltools import fromstring, safe_iterator
 from openpyxl.shared.ooxml import (

@@ -28,7 +28,6 @@ from __future__ import absolute_import
 from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 from sys import exc_info
 import warnings
-import os
 
 # compatibility imports
 from openpyxl.shared.compat import unicode, file, StringIO
@@ -39,11 +38,8 @@ from openpyxl.shared.ooxml import (
     ARC_SHARED_STRINGS,
     ARC_CORE,
     ARC_WORKBOOK,
-    PACKAGE_WORKSHEETS,
     ARC_STYLE,
     ARC_THEME,
-    ARC_CONTENT_TYPES,
-    ARC_WORKBOOK_RELS,
     PACKAGE_XL,
 )
 from openpyxl.workbook import Workbook, DocumentProperties
@@ -53,7 +49,6 @@ from openpyxl.reader.workbook import (
     read_named_ranges,
     read_properties_core,
     read_excel_base_date,
-    read_content_types,
     detect_worksheets
 )
 from openpyxl.reader.worksheet import read_worksheet
