@@ -183,7 +183,6 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
     for sheet in detect_worksheets(archive):
         sheet_name = sheet['title']
         worksheet_path = 'xl/%s' % (sheet['path'])
-        sheet_codename = os.path.split(sheet['path'])[-1]
         if not worksheet_path in valid_files:
             continue
 
@@ -197,11 +196,11 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
                                     style_table,
                                     color_index=style_properties['color_index'],
                                     workbook_name=filename,
-                                    sheet_codename=sheet_codename)
+                                    worksheet_path=worksheet_path)
         wb.add_sheet(new_ws)
 
         # load comments into the worksheet cells
-        comments_file = get_comments_file(sheet_codename, archive, valid_files)
+        comments_file = get_comments_file(worksheet_path, archive, valid_files)
         if comments_file is not None:
             read_comments(new_ws, archive.read(comments_file))
 

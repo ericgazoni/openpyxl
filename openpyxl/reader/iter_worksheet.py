@@ -124,12 +124,12 @@ def get_missing_cells(row, columns):
 class IterableWorksheet(Worksheet):
 
     def __init__(self, parent_workbook, title, workbook_name,
-            sheet_codename, xml_source, string_table):
+            worksheet_path, xml_source, string_table):
 
         Worksheet.__init__(self, parent_workbook, title)
         self.archive = zipfile.ZipFile(workbook_name, 'r')
         self._workbook_name = workbook_name
-        self._sheet_codename = sheet_codename
+        self.worksheet_path = worksheet_path
         self._string_table = string_table
 
         min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
@@ -142,8 +142,7 @@ class IterableWorksheet(Worksheet):
 
     @property
     def xml_source(self):
-        worksheet_path = '%s/%s' % (PACKAGE_WORKSHEETS, self._sheet_codename)
-        return self.archive.open(worksheet_path)
+        return self.archive.open(self.worksheet_path)
 
     @xml_source.setter
     def xml_source(self, value):

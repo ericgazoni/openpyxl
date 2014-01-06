@@ -22,7 +22,7 @@ from __future__ import absolute_import
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-from os import path
+import os.path
 
 from openpyxl.comments import Comment
 from openpyxl.shared.ooxml import (
@@ -55,10 +55,11 @@ def read_comments(ws, xml_source):
         comment = Comment(comment_text, author)
         ws.cell(coordinate=cell).comment = comment
 
-def get_comments_file(sheet_codename, archive, valid_files):
+def get_comments_file(worksheet_path, archive, valid_files):
     """Returns the XML filename in the archive which contains the comments for
     the spreadsheet with codename sheet_codename. Returns None if there is no
     such file"""
+    sheet_codename = os.path.split(worksheet_path)[-1]
     rels_file = PACKAGE_WORKSHEET_RELS + '/' + sheet_codename + '.rels'
     if rels_file not in valid_files:
         return None
@@ -66,7 +67,7 @@ def get_comments_file(sheet_codename, archive, valid_files):
     root = fromstring(rels_source)
     for i in root:
         if i.attrib['Type'] == COMMENTS_NS:
-            comments_file = path.normpath(PACKAGE_WORKSHEETS + '/' + i.attrib['Target'])
+            comments_file = os.path.normpath(PACKAGE_WORKSHEETS + '/' + i.attrib['Target'])
             if comments_file in valid_files:
                 return comments_file
     return None
