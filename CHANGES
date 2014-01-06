@@ -8,6 +8,11 @@ Minor changes
 * Pyflakes used for static code analysis
 
 
+Bug fixes
+---------
+#137 - Workbooks with chartsheets
+
+
 1.8.0 (2013-12-31)
 ==================
 
