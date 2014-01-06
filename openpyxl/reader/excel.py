@@ -43,7 +43,8 @@ from openpyxl.shared.ooxml import (
     ARC_STYLE,
     ARC_THEME,
     ARC_CONTENT_TYPES,
-    ARC_WORKBOOK_RELS
+    ARC_WORKBOOK_RELS,
+    PACKAGE_XL,
 )
 from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
@@ -182,7 +183,7 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
     wb.worksheets = []  # remove preset worksheet
     for sheet in detect_worksheets(archive):
         sheet_name = sheet['title']
-        worksheet_path = 'xl/%s' % (sheet['path'])
+        worksheet_path = '%s/%s' % (PACKAGE_XL, sheet['path'])
         if not worksheet_path in valid_files:
             continue
 
