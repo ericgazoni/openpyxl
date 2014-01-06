@@ -178,7 +178,7 @@ class TestNameRefersToValue(object):
 
     def test_handles_scope(self):
         ranges = self.wb.get_named_ranges()
-        assert self.wb.get_sheet_names() == ["Sheet2", "Sheet1"]
+        assert self.wb.get_sheet_names() == ["Sheet1", "Sheet2"]
         assert set(['MyRef: Workbook', 'MySheetRef: Sheet1', 'MySheetRef: Sheet2', 'MySheetValue: Sheet1',
                 'MySheetValue: Sheet2', 'MyValue: Workbook']) == set([self.range_as_string(range) for range in ranges])
 
@@ -189,15 +189,13 @@ class TestNameRefersToValue(object):
 
         wbcopy = load_workbook(FNAME)
         ranges = wbcopy.get_named_ranges()
-        assert wbcopy.get_sheet_names() == ['Sheet2', 'Sheet1']
-        assert set(['MyRef: Workbook', 'MySheetRef: Sheet1', 'MySheetRef: Sheet2', 'MySheetValue: Sheet1',
-                'MySheetValue: Sheet2', 'MyValue: Workbook']) == set([self.range_as_string(range) for range in ranges])
+        assert wbcopy.get_sheet_names() == ['Sheet1', 'Sheet2']
+        assert ['MyRef: Workbook', 'MySheetRef: Sheet1', 'MySheetRef: Sheet2',
+                'MySheetValue: Sheet1', 'MySheetValue: Sheet2', 'MyValue: Workbook'] \
+               == [self.range_as_string(range) for range in ranges]
 
-        expected = [
-        ('MyRef', '[(<Worksheet "Sheet1">, \'$A$1\')]', None),
-        ('MySheetRef', '[(<Worksheet "Sheet1">, \'$A$3\')]', None),
-        ('MySheetRef', '[(<Worksheet "Sheet2">, \'$A$1\')]' , None),
-        ]
-        #for r in ranges[3:]:
-            #assert (r.name, str(r.destinations), r.scope) == ('MySheetRef', '[(<Worksheet "Sheet2">, \'$A$1\')]', None)
-        #assert ['MyRef: Workbook=[range]', 'MySheetRef: Sheet1=[range]', 'MySheetRef: Sheet2=[range]', 'MySheetValue: Sheet1=3.33', 'MySheetValue: Sheet2=14.4', 'MyValue: Workbook=9.99'] == [self.range_as_string(range, include_value=True) for range in wbcopy.get_named_ranges()]
+        assert [ 'MyRef: Workbook=[range]', 'MySheetRef: Sheet1=[range]',
+                 'MySheetRef: Sheet2=[range]', 'MySheetValue: Sheet1=3.33',
+                 'MySheetValue: Sheet2=14.4', 'MyValue: Workbook=9.99' ] \
+               == [self.range_as_string(range, include_value=True) for range in
+                   wbcopy.get_named_ranges()]
