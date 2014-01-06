@@ -220,15 +220,15 @@ def detect_worksheets(archive):
     # workbook_rels has a list of relIds and paths but no titles
     # rels = {'id':{'title':'', 'path':''} }
     from openpyxl.reader.workbook import read_rels, read_sheets
-    content_types = read_content_types(archive.read(ARC_CONTENT_TYPES))
+    content_types = list(read_content_types(archive.read(ARC_CONTENT_TYPES)))
     rels = read_rels(archive.read(ARC_WORKBOOK_RELS))
     sheets = read_sheets(archive.read(ARC_WORKBOOK))
     for sheet in sheets:
         rels[sheet[1]]['title'] = sheet[0]
-    for ct in content_types:
-        if ct[1] == VALID_WORKSHEET:
-            path = ct[0].replace("/xl/", "")
-            for r in rels.values():
-                if r['path'] == path:
-                    yield r
+    for rId in sorted(rels):
+        for ct in content_types:
+            if ct[1] == VALID_WORKSHEET:
+                path = ct[0].replace("/xl/", "")
+                if rels[rId]['path'] == path:
+                    yield rels[rId]
 
