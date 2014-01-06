@@ -346,10 +346,9 @@ def test_detect_worksheets(excel_file, expected):
 
 def test_read_rels():
     from openpyxl.reader.workbook import read_rels
-    from openpyxl.shared.ooxml import ARC_WORKBOOK_RELS
     fname = os.path.join(DATADIR, "reader", "bug137.xlsx")
     archive = zipfile.ZipFile(fname)
-    assert read_rels(archive.read(ARC_WORKBOOK_RELS)) == {
+    assert read_rels(archive) == {
         'rId1': {'path': 'chartsheets/sheet1.xml'},
         'rId2': {'path': 'worksheets/sheet1.xml'},
         'rId3': {'path': 'theme/theme1.xml'},
@@ -360,10 +359,9 @@ def test_read_rels():
 
 def test_read_content_types():
     from openpyxl.reader.workbook import read_content_types
-    from openpyxl.shared.ooxml import ARC_CONTENT_TYPES
     fname = os.path.join(DATADIR, "reader", "contains_chartsheets.xlsx")
     archive = zipfile.ZipFile(fname)
-    assert list(read_content_types(archive.read(ARC_CONTENT_TYPES))) == [
+    assert list(read_content_types(archive)) == [
     ('/xl/workbook.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'),
     ('/xl/worksheets/sheet1.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'),
     ('/xl/chartsheets/sheet1.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml'),
@@ -383,12 +381,9 @@ def test_read_content_types():
 
 def test_read_sheets():
     from openpyxl.reader.workbook import read_sheets
-    from openpyxl.shared.ooxml import ARC_WORKBOOK
     fname = os.path.join(DATADIR, "reader", "bug137.xlsx")
     archive = zipfile.ZipFile(fname)
-    assert list(read_sheets(archive.read(ARC_WORKBOOK))) == [("Chart1", "rId1"),
-                                                             ("Sheet1", "rId2")
-                                                             ]
+    assert list(read_sheets(archive)) == [("Chart1", "rId1"), ("Sheet1","rId2")]
 
 
 def test_guess_types():

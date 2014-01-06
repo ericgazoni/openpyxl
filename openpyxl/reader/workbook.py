@@ -91,8 +91,9 @@ def read_excel_base_date(xml_source):
     return CALENDAR_WINDOWS_1900
 
 
-def read_content_types(xml_source):
+def read_content_types(archive):
     """Read content types."""
+    xml_source = archive.read(ARC_CONTENT_TYPES)
     root = fromstring(xml_source)
     contents_root = root.findall('{%s}Override' % CONTYPES_NS)
     for type in contents_root:
@@ -107,8 +108,9 @@ def read_sheets_titles(xml_source):
     return [sheet.get('name') for sheet in titles_root]
 
 
-def read_rels(xml_source):
+def read_rels(archive):
     """Read relationships for a workbook"""
+    xml_source = archive.read(ARC_WORKBOOK_RELS)
     rels = {}
     tree = fromstring(xml_source)
     for element in safe_iterator(tree, '{%s}Relationship' % PKG_REL_NS):
@@ -116,8 +118,9 @@ def read_rels(xml_source):
     return rels
 
 
-def read_sheets(xml_source):
+def read_sheets(archive):
     """Read worksheet titles and ids for a workbook"""
+    xml_source = archive.read(ARC_WORKBOOK)
     tree = fromstring(xml_source)
     for element in safe_iterator(tree, '{%s}sheet' % SHEET_MAIN_NS):
         yield element.get('name'), element.get("{%s}id" % REL_NS)
@@ -130,9 +133,9 @@ def detect_worksheets(archive):
     # workbook_rels has a list of relIds and paths but no titles
     # rels = {'id':{'title':'', 'path':''} }
     from openpyxl.reader.workbook import read_rels, read_sheets
-    content_types = list(read_content_types(archive.read(ARC_CONTENT_TYPES)))
-    rels = read_rels(archive.read(ARC_WORKBOOK_RELS))
-    sheets = read_sheets(archive.read(ARC_WORKBOOK))
+    content_types = list(read_content_types(archive))
+    rels = read_rels(archive)
+    sheets = read_sheets(archive)
     for sheet in sheets:
         rels[sheet[1]]['title'] = sheet[0]
     for rId in sorted(rels):
