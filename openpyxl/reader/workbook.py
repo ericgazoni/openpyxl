@@ -97,15 +97,7 @@ def read_content_types(archive):
     root = fromstring(xml_source)
     contents_root = root.findall('{%s}Override' % CONTYPES_NS)
     for type in contents_root:
-        yield type.get('PartName'), type.get('ContentType')
-
-
-def read_sheets_titles(xml_source):
-    """Read titles for all sheets."""
-    root = fromstring(xml_source)
-    titles_root = root.find('{%s}sheets' % SHEET_MAIN_NS)
-
-    return [sheet.get('name') for sheet in titles_root]
+        yield  type.get('PartName'), type.get('ContentType')
 
 
 def read_rels(archive):
@@ -141,8 +133,7 @@ def detect_worksheets(archive):
     for rId in sorted(rels):
         for ct in content_types:
             if ct[1] == VALID_WORKSHEET:
-                path = ct[0].replace("/xl/", "")
-                if rels[rId]['path'] == path:
+                if '/xl/' + rels[rId]['path'] == ct[0]:
                     yield rels[rId]
 
 

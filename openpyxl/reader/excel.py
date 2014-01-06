@@ -49,7 +49,6 @@ from openpyxl.workbook import Workbook, DocumentProperties
 from openpyxl.reader.strings import read_string_table
 from openpyxl.reader.style import read_style_table
 from openpyxl.reader.workbook import (
-    read_sheets_titles,
     read_named_ranges,
     read_properties_core,
     read_excel_base_date,

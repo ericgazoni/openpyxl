@@ -35,10 +35,7 @@ from openpyxl.tests.helper import (
     clean_tmpdir,
     compare_xml
     )
-from openpyxl.reader.workbook import (
-    read_properties_core,
-    read_sheets_titles
-    )
+from openpyxl.reader.workbook import read_properties_core
 from openpyxl.writer.workbook import (
     write_properties_core,
     write_properties_app
@@ -68,8 +65,8 @@ class TestReaderProps(object):
         assert prop.modified ==  datetime(2014, 1, 2, 14, 53, 6)
 
     def test_read_sheets_titles(self):
-        content = self.archive.read(ARC_WORKBOOK)
-        sheet_titles = read_sheets_titles(content)
+        from openpyxl.reader.workbook import read_sheets
+        sheet_titles = [s[0] for s in read_sheets(self.archive)]
         assert sheet_titles == ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas', 'Sheet4 - Dates']
 
 
@@ -93,8 +90,8 @@ class TestLibreOfficeCompat(object):
         assert prop.excel_base_date == CALENDAR_WINDOWS_1900
 
     def test_read_sheets_titles(self):
-        content = self.archive.read(ARC_WORKBOOK)
-        sheet_titles = read_sheets_titles(content)
+        from openpyxl.reader.workbook import read_sheets
+        sheet_titles = [s[0] for s in read_sheets(self.archive)]
         assert sheet_titles == ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas', 'Sheet4 - Dates']
 
 
