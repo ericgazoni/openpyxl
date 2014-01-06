@@ -24,6 +24,8 @@ from __future__ import absolute_import
 
 """Read in global settings to be maintained by the workbook object."""
 
+import zipfile
+
 # package imports
 from openpyxl.shared.xmltools import fromstring, safe_iterator
 from openpyxl.shared.ooxml import (
@@ -33,7 +35,10 @@ from openpyxl.shared.ooxml import (
     SHEET_MAIN_NS,
     CONTYPES_NS,
     PKG_REL_NS,
-    REL_NS
+    REL_NS,
+    ARC_CONTENT_TYPES,
+    ARC_WORKBOOK,
+    ARC_WORKBOOK_RELS,
 )
 from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import (
@@ -53,6 +58,7 @@ import datetime
 # constants
 BUGGY_NAMED_RANGES = ['NA()', '#REF!']
 DISCARDED_RANGES = ['Excel_BuiltIn', 'Print_Area']
+VALID_WORKSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"
 
 
 def read_properties_core(xml_source):
@@ -115,6 +121,26 @@ def read_sheets(xml_source):
     tree = fromstring(xml_source)
     for element in safe_iterator(tree, '{%s}sheet' % SHEET_MAIN_NS):
         yield element.get('name'), element.get("{%s}id" % REL_NS)
+
+
+def detect_worksheets(archive):
+    """Return a list of worksheets"""
+    # content types has a list of paths but no titles
+    # workbook has a list of titles and relIds but no paths
+    # workbook_rels has a list of relIds and paths but no titles
+    # rels = {'id':{'title':'', 'path':''} }
+    from openpyxl.reader.workbook import read_rels, read_sheets
+    content_types = list(read_content_types(archive.read(ARC_CONTENT_TYPES)))
+    rels = read_rels(archive.read(ARC_WORKBOOK_RELS))
+    sheets = read_sheets(archive.read(ARC_WORKBOOK))
+    for sheet in sheets:
+        rels[sheet[1]]['title'] = sheet[0]
+    for rId in sorted(rels):
+        for ct in content_types:
+            if ct[1] == VALID_WORKSHEET:
+                path = ct[0].replace("/xl/", "")
+                if rels[rId]['path'] == path:
+                    yield rels[rId]
 
 
 def read_named_ranges(xml_source, workbook):

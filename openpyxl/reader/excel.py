@@ -53,16 +53,12 @@ from openpyxl.reader.workbook import (
     read_named_ranges,
     read_properties_core,
     read_excel_base_date,
-    read_content_types
+    read_content_types,
+    detect_worksheets
 )
 from openpyxl.reader.worksheet import read_worksheet
 from openpyxl.reader.comments import read_comments, get_comments_file
 # Use exc_info for Python 2 compatibility with "except Exception[,/ as] e"
-
-
-VALID_WORKSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"
-VALID_CHARTSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml"
-WORK_OR_CHART_TYPE = [VALID_WORKSHEET, VALID_CHARTSHEET]
 
 
 CENTRAL_DIRECTORY_SIGNATURE = '\x50\x4b\x05\x06'
@@ -211,24 +207,3 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
             read_comments(new_ws, archive.read(comments_file))
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
-
-
-def detect_worksheets(archive):
-    """Return a list of worksheets"""
-    # content types has a list of paths but no titles
-    # workbook has a list of titles and relIds but no paths
-    # workbook_rels has a list of relIds and paths but no titles
-    # rels = {'id':{'title':'', 'path':''} }
-    from openpyxl.reader.workbook import read_rels, read_sheets
-    content_types = list(read_content_types(archive.read(ARC_CONTENT_TYPES)))
-    rels = read_rels(archive.read(ARC_WORKBOOK_RELS))
-    sheets = read_sheets(archive.read(ARC_WORKBOOK))
-    for sheet in sheets:
-        rels[sheet[1]]['title'] = sheet[0]
-    for rId in sorted(rels):
-        for ct in content_types:
-            if ct[1] == VALID_WORKSHEET:
-                path = ct[0].replace("/xl/", "")
-                if rels[rId]['path'] == path:
-                    yield rels[rId]
-
