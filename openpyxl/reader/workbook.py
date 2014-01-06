@@ -54,11 +54,6 @@ import datetime
 BUGGY_NAMED_RANGES = ['NA()', '#REF!']
 DISCARDED_RANGES = ['Excel_BuiltIn', 'Print_Area']
 
-# TODO check whether this is still used or can be replaced
-def get_sheet_ids(xml_source):
-    sheet_names = read_sheets_titles(xml_source)
-    return dict((sheet, 'sheet%d.xml' % (i + 1)) for i, sheet in enumerate(sheet_names))
-
 
 def read_properties_core(xml_source):
     """Read assorted file properties."""
