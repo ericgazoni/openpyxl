@@ -254,8 +254,9 @@ class IterableWorksheet(Worksheet):
                         data_type = Cell.TYPE_FORMULA
                         value = "=" + formula
                     yield RawCell(row, column_str, coord, value, data_type, style_id, None)
-
-            if element.tag == '{%s}v' % SHEET_MAIN_NS:
+            # sub-elements of cells should be skipped
+            if (element.tag == '{%s}v' % SHEET_MAIN_NS
+                or element.tag == '{%s}f' % SHEET_MAIN_NS):
                 continue
             element.clear()
 
