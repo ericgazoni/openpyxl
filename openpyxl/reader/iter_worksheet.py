@@ -255,6 +255,11 @@ class IterableWorksheet(Worksheet):
                         value = "=" + formula
                     yield RawCell(row, column_str, coord, value, data_type, style_id, None)
 
+            if element.tag == '{%s}v' % SHEET_MAIN_NS:
+                continue
+            element.clear()
+
+
     def cell(self, *args, **kwargs):
         raise NotImplementedError("use 'iter_rows()' instead")
 
