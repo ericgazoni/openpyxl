@@ -153,9 +153,9 @@ class TestNameRefersToValue(object):
         assert "MyValue" == value_range.name
         assert "9.99" == value_range.value
 
-    @pytest.mark.xfail
     def test_worksheet_range(self):
         range = self.ws.range("MyRef")
+        assert range.get_coordinate() == "A1"
 
     def test_worksheet_range_error_on_value_range(self):
         with pytest.raises(NamedRangeException):
