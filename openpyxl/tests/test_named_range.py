@@ -146,7 +146,9 @@ class TestNameRefersToValue(object):
 
     def test_workbook_has_normal_range(self):
         normal_range = self.wb.get_named_range("MyRef")
-        assert "MyRef" == normal_range.name
+        assert normal_range.name == "MyRef"
+        assert normal_range.destinations == [(self.ws, '$A$1')]
+        assert normal_range.scope is None
 
     def test_workbook_has_value_range(self):
         value_range = self.wb.get_named_range("MyValue")
