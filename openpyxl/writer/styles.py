@@ -1,6 +1,4 @@
-# file openpyxl/writer/styles.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +26,14 @@
 # package imports
 from openpyxl.shared.xmltools import Element, SubElement
 from openpyxl.shared.xmltools import get_document_content
+from openpyxl.shared.ooxml import SHEET_MAIN_NS
 from openpyxl import style
 
 class StyleWriter(object):
 
     def __init__(self, workbook):
         self._style_list = self._get_style_list(workbook)
+        self._style_properties = workbook.style_properties
         self._root = Element('styleSheet',
             {'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'})
 
@@ -243,7 +243,13 @@ class StyleWriter(object):
 
                     if hash(st.alignment.wrap_text) != hash(style.DEFAULTS.alignment.wrap_text):
                         alignments['wrapText'] = '1'
-                    
+
+                    if hash(st.alignment.shrink_to_fit) != hash(style.DEFAULTS.alignment.shrink_to_fit):
+                        alignments['shrinkToFit'] = '1'
+
+                    if st.alignment.indent > 0:
+                        alignments['indent'] = '%s' % st.alignment.indent
+
                     if st.alignment.text_rotation > 0:
                         alignments['textRotation'] = '%s' % st.alignment.text_rotation
                     elif st.alignment.text_rotation < 0:
@@ -258,7 +264,77 @@ class StyleWriter(object):
             {'name':"Normal", 'xfId':"0", 'builtinId':"0"})
 
     def _write_dxfs(self):
-        dxfs = SubElement(self._root, 'dxfs', {'count':'0'})
+        if self._style_properties and 'dxf_list' in self._style_properties:
+            dxfs = SubElement(self._root, 'dxfs', {'count': str(len(self._style_properties['dxf_list']))})
+            for d in self._style_properties['dxf_list']:
+                dxf = SubElement(dxfs, 'dxf')
+                if 'font' in d and d['font']:
+                    font_node = SubElement(dxf, 'font')
+                    if 'color' in d['font']:
+                        if str(d['font']['color'].index).split(':')[0] == 'theme':  # strip prefix theme if marked
+                            if str(d['font']['color'].index).split(':')[2]:
+                                SubElement(font_node, 'color', {'theme': str(d['font']['color'].index).split(':')[1],
+                                                                'tint': str(d['font']['color'].index).split(':')[2]})
+                            else:
+                                SubElement(font_node, 'color', {'theme': str(d['font']['color'].index).split(':')[1]})
+                        else:
+                            SubElement(font_node, 'color', {'rgb': str(d['font']['color'].index)})
+                    # Don't write the 'scheme' element because it appears to prevent
+                    # the font name from being applied in Excel.
+                    #SubElement(font_node, 'scheme', {'val':'minor'})
+                    if 'bold' in d['font'] and d['font']['bold']:
+                        SubElement(font_node, 'b')
+                    if 'italic' in d['font'] and d['font']['italic']:
+                        SubElement(font_node, 'i')
+                    if 'underline' in d['font'] and d['font']['underline'] == 'single':
+                        SubElement(font_node, 'u')
+                if 'fill' in d and len(d['fill']):
+                    f = d['fill'][0]
+                    fill = SubElement(dxf, 'fill')
+                    if f.fill_type:
+                        node = SubElement(fill, 'patternFill', {'patternType': f.fill_type})
+                    else:
+                        node = SubElement(fill, 'patternFill')
+                    if hash(f.start_color) != hash(style.DEFAULTS.fill.start_color):
+                        if str(f.start_color.index).split(':')[0] == 'theme':  # strip prefix theme if marked
+                            if str(f.start_color.index).split(':')[2]:
+                                SubElement(node, 'fgColor', {'theme': str(f.start_color.index).split(':')[1],
+                                                             'tint': str(f.start_color.index).split(':')[2]})
+                            else:
+                                SubElement(node, 'fgColor', {'theme': str(f.start_color.index).split(':')[1]})
+                        else:
+                            SubElement(node, 'fgColor', {'rgb': str(f.start_color.index)})
+                    if hash(f.end_color) != hash(style.DEFAULTS.fill.end_color):
+                        if str(f.end_color.index).split(':')[0] == 'theme':  # strip prefix theme if marked
+                            if str(f.end_color.index).split(':')[2]:
+                                SubElement(node, 'bgColor', {'theme': str(f.end_color.index).split(':')[1],
+                                                             'tint': str(f.end_color.index).split(':')[2]})
+                            else:
+                                SubElement(node, 'bgColor', {'theme': str(f.end_color.index).split(':')[1]})
+                        else:
+                            SubElement(node, 'bgColor', {'rgb': str(f.end_color.index)})
+                if 'border' in d and len(d['border']):
+                    borders = d['border'][0]
+                    border = SubElement(dxf, 'border')
+                    # caution: respect this order
+                    for side in ('left', 'right', 'top', 'bottom', 'diagonal'):
+                        obj = getattr(borders, side)
+                        if obj.border_style is None or obj.border_style == 'none':
+                            node = SubElement(border, side)
+                            attrs = {}
+                        else:
+                            node = SubElement(border, side, {'style': obj.border_style})
+                            if str(obj.color.index).split(':')[0] == 'theme':  # strip prefix theme if marked as such
+                                if str(obj.color.index).split(':')[2]:
+                                    SubElement(node, 'color', {'theme': str(obj.color.index).split(':')[1],
+                                                               'tint': str(obj.color.index).split(':')[2]})
+                                else:
+                                    SubElement(node, 'color', {'theme': str(obj.color.index).split(':')[1]})
+                            else:
+                                SubElement(node, 'color', {'rgb': str(obj.color.index)})
+        else:
+            dxfs = SubElement(self._root, 'dxfs', {'count': '0'})
+        return dxfs
 
     def _write_table_styles(self):
 

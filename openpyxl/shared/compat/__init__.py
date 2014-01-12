@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,16 +20,36 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
-import sys
+from __future__ import absolute_import
 
-from openpyxl.shared.compat.elementtree import iterparse
-from openpyxl.shared.compat.tempnamedfile import NamedTemporaryFile
-from openpyxl.shared.compat.allany import all, any
-from openpyxl.shared.compat.strings import basestring, unicode, StringIO, file, BytesIO
-from openpyxl.shared.compat.numbers import long
-from openpyxl.shared.compat.itertools import ifilter, xrange
+from tempfile import NamedTemporaryFile
 
+from openpyxl import LXML
+
+if LXML is True:
+    from lxml.etree import iterparse
+else:
+    from openpyxl.shared.compat.elementtree import iterparse
+
+from .strings import (
+    basestring,
+    unicode,
+    StringIO,
+    file,
+    BytesIO,
+    tempfile,
+    safe_string
+    )
+from .numbers import long
+from .itertools import xrange, ifilter, iteritems, iterkeys
+
+# Python 2.6
 try:
     from collections import OrderedDict
 except ImportError:
-    from openpyxl.shared.compat.odict import OrderedDict
+    from .odict import OrderedDict
+
+try:
+    from xml.etree.ElementTree import register_namespace
+except ImportError:
+    from .elementtree import register_namespace

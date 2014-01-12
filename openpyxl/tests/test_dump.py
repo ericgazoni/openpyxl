@@ -1,8 +1,5 @@
-
-# file openpyxl/tests/test_dump.py
-
-# Copyright (c) 2010-2011 openpyxl
-# 
+# Copyright (c) 2010-2014 openpyxl
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -26,6 +23,10 @@
 
 # Python stdlib imports
 from datetime import time, datetime
+from tempfile import NamedTemporaryFile
+import os
+import os.path
+import shutil
 
 # 3rd party imports
 from nose.tools import eq_, raises
@@ -38,11 +39,9 @@ from openpyxl.reader.excel import load_workbook
 
 from openpyxl.writer.strings import StringTableBuilder
 
-from openpyxl.shared.compat import NamedTemporaryFile, xrange
+from openpyxl.shared.compat import xrange
 from openpyxl.shared.exc import WorkbookAlreadySaved
-import os
-import os.path as osp
-import shutil
+
 
 def _get_test_filename():
 
@@ -57,13 +56,13 @@ def test_dump_sheet_title():
     wb = Workbook(optimized_write=True)
 
     ws = wb.create_sheet(title='Test1')
-    
+
     wb.save(test_filename)
 
-    wb2 = load_workbook(test_filename, True)
+    wb2 = load_workbook(test_filename)
 
     ws = wb2.get_sheet_by_name('Test1')
-        
+
     eq_('Test1', ws.title)
 
 def test_dump_sheet():
@@ -100,16 +99,16 @@ def test_dump_sheet():
 
     wb.save(test_filename)
 
-    wb2 = load_workbook(test_filename, True)
+    wb2 = load_workbook(test_filename)
 
     ws = wb2.worksheets[0]
 
 
-    for ex_row, ws_row in zip(expected_rows[:-20], ws.iter_rows()):
+    for ex_row, ws_row in zip(expected_rows[:-20], ws.rows):
 
         for ex_cell, ws_cell in zip(ex_row, ws_row):
 
-            eq_(ex_cell, ws_cell.internal_value)
+            eq_(ex_cell, ws_cell.value)
 
     os.remove(test_filename)
 
@@ -137,7 +136,7 @@ def test_open_too_many_files():
 
     wb = Workbook(optimized_write=True)
 
-    for i in range(200): # over 200 worksheets should raise an OSError ('too many open files') 
+    for i in range(200): # over 200 worksheets should raise an OSError ('too many open files')
 
         wb.create_sheet()
 
@@ -149,7 +148,7 @@ def test_create_temp_file():
 
     f = dump_worksheet.create_temporary_file()
 
-    if not osp.isfile(f):
+    if not os.path.isfile(f):
         raise Exception("The file %s does not exist" % f)
 
 @raises(WorkbookAlreadySaved)

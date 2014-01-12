@@ -12,16 +12,15 @@
 # serve to show the default.
 
 import sys, os
-import os.path as osp
-
+import os.path
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
-up = osp.dirname
-sys.path.insert(0, osp.abspath(osp.join(up(up(os.getcwd())), '.')))
+up = os.path.dirname
+sys.path.insert(0, os.path.abspath(os.path.join(up(up(os.getcwd())), '.')))
 
 import openpyxl
 

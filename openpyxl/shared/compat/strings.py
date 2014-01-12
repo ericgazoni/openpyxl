@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,33 +20,35 @@
 #
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
+from __future__ import absolute_import
+import sys
 
-try:
-    # Python 2
-    basestring = basestring
-except NameError:
-    # Python 3
+VER = sys.version_info
+
+if VER[0] == 3:
     basestring = str
-
-try:
-    # Python 2
-    unicode = unicode
-except NameError:
-    # Python 3
     unicode = str
+    from io import BufferedReader
+    file = BufferedReader
+    from io import BufferedRandom
+    tempfile = BufferedRandom
+else:
+    basestring = basestring
+    unicode = unicode
+    file = file
+    tempfile = file
 
-try:
-    # Python 3
+if VER[0] == 3:
     from io import BytesIO, StringIO
-except:
-    # Python 2
+else:
     from StringIO import StringIO
     BytesIO = StringIO
 
-try:
-    # Python 3
-    from io import BufferedReader
-    file = BufferedReader
-except:
-    # Python 2
-    file = file
+def safe_string(value):
+    from numbers import Number
+    """Safely and consistently format numeric values"""
+    if isinstance(value, Number):
+        value = "%.15g" % value
+    elif not isinstance(value, basestring):
+        value = str(value)
+    return value

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# file openpyxl/writer/theme.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +31,7 @@ from openpyxl.shared.xmltools import fromstring, get_document_content
 def write_theme():
     """Write the theme xml."""
     xml_node = fromstring(
-            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+            '<?xml version="1.0" ?>\n'
 
             '<a:theme xmlns:a="http://schemas.openxmlformats.org/'
                 'drawingml/2006/main" name="Office Theme">'

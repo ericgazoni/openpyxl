@@ -1,6 +1,4 @@
-# file openpyxl/reader/strings.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,20 +24,19 @@
 """Read the shared strings table."""
 
 # package imports
-from openpyxl.shared.xmltools import fromstring, QName
-from openpyxl.shared.ooxml import NAMESPACES
+from openpyxl.shared.xmltools import fromstring
+from openpyxl.shared.ooxml import SHEET_MAIN_NS, XML_NS
 from openpyxl.shared.compat import unicode
 
 
 def read_string_table(xml_source):
     """Read in all shared strings in the table"""
     table = {}
-    xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
     root = fromstring(text=xml_source)
-    string_index_nodes = root.findall(QName(xmlns, 'si').text)
+    string_index_nodes = root.findall('{%s}si' % SHEET_MAIN_NS)
     for index, string_index_node in enumerate(string_index_nodes):
 
-        string = get_string(xmlns, string_index_node)
+        string = get_string(string_index_node)
 
         # fix XML escaping sequence for '_x'
         string = string.replace('x005F_', '')
@@ -49,24 +46,24 @@ def read_string_table(xml_source):
     return table
 
 
-def get_string(xmlns, string_index_node):
+def get_string(string_index_node):
     """Read the contents of a specific string index"""
-    rich_nodes = string_index_node.findall(QName(xmlns, 'r').text)
+    rich_nodes = string_index_node.findall('{%s}r' % SHEET_MAIN_NS)
     if rich_nodes:
         reconstructed_text = []
         for rich_node in rich_nodes:
-            partial_text = get_text(xmlns, rich_node)
+            partial_text = get_text(rich_node)
             reconstructed_text.append(partial_text)
         return unicode(''.join(reconstructed_text))
     else:
-        return get_text(xmlns, string_index_node)
+        return get_text(string_index_node)
 
 
-def get_text(xmlns, rich_node):
+def get_text(rich_node):
     """Read rich text, discarding formatting if not disallowed"""
-    text_node = rich_node.find(QName(xmlns, 't').text)
+    text_node = rich_node.find('{%s}t' % SHEET_MAIN_NS)
     partial_text = text_node.text or unicode('')
 
-    if text_node.get(QName(NAMESPACES['xml'], 'space').text) != 'preserve':
+    if text_node.get('{%s}space' % XML_NS) != 'preserve':
         partial_text = partial_text.strip()
     return unicode(partial_text)

@@ -1,8 +1,6 @@
 # coding: utf-8
-# file openpyxl/tests/test_workbook.py
-
-# Copyright (c) 2010-2011 openpyxl
-# 
+# Copyright (c) 2010-2014 openpyxl
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -24,18 +22,22 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-# 3rd party imports
-from nose.tools import eq_, with_setup, raises
-import os.path as osp
+# stdlib
+import datetime
+import os.path
 
 # package imports
 from openpyxl.workbook import Workbook
 from openpyxl.reader.excel import load_workbook
 from openpyxl.namedrange import NamedRange
 from openpyxl.shared.exc import ReadOnlyWorkbookException
-from openpyxl.tests.helper import TMPDIR, clean_tmpdir, make_tmpdir
 
-import datetime
+# test imports
+import pytest
+from nose.tools import eq_, with_setup, raises
+from openpyxl.tests.helper import TMPDIR, clean_tmpdir, make_tmpdir
+from openpyxl.tests.schema import validate_archive
+
 
 def test_get_active_sheet():
     wb = Workbook()
@@ -59,10 +61,10 @@ def test_add_correct_sheet():
     wb.add_sheet(new_sheet)
     eq_(new_sheet, wb.worksheets[2])
 
-@raises(AssertionError)
 def test_add_incorrect_sheet():
     wb = Workbook()
-    wb.add_sheet("Test")
+    with pytest.raises(TypeError):
+        wb.add_sheet("Test")
 
 @raises(ReadOnlyWorkbookException)
 def test_create_sheet_readonly():
@@ -85,6 +87,38 @@ def test_get_sheet_by_name():
     new_sheet.title = title
     found_sheet = wb.get_sheet_by_name(title)
     eq_(new_sheet, found_sheet)
+
+
+def test_getitem(Workbook, Worksheet):
+    wb = Workbook()
+    ws = wb['Sheet']
+    assert isinstance(ws, Worksheet)
+    with pytest.raises(KeyError):
+        wb['NotThere']
+
+
+def test_delitem(Workbook):
+    wb = Workbook()
+    del wb['Sheet']
+    assert wb.worksheets == []
+
+
+def test_contains(Workbook):
+    wb = Workbook()
+    assert "Sheet" in wb
+    assert "NotThere" not in wb
+
+def test_iter(Workbook):
+    wb = Workbook()
+    for i, ws in enumerate(wb):
+        pass
+    assert i == 0
+    assert ws.title == "Sheet"
+
+
+def test_get_index():
+    wb = Workbook()
+    new_sheet = wb.create_sheet(0)
 
 
 def test_get_index():
@@ -142,7 +176,7 @@ def test_add_local_named_range():
     named_range = NamedRange('test_nr', [(new_sheet, 'A1')])
     named_range.scope = new_sheet
     wb.add_named_range(named_range)
-    dest_filename = osp.join(TMPDIR, 'local_named_range_book.xlsx')
+    dest_filename = os.path.join(TMPDIR, 'local_named_range_book.xlsx')
     wb.save(dest_filename)
 
 
@@ -154,9 +188,10 @@ def test_write_regular_date():
     book = Workbook()
     sheet = book.get_active_sheet()
     sheet.cell("A1").value = today
-    dest_filename = osp.join(TMPDIR, 'date_read_write_issue.xlsx')
+    dest_filename = os.path.join(TMPDIR, 'date_read_write_issue.xlsx')
     book.save(dest_filename)
 
+    validate_archive(dest_filename)
     test_book = load_workbook(dest_filename)
     test_sheet = test_book.get_active_sheet()
 
@@ -169,9 +204,10 @@ def test_write_regular_float():
     book = Workbook()
     sheet = book.get_active_sheet()
     sheet.cell("A1").value = float_value
-    dest_filename = osp.join(TMPDIR, 'float_read_write_issue.xlsx')
+    dest_filename = os.path.join(TMPDIR, 'float_read_write_issue.xlsx')
     book.save(dest_filename)
 
+    validate_archive(dest_filename)
     test_book = load_workbook(dest_filename)
     test_sheet = test_book.get_active_sheet()
 
@@ -207,3 +243,21 @@ def test_good_encoding():
     lat_sheet.cell('A1').value = test_string
 
 
+class AlternativeWorksheet(object):
+    def __init__(self, parent_workbook, title=None):
+        self.parent_workbook = parent_workbook
+        if not title:
+            title = 'AlternativeSheet'
+        self.title = title
+
+
+def test_worksheet_class():
+    wb = Workbook(worksheet_class=AlternativeWorksheet)
+    assert isinstance(wb.worksheets[0], AlternativeWorksheet)
+
+
+def test_add_invalid_worksheet_class_instance():
+    wb = Workbook()
+    ws = AlternativeWorksheet(parent_workbook=wb)
+    with pytest.raises(TypeError):
+        wb.add_sheet(worksheet=ws)

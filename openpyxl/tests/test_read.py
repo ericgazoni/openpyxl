@@ -1,6 +1,4 @@
-# file openpyxl/tests/test_read.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +27,10 @@ from datetime import datetime, date
 
 # 3rd party imports
 from nose.tools import eq_, raises
+import pytest
+
+# compatibility imports
+from openpyxl.shared.compat import BytesIO, StringIO, unicode, file, tempfile
 
 # package imports
 from openpyxl.tests.helper import DATADIR
@@ -48,9 +50,14 @@ def test_read_standalone_worksheet():
         encoding = 'utf-8'
 
         excel_base_date = CALENDAR_WINDOWS_1900
+        _guess_types = True
+        data_only = False
 
         def get_sheet_by_name(self, value):
             return None
+
+        def get_sheet_names(self):
+            return []
 
     path = os.path.join(DATADIR, 'reader', 'sheet2.xml')
     ws = None
@@ -82,9 +89,10 @@ def test_read_worksheet():
     wb = load_workbook(path)
     sheet2 = wb.get_sheet_by_name('Sheet2 - Numbers')
     assert isinstance(sheet2, Worksheet)
-    eq_('This is cell G5', sheet2.cell('G5').value)
-    eq_(18, sheet2.cell('D18').value)
-
+    assert 'This is cell G5' == sheet2['G5'].value
+    assert 18 == sheet2['D18'].value
+    assert sheet2['G9'].value is True
+    assert sheet2['G10'].value is False
 
 def test_read_nostring_workbook():
     genuine_wb = os.path.join(DATADIR, 'genuine', 'empty-no-string.xlsx')
@@ -103,25 +111,20 @@ def test_read_empty_archive():
     null_file = os.path.join(DATADIR, 'reader', 'null_archive.xlsx')
     wb = load_workbook(null_file)
 
-def test_read_dimension():
-
-    path = os.path.join(DATADIR, 'reader', 'sheet2.xml')
-
+@pytest.mark.parametrize("filename", ["sheet2.xml", "sheet2_no_dimension.xml"])
+def test_read_dimension(filename):
+    path = os.path.join(DATADIR, 'reader', filename)
     dimension = None
-    handle = open(path)
-    try:
-        dimension = read_dimension(xml_source=handle.read())
-    finally:
-        handle.close()
-
-    eq_(('D', 1, 'K', 30), dimension)
+    with open(path) as handle:
+        dimension = read_dimension(handle.read())
+    assert dimension == ('D', 1, 'AA', 30)
 
 def test_calculate_dimension_iter():
     path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
     wb = load_workbook(filename=path, use_iterators=True)
     sheet2 = wb.get_sheet_by_name('Sheet2 - Numbers')
     dimensions = sheet2.calculate_dimension()
-    eq_('%s%s:%s%s' % ('D', 1, 'K', 30), dimensions)
+    eq_('%s%s:%s%s' % ('D', 1, 'AA', 30), dimensions)
 
 def test_get_highest_row_iter():
     path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
@@ -197,3 +200,175 @@ class TestReadBaseDateFormat(object):
         eq_(self.mac_ws.cell('A1').value, dt)
         eq_(self.win_ws.cell('A1').value, dt)
         eq_(self.mac_ws.cell('A1').value, self.win_ws.cell('A1').value)
+
+def test_repair_central_directory():
+    from openpyxl.reader.excel import repair_central_directory, CENTRAL_DIRECTORY_SIGNATURE
+
+    data_a = "foobarbaz" + CENTRAL_DIRECTORY_SIGNATURE
+    data_b = "bazbarfoo1234567890123456890"
+
+    # The repair_central_directory looks for a magic set of bytes
+    # (CENTRAL_DIRECTORY_SIGNATURE) and strips off everything 18 bytes past the sequence
+    f = repair_central_directory(StringIO(data_a + data_b), True)
+    eq_(f.read(), data_a + data_b[:18])
+
+    f = repair_central_directory(StringIO(data_b), True)
+    eq_(f.read(), data_b)
+
+
+def test_read_no_theme():
+    path = os.path.join(DATADIR, 'genuine', 'libreoffice_nrt.xlsx')
+    wb = load_workbook(path)
+    assert wb
+
+
+class TestReadFormulae(object):
+
+    xml_src = """<?xml version="1.0" ?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac"><dimension ref="A1:B6"/><sheetViews><sheetView tabSelected="1" workbookViewId="0"><selection activeCell="A6" sqref="A6"/></sheetView></sheetViews><sheetFormatPr baseColWidth="10" defaultColWidth="9.140625" defaultRowHeight="15" x14ac:dyDescent="0.25"/><cols><col min="1" max="1" width="15.7109375" customWidth="1"/><col min="2" max="2" width="15.28515625" customWidth="1"/></cols><sheetData><row r="1" spans="1:2" x14ac:dyDescent="0.25">
+<c r="A1" t="s"><v>0</v></c>
+<c r="B1" t="str"><f>CONCATENATE(A1,A2)</f><v>Hello, world!</v></c></row><row r="2" spans="1:2" x14ac:dyDescent="0.25">
+<c r="A2" t="s"><v>1</v></c></row><row r="4" spans="1:2" x14ac:dyDescent="0.25">
+<c r="A4"><v>1</v></c></row><row r="5" spans="1:2" x14ac:dyDescent="0.25">
+<c r="A5"><v>2</v></c></row><row r="6" spans="1:2" x14ac:dyDescent="0.25">
+<c r="A6"><f>SUM(A4:A5)</f><v>3</v></c></row></sheetData><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>"""
+
+    @classmethod
+    def setup(self):
+        wb = Workbook()
+        self.ws = wb.get_active_sheet()
+
+    def test_fast_parse(self):
+        from openpyxl.reader.worksheet import fast_parse
+        fast_parse(self.ws, self.xml_src, {}, {}, None)
+        b1 = self.ws.cell('B1')
+        eq_(b1.data_type, 'f')
+        eq_(b1.value, '=CONCATENATE(A1,A2)')
+        a6 = self.ws.cell('A6')
+        eq_(a6.data_type, 'f')
+        eq_(a6.value, '=SUM(A4:A5)')
+
+
+def test_read_complex_formulae():
+    null_file = os.path.join(DATADIR, 'reader', 'formulae.xlsx')
+    wb = load_workbook(null_file)
+    ws = wb.get_active_sheet()
+
+    # Test normal forumlae
+    assert ws.cell('A1').data_type != 'f'
+    assert ws.cell('A2').data_type != 'f'
+    assert ws.cell('A3').data_type == 'f'
+    assert 'A3' not in ws.formula_attributes
+    assert ws.cell('A3').value == '=12345'
+    assert ws.cell('A4').data_type == 'f'
+    assert 'A4' not in ws.formula_attributes
+    assert ws.cell('A4').value == '=A2+A3'
+    assert ws.cell('A5').data_type == 'f'
+    assert 'A5' not in ws.formula_attributes
+    assert ws.cell('A5').value == '=SUM(A2:A4)'
+
+    # Test shared forumlae
+    assert ws.cell('B7').data_type == 'f'
+    assert ws.formula_attributes['B7']['t'] == 'shared'
+    assert ws.formula_attributes['B7']['si'] == '0'
+    assert ws.formula_attributes['B7']['ref'] == 'B7:E7'
+    assert ws.cell('B7').value == '=B4*2'
+    assert ws.cell('C7').data_type == 'f'
+    assert ws.formula_attributes['C7']['t'] == 'shared'
+    assert ws.formula_attributes['C7']['si'] == '0'
+    assert 'ref' not in ws.formula_attributes['C7']
+    assert ws.cell('C7').value == '='
+    assert ws.cell('D7').data_type == 'f'
+    assert ws.formula_attributes['D7']['t'] == 'shared'
+    assert ws.formula_attributes['D7']['si'] == '0'
+    assert 'ref' not in ws.formula_attributes['D7']
+    assert ws.cell('D7').value == '='
+    assert ws.cell('E7').data_type == 'f'
+    assert ws.formula_attributes['E7']['t'] == 'shared'
+    assert ws.formula_attributes['E7']['si'] == '0'
+    assert 'ref' not in ws.formula_attributes['E7']
+    assert ws.cell('E7').value == '='
+
+    # Test array forumlae
+    assert ws.cell('C10').data_type == 'f'
+    assert 'ref' not in ws.formula_attributes['C10']['ref']
+    assert ws.formula_attributes['C10']['t'] == 'array'
+    assert 'si' not in ws.formula_attributes['C10']
+    assert ws.formula_attributes['C10']['ref'] == 'C10:C14'
+    assert ws.cell('C10').value == '=SUM(A10:A14*B10:B14)'
+    assert ws.cell('C11').data_type != 'f'
+
+
+def test_data_only():
+    null_file = os.path.join(DATADIR, 'reader', 'formulae.xlsx')
+    wb = load_workbook(null_file, data_only=True)
+    ws = wb.get_active_sheet()
+    ws.parent.data_only = True
+    # Test cells returning values only, not formulae
+    assert ws.formula_attributes == {}
+    assert ws.cell('A2').data_type == 'n' and ws.cell('A2').value == 12345
+    assert ws.cell('A3').data_type == 'n' and ws.cell('A3').value == 12345
+    assert ws.cell('A4').data_type == 'n' and ws.cell('A4').value == 24690
+    assert ws.cell('A5').data_type == 'n' and ws.cell('A5').value == 49380
+
+
+def test_read_contains_chartsheet():
+    """
+    Test reading workbook containing chartsheet.
+
+    "contains_chartsheets.xlsx" has the following sheets:
+    +---+------------+------------+
+    | # | Name       | Type       |
+    +===+============+============+
+    | 1 | "data"     | worksheet  |
+    +---+------------+------------+
+    | 2 | "chart"    | chartsheet |
+    +---+------------+------------+
+    | 3 | "moredata" | worksheet  |
+    +---+------------+------------+
+    """
+    # test data
+    path = os.path.join(DATADIR, 'reader', 'contains_chartsheets.xlsx')
+    wb = load_workbook(path)
+    # workbook contains correct sheet names
+    sheet_names = wb.get_sheet_names()
+    eq_(sheet_names[0], 'data')
+    eq_(sheet_names[1], 'moredata')
+
+
+def test_guess_types():
+    filename = os.path.join(DATADIR, 'genuine', 'guess_types.xlsx')
+    for guess, dtype in ((True, float), (False, unicode)):
+        wb = load_workbook(filename, guess_types=guess)
+        ws = wb.get_active_sheet()
+        assert isinstance(ws.cell('D2').value, dtype), 'wrong dtype (%s) when guess type is: %s (%s instead)' % (dtype, guess, type(ws.cell('A1').value))
+
+
+def test_get_xml_iter():
+    #1 file object
+    #2 stream (file-like)
+    #3 string
+    #4 zipfile
+    from openpyxl.reader.worksheet import _get_xml_iter
+    from tempfile import TemporaryFile
+    FUT = _get_xml_iter
+    s = ""
+    stream = FUT(s)
+    assert isinstance(stream, BytesIO), type(stream)
+
+    u = unicode(s)
+    stream = FUT(u)
+    assert isinstance(stream, BytesIO), type(stream)
+
+    f = TemporaryFile(mode='rb+', prefix='openpyxl.', suffix='.unpack.temp')
+    stream = FUT(f)
+    assert isinstance(stream, tempfile), type(stream)
+    f.close()
+
+    from zipfile import ZipFile
+    t = TemporaryFile()
+    z = ZipFile(t, mode="w")
+    z.writestr("test", "whatever")
+    stream = FUT(z.open("test"))
+    assert hasattr(stream, "read")
+    z.close()

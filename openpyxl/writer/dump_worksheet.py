@@ -1,6 +1,4 @@
-# file openpyxl/writer/straight_worksheet.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +25,7 @@
 
 import datetime
 import os
+from tempfile import NamedTemporaryFile
 
 from openpyxl.shared.compat import OrderedDict
 
@@ -37,7 +36,6 @@ from openpyxl.shared.date_time import SharedDate
 from openpyxl.shared.ooxml import MAX_COLUMN, MAX_ROW
 from openpyxl.shared import NUMERIC_TYPES
 from openpyxl.shared.exc import WorkbookAlreadySaved
-from openpyxl.shared.compat import NamedTemporaryFile
 from openpyxl.writer.excel import ExcelWriter
 from openpyxl.writer.strings import write_string_table
 from openpyxl.writer.styles import StyleWriter
@@ -72,7 +70,7 @@ class DumpWorksheet(Worksheet):
     """
     .. warning::
 
-        You shouldn't initialize this yourself, use :class:`openpyxl.workbook.Workbook` constructor instead, 
+        You shouldn't initialize this yourself, use :class:`openpyxl.workbook.Workbook` constructor instead,
         with `optimized_write = True`.
     """
     def __init__(self, parent_workbook, title):
@@ -138,7 +136,7 @@ class DumpWorksheet(Worksheet):
         doc = XMLGenerator(fobj, 'utf-8')
 
         start_tag(doc, 'worksheet',
-                {'xml:space': 'preserve',
+                {
                 'xmlns': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
                 'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'})
         start_tag(doc, 'sheetPr')
@@ -189,7 +187,7 @@ class DumpWorksheet(Worksheet):
             return '%s%d' % (get_column_letter(self._max_col), (self._max_row))
 
     def _get_content_generator(self):
-        """ XXX: this is ugly, but it allows to resume writing the file 
+        """ XXX: this is ugly, but it allows to resume writing the file
         even after the handle is closed"""
 
         # when I'll recreate the XMLGenerator, it will start writing at the
@@ -237,7 +235,8 @@ class DumpWorksheet(Worksheet):
                 dtype = 'string'
                 cell = self._string_builder.add(cell)
 
-            attributes['t'] = STYLES[dtype]['type']
+            if dtype != 'formula':
+                attributes['t'] = STYLES[dtype]['type']
             start_tag(doc, 'c', attributes)
 
             if dtype == 'formula':

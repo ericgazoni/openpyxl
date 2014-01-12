@@ -1,7 +1,7 @@
 # file openpyxl/tests/test_chart.py
 
-# Copyright (c) 2010-2011 openpyxl
-# 
+# Copyright (c) 2010-2014 openpyxl
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -23,195 +23,354 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-from nose.tools import eq_
+from datetime import date
+import pytest
 
-from openpyxl.tests.helper import get_xml
-from openpyxl.shared.xmltools import Element
-from openpyxl.writer.charts import ChartWriter
-from openpyxl.workbook import Workbook
-from openpyxl.chart import BarChart, ScatterChart, Serie, Reference, Surface3DChart
-from openpyxl.style import Color
-from re import sub
 
-class TestChartWriter(object):
+@pytest.mark.parametrize("value, result",
+                         [
+                          (1, None),
+                          (0.9, 10),
+                          (0.09, 100),
+                          (-0.09, 100)
+                         ]
+                         )
+def test_less_than_one(value, result):
+    from openpyxl.chart import less_than_one
+    assert less_than_one(value) == result
 
-    def setUp(self):
+def test_axis_ctor(Axis):
+    axis = Axis()
+    assert axis.title == ""
+    assert axis.auto_axis is True
+    with pytest.raises(ZeroDivisionError):
+        axis.max == 0
+    with pytest.raises(ZeroDivisionError):
+        axis.min == 0
+    with pytest.raises(ZeroDivisionError):
+        axis.unit == 0
 
-        wb = Workbook()
-        ws = wb.get_active_sheet()
-        ws.title = 'data'
-        for i in range(10):
-            ws.cell(row = i, column = 0).value = i
-        self.chart = BarChart()
-        self.chart.title = 'TITLE'
-        self.chart.add_serie(Serie(Reference(ws, (0, 0), (10, 0))))
-        self.chart._series[-1].color = Color.GREEN
-        self.cw = ChartWriter(self.chart)
-        self.root = Element('test')
 
-    def test_write_title(self):
-        self.cw._write_title(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:title><c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr /></a:pPr><a:r><a:rPr lang="fr-FR" /><a:t>TITLE</a:t></a:r></a:p></c:rich></c:tx><c:layout /></c:title></test>')
+@pytest.mark.parametrize("set_max, set_min, min, max, unit",
+                         [
+                         (10, 0, 0, 12, 2),
+                         (5, 0, 0, 6, 1),
+                         (50000, 0, 0, 60000, 12000),
+                         (1, 0, 0, 2, 1),
+                         (0.9, 0, 0, 1, 0.2),
+                         (0.09, 0, 0, 0.1, 0.02),
+                         (0, -0.09, -0.1, 0, 0.02),
+                         (8, -2, -3, 10, 2)
+                         ]
+                         )
+def test_scaling(Axis, set_max, set_min, min, max, unit):
+    axis = Axis()
+    axis.max = set_max
+    axis.min = set_min
+    assert axis.min == min
+    assert axis.max == max
+    assert axis.unit == unit
 
-    def test_write_xaxis(self):
 
-        self.cw._write_axis(self.root, self.chart.x_axis, 'c:catAx')
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:catAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /></c:scaling><c:axPos val="b" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /></c:catAx></test>')
+@pytest.fixture
+def sheet(ten_row_sheet):
+    ten_row_sheet.title = "reference"
+    return ten_row_sheet
 
-    def test_write_yaxis(self):
 
-        self.cw._write_axis(self.root, self.chart.y_axis, 'c:valAx')
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="between" /><c:majorUnit val="2.0" /></c:valAx></test>')
+@pytest.fixture
+def cell(sheet, Reference):
+    return Reference(sheet, (0, 0))
 
-    def test_write_series(self):
 
-        self.cw._write_series(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:ser><c:idx val="0" /><c:order val="0" /><c:spPr><a:solidFill><a:srgbClr val="00FF00" /></a:solidFill><a:ln><a:solidFill><a:srgbClr val="00FF00" /></a:solidFill></a:ln></c:spPr><c:marker><c:symbol val="none" /></c:marker><c:val><c:numRef><c:f>\'data\'!$A$1:$A$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:val></c:ser></test>')
+@pytest.fixture
+def cell_range(sheet, Reference):
+    return Reference(sheet, (0, 0), (9, 0))
 
-    def test_write_legend(self):
 
-        self.cw._write_legend(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:legend><c:legendPos val="r" /><c:layout /></c:legend></test>')
+@pytest.fixture()
+def empty_range(sheet, Reference):
+    for i in range(10):
+        sheet.cell(row=i, column=1).value = None
+    return Reference(sheet, (0, 1), (9, 1))
 
-    def test_no_write_legend(self):
-        
-        wb = Workbook()
-        ws = wb.get_active_sheet()
-        ws.title = 'data'
-        for i in range(10):
-            ws.cell(row = i, column = 0).value = i
-            ws.cell(row = i, column = 1).value = i
-        scatterchart = ScatterChart()
-        scatterchart.add_serie(Serie(Reference(ws, (0, 0), (10, 0)),
-                         xvalues = Reference(ws, (0, 1), (10, 1))))
-        cw = ChartWriter(scatterchart)
-        root = Element('test')
-        scatterchart.show_legend = False
-        cw._write_legend(root)
-        eq_(get_xml(root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test />')
 
-    def test_write_print_settings(self):
+@pytest.fixture()
+def missing_values(sheet, Reference):
+    vals = [None, None, 1, 2, 3, 4, 5, 6, 7, 8]
+    for idx, val in enumerate(vals):
+        sheet.cell(row=idx, column=2).value = val
+    return Reference(sheet, (0, 2), (9, 2))
 
-        self.cw._write_print_settings(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:printSettings><c:headerFooter /><c:pageMargins b="0.75" footer="0.3" header="0.3" l="0.7" r="0.7" t="0.75" /><c:pageSetup /></c:printSettings></test>')
 
-    def test_write_chart(self):
+@pytest.fixture
+def column_of_letters(sheet, Reference):
+    for idx, l in enumerate("ABCDEFGHIJ"):
+        sheet.cell(row=idx, column=1).value = l
+    return Reference(sheet, (0, 1), (9, 1))
 
-        self.cw._write_chart(self.root)
-        # Truncate floats because results differ with Python >= 3.2 and <= 3.1
-        test_xml = sub('([0-9][.][0-9]{4})[0-9]*','\\1',get_xml(self.root))
-        eq_(test_xml, '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:chart><c:title><c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr /></a:pPr><a:r><a:rPr lang="fr-FR" /><a:t>TITLE</a:t></a:r></a:p></c:rich></c:tx><c:layout /></c:title><c:plotArea><c:layout><c:manualLayout><c:layoutTarget val="inner" /><c:xMode val="edge" /><c:yMode val="edge" /><c:x val="1.2857" /><c:y val="0.2125" /><c:w val="0.6" /><c:h val="0.6" /></c:manualLayout></c:layout><c:barChart><c:barDir val="col" /><c:grouping val="clustered" /><c:ser><c:idx val="0" /><c:order val="0" /><c:spPr><a:solidFill><a:srgbClr val="00FF00" /></a:solidFill><a:ln><a:solidFill><a:srgbClr val="00FF00" /></a:solidFill></a:ln></c:spPr><c:marker><c:symbol val="none" /></c:marker><c:val><c:numRef><c:f>\'data\'!$A$1:$A$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:val></c:ser><c:marker val="1" /><c:axId val="60871424" /><c:axId val="60873344" /></c:barChart><c:catAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /></c:scaling><c:axPos val="b" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /></c:catAx><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="between" /><c:majorUnit val="2.0" /></c:valAx></c:plotArea><c:legend><c:legendPos val="r" /><c:layout /></c:legend><c:plotVisOnly val="1" /></c:chart></test>')
-                
+class TestReference(object):
 
-class TestScatterChartWriter(object):
+    def test_single_cell_ctor(self, cell):
+        assert cell.pos1 == (0, 0)
+        assert cell.pos2 == None
 
-    def setUp(self):
+    def test_range_ctor(self, cell_range):
+        assert cell_range.pos1 == (0, 0)
+        assert cell_range.pos2 == (9, 0)
 
-        wb = Workbook()
-        ws = wb.get_active_sheet()
-        ws.title = 'data'
-        for i in range(10):
-            ws.cell(row = i, column = 0).value = i
-            ws.cell(row = i, column = 1).value = i
-        self.scatterchart = ScatterChart()
-        self.scatterchart.add_serie(Serie(Reference(ws, (0, 0), (10, 0)),
-                         xvalues = Reference(ws, (0, 1), (10, 1))))
-        self.cw = ChartWriter(self.scatterchart)
-        self.root = Element('test')
+    def test_single_cell_ref(self, cell):
+        assert cell.values == [0]
+        assert str(cell) == "'reference'!$A$1"
 
-    def test_write_xaxis(self):
+    def test_cell_range_ref(self, cell_range):
+        assert cell_range.values == [0, 1, 2, 3, 4, 5, 6, 7, 8 , 9]
+        assert str(cell_range) == "'reference'!$A$1:$A$10"
 
-        self.scatterchart.x_axis.title = 'test x axis title'
-        self.cw._write_axis(self.root, self.scatterchart.x_axis, 'c:valAx')
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:valAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="b" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:title><c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr /></a:pPr><a:r><a:rPr lang="fr-FR" /><a:t>test x axis title</a:t></a:r></a:p></c:rich></c:tx><c:layout /></c:title><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx></test>')
+    def test_data_type(self, cell):
+        with pytest.raises(ValueError):
+            cell.data_type = 'f'
+            cell.data_type = None
 
-    def test_write_yaxis(self):
+    def test_type_inference(self, cell, cell_range, column_of_letters,
+                            missing_values):
+        assert cell.values == [0]
+        assert cell.data_type == 'n'
 
-        self.scatterchart.y_axis.title = 'test y axis title'
-        self.cw._write_axis(self.root, self.scatterchart.y_axis, 'c:valAx')
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:title><c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr /></a:pPr><a:r><a:rPr lang="fr-FR" /><a:t>test y axis title</a:t></a:r></a:p></c:rich></c:tx><c:layout /></c:title><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx></test>')
+        assert cell_range.values == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        assert cell_range.data_type == 'n'
 
-    def test_write_series(self):
+        assert column_of_letters.values == list("ABCDEFGHIJ")
+        assert column_of_letters.data_type == "s"
 
-        self.cw._write_series(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:ser><c:idx val="0" /><c:order val="0" /><c:marker><c:symbol val="none" /></c:marker><c:xVal><c:numRef><c:f>\'data\'!$B$1:$B$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:xVal><c:yVal><c:numRef><c:f>\'data\'!$A$1:$A$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:yVal></c:ser></test>')
+        assert missing_values.values == ['', '', 1, 2, 3, 4, 5, 6, 7, 8]
+        missing_values.values
+        assert missing_values.data_type == 'n'
 
-    def test_write_legend(self):
+    def test_number_format(self, cell):
+        with pytest.raises(ValueError):
+            cell.number_format = 'YYYY'
+        cell.number_format = 'd-mmm'
+        assert cell.number_format == 'd-mmm'
 
-        self.cw._write_legend(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:legend><c:legendPos val="r" /><c:layout /></c:legend></test>')
 
-    def test_write_print_settings(self):
+class TestErrorBar(object):
 
-        self.cw._write_print_settings(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:printSettings><c:headerFooter /><c:pageMargins b="0.75" footer="0.3" header="0.3" l="0.7" r="0.7" t="0.75" /><c:pageSetup /></c:printSettings></test>')
+    def test_ctor(self, ErrorBar):
+        with pytest.raises(TypeError):
+            ErrorBar(None, range(10))
 
-    def test_write_chart(self):
 
-        self.cw._write_chart(self.root)
-        # Truncate floats because results differ with Python >= 3.2 and <= 3.1
-        test_xml = sub('([0-9][.][0-9]{4})[0-9]*','\\1',get_xml(self.root))
-        eq_(test_xml, '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:chart><c:plotArea><c:layout><c:manualLayout><c:layoutTarget val="inner" /><c:xMode val="edge" /><c:yMode val="edge" /><c:x val="1.2857" /><c:y val="0.2125" /><c:w val="0.6" /><c:h val="0.6" /></c:manualLayout></c:layout><c:scatterChart><c:scatterStyle val="lineMarker" /><c:ser><c:idx val="0" /><c:order val="0" /><c:marker><c:symbol val="none" /></c:marker><c:xVal><c:numRef><c:f>\'data\'!$B$1:$B$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:xVal><c:yVal><c:numRef><c:f>\'data\'!$A$1:$A$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:yVal></c:ser><c:marker val="1" /><c:axId val="60871424" /><c:axId val="60873344" /></c:scatterChart><c:valAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="b" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="midCat" /><c:majorUnit val="2.0" /></c:valAx></c:plotArea><c:legend><c:legendPos val="r" /><c:layout /></c:legend><c:plotVisOnly val="1" /></c:chart></test>')
+class TestSerie(object):
 
-class TestSurface3DCharttWriter(object):
+    def test_ctor(self, Series, cell):
+        series = Series(cell)
+        assert series.values == [0]
+        assert series.color == None
+        assert series.error_bar == None
+        assert series.xvalues == None
+        assert series.labels == None
+        assert series.title == None
 
-    def setUp(self):
+    def test_invalid_values(self, Series, cell):
+        series = Series(cell)
+        with pytest.raises(TypeError):
+            series.values = 0
 
-        wb = Workbook()
-        ws = wb.get_active_sheet()
-        ws.title = 'data'
-        for i in range(10):
-            ws.cell(row = i, column = 0).value = i
-        self.chart = Surface3DChart()
-        self.chart.title = 'TITLE'
-        self.chart.add_serie(Serie(Reference(ws, (0, 0), (10, 0))))
-        self.chart._series[-1].color = Color.GREEN
-        self.cw = ChartWriter(self.chart)
-        self.root = Element('test')
+    def test_invalid_xvalues(self, Series, cell):
+        series = Series(cell)
+        with pytest.raises(TypeError):
+            series.xvalues = 0
 
-    def test_write_title(self):
-        self.cw._write_title(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:title><c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr /></a:pPr><a:r><a:rPr lang="fr-FR" /><a:t>TITLE</a:t></a:r></a:p></c:rich></c:tx><c:layout /></c:title></test>')
+    def test_color(self, Series, cell):
+        series = Series(cell)
+        assert series.color == None
+        series.color = "blue"
+        assert series.color, "blue"
+        with pytest.raises(ValueError):
+            series.color = None
 
-    def test_write_xaxis(self):
+    def test_min(self, Series, cell, cell_range, empty_range):
+        series = Series(cell)
+        assert series.min() == 0
+        series = Series(cell_range)
+        assert series.min() == 0
+        series = Series(empty_range)
+        assert series.min() == None
 
-        self.cw._write_axis(self.root, self.chart.x_axis, 'c:catAx')
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:catAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /></c:scaling><c:axPos val="b" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /></c:catAx></test>')
+    def test_max(self, Series, cell, cell_range, empty_range):
+        series = Series(cell)
+        assert series.max() == 0
+        series = Series(cell_range)
+        assert series.max() == 9
+        series = Series(empty_range)
+        assert series.max() == None
 
-    def test_write_yaxis(self):
+    def test_min_max(self, Series, cell, cell_range, empty_range):
+        series = Series(cell)
+        assert series.get_min_max() == (0, 0)
+        series = Series(cell_range)
+        assert series.get_min_max() == (0, 9)
+        series = Series(empty_range)
+        assert series.get_min_max() == (None, None)
 
-        self.cw._write_axis(self.root, self.chart.y_axis, 'c:valAx')
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="between" /><c:majorUnit val="2.0" /></c:valAx></test>')
+    def test_len(self, Series, cell):
+        series = Series(cell)
+        assert len(series) == 1
 
-    def test_write_zaxis(self):
+    def test_error_bar(self, Series, ErrorBar, cell):
+        series = Series(cell)
+        series.error_bar = ErrorBar(None, cell)
+        assert series.get_min_max() == (0, 0)
 
-        self.cw._write_axis(self.root, self.chart.z_axis, 'c:valSer')
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:valSer><c:axId val="60880064" /><c:scaling><c:orientation val="minMax" /></c:scaling><c:axPos val="b" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /></c:valSer></test>')
 
-    def test_write_series(self):
+@pytest.fixture()
+def series(cell_range, Series):
+    return Series(values=cell_range)
 
-        self.cw._write_series(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:ser><c:idx val="0" /><c:order val="0" /><c:spPr><a:ln><a:solidFill><a:srgbClr val="00FF00" /></a:solidFill></a:ln></c:spPr><c:marker><c:symbol val="none" /></c:marker><c:val><c:numRef><c:f>\'data\'!$A$1:$A$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:val></c:ser></test>')
 
-    def test_write_legend(self):
+class TestChart(object):
 
-        self.cw._write_legend(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:legend><c:legendPos val="r" /><c:layout /></c:legend></test>')
+    def test_ctor(self, Chart):
+        from openpyxl.chart import Legend
+        from openpyxl.drawing import Drawing
+        c = Chart()
+        assert c.TYPE == None
+        assert c.GROUPING == "standard"
+        assert isinstance(c.legend, Legend)
+        assert c.show_legend
+        assert c.lang == 'en-GB'
+        assert c.title == ''
+        assert c.print_margins == {'b':0.75, 'l':0.7, 'r':0.7, 't':0.75,
+                                   'header':0.3, 'footer':0.3}
+        assert isinstance(c.drawing, Drawing)
+        assert c.width == 0.6
+        assert c.height == 0.6
+        assert c.margin_top == 0.31
+        assert c.series == []
+        assert c.shapes == []
+        with pytest.raises(ValueError):
+            assert c.margin_left == 0
 
-    def test_no_write_legend(self):
-        
-        self.chart.show_legend = False
-        self.cw._write_legend(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test />')
+    def test_mymax(self, Chart):
+        c = Chart()
+        assert c.mymax(range(10)) == 9
+        from string import ascii_letters as letters
+        assert c.mymax(list(letters)) == "z"
+        assert c.mymax(range(-10, 1)) == 0
+        assert c.mymax([""]*10) == ""
 
-    def test_write_print_settings(self):
+    def test_mymin(self, Chart):
+        c = Chart()
+        assert c.mymin(range(10)) == 0
+        from string import ascii_letters as letters
+        assert c.mymin(list(letters)) == "A"
+        assert c.mymin(range(-10, 1)) == -10
+        assert c.mymin([""]*10) == ""
 
-        self.cw._write_print_settings(self.root)
-        eq_(get_xml(self.root), '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:printSettings><c:headerFooter /><c:pageMargins b="0.75" footer="0.3" header="0.3" l="0.7" r="0.7" t="0.75" /><c:pageSetup /></c:printSettings></test>')
+    def test_margin_top(self, Chart):
+        c = Chart()
+        assert c.margin_top == 0.31
 
-    def test_write_chart(self):
+    def test_margin_left(self, series, Chart):
+        c = Chart()
+        c.append(series)
+        assert c.margin_left == 0.03375
 
-        self.cw._write_chart(self.root)
-        # Truncate floats because results differ with Python >= 3.2 and <= 3.1
-        test_xml = sub('([0-9][.][0-9]{4})[0-9]*','\\1',get_xml(self.root))
-        eq_(test_xml, '<?xml version=\'1.0\' encoding=\'UTF-8\'?><test><c:chart><c:title><c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr /></a:pPr><a:r><a:rPr lang="fr-FR" /><a:t>TITLE</a:t></a:r></a:p></c:rich></c:tx><c:layout /></c:title><c:plotArea><c:layout><c:manualLayout><c:layoutTarget val="inner" /><c:xMode val="edge" /><c:yMode val="edge" /><c:x val="1.2857" /><c:y val="0.2125" /><c:w val="0.6" /><c:h val="0.6" /></c:manualLayout></c:layout><c:surface3DChart><c:ser><c:idx val="0" /><c:order val="0" /><c:spPr><a:ln><a:solidFill><a:srgbClr val="00FF00" /></a:solidFill></a:ln></c:spPr><c:marker><c:symbol val="none" /></c:marker><c:val><c:numRef><c:f>\'data\'!$A$1:$A$11</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="11" /><c:pt idx="0"><c:v>0</c:v></c:pt><c:pt idx="1"><c:v>1</c:v></c:pt><c:pt idx="2"><c:v>2</c:v></c:pt><c:pt idx="3"><c:v>3</c:v></c:pt><c:pt idx="4"><c:v>4</c:v></c:pt><c:pt idx="5"><c:v>5</c:v></c:pt><c:pt idx="6"><c:v>6</c:v></c:pt><c:pt idx="7"><c:v>7</c:v></c:pt><c:pt idx="8"><c:v>8</c:v></c:pt><c:pt idx="9"><c:v>9</c:v></c:pt><c:pt idx="10"><c:v>None</c:v></c:pt></c:numCache></c:numRef></c:val></c:ser><c:axId val="60871424" /><c:axId val="60873344" /><c:axId val="60880064" /></c:surface3DChart><c:catAx><c:axId val="60871424" /><c:scaling><c:orientation val="minMax" /></c:scaling><c:axPos val="b" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /><c:auto val="1" /><c:lblAlgn val="ctr" /><c:lblOffset val="100" /></c:catAx><c:valAx><c:axId val="60873344" /><c:scaling><c:orientation val="minMax" /><c:max val="10.0" /><c:min val="0.0" /></c:scaling><c:axPos val="l" /><c:majorGridlines /><c:numFmt formatCode="General" sourceLinked="1" /><c:tickLblPos val="nextTo" /><c:crossAx val="60871424" /><c:crosses val="autoZero" /><c:crossBetween val="between" /><c:majorUnit val="2.0" /></c:valAx><c:serAx><c:axId val="60880064" /><c:scaling><c:orientation val="minMax" /></c:scaling><c:axPos val="b" /><c:tickLblPos val="nextTo" /><c:crossAx val="60873344" /><c:crosses val="autoZero" /></c:serAx></c:plotArea><c:legend><c:legendPos val="r" /><c:layout /></c:legend><c:plotVisOnly val="1" /></c:chart></test>')
+    def test_set_margin_top(self, Chart):
+        c = Chart()
+        c.margin_top = 1
+        assert c.margin_top == 0.31
+
+    def test_set_margin_left(self, series, Chart):
+        c = Chart()
+        c.append(series)
+        c.margin_left = 0
+        assert c.margin_left  == 0.03375
+
+
+class TestGraphChart(object):
+
+    def test_ctor(self, GraphChart, Axis):
+        c = GraphChart()
+        assert isinstance(c.x_axis, Axis)
+        assert isinstance(c.y_axis, Axis)
+
+    def test_get_x_unit(self, GraphChart, series):
+        c = GraphChart()
+        c.append(series)
+        assert c.get_x_units() == 10
+
+    def test_get_y_unit(self, GraphChart, series):
+        c = GraphChart()
+        c.append(series)
+        c.y_axis.max = 10
+        assert c.get_y_units() == 190500
+
+    def test_get_y_char(self, GraphChart, series):
+        c = GraphChart()
+        c.append(series)
+        assert c.get_y_chars() == 1
+
+    def test_compute_series_extremes(self, GraphChart, series):
+        c = GraphChart()
+        c.append(series)
+        mini, maxi = c._get_extremes()
+        assert mini == 0
+        assert maxi == 9
+
+    def test_compute_series_max_dates(self, ws, Reference, Series, GraphChart):
+        for i in range(1, 10):
+            ws.append([date(2013, i, 1)])
+        c = GraphChart()
+        ref = Reference(ws, (0, 0), (9, 0))
+        series = Series(ref)
+        c.append(series)
+        mini, maxi = c._get_extremes()
+        assert mini == 0
+        assert maxi == 41518.0
+
+    def test_override_axis(self, GraphChart, series):
+        c = GraphChart()
+        c.add_serie(series)
+        c.compute_axes()
+        assert c.y_axis.min == 0
+        assert c.y_axis.max == 10
+        c.y_axis.min = -1
+        c.y_axis.max = 5
+        assert c.y_axis.min == -2
+        assert c.y_axis.max == 6
+
+
+class TestLineChart(object):
+
+    def test_ctor(self, LineChart):
+        c = LineChart()
+        assert c.TYPE == "lineChart"
+        assert c.x_axis.type == "catAx"
+        assert c.y_axis.type == "valAx"
+
+
+class TestPieChart(object):
+
+    def test_ctor(self, PieChart):
+        c = PieChart()
+        assert c.TYPE, "pieChart"
+
+
+class TestBarChart(object):
+
+    def test_ctor(self, BarChart):
+        c = BarChart()
+        assert c.TYPE == "barChart"
+        assert c.x_axis.type == "catAx"
+        assert c.y_axis.type == "valAx"
+
+
+class TestScatterChart(object):
+
+    def test_ctor(self, ScatterChart):
+        c = ScatterChart()
+        assert c.TYPE == "scatterChart"
+        assert c.x_axis.type == "valAx"
+        assert c.y_axis.type == "valAx"

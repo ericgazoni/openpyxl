@@ -1,6 +1,4 @@
-# file openpyxl/shared/__init__.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,3 +34,6 @@ import decimal
 
 NUMERIC_TYPES = (int, float, long, decimal.Decimal)
 
+# both values in points
+DEFAULT_ROW_HEIGHT = 15.
+DEFAULT_COLUMN_WIDTH = 51.85

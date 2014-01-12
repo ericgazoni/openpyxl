@@ -1,6 +1,4 @@
-# file openpyxl/writer/strings.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +23,8 @@
 
 """Write the shared string table."""
 
-# Python stdlib imports
-try:
-    # Python 2
-    from StringIO import StringIO
-    BytesIO = StringIO
-except ImportError:
-    # Python 3
-    from io import BytesIO, StringIO
+# compatibility imports
+from openpyxl.shared.compat import BytesIO, StringIO
 
 # package imports
 from openpyxl.shared.xmltools import start_tag, end_tag, tag, XMLGenerator
@@ -45,7 +37,7 @@ def create_string_table(workbook):
         for cell in sheet.get_cell_collection():
             if cell.data_type == cell.TYPE_STRING and cell._value is not None:
                 strings.add(cell.value)
-    return dict((key, i) for i, key in enumerate(strings))
+    return dict((key, i) for i, key in enumerate(sorted(strings)))
 
 
 def write_string_table(string_table):

@@ -1,10 +1,10 @@
 Optimized reader
 ================
 
-Sometimes, you will need to open or write extremely large XLSX files, 
+Sometimes, you will need to open or write extremely large XLSX files,
 and the common routines in openpyxl won't be able to handle that load.
-Hopefully, there are two modes that enable you to read and write unlimited 
-amounts of data with (near) constant memory consumption. 
+Hopefully, there are two modes that enable you to read and write unlimited
+amounts of data with (near) constant memory consumption.
 
 Introducing :class:`openpyxl.reader.iter_worksheet.IterableWorksheet`::
 
@@ -15,10 +15,10 @@ Introducing :class:`openpyxl.reader.iter_worksheet.IterableWorksheet`::
     for row in ws.iter_rows(): # it brings a new method: iter_rows()
 
         for cell in row:
-    
+
             print cell.internal_value
 
-.. warning:: 
+.. warning::
 
     * As you can see, we are using cell.internal_value instead of .value.
     * :class:`openpyxl.reader.iter_worksheet.IterableWorksheet` are read-only
@@ -43,9 +43,9 @@ When you want to dump large amounts of data, you might find optimized writer hel
     for irow in xrange(10000):
         ws.append(['%d' % i for i in xrange(200)])
 
-    wb.save('new_big_file.xlsx') # don't forget to save !        
-    
-.. warning:: 
+    wb.save('new_big_file.xlsx') # don't forget to save !
+
+.. warning::
 
     * Those worksheet only have an append() method, it's not possible to access independent cells directly (through cell() or range()). They are write-only.
     * It is able to export unlimited amount of data (even more than Excel can handle actually), while keeping memory usage under 10Mb.

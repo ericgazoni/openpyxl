@@ -1,6 +1,4 @@
-# file openpyxl/reader/style.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,28 +24,28 @@
 """Read shared style definitions"""
 
 # package imports
-from openpyxl.shared.xmltools import fromstring, QName
+from openpyxl.shared.xmltools import fromstring
 from openpyxl.shared.exc import MissingNumberFormat
-from openpyxl.style import Style, NumberFormat, Font, Fill, Borders, Protection
+from openpyxl.style import Style, NumberFormat, Font, Fill, Borders, Protection, Color
+from openpyxl.shared.ooxml import SHEET_MAIN_NS
 from copy import deepcopy
-
 
 def read_style_table(xml_source):
     """Read styles from the shared style table"""
-    table = {}
-    xmlns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+    style_prop = {'table': {}}
     root = fromstring(xml_source)
-    custom_num_formats = parse_custom_num_formats(root, xmlns)
-    color_index = parse_color_index(root, xmlns)
-    font_list = parse_fonts(root, xmlns, color_index)
-    fill_list = parse_fills(root, xmlns, color_index)
-    border_list = parse_borders(root, xmlns, color_index)
+    custom_num_formats = parse_custom_num_formats(root)
+    style_prop['color_index'] = parse_color_index(root)
+    font_list = parse_fonts(root, style_prop['color_index'])
+    fill_list = parse_fills(root, style_prop['color_index'])
+    border_list = parse_borders(root, style_prop['color_index'])
+    style_prop['dxf_list'] = parse_dxfs(root, style_prop['color_index'])
     builtin_formats = NumberFormat._BUILTIN_FORMATS
-    cell_xfs = root.find(QName(xmlns, 'cellXfs').text)
-    if cell_xfs is not None: # can happen on bad OOXML writers (e.g. Gnumeric)
-        cell_xfs_nodes = cell_xfs.findall(QName(xmlns, 'xf').text)
+    cell_xfs = root.find('{%s}cellXfs' % SHEET_MAIN_NS)
+    if cell_xfs is not None:  # can happen on bad OOXML writers (e.g. Gnumeric)
+        cell_xfs_nodes = cell_xfs.findall('{%s}xf' % SHEET_MAIN_NS)
         for index, cell_xfs_node in enumerate(cell_xfs_nodes):
-            new_style = Style()
+            new_style = Style(static=True)
             number_format_id = int(cell_xfs_node.get('numFmtId'))
             if number_format_id < 164:
                 new_style.number_format.format_code = \
@@ -61,7 +59,7 @@ def read_style_table(xml_source):
                     raise MissingNumberFormat('%s' % number_format_id)
 
             if cell_xfs_node.get('applyAlignment') == '1':
-                alignment = cell_xfs_node.find(QName(xmlns, 'alignment').text)
+                alignment = cell_xfs_node.find('{%s}alignment' % SHEET_MAIN_NS)
                 if alignment is not None:
                     if alignment.get('horizontal') is not None:
                         new_style.alignment.horizontal = alignment.get('horizontal')
@@ -100,7 +98,7 @@ def read_style_table(xml_source):
                 new_style.borders.diagonal.color = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].diagonal.color)
 
             if cell_xfs_node.get('applyProtection') == '1':
-                protection = cell_xfs_node.find(QName(xmlns, 'protection').text)
+                protection = cell_xfs_node.find('{%s}protection' % SHEET_MAIN_NS)
                 # Ignore if there are no protection sub-nodes
                 if protection is not None:
                     if protection.get('locked') is not None:
@@ -114,48 +112,96 @@ def read_style_table(xml_source):
                         else:
                             new_style.protection.hidden = Protection.PROTECTION_UNPROTECTED
 
-            table[index] = new_style
-    return table
+            style_prop['table'][index] = new_style
+    return style_prop
 
-def parse_custom_num_formats(root, xmlns):
+def parse_custom_num_formats(root):
     """Read in custom numeric formatting rules from the shared style table"""
     custom_formats = {}
-    num_fmts = root.find(QName(xmlns, 'numFmts').text)
+    num_fmts = root.find('{%s}numFmts' % SHEET_MAIN_NS)
     if num_fmts is not None:
-        num_fmt_nodes = num_fmts.findall(QName(xmlns, 'numFmt').text)
+        num_fmt_nodes = num_fmts.findall('{%s}numFmt' % SHEET_MAIN_NS)
         for num_fmt_node in num_fmt_nodes:
             custom_formats[int(num_fmt_node.get('numFmtId'))] = \
                     num_fmt_node.get('formatCode').lower()
     return custom_formats
 
-def parse_color_index(root, xmlns):
+def parse_color_index(root):
     """Read in the list of indexed colors"""
     color_index = []
-    colors = root.find(QName(xmlns, 'colors').text)
+    colors = root.find('{%s}colors' % SHEET_MAIN_NS)
     if colors is not None:
-        indexedColors = colors.find(QName(xmlns, 'indexedColors').text)
+        indexedColors = colors.find('{%s}indexedColors' % SHEET_MAIN_NS)
         if indexedColors is not None:
-            color_nodes = indexedColors.findall(QName(xmlns, 'rgbColor').text)
+            color_nodes = indexedColors.findall('{%s}rgbColor' % SHEET_MAIN_NS)
             for color_node in color_nodes:
                 color_index.append(color_node.get('rgb'))
+    if not color_index:
+        # Default Color Index as per http://dmcritchie.mvps.org/excel/colors.htm
+        color_index = ['FF000000', 'FFFFFFFF', 'FFFF0000', 'FF00FF00', 'FF0000FF', 'FFFFFF00', 'FFFF00FF', 'FF00FFFF',
+                       'FF800000', 'FF008000', 'FF000080', 'FF808000', 'FF800080', 'FF008080', 'FFC0C0C0', 'FF808080',
+                       'FF9999FF', 'FF993366', 'FFFFFFCC', 'FFCCFFFF', 'FF660066', 'FFFF8080', 'FF0066CC', 'FFCCCCFF',
+                       'FF000080', 'FFFF00FF', 'FFFFFF00', 'FF00FFFF', 'FF800080', 'FF800000', 'FF008080', 'FF0000FF',
+                       'FF00CCFF', 'FFCCFFFF', 'FFCCFFCC', 'FFFFFF99', 'FF99CCFF', 'FFFF99CC', 'FFCC99FF', 'FFFFCC99',
+                       'FF3366FF', 'FF33CCCC', 'FF99CC00', 'FFFFCC00', 'FFFF9900', 'FFFF6600', 'FF666699', 'FF969696',
+                       'FF003366', 'FF339966', 'FF003300', 'FF333300', 'FF993300', 'FF993366', 'FF333399', 'FF333333']
     return color_index
 
-def parse_fonts(root, xmlns, color_index):
+def parse_dxfs(root, color_index):
+    """Read in the dxfs effects - used by conditional formatting."""
+    dxf_list = []
+    dxfs = root.find('{%s}dxfs' % SHEET_MAIN_NS)
+    if dxfs is not None:
+        nodes = dxfs.findall('{%s}dxf' % SHEET_MAIN_NS)
+        for dxf in nodes:
+            dxf_item = {}
+            font_node = dxf.find('{%s}font' % SHEET_MAIN_NS)
+            if font_node is not None:
+                dxf_item['font'] = {}
+                dxf_item['font']['bold'] = True if len(font_node.findall('{%s}b' % SHEET_MAIN_NS)) else False
+                dxf_item['font']['italic'] = True if len(font_node.findall('{%s}i' % SHEET_MAIN_NS)) else False
+                if len(font_node.findall('{%s}u' % SHEET_MAIN_NS)):
+                    underline = font_node.find('{%s}u' % SHEET_MAIN_NS).get('val')
+                    dxf_item['font']['underline'] = underline if underline else 'single'
+                color = font_node.find('{%s}color' % SHEET_MAIN_NS)
+                if color is not None:
+                    dxf_item['font']['color'] = Color(Color.BLACK)
+                    if color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
+                        dxf_item['font']['color'].index = color_index[int(color.get('indexed'))]
+                    elif color.get('theme') is not None:
+                        if color.get('tint') is not None:
+                            dxf_item['font']['color'] .index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
+                        else:
+                            dxf_item['font']['color'] .index = 'theme:%s:' % color.get('theme') # prefix color with theme
+                    elif color.get('rgb'):
+                        dxf_item['font']['color'] .index = color.get('rgb')
+            fill_node = dxf.find('{%s}fill' % SHEET_MAIN_NS)
+            if fill_node is not None:
+                dxf_item['fill'] = parse_fills(dxf, color_index, True)
+                dxf_item['border'] = parse_borders(dxf, color_index, True)
+            dxf_list.append(dxf_item)
+    return dxf_list
+
+def parse_fonts(root, color_index):
     """Read in the fonts"""
     font_list = []
-    fonts = root.find(QName(xmlns, 'fonts').text)
+    fonts = root.find('{%s}fonts' % SHEET_MAIN_NS)
     if fonts is not None:
-        font_nodes = fonts.findall(QName(xmlns, 'font').text)
+        font_nodes = fonts.findall('{%s}font' % SHEET_MAIN_NS)
         for font_node in font_nodes:
             font = Font()
-            font.size = font_node.find(QName(xmlns, 'sz').text).get('val')
-            font.name = font_node.find(QName(xmlns, 'name').text).get('val')
-            font.bold = True if len(font_node.findall(QName(xmlns, 'b').text)) else False
-            font.italic = True if len(font_node.findall(QName(xmlns, 'i').text)) else False
-            if len(font_node.findall(QName(xmlns, 'u').text)):
-                underline = font_node.find(QName(xmlns, 'u').text).get('val')
+            fontSizeEl = font_node.find('{%s}sz' % SHEET_MAIN_NS)
+            if fontSizeEl is not None:
+                font.size = fontSizeEl.get('val')
+            fontNameEl = font_node.find('{%s}name' % SHEET_MAIN_NS)
+            if fontNameEl is not None:
+                font.name = fontNameEl.get('val')
+            font.bold = True if len(font_node.findall('{%s}b' % SHEET_MAIN_NS)) else False
+            font.italic = True if len(font_node.findall('{%s}i' % SHEET_MAIN_NS)) else False
+            if len(font_node.findall('{%s}u' % SHEET_MAIN_NS)):
+                underline = font_node.find('{%s}u' % SHEET_MAIN_NS).get('val')
                 font.underline = underline if underline else 'single'
-            color = font_node.find(QName(xmlns, 'color').text)
+            color = font_node.find('{%s}color' % SHEET_MAIN_NS)
             if color is not None:
                 if color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
                     font.color.index = color_index[int(color.get('indexed'))]
@@ -169,70 +215,83 @@ def parse_fonts(root, xmlns, color_index):
             font_list.append(font)
     return font_list
 
-def parse_fills(root, xmlns, color_index):
+def parse_fills(root, color_index, skip_find=False):
     """Read in the list of fills"""
     fill_list = []
-    fills = root.find(QName(xmlns, 'fills').text)
+    if skip_find:
+        fills = root
+    else:
+        fills = root.find('{%s}fills' % SHEET_MAIN_NS)
     count = 0
     if fills is not None:
-        fillNodes = fills.findall(QName(xmlns, 'fill').text)
+        fillNodes = fills.findall('{%s}fill' % SHEET_MAIN_NS)
         for fill in fillNodes:
-            newFill = Fill()
             # Rotation is unset
-            patternFill = fill.find(QName(xmlns, 'patternFill').text)
-            newFill.fill_type = patternFill.get('patternType')
+            patternFill = fill.find('{%s}patternFill' % SHEET_MAIN_NS)
+            if patternFill is not None:
+                newFill = Fill()
+                newFill.fill_type = patternFill.get('patternType')
 
-            fgColor = patternFill.find(QName(xmlns, 'fgColor').text)
-            if fgColor is not None:
-                if fgColor.get('indexed') is not None and 0 <= int(fgColor.get('indexed')) < len(color_index):
-                    newFill.start_color.index = color_index[int(fgColor.get('indexed'))]
-                elif fgColor.get('theme') is not None:
-                    if fgColor.get('tint') is not None:
-                        newFill.start_color.index = 'theme:%s:%s' % (fgColor.get('theme'), fgColor.get('tint'))
+                fgColor = patternFill.find('{%s}fgColor' % SHEET_MAIN_NS)
+                if fgColor is not None:
+                    if fgColor.get('indexed') is not None and 0 <= int(fgColor.get('indexed')) < len(color_index):
+                        newFill.start_color.index = color_index[int(fgColor.get('indexed'))]
+                    elif fgColor.get('indexed') is not None:
+                        # Invalid color - out of range of color_index, set to white
+                        newFill.start_color.index = 'FFFFFFFF'
+                    elif fgColor.get('theme') is not None:
+                        if fgColor.get('tint') is not None:
+                            newFill.start_color.index = 'theme:%s:%s' % (fgColor.get('theme'), fgColor.get('tint'))
+                        else:
+                            newFill.start_color.index = 'theme:%s:' % fgColor.get('theme')  # prefix color with theme
                     else:
-                        newFill.start_color.index = 'theme:%s:' % fgColor.get('theme') # prefix color with theme
-                else:
-                    newFill.start_color.index = fgColor.get('rgb')
+                        newFill.start_color.index = fgColor.get('rgb')
 
-            bgColor = patternFill.find(QName(xmlns, 'bgColor').text)
-            if bgColor is not None:
-                if bgColor.get('indexed') is not None and 0 <= int(bgColor.get('indexed')) < len(color_index):
-                    newFill.end_color.index = color_index[int(bgColor.get('indexed'))]
-                elif bgColor.get('theme') is not None:
-                    if bgColor.get('tint') is not None:
-                        newFill.end_color.index = 'theme:%s:%s' % (bgColor.get('theme'), bgColor.get('tint'))
-                    else:
-                        newFill.end_color.index = 'theme:%s:' % bgColor.get('theme') # prefix color with theme
-                elif bgColor.get('rgb'):
-                    newFill.end_color.index = bgColor.get('rgb')
-            count += 1
-            fill_list.append(newFill)
+                bgColor = patternFill.find('{%s}bgColor' % SHEET_MAIN_NS)
+                if bgColor is not None:
+                    if bgColor.get('indexed') is not None and 0 <= int(bgColor.get('indexed')) < len(color_index):
+                        newFill.end_color.index = color_index[int(bgColor.get('indexed'))]
+                    elif bgColor.get('indexed') is not None:
+                        # Invalid color - out of range of color_index, set to white
+                        newFill.end_color.index = 'FFFFFFFF'
+                    elif bgColor.get('theme') is not None:
+                        if bgColor.get('tint') is not None:
+                            newFill.end_color.index = 'theme:%s:%s' % (bgColor.get('theme'), bgColor.get('tint'))
+                        else:
+                            newFill.end_color.index = 'theme:%s:' % bgColor.get('theme')  # prefix color with theme
+                    elif bgColor.get('rgb'):
+                        newFill.end_color.index = bgColor.get('rgb')
+                count += 1
+                fill_list.append(newFill)
     return fill_list
 
-def parse_borders(root, xmlns, color_index):
+def parse_borders(root, color_index, skip_find=False):
     """Read in the boarders"""
     border_list = []
-    borders = root.find(QName(xmlns, 'borders').text)
+    if skip_find:
+        borders = root
+    else:
+        borders = root.find('{%s}borders' % SHEET_MAIN_NS)
     if borders is not None:
-        boarderNodes = borders.findall(QName(xmlns, 'border').text)
+        boarderNodes = borders.findall('{%s}border' % SHEET_MAIN_NS)
         count = 0
-        for boarder in boarderNodes:
+        for border in boarderNodes:
             newBorder = Borders()
-            if boarder.get('diagonalup') == 1:
+            if border.get('diagonalup') == 1:
                 newBorder.diagonal_direction = newBorder.DIAGONAL_UP
-            if boarder.get('diagonalDown') == 1:
+            if border.get('diagonalDown') == 1:
                 if newBorder.diagonal_direction == newBorder.DIAGONAL_UP:
                     newBorder.diagonal_direction = newBorder.DIAGONAL_BOTH
                 else:
                     newBorder.diagonal_direction = newBorder.DIAGONAL_DOWN
 
             for side in ('left', 'right', 'top', 'bottom', 'diagonal'):
-                node = boarder.find(QName(xmlns, side).text)
+                node = border.find('{%s}%s' % (SHEET_MAIN_NS, side))
                 if node is not None:
                     borderSide = getattr(newBorder,side)
                     if node.get('style') is not None:
                         borderSide.border_style = node.get('style')
-                    color = node.find(QName(xmlns, 'color').text)
+                    color = node.find('{%s}color' % SHEET_MAIN_NS)
                     if color is not None:
                         # Ignore 'auto'
                         if color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
@@ -241,7 +300,7 @@ def parse_borders(root, xmlns, color_index):
                             if color.get('tint') is not None:
                                 borderSide.color.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
                             else:
-                                borderSide.color.index = 'theme:%s:' % color.get('theme') # prefix color with theme
+                                borderSide.color.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
                         elif color.get('rgb'):
                             borderSide.color.index = color.get('rgb')
             count += 1

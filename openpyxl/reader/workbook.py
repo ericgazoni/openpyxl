@@ -1,6 +1,4 @@
-# file openpyxl/reader/workbook.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +24,8 @@
 """Read in global settings to be maintained by the workbook object."""
 
 # package imports
-from openpyxl.shared.xmltools import fromstring, QName
-from openpyxl.shared.ooxml import NAMESPACES
+from openpyxl.shared.xmltools import fromstring
+from openpyxl.shared.ooxml import NAMESPACES, DCORE_NS, COREPROPS_NS, DCTERMS_NS, SHEET_MAIN_NS, CONTYPES_NS
 from openpyxl.workbook import DocumentProperties
 from openpyxl.shared.date_time import W3CDTF_to_datetime,CALENDAR_WINDOWS_1900,CALENDAR_MAC_1904
 from openpyxl.namedrange import NamedRange, NamedRangeContainingValue, split_named_range, refers_to_range
@@ -49,25 +47,16 @@ def read_properties_core(xml_source):
     """Read assorted file properties."""
     properties = DocumentProperties()
     root = fromstring(xml_source)
-    creator_node = root.find(QName(NAMESPACES['dc'], 'creator').text)
-    if creator_node is not None:
-        properties.creator = creator_node.text
-    else:
-        properties.creator = ''
-    last_modified_by_node = root.find(
-            QName(NAMESPACES['cp'], 'lastModifiedBy').text)
-    if last_modified_by_node is not None:
-        properties.last_modified_by = last_modified_by_node.text
-    else:
-        properties.last_modified_by = ''
+    properties.creator = root.findtext('{%s}creator' % DCORE_NS, '')
+    properties.last_modified_by = root.findtext('{%s}lastModifiedBy' % COREPROPS_NS, '')
 
-    created_node = root.find(QName(NAMESPACES['dcterms'], 'created').text)
+    created_node = root.find('{%s}created' % DCTERMS_NS)
     if created_node is not None:
         properties.created = W3CDTF_to_datetime(created_node.text)
     else:
         properties.created = datetime.datetime.now()
 
-    modified_node = root.find(QName(NAMESPACES['dcterms'], 'modified').text)
+    modified_node = root.find('{%s}modified' % DCTERMS_NS)
     if modified_node is not None:
         properties.modified = W3CDTF_to_datetime(modified_node.text)
     else:
@@ -78,31 +67,37 @@ def read_properties_core(xml_source):
 
 def read_excel_base_date(xml_source):
     root = fromstring(text = xml_source)
-    wbPr = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'workbookPr').text)
-    if ('date1904' in wbPr.keys() and wbPr.attrib['date1904'] in ('1', 'true')):
+    wbPr = root.find('{%s}workbookPr' % SHEET_MAIN_NS)
+    if wbPr is not None and wbPr.get('date1904') in ('1', 'true'):
         return CALENDAR_MAC_1904
 
     return CALENDAR_WINDOWS_1900
 
 
+# Mark Mikofski, 2013-06-03
+def read_content_types(xml_source):
+    """Read content types."""
+    root = fromstring(xml_source)
+    contents_root = root.findall('{%s}Override' % CONTYPES_NS)
+    for type in contents_root:
+        yield type.get('PartName'), type.get('ContentType')
+
 def read_sheets_titles(xml_source):
     """Read titles for all sheets."""
     root = fromstring(xml_source)
-    titles_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
-            'sheets').text)
+    titles_root = root.find('{%s}sheets' % SHEET_MAIN_NS)
 
-    return [sheet.get('name') for sheet in titles_root.getchildren()]
+    return [sheet.get('name') for sheet in titles_root]
 
 def read_named_ranges(xml_source, workbook):
     """Read named ranges, excluding poorly defined ranges."""
     named_ranges = []
     root = fromstring(xml_source)
-    names_root = root.find(QName('http://schemas.openxmlformats.org/spreadsheetml/2006/main',
-            'definedNames').text)
+    names_root = root.find('{%s}definedNames' %SHEET_MAIN_NS)
     if names_root is not None:
-
-        for name_node in names_root.getchildren():
+        for name_node in names_root:
             range_name = name_node.get('name')
+            node_text = name_node.text or ''
 
             if name_node.get("hidden", '0') == '1':
                 continue
@@ -114,12 +109,12 @@ def read_named_ranges(xml_source, workbook):
                     valid = False
 
             for bad_range in BUGGY_NAMED_RANGES:
-                if bad_range in name_node.text:
+                if bad_range in node_text:
                     valid = False
 
             if valid:
-                if refers_to_range(name_node.text):
-                    destinations = split_named_range(name_node.text)
+                if refers_to_range(node_text):
+                    destinations = split_named_range(node_text)
 
                     new_destinations = []
                     for worksheet, cells_range in destinations:
@@ -134,7 +129,7 @@ def read_named_ranges(xml_source, workbook):
 
                     named_range = NamedRange(range_name, new_destinations)
                 else:
-                    named_range = NamedRangeContainingValue(range_name, name_node.text)
+                    named_range = NamedRangeContainingValue(range_name, node_text)
 
                 location_id = name_node.get("localSheetId")
                 if location_id:

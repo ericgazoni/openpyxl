@@ -1,6 +1,4 @@
-# file openpyxl/shared/date_time.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -88,7 +86,9 @@ class SharedDate(object):
         elif isinstance(date, datetime.time):
             return self.time_to_julian(hours=date.hour, minutes=date.minute,
                                     seconds=date.second + date.microsecond * 1.0e-6)
-    
+        elif isinstance(date, datetime.timedelta):
+            return self.time_to_julian(hours=0, minutes=0, seconds=date.seconds + date.days * 3600 * 24)
+
     def time_to_julian(self, hours, minutes, seconds):
         return ((hours * 3600) + (minutes * 60) + seconds) / 86400
 

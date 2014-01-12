@@ -1,6 +1,4 @@
-# file openpyxl/workbook.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +39,8 @@ from openpyxl.style import Style
 from openpyxl.writer.excel import save_workbook
 from openpyxl.shared.exc import ReadOnlyWorkbookException
 from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900, CALENDAR_MAC_1904
+from openpyxl.shared.xmltools import fromstring
+from openpyxl.shared.ooxml import NAMESPACES, SHEET_MAIN_NS
 
 
 class DocumentProperties(object):
@@ -74,7 +74,11 @@ class DocumentSecurity(object):
 class Workbook(object):
     """Workbook is the container for all other parts of the document."""
 
-    def __init__(self, optimized_write=False, encoding='utf-8'):
+    def __init__(self, optimized_write=False, encoding='utf-8',
+                 worksheet_class=Worksheet,
+                 optimized_worksheet_class=DumpWorksheet,
+                 guess_types=True,
+                 data_only=False):
         self.worksheets = []
         self._active_sheet_index = 0
         self._named_ranges = []
@@ -86,11 +90,28 @@ class Workbook(object):
         self.__thread_local_data = threading.local()
         self.strings_table_builder = StringTableBuilder()
         self.loaded_theme = None
+        self._worksheet_class = worksheet_class
+        self._optimized_worksheet_class = optimized_worksheet_class
+        self.vba_archive = None
+        self.style_properties = None
+        self._guess_types = guess_types
+        self.data_only = data_only
+        self.relationships = []
+        self.drawings = []
 
         self.encoding = encoding
 
         if not optimized_write:
-            self.worksheets.append(Worksheet(self))
+            self.worksheets.append(self._worksheet_class(parent_workbook=self))
+
+    def read_workbook_settings(self, xml_source):
+        root = fromstring(xml_source)
+        view = root.find('*/' '{%s}workbookView' % SHEET_MAIN_NS)
+        if view is None:
+            return
+
+        if 'activeTab' in view.attrib:
+            self.active = int(view.attrib['activeTab'])
 
     @property
     def _local_data(self):
@@ -105,7 +126,17 @@ class Workbook(object):
 
     def get_active_sheet(self):
         """Returns the current active sheet."""
+        return self.active
+
+    @property
+    def active(self):
+        """Get the currently active sheet"""
         return self.worksheets[self._active_sheet_index]
+
+    @active.setter
+    def active(self, value):
+        """Set the active sheet"""
+        self._active_sheet_index = value
 
     def create_sheet(self, index=None, title=None):
         """Create a worksheet (at an optional index).
@@ -119,24 +150,27 @@ class Workbook(object):
             raise ReadOnlyWorkbookException('Cannot create new sheet in a read-only workbook')
 
         if self.__optimized_write :
-            new_ws = DumpWorksheet(parent_workbook=self, title=title)
+            new_ws = self._optimized_worksheet_class(
+                parent_workbook=self, title=title)
         else:
-            if title is not None:                                          
-                new_ws = Worksheet(parent_workbook = self, title=title)    
-            else:                                                          
-                new_ws = Worksheet(parent_workbook=self)
+            if title is not None:
+                new_ws = self._worksheet_class(
+                    parent_workbook=self, title=title)
+            else:
+                new_ws = self._worksheet_class(parent_workbook=self)
 
         self.add_sheet(worksheet=new_ws, index=index)
         return new_ws
 
     def add_sheet(self, worksheet, index=None):
         """Add an existing worksheet (at an optional index)."""
-
-        assert isinstance(worksheet, Worksheet), "The parameter you have given is not of the type 'Worksheet'"
+        if not isinstance(worksheet, self._worksheet_class):
+            raise TypeError("The parameter you have given is not of the type '%s'" % self._worksheet_class.__name__)
 
         if index is None:
-            index = len(self.worksheets)
-        self.worksheets.insert(index, worksheet)
+            self.worksheets.append(worksheet)
+        else:
+            self.worksheets.insert(index, worksheet)
 
     def remove_sheet(self, worksheet):
         """Remove a worksheet from this workbook."""
@@ -158,9 +192,25 @@ class Workbook(object):
                 break
         return requested_sheet
 
+    def __contains__(self, key):
+        return self.get_sheet_by_name(key) and True or False
+
     def get_index(self, worksheet):
         """Return the index of the worksheet."""
         return self.worksheets.index(worksheet)
+
+    def __getitem__(self, key):
+        sheet = self.get_sheet_by_name(key)
+        if sheet is None:
+            raise KeyError("Worksheet {0} does not exist.".format(key))
+        return sheet
+
+    def __delitem__(self, key):
+        sheet = self[key]
+        self.remove_sheet(sheet)
+
+    def __iter__(self):
+        return iter(self.worksheets)
 
     def get_sheet_names(self):
         """Returns the list of the names of worksheets in the workbook.
@@ -172,10 +222,11 @@ class Workbook(object):
         """
         return [s.title for s in self.worksheets]
 
-    def create_named_range(self, name, worksheet, range):
+    def create_named_range(self, name, worksheet, range, scope=None):
         """Create a new named_range on a worksheet"""
-        assert isinstance(worksheet, Worksheet)
-        named_range = NamedRange(name, [(worksheet, range)])
+        if not isinstance(worksheet, self._worksheet_class):
+            raise TypeError("Worksheet is not of the right type")
+        named_range = NamedRange(name, [(worksheet, range)], scope)
         self.add_named_range(named_range)
 
     def get_named_ranges(self):
@@ -200,11 +251,11 @@ class Workbook(object):
         self._named_ranges.remove(named_range)
 
     def save(self, filename):
-        """Save the current workbook under the given `filename`. 
+        """Save the current workbook under the given `filename`.
         Use this function instead of using an `ExcelWriter`.
-        
+
         .. warning::
-            When creating your workbook using `optimized_write` set to True, 
+            When creating your workbook using `optimized_write` set to True,
             you will only be able to call this function once. Subsequents attempts to
             modify or save the file will raise an :class:`openpyxl.shared.exc.WorkbookAlreadySaved` exception.
         """

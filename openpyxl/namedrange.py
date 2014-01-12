@@ -1,6 +1,4 @@
-# file openpyxl/namedrange.py
-
-# Copyright (c) 2010-2011 openpyxl
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,12 +31,12 @@ from openpyxl.shared.compat import unicode
 from openpyxl.shared.exc import NamedRangeException
 
 # constants
-NAMED_RANGE_RE = re.compile("^(('(?P<quoted>([^']|'')*)')|(?P<notquoted>[^']*))!(?P<range>(\$([A-Za-z]+))?\$([0-9]+)(:(\$([A-Za-z]+))?(\$([0-9]+)))?)")
+NAMED_RANGE_RE = re.compile("^(('(?P<quoted>([^']|'')*)')|(?P<notquoted>[^']*))!(?P<range>(\$([A-Za-z]+))?(\$([0-9]+))?(:(\$([A-Za-z]+))?(\$([0-9]+))?)?)")
 SPLIT_NAMED_RANGE_RE = re.compile(r"((?:[^,']|'(?:[^']|'')*')+)")
 
 class NamedRange(object):
     """A named group of cells
-    
+
     Scope is a worksheet object or None for workbook scope names (the default)
     """
     __slots__ = ('name', 'destinations', 'scope')
@@ -46,16 +44,15 @@ class NamedRange(object):
     str_format = unicode('%s!%s')
     repr_format = unicode('<%s "%s">')
 
-    def __init__(self, name, destinations):
+    def __init__(self, name, destinations, scope=None):
         self.name = name
         self.destinations = destinations
-        self.scope = None
+        self.scope = scope
 
     def __str__(self):
         return  ','.join([self.str_format % (sheet, name) for sheet, name in self.destinations])
 
     def __repr__(self):
-
         return  self.repr_format % (self.__class__.__name__, str(self))
 
 class NamedRangeContainingValue(object):
@@ -83,8 +80,8 @@ def split_named_range(range_string):
             xlrange = match['range']
             sheet_name = sheet_name.replace("''", "'") # Unescape '
             destinations.append((sheet_name, xlrange))
-            
+
     return destinations
 
 def refers_to_range(range_string):
-    return bool(NAMED_RANGE_RE.match(range_string))
+    return range_string and bool(NAMED_RANGE_RE.match(range_string))

@@ -1,8 +1,6 @@
 # coding=utf-8
-# file openpyxl/tests/test_props.py
-
-# Copyright (c) 2010-2011 openpyxl
-# 
+# Copyright (c) 2010-2014 openpyxl
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -33,8 +31,13 @@ import os.path
 from nose.tools import eq_
 
 # package imports
-from openpyxl.tests.helper import DATADIR, TMPDIR, make_tmpdir, clean_tmpdir, \
-        assert_equals_file_content
+from openpyxl.tests.helper import (
+    DATADIR,
+    TMPDIR,
+    make_tmpdir,
+    clean_tmpdir,
+    compare_xml
+    )
 from openpyxl.reader.workbook import read_properties_core, \
         read_sheets_titles
 from openpyxl.writer.workbook import write_properties_core, \
@@ -65,9 +68,9 @@ class TestReaderProps(object):
         except NameError:
             # Python 3
             eacute = chr(233)
-        eq_(prop.last_modified_by, 'Aur' + eacute + 'lien Camp' + eacute + 'as')
+        eq_(prop.last_modified_by, 'Charlie Clark')
         eq_(prop.created, datetime(2010, 4, 9, 20, 43, 12))
-        eq_(prop.modified, datetime(2011, 2, 9, 13, 49, 32))
+        eq_(prop.modified, datetime(2014, 1, 2, 14, 53, 6))
 
     def test_read_sheets_titles(self):
         content = self.archive.read(ARC_WORKBOOK)
@@ -120,15 +123,17 @@ class TestWriteProps(object):
         self.prop.created = datetime(2010, 4, 1, 20, 30, 00)
         self.prop.modified = datetime(2010, 4, 5, 14, 5, 30)
         content = write_properties_core(self.prop)
-        assert_equals_file_content(
-                os.path.join(DATADIR, 'writer', 'expected', 'core.xml'),
-                content)
+        reference_file = os.path.join(DATADIR, 'writer', 'expected', 'core.xml')
+        with open(reference_file) as expected:
+            diff = compare_xml(content, expected.read())
+            assert diff is None
 
     def test_write_properties_app(self):
         wb = Workbook()
         wb.create_sheet()
         wb.create_sheet()
         content = write_properties_app(wb)
-        assert_equals_file_content(
-                os.path.join(DATADIR, 'writer', 'expected', 'app.xml'),
-                content)
+        reference_file = os.path.join(DATADIR, 'writer', 'expected', 'app.xml')
+        with open(reference_file) as expected:
+            diff = compare_xml(content, expected.read())
+            assert diff is None

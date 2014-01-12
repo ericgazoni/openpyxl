@@ -13,3 +13,9 @@ syntax: glob
 *~
 *.orig
 .idea
+*.pstats
+*.png
+*.sh
+.git
+travis.yml
+cover
