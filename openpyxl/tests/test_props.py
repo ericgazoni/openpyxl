@@ -27,9 +27,6 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from datetime import datetime
 import os.path
 
-# 3rd party imports
-from nose.tools import eq_
-
 # package imports
 from openpyxl.tests.helper import (
     DATADIR,
@@ -38,11 +35,12 @@ from openpyxl.tests.helper import (
     clean_tmpdir,
     compare_xml
     )
-from openpyxl.reader.workbook import read_properties_core, \
-        read_sheets_titles
-from openpyxl.writer.workbook import write_properties_core, \
-        write_properties_app
-from openpyxl.shared.ooxml import ARC_APP, ARC_CORE, ARC_WORKBOOK
+from openpyxl.reader.workbook import read_properties_core
+from openpyxl.writer.workbook import (
+    write_properties_core,
+    write_properties_app
+)
+from openpyxl.shared.ooxml import ARC_CORE
 from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
 from openpyxl.workbook import DocumentProperties, Workbook
 
@@ -61,22 +59,15 @@ class TestReaderProps(object):
     def test_read_properties_core(self):
         content = self.archive.read(ARC_CORE)
         prop = read_properties_core(content)
-        eq_(prop.creator, '*.*')
-        try:
-            # Python 2
-            eacute = unichr(233)
-        except NameError:
-            # Python 3
-            eacute = chr(233)
-        eq_(prop.last_modified_by, 'Charlie Clark')
-        eq_(prop.created, datetime(2010, 4, 9, 20, 43, 12))
-        eq_(prop.modified, datetime(2014, 1, 2, 14, 53, 6))
+        assert prop.creator == '*.*'
+        assert prop.last_modified_by == 'Charlie Clark'
+        assert prop.created == datetime(2010, 4, 9, 20, 43, 12)
+        assert prop.modified ==  datetime(2014, 1, 2, 14, 53, 6)
 
     def test_read_sheets_titles(self):
-        content = self.archive.read(ARC_WORKBOOK)
-        sheet_titles = read_sheets_titles(content)
-        eq_(sheet_titles, \
-                ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas', 'Sheet4 - Dates'])
+        from openpyxl.reader.workbook import read_sheets
+        sheet_titles = [s[0] for s in read_sheets(self.archive)]
+        assert sheet_titles == ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas', 'Sheet4 - Dates']
 
 
 class TestLibreOfficeCompat(object):
@@ -96,13 +87,12 @@ class TestLibreOfficeCompat(object):
     def test_read_properties_core(self):
         content = self.archive.read(ARC_CORE)
         prop = read_properties_core(content)
-        eq_(prop.excel_base_date, CALENDAR_WINDOWS_1900)
+        assert prop.excel_base_date == CALENDAR_WINDOWS_1900
 
     def test_read_sheets_titles(self):
-        content = self.archive.read(ARC_WORKBOOK)
-        sheet_titles = read_sheets_titles(content)
-        eq_(sheet_titles, \
-                ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas', 'Sheet4 - Dates'])
+        from openpyxl.reader.workbook import read_sheets
+        sheet_titles = [s[0] for s in read_sheets(self.archive)]
+        assert sheet_titles == ['Sheet1 - Text', 'Sheet2 - Numbers', 'Sheet3 - Formulas', 'Sheet4 - Dates']
 
 
 class TestWriteProps(object):

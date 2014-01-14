@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,7 +29,6 @@
 #from openpyxl.shared.compat import register_namespace
 from openpyxl.shared.xmltools import Element, SubElement
 from openpyxl.cell import absolute_coordinate
-from openpyxl.shared.xmltools import get_document_content
 from openpyxl.shared.ooxml import (
     ARC_CORE,
     ARC_WORKBOOK,
@@ -43,7 +43,6 @@ from openpyxl.shared.ooxml import (
     DCTERMS_NS,
     DCTERMS_PREFIX,
     XSI_NS,
-    XML_NS,
     SHEET_MAIN_NS,
     CONTYPES_NS,
     PKG_REL_NS,

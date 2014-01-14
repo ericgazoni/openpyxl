@@ -22,18 +22,20 @@
 # @author: see AUTHORS file
 
 # 3rd party imports
-from nose.tools import eq_, raises, assert_raises
+#from nose.tools import eq_, raises, assert_raises
 import pytest
 
 # package imports
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet, Relationship, flatten
-from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.comments import Comment
-from openpyxl.shared.exc import CellCoordinatesException, \
-        SheetTitleException, InsufficientCoordinatesException, \
-        NamedRangeException
+from openpyxl.shared.exc import (
+    CellCoordinatesException,
+    SheetTitleException,
+    InsufficientCoordinatesException,
+    NamedRangeException
+    )
 from openpyxl.writer.worksheet import write_worksheet
 
 class TestWorksheet(object):
@@ -44,21 +46,21 @@ class TestWorksheet(object):
 
     def test_new_worksheet(self):
         ws = Worksheet(self.wb)
-        eq_(self.wb, ws._parent)
+        assert self.wb == ws._parent
 
     def test_new_sheet_name(self):
         self.wb.worksheets = []
         ws = Worksheet(self.wb, title='')
-        eq_(repr(ws), '<Worksheet "Sheet1">')
+        assert repr(ws) == '<Worksheet "Sheet1">'
 
     def test_get_cell(self):
         ws = Worksheet(self.wb)
         cell = ws.cell('A1')
-        eq_(cell.get_coordinate(), 'A1')
+        assert cell.get_coordinate() == 'A1'
 
-    @raises(SheetTitleException)
     def test_set_bad_title(self):
-        Worksheet(self.wb, 'X' * 50)
+        with pytest.raises(SheetTitleException):
+            Worksheet(self.wb, 'X' * 50)
 
     def test_increment_title(self):
         ws1 = self.wb.create_sheet(title="Test")
@@ -66,78 +68,82 @@ class TestWorksheet(object):
         ws2 = self.wb.create_sheet(title="Test")
         assert ws2.title == "Test1"
 
-    def test_set_bad_title_character(self):
-        assert_raises(SheetTitleException, Worksheet, self.wb, '[')
-        assert_raises(SheetTitleException, Worksheet, self.wb, ']')
-        assert_raises(SheetTitleException, Worksheet, self.wb, '*')
-        assert_raises(SheetTitleException, Worksheet, self.wb, ':')
-        assert_raises(SheetTitleException, Worksheet, self.wb, '?')
-        assert_raises(SheetTitleException, Worksheet, self.wb, '/')
-        assert_raises(SheetTitleException, Worksheet, self.wb, '\\')
+    @pytest.mark.parametrize("value", ["[", "]", "*", ":", "?", "/", "\\"])
+    def test_set_bad_title_character(self, value):
+        with pytest.raises(SheetTitleException):
+            Worksheet(self.wb, value)
+        #assert_raises(SheetTitleException, Worksheet, self.wb, '[')
+        #assert_raises(SheetTitleException, Worksheet, self.wb, ']')
+        #assert_raises(SheetTitleException, Worksheet, self.wb, '*')
+        #assert_raises(SheetTitleException, Worksheet, self.wb, ':')
+        #assert_raises(SheetTitleException, Worksheet, self.wb, '?')
+        #assert_raises(SheetTitleException, Worksheet, self.wb, '/')
+        #assert_raises(SheetTitleException, Worksheet, self.wb, '\\')
 
     def test_worksheet_dimension(self):
         ws = Worksheet(self.wb)
-        eq_('A1:A1', ws.calculate_dimension())
+        assert 'A1:A1' == ws.calculate_dimension()
         ws.cell('B12').value = 'AAA'
-        eq_('A1:B12', ws.calculate_dimension())
+        assert 'A1:B12' == ws.calculate_dimension()
 
     def test_worksheet_range(self):
         ws = Worksheet(self.wb)
         xlrange = ws.range('A1:C4')
         assert isinstance(xlrange, tuple)
-        eq_(4, len(xlrange))
-        eq_(3, len(xlrange[0]))
+        assert 4 == len(xlrange)
+        assert 3 == len(xlrange[0])
 
     def test_worksheet_named_range(self):
         ws = Worksheet(self.wb)
         self.wb.create_named_range('test_range', ws, 'C5')
         xlrange = ws.range('test_range')
         assert isinstance(xlrange, Cell)
-        eq_(5, xlrange.row)
+        assert 5 == xlrange.row
 
-    @raises(NamedRangeException)
     def test_bad_named_range(self):
         ws = Worksheet(self.wb)
-        ws.range('bad_range')
+        with pytest.raises(NamedRangeException):
+            ws.range('bad_range')
 
-    @raises(NamedRangeException)
     def test_named_range_wrong_sheet(self):
         ws1 = Worksheet(self.wb)
         ws2 = Worksheet(self.wb)
         self.wb.create_named_range('wrong_sheet_range', ws1, 'C5')
-        ws2.range('wrong_sheet_range')
+        with pytest.raises(NamedRangeException):
+            ws2.range('wrong_sheet_range')
 
     def test_cell_offset(self):
         ws = Worksheet(self.wb)
-        eq_('C17', ws.cell('B15').offset(2, 1).get_coordinate())
+        assert 'C17', ws.cell('B15').offset(2 == 1).get_coordinate()
 
     def test_range_offset(self):
         ws = Worksheet(self.wb)
         xlrange = ws.range('A1:C4', 1, 3)
         assert isinstance(xlrange, tuple)
-        eq_(4, len(xlrange))
-        eq_(3, len(xlrange[0]))
-        eq_('D2', xlrange[0][0].get_coordinate())
+        assert 4 == len(xlrange)
+        assert 3 == len(xlrange[0])
+        assert 'D2' == xlrange[0][0].get_coordinate()
 
     def test_cell_alternate_coordinates(self):
         ws = Worksheet(self.wb)
         cell = ws.cell(row=8, column=4)
-        eq_('E9', cell.get_coordinate())
+        assert 'E9' == cell.get_coordinate()
 
-    @raises(InsufficientCoordinatesException)
     def test_cell_insufficient_coordinates(self):
         ws = Worksheet(self.wb)
-        cell = ws.cell(row=8)
+        with pytest.raises(InsufficientCoordinatesException):
+            ws.cell(row=8)
 
     def test_cell_range_name(self):
         ws = Worksheet(self.wb)
         self.wb.create_named_range('test_range_single', ws, 'B12')
-        assert_raises(CellCoordinatesException, ws.cell, 'test_range_single')
+        with pytest.raises(CellCoordinatesException):
+            ws.cell('test_range_single')
         c_range_name = ws.range('test_range_single')
         c_range_coord = ws.range('B12')
         c_cell = ws.cell('B12')
-        eq_(c_range_coord, c_range_name)
-        eq_(c_range_coord, c_cell)
+        assert c_range_coord == c_range_name
+        assert c_range_coord == c_cell
 
     def test_garbage_collect(self):
         ws = Worksheet(self.wb)
@@ -146,58 +152,58 @@ class TestWorksheet(object):
         ws.cell('C4').value = 0
         ws.cell('D1').comment = Comment('Comment', 'Comment')
         ws.garbage_collect()
-        eq_(set(ws.get_cell_collection()), set([ws.cell('B2'), ws.cell('C4'), ws.cell('D1')]))
+        assert set(ws.get_cell_collection()), set([ws.cell('B2'), ws.cell('C4') == ws.cell('D1')])
 
     def test_hyperlink_relationships(self):
         ws = Worksheet(self.wb)
-        eq_(len(ws.relationships), 0)
+        assert len(ws.relationships) == 0
 
         ws.cell('A1').hyperlink = "http://test.com"
-        eq_(len(ws.relationships), 1)
-        eq_("rId1", ws.cell('A1').hyperlink_rel_id)
-        eq_("rId1", ws.relationships[0].id)
-        eq_("http://test.com", ws.relationships[0].target)
-        eq_("External", ws.relationships[0].target_mode)
+        assert len(ws.relationships) == 1
+        assert "rId1" == ws.cell('A1').hyperlink_rel_id
+        assert "rId1" == ws.relationships[0].id
+        assert "http://test.com" == ws.relationships[0].target
+        assert "External" == ws.relationships[0].target_mode
 
         ws.cell('A2').hyperlink = "http://test2.com"
-        eq_(len(ws.relationships), 2)
-        eq_("rId2", ws.cell('A2').hyperlink_rel_id)
-        eq_("rId2", ws.relationships[1].id)
-        eq_("http://test2.com", ws.relationships[1].target)
-        eq_("External", ws.relationships[1].target_mode)
+        assert len(ws.relationships) == 2
+        assert "rId2" == ws.cell('A2').hyperlink_rel_id
+        assert "rId2" == ws.relationships[1].id
+        assert "http://test2.com" == ws.relationships[1].target
+        assert "External" == ws.relationships[1].target_mode
 
-    @raises(ValueError)
     def test_bad_relationship_type(self):
-        rel = Relationship('bad_type')
+        with pytest.raises(ValueError):
+            Relationship('bad_type')
 
     def test_append_list(self):
         ws = Worksheet(self.wb)
 
         ws.append(['This is A1', 'This is B1'])
 
-        eq_('This is A1', ws.cell('A1').value)
-        eq_('This is B1', ws.cell('B1').value)
+        assert 'This is A1' == ws.cell('A1').value
+        assert 'This is B1' == ws.cell('B1').value
 
     def test_append_dict_letter(self):
         ws = Worksheet(self.wb)
 
         ws.append({'A' : 'This is A1', 'C' : 'This is C1'})
 
-        eq_('This is A1', ws.cell('A1').value)
-        eq_('This is C1', ws.cell('C1').value)
+        assert 'This is A1' == ws.cell('A1').value
+        assert 'This is C1' == ws.cell('C1').value
 
     def test_append_dict_index(self):
         ws = Worksheet(self.wb)
 
         ws.append({0 : 'This is A1', 2 : 'This is C1'})
 
-        eq_('This is A1', ws.cell('A1').value)
-        eq_('This is C1', ws.cell('C1').value)
+        assert 'This is A1' == ws.cell('A1').value
+        assert 'This is C1' == ws.cell('C1').value
 
-    @raises(TypeError)
     def test_bad_append(self):
         ws = Worksheet(self.wb)
-        ws.append("test")
+        with pytest.raises(TypeError):
+            ws.append("test")
 
     def test_append_2d_list(self):
 
@@ -223,10 +229,10 @@ class TestWorksheet(object):
 
         rows = ws.rows
 
-        eq_(len(rows), 9)
+        assert len(rows) == 9
 
-        eq_(rows[0][0].value, 'first')
-        eq_(rows[-1][-1].value, 'last')
+        assert rows[0][0].value == 'first'
+        assert rows[-1][-1].value == 'last'
 
     def test_cols(self):
 
@@ -237,10 +243,10 @@ class TestWorksheet(object):
 
         cols = ws.columns
 
-        eq_(len(cols), 3)
+        assert len(cols) == 3
 
-        eq_(cols[0][0].value, 'first')
-        eq_(cols[-1][-1].value, 'last')
+        assert cols[0][0].value == 'first'
+        assert cols[-1][-1].value == 'last'
 
     def test_auto_filter(self):
         ws = Worksheet(self.wb)
@@ -378,14 +384,13 @@ class TestPositioning(object):
     def test_point(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
-        eq_(ws.point_pos(top=40, left=150), ('C', 3))
+        assert ws.point_pos(top=40, left=150), ('C' == 3)
 
     def test_roundtrip(self):
         wb = Workbook()
         ws = wb.get_active_sheet()
         for address in ('A1', 'D52', 'X11'):
-            eq_(ws.point_pos(*ws.cell(address).anchor),
-                coordinate_from_string(address))
+            assert ws.point_pos(*ws.cell(address).anchor) ==                 coordinate_from_string(address)
 
 
 @pytest.fixture

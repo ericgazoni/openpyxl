@@ -1,5 +1,6 @@
 # coding=UTF-8
 
+from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,7 +26,6 @@
 
 from openpyxl.shared.xmltools import Element, SubElement, get_document_content
 from openpyxl.shared.ooxml import (
-    SHEET_MAIN_NS,
     DRAWING_NS,
     SHEET_DRAWING_NS,
     CHART_NS,

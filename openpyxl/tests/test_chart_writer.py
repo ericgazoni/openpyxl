@@ -110,6 +110,7 @@ class TestChartWriter(object):
                 assert e.text == None
                 assert e.attrib == {}
 
+    @pytest.mark.lxml_required
     def test_write_chart(self, bar_chart):
         cw = BarChartWriter(bar_chart)
         cw._write_chart()
@@ -128,6 +129,7 @@ class TestChartWriter(object):
         diff = compare_xml(xml, expected)
         assert diff is None, diff
 
+    @pytest.mark.xfail
     def test_write_no_ascii(self, ten_row_sheet, Series, BarChart, Reference):
         ws = ten_row_sheet
         ws.append(["D\xc3\xbcsseldorf"]*10)
@@ -279,6 +281,7 @@ class TestPieChartWriter(object):
 
         assert 'c:catAx' not in chart_tags
 
+    @pytest.mark.lxml_required
     def test_serialised(self, pie_chart):
         """Check the serialised file against sample"""
         cw = PieChartWriter(pie_chart)
@@ -316,6 +319,7 @@ class TestLineChartWriter(object):
         for tag in tagnames:
             assert tag in chart_tags
 
+    @pytest.mark.lxml_required
     def test_serialised(self, line_chart):
         """Check the serialised file against sample"""
         cw = LineChartWriter(line_chart)
@@ -352,6 +356,7 @@ class TestBarChartWriter(object):
         for tag in tagnames:
             assert tag in chart_tags
 
+    @pytest.mark.lxml_required
     def test_serialised(self, bar_chart_2):
         """Check the serialised file against sample"""
         cw = BarChartWriter(bar_chart_2)

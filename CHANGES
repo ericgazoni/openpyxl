@@ -1,3 +1,19 @@
+1.9.0 (unreleased)
+==================
+
+Minor changes
+-------------
+
+* All tests converted to pytest
+* Pyflakes used for static code analysis
+
+
+Bug fixes
+---------
+#137 - Workbooks with chartsheets
+
+
+
 1.8.1 (2014-01-14)
 ==================
 

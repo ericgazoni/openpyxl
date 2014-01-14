@@ -27,34 +27,31 @@ import os.path
 import zipfile
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO, StringIO
+from openpyxl.shared.compat import BytesIO
 
-# 3rd party imports
-from nose.tools import eq_, with_setup, raises
 import pytest
 
 # package imports
 from openpyxl.tests.helper import (
-    TMPDIR,
     DATADIR,
-    clean_tmpdir,
-    make_tmpdir,
     compare_xml,
     )
 from openpyxl.workbook import Workbook
 from openpyxl.reader.excel import load_workbook
-from openpyxl.writer.excel import save_workbook, save_virtual_workbook, \
-        ExcelWriter
+from openpyxl.writer.excel import (
+    save_workbook,
+    save_virtual_workbook,
+    ExcelWriter
+    )
 from openpyxl.writer.workbook import write_workbook, write_workbook_rels
 from openpyxl.writer.worksheet import write_worksheet, write_worksheet_rels
 from openpyxl.writer.strings import write_string_table
 from openpyxl.writer.styles import StyleWriter
 
-
-@with_setup(setup = make_tmpdir, teardown = clean_tmpdir)
-def test_write_empty_workbook():
+def test_write_empty_workbook(tmpdir):
+    tmpdir.chdir()
     wb = Workbook()
-    dest_filename = os.path.join(TMPDIR, 'empty_book.xlsx')
+    dest_filename = 'empty_book.xlsx'
     save_workbook(wb, dest_filename)
     assert os.path.isfile(dest_filename)
 
@@ -187,13 +184,13 @@ def test_write_hyperlink():
 def test_write_hyperlink_rels():
     wb = Workbook()
     ws = wb.create_sheet()
-    eq_(0, len(ws.relationships))
+    assert 0 == len(ws.relationships)
     ws.cell('A1').value = "test"
     ws.cell('A1').hyperlink = "http://test.com/"
-    eq_(1, len(ws.relationships))
+    assert 1 == len(ws.relationships)
     ws.cell('A2').value = "test"
     ws.cell('A2').hyperlink = "http://test2.com/"
-    eq_(2, len(ws.relationships))
+    assert 2 == len(ws.relationships)
     content = write_worksheet_rels(ws, 1, 1)
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_hyperlink.xml.rels')
     with open(reference_file) as expected:
@@ -220,9 +217,9 @@ def test_hyperlink_value():
     wb = Workbook()
     ws = wb.create_sheet()
     ws.cell('A1').hyperlink = "http://test.com"
-    eq_("http://test.com", ws.cell('A1').value)
+    assert "http://test.com" == ws.cell('A1').value
     ws.cell('A1').value = "test"
-    eq_("test", ws.cell('A1').value)
+    assert "test" == ws.cell('A1').value
 
 def test_write_auto_filter():
     wb = Workbook()

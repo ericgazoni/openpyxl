@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +25,7 @@
 """Write the shared string table."""
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO, StringIO
+from openpyxl.shared.compat import StringIO
 
 # package imports
 from openpyxl.shared.xmltools import start_tag, end_tag, tag, XMLGenerator

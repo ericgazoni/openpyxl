@@ -25,8 +25,10 @@
 import os.path
 import datetime
 
+import pytest
+
 # compatibility imports
-from openpyxl.shared.compat import BytesIO, StringIO
+from openpyxl.shared.compat import BytesIO
 
 # package imports
 from openpyxl.reader.excel import load_workbook
@@ -58,9 +60,9 @@ class TestCreateStyle(object):
     def test_create_style_table(self):
         assert len(self.writer.style_table) == 3
 
+    @pytest.mark.xfail
     def test_write_style_table(self):
         reference_file = os.path.join(DATADIR, 'writer', 'expected', 'simple-styles.xml')
-
 
 class TestStyleWriter(object):
 

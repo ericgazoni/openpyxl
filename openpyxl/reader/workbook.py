@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,23 +25,38 @@
 """Read in global settings to be maintained by the workbook object."""
 
 # package imports
-from openpyxl.shared.xmltools import fromstring
-from openpyxl.shared.ooxml import NAMESPACES, DCORE_NS, COREPROPS_NS, DCTERMS_NS, SHEET_MAIN_NS, CONTYPES_NS
+from openpyxl.shared.xmltools import fromstring, safe_iterator
+from openpyxl.shared.ooxml import (
+    DCORE_NS,
+    COREPROPS_NS,
+    DCTERMS_NS,
+    SHEET_MAIN_NS,
+    CONTYPES_NS,
+    PKG_REL_NS,
+    REL_NS,
+    ARC_CONTENT_TYPES,
+    ARC_WORKBOOK,
+    ARC_WORKBOOK_RELS,
+)
 from openpyxl.workbook import DocumentProperties
-from openpyxl.shared.date_time import W3CDTF_to_datetime,CALENDAR_WINDOWS_1900,CALENDAR_MAC_1904
-from openpyxl.namedrange import NamedRange, NamedRangeContainingValue, split_named_range, refers_to_range
+from openpyxl.shared.date_time import (
+    W3CDTF_to_datetime,
+    CALENDAR_WINDOWS_1900,
+    CALENDAR_MAC_1904
+    )
+from openpyxl.namedrange import (
+    NamedRange,
+    NamedRangeContainingValue,
+    split_named_range,
+    refers_to_range
+    )
 
 import datetime
 
 # constants
 BUGGY_NAMED_RANGES = ['NA()', '#REF!']
 DISCARDED_RANGES = ['Excel_BuiltIn', 'Print_Area']
-
-def get_sheet_ids(xml_source):
-
-    sheet_names = read_sheets_titles(xml_source)
-
-    return dict((sheet, 'sheet%d.xml' % (i + 1)) for i, sheet in enumerate(sheet_names))
+VALID_WORKSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"
 
 
 def read_properties_core(xml_source):
@@ -70,24 +86,54 @@ def read_excel_base_date(xml_source):
     wbPr = root.find('{%s}workbookPr' % SHEET_MAIN_NS)
     if wbPr is not None and wbPr.get('date1904') in ('1', 'true'):
         return CALENDAR_MAC_1904
-
     return CALENDAR_WINDOWS_1900
 
 
-# Mark Mikofski, 2013-06-03
-def read_content_types(xml_source):
+def read_content_types(archive):
     """Read content types."""
+    xml_source = archive.read(ARC_CONTENT_TYPES)
     root = fromstring(xml_source)
     contents_root = root.findall('{%s}Override' % CONTYPES_NS)
     for type in contents_root:
-        yield type.get('PartName'), type.get('ContentType')
+        yield  type.get('PartName'), type.get('ContentType')
 
-def read_sheets_titles(xml_source):
-    """Read titles for all sheets."""
-    root = fromstring(xml_source)
-    titles_root = root.find('{%s}sheets' % SHEET_MAIN_NS)
 
-    return [sheet.get('name') for sheet in titles_root]
+def read_rels(archive):
+    """Read relationships for a workbook"""
+    xml_source = archive.read(ARC_WORKBOOK_RELS)
+    rels = {}
+    tree = fromstring(xml_source)
+    for element in safe_iterator(tree, '{%s}Relationship' % PKG_REL_NS):
+        rels[element.get('Id')] = {'path':element.get('Target')}
+    return rels
+
+
+def read_sheets(archive):
+    """Read worksheet titles and ids for a workbook"""
+    xml_source = archive.read(ARC_WORKBOOK)
+    tree = fromstring(xml_source)
+    for element in safe_iterator(tree, '{%s}sheet' % SHEET_MAIN_NS):
+        yield element.get('name'), element.get("{%s}id" % REL_NS)
+
+
+def detect_worksheets(archive):
+    """Return a list of worksheets"""
+    # content types has a list of paths but no titles
+    # workbook has a list of titles and relIds but no paths
+    # workbook_rels has a list of relIds and paths but no titles
+    # rels = {'id':{'title':'', 'path':''} }
+    from openpyxl.reader.workbook import read_rels, read_sheets
+    content_types = list(read_content_types(archive))
+    rels = read_rels(archive)
+    sheets = read_sheets(archive)
+    for sheet in sheets:
+        rels[sheet[1]]['title'] = sheet[0]
+    for rId in sorted(rels):
+        for ct in content_types:
+            if ct[1] == VALID_WORKSHEET:
+                if '/xl/' + rels[rId]['path'] == ct[0]:
+                    yield rels[rId]
+
 
 def read_named_ranges(xml_source, workbook):
     """Read named ranges, excluding poorly defined ranges."""

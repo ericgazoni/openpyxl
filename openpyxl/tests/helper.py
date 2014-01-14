@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,20 +24,15 @@
 
 # Python stdlib imports
 import os
-import sys
 import os.path
 import shutil
-import difflib
-from pprint import pprint
 from tempfile import gettempdir
 from sys import version_info
 from lxml.doctestcompare import LXMLOutputChecker, PARSE_XML
 
 # package imports
-from openpyxl.shared.compat import BytesIO, unicode, StringIO
-from openpyxl.shared.xmltools import fromstring, ElementTree
-from openpyxl.shared.xmltools import pretty_indent
-
+from openpyxl.shared.compat import BytesIO
+from openpyxl.shared.xmltools import ElementTree
 
 # constants
 DATADIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'test_data'))

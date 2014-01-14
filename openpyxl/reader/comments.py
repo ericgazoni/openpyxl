@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,12 +22,16 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-from os import path
+import os.path
 
 from openpyxl.comments import Comment
-from openpyxl.shared.ooxml import PACKAGE_WORKSHEET_RELS, PACKAGE_WORKSHEETS, \
-                                  SHEET_MAIN_NS, COMMENTS_NS
-from openpyxl.shared.xmltools import fromstring
+from openpyxl.shared.ooxml import (
+    PACKAGE_WORKSHEET_RELS,
+    PACKAGE_WORKSHEETS,
+    SHEET_MAIN_NS,
+    COMMENTS_NS
+    )
+from openpyxl.shared.xmltools import fromstring, safe_iterator
 
 def _get_author_list(root):
     author_subtree = root.find('{%s}authors' % SHEET_MAIN_NS)
@@ -36,12 +41,11 @@ def read_comments(ws, xml_source):
     """Given a worksheet and the XML of its comments file, assigns comments to cells"""
     root = fromstring(xml_source)
     authors = _get_author_list(root)
-    comment_nodes = root.iter('{%s}comment' % SHEET_MAIN_NS)
+    comment_nodes = safe_iterator(root, ('{%s}comment' % SHEET_MAIN_NS))
     for node in comment_nodes:
         author = authors[int(node.attrib['authorId'])]
         cell = node.attrib['ref']
         text_node = node.find('{%s}text' % SHEET_MAIN_NS)
-        text = ''
         substrs = []
         for run in text_node.findall('{%s}r' % SHEET_MAIN_NS):
             runtext = ''.join([t.text for t in run.findall('{%s}t' % SHEET_MAIN_NS)])
@@ -51,10 +55,11 @@ def read_comments(ws, xml_source):
         comment = Comment(comment_text, author)
         ws.cell(coordinate=cell).comment = comment
 
-def get_comments_file(sheet_codename, archive, valid_files):
+def get_comments_file(worksheet_path, archive, valid_files):
     """Returns the XML filename in the archive which contains the comments for
     the spreadsheet with codename sheet_codename. Returns None if there is no
     such file"""
+    sheet_codename = os.path.split(worksheet_path)[-1]
     rels_file = PACKAGE_WORKSHEET_RELS + '/' + sheet_codename + '.rels'
     if rels_file not in valid_files:
         return None
@@ -62,7 +67,7 @@ def get_comments_file(sheet_codename, archive, valid_files):
     root = fromstring(rels_source)
     for i in root:
         if i.attrib['Type'] == COMMENTS_NS:
-            comments_file = path.normpath(PACKAGE_WORKSHEETS + '/' + i.attrib['Target'])
+            comments_file = os.path.normpath(PACKAGE_WORKSHEETS + '/' + i.attrib['Target'])
             if comments_file in valid_files:
                 return comments_file
     return None

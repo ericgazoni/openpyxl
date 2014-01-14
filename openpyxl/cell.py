@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,12 +40,12 @@ from openpyxl.shared import (NUMERIC_TYPES, DEFAULT_ROW_HEIGHT,
     DEFAULT_COLUMN_WIDTH)
 from openpyxl.shared.compat import unicode, basestring
 from openpyxl.shared.date_time import SharedDate
-from openpyxl.shared.exc import (CellCoordinatesException,
-    ColumnStringIndexException, DataTypeException)
+from openpyxl.shared.exc import (
+    CellCoordinatesException,
+    DataTypeException
+)
 from openpyxl.shared.units import points_to_pixels
 from openpyxl.style import NumberFormat
-from openpyxl.comments import Comment
-
 
 # package imports
 

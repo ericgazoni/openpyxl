@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,7 +26,7 @@ import os
 from zipfile import ZipFile
 
 from lxml.etree import XMLSchema
-from lxml.etree import tostring, fromstring, parse
+from lxml.etree import parse
 
 # Provide schema based validators, lxml required
 # use schema.validate(Element) or schema.assertValid(Element) for messages
