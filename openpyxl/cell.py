@@ -95,7 +95,7 @@ def column_index_from_string(column, fast=False):
     if not m:
         raise ValueError('Column string must contain only characters A-Z: got %s' % column)
     idx = 0
-    for i, l in enumerate(m.group(0)):
+    for i, l in enumerate(reversed(m.group(0))):
         idx += (ord(l) - 64) * pow(26, i)
     return idx
 

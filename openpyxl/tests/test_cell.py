@@ -83,7 +83,21 @@ def test_absolute_multiple():
                          [
                          ('j', 10),
                          ('Jj', 270),
-                         ('JJj', 7030)
+                         ('JJj', 7030),
+                         ('A', 1),
+                         ('Z', 26),
+                         ('AA', 27),
+                         ('AZ', 52),
+                         ('BA', 53),
+                         ('BZ',  78),
+                         ('ZA',  677),
+                         ('ZZ',  702),
+                         ('AAA',  703),
+                         ('AAZ',  728),
+                         ('ABC',  731),
+                         ('AZA', 1353),
+                         ('ZZA', 18253),
+                         ('ZZZ', 18278),
                          ]
                          )
 def test_column_index(column, idx):
