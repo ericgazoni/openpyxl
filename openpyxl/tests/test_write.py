@@ -221,11 +221,12 @@ def test_hyperlink_value():
     ws.cell('A1').value = "test"
     assert "test" == ws.cell('A1').value
 
+
 def test_write_auto_filter():
     wb = Workbook()
     ws = wb.worksheets[0]
     ws.cell('F42').value = 'hello'
-    ws.auto_filter = 'A1:F1'
+    ws.auto_filter.ref = 'A1:F1'
     content = write_worksheet(ws, {'hello': 0}, {})
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_auto_filter.xml')
     with open(reference_file) as expected:
@@ -238,6 +239,42 @@ def test_write_auto_filter():
         diff = compare_xml(content, expected.read())
         assert diff is None, diff
 
+def test_write_auto_filter_filter_column():
+    wb = Workbook()
+    ws = wb.worksheets[0]
+    ws.cell('F42').value = 'hello'
+    ws.auto_filter.ref = 'A1:F1'
+    ws.auto_filter.add_filter_column(0, ["0"], blank=True)
+    content = write_worksheet(ws, {'hello': 0}, {})
+    reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_auto_filter_filter_column.xml')
+    with open(reference_file) as expected:
+        diff = compare_xml(content, expected.read())
+        assert diff is None
+
+    content = write_workbook(wb)
+    reference_file = os.path.join(DATADIR, 'writer', 'expected', 'workbook_auto_filter.xml')
+    with open(reference_file) as expected:
+        diff = compare_xml(content, expected.read())
+        assert diff is None, diff
+
+def test_write_auto_filter_sort_condition():
+    wb = Workbook()
+    ws = wb.worksheets[0]
+    ws.cell('A1').value = 'header'
+    ws.cell('A2').value = 1
+    ws.cell('A3').value = 0
+    ws.auto_filter.ref = 'A2:A3'
+    ws.auto_filter.add_sort_condition('A2:A3', descending=True)
+    content = write_worksheet(ws, {'header': 0}, {})
+    reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_auto_filter_sort_condition.xml')
+    with open(reference_file) as expected:
+        diff = compare_xml(content, expected.read())
+        assert diff is None
+
+    content = write_workbook(wb)
+    reference_file = os.path.join(DATADIR, 'writer', 'expected', 'workbook_auto_filter.xml')
+    with open(reference_file) as expected:
+        diff = compare_xml(content, expected.read())
 
 def test_freeze_panes_horiz():
     wb = Workbook()

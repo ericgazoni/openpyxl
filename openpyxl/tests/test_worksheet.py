@@ -250,14 +250,14 @@ class TestWorksheet(object):
 
     def test_auto_filter(self):
         ws = Worksheet(self.wb)
-        ws.auto_filter = ws.range('a1:f1')
-        assert ws.auto_filter == 'A1:F1'
+        ws.auto_filter.ref = ws.range('a1:f1')
+        assert ws.auto_filter.ref == 'A1:F1'
 
-        ws.auto_filter = ''
-        assert ws.auto_filter is None
+        ws.auto_filter.ref = ''
+        assert ws.auto_filter.ref is None
 
-        ws.auto_filter = 'c1:g9'
-        assert ws.auto_filter == 'C1:G9'
+        ws.auto_filter.ref = 'c1:g9'
+        assert ws.auto_filter.ref == 'C1:G9'
 
     def test_page_margins(self):
         ws = Worksheet(self.wb)
