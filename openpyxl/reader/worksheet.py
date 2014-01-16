@@ -112,13 +112,13 @@ class WorkSheetParser(object):
             '{%s}pageMargins' % SHEET_MAIN_NS: self.parse_margins,
             '{%s}pageSetup' % SHEET_MAIN_NS: self.parse_page_setup,
             '{%s}headerFooter' % SHEET_MAIN_NS: self.parse_header_footer,
-            '{%s}conditionalFormatting' % SHEET_MAIN_NS: self.parser_conditional_formatting
+            '{%s}conditionalFormatting' % SHEET_MAIN_NS: self.parser_conditional_formatting,
+            '{%s}autoFilter' % SHEET_MAIN_NS: self.parse_auto_filter
                       }
         for event, element in it:
             tag_name = element.tag
             if tag_name in dispatcher:
                 dispatcher[tag_name](element)
-
 
     def parse_cell(self, element):
         value = element.findtext('{%s}v' % SHEET_MAIN_NS)
@@ -295,6 +295,14 @@ class WorkSheetParser(object):
         if len(rules):
             self.ws.conditional_formatting.setRules(rules)
 
+    def parse_auto_filter(self, element):
+        self.ws.auto_filter.ref = element.get("ref")
+        for fc in safe_iterator(element, '{%s}filterColumn' % SHEET_MAIN_NS):
+            filters = fc.find('{%s}filters' % SHEET_MAIN_NS)
+            vals = [f.get("val") for f in safe_iterator(filters, '{%s}filter' % SHEET_MAIN_NS)]
+            self.ws.auto_filter.add_filter_column(fc.get("colId"), vals, blank=filters.get("blank"))
+        for sc in safe_iterator(element, '{%s}sortCondition' % SHEET_MAIN_NS):
+            self.ws.auto_filter.add_sort_condition(sc.get("ref"), sc.get("descending"))
 
 def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 

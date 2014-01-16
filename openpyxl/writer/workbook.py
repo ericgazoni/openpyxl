@@ -261,7 +261,7 @@ def write_workbook(workbook):
     # Defined names -> autoFilter
     for i, sheet in enumerate(workbook.worksheets):
         #continue
-        auto_filter = sheet.auto_filter
+        auto_filter = sheet.auto_filter.ref
         if not auto_filter:
             continue
         name = SubElement(
