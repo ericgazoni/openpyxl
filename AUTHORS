@@ -53,6 +53,7 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Gerald Van Huffelen
 * Laurent Vasseur
 * Kay Webber
+* Shibukawa Yoshiki
 
 Special thanks for Heikki Junes, for all his work on porting and maintaining the Python3.x fork
 

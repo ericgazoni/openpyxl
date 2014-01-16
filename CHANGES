@@ -8,6 +8,11 @@ Minor changes
 * Pyflakes used for static code analysis
 
 
+Pull requests
+-------------
+#70 Add filterColumn, sortCondition support to AutoFilter (SHIBUKAWA Yoshiki)
+
+
 Bug fixes
 ---------
 #137 - Workbooks with chartsheets
