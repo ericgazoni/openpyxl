@@ -32,6 +32,12 @@ import warnings
 # compatibility imports
 from openpyxl.shared.compat import unicode, file, StringIO
 
+# Allow blanket setting of KEEP_VBA for testing
+try:
+    from ..tests import KEEP_VBA
+except ImportError:
+    KEEP_VBA = False
+
 # package imports
 from openpyxl.shared.exc import OpenModeError, InvalidFileException
 from openpyxl.shared.ooxml import (
@@ -79,7 +85,7 @@ def repair_central_directory(zipFile, is_file_instance):
     return f
 
 
-def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=True, data_only=False):
+def load_workbook(filename, use_iterators=False, keep_vba=KEEP_VBA, guess_types=True, data_only=False):
     """Open the given filename and return the workbook
 
     :param filename: the path to open or a file-like object
