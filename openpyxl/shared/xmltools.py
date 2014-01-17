@@ -82,10 +82,7 @@ if LXML is True:
     )
 else:
     try:
-        from xml.etree import cElementTree as ElementTree
-    except ImportError:
-        from xml.etree import ElementTree
-    from ElementTree import (
+        from xml.etree.cElementTree import (
         ElementTree,
         Element,
         SubElement,
@@ -94,10 +91,17 @@ else:
         tostring,
         iterparse
         )
-    try:
-        from ElementTree import register_namespace
     except ImportError:
-        from .namespace import register_namespace
+        from xml.etree.ElementTreee import (
+        ElementTree,
+        Element,
+        SubElement,
+        QName,
+        fromstring,
+        tostring,
+        iterparse
+        )
+    from .namespace import register_namespace
 
 from openpyxl.shared.ooxml import (
     CHART_NS,
