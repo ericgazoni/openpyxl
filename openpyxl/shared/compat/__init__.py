@@ -41,8 +41,3 @@ try:
     from collections import OrderedDict
 except ImportError:
     from .odict import OrderedDict
-
-try:
-    from xml.etree.ElementTree import register_namespace
-except ImportError:
-    from .elementtree import register_namespace
