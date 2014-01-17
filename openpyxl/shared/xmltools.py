@@ -69,7 +69,6 @@ from openpyxl.shared.compat import OrderedDict
 # package imports
 from openpyxl import LXML
 
-#LXML = False
 if LXML is True:
     from lxml.etree import (
     Element,
