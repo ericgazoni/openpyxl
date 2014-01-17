@@ -69,7 +69,6 @@ from openpyxl.shared.compat import OrderedDict
 # package imports
 from openpyxl import LXML
 
-#LXML = False
 if LXML is True:
     from lxml.etree import (
     Element,
@@ -79,9 +78,9 @@ if LXML is True:
     fromstring,
     tostring,
     register_namespace,
+    iterparse
     )
 else:
-    from openpyxl.shared.compat import register_namespace
     try:
         from xml.etree.cElementTree import (
         ElementTree,
@@ -89,17 +88,20 @@ else:
         SubElement,
         QName,
         fromstring,
-        tostring
+        tostring,
+        iterparse
         )
     except ImportError:
-        from xml.etree.ElementTree import (
+        from xml.etree.ElementTreee import (
         ElementTree,
         Element,
         SubElement,
         QName,
         fromstring,
-        tostring
+        tostring,
+        iterparse
         )
+    from .namespace import register_namespace
 
 from openpyxl.shared.ooxml import (
     CHART_NS,
