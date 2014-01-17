@@ -32,8 +32,11 @@ import re
 import zipfile
 from collections import namedtuple
 
+
 # compatibility
-from openpyxl.shared.compat import iterparse, xrange
+from openpyxl.shared.compat import xrange
+from openpyxl.shared.xmltools import iterparse
+
 
 # package
 from openpyxl.worksheet import Worksheet

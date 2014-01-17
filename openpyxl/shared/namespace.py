@@ -22,14 +22,6 @@ from __future__ import absolute_import
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-
-try:
-    from xml.etree.cElementTree import iterparse
-except ImportError:
-    import warnings
-    from xml.etree.ElementTree import iterparse
-    warnings.warn("""Unable to import 'xml.etree.cElementree'. Falling back on 'xml.etree.Elementree'""")
-
 import re
 
 # Python 2.6 without lxml
@@ -53,3 +45,11 @@ _namespace_map = {
     # dublin core
     "http://purl.org/dc/elements/1.1/": "dc",
 }
+
+try:
+    from xml.etree.cElementTree import register_namespace
+except ImportError:
+    try:
+        from xml.etree.ElementTree import register_namespace
+    except ImportError:
+        pass
