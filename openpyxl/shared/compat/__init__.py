@@ -24,13 +24,6 @@ from __future__ import absolute_import
 
 from tempfile import NamedTemporaryFile
 
-from openpyxl import LXML
-
-if LXML is True:
-    from lxml.etree import iterparse
-else:
-    from openpyxl.shared.compat.elementtree import iterparse
-
 from .strings import (
     basestring,
     unicode,

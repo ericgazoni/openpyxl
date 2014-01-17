@@ -28,7 +28,7 @@ from warnings import warn
 
 # compatibility imports
 from openpyxl.shared.compat import BytesIO, StringIO
-from openpyxl.shared.compat import iterparse
+from openpyxl.shared.xmltools import iterparse
 
 # package imports
 from openpyxl.cell import get_column_letter

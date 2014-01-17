@@ -78,6 +78,7 @@ if LXML is True:
     fromstring,
     tostring,
     register_namespace,
+    iterparse
     )
 else:
     from openpyxl.shared.compat import register_namespace
@@ -88,7 +89,8 @@ else:
         SubElement,
         QName,
         fromstring,
-        tostring
+        tostring,
+        iterparse
         )
     except ImportError:
         from xml.etree.ElementTree import (
@@ -97,7 +99,8 @@ else:
         SubElement,
         QName,
         fromstring,
-        tostring
+        tostring,
+        iterparse
         )
 
 from openpyxl.shared.ooxml import (
