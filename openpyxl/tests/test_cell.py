@@ -223,11 +223,11 @@ def test_illegal_chacters():
     from openpyxl.exceptions import IllegalCharacterError
     ws = build_dummy_worksheet()
     cell = Cell(ws, 'A', 1)
-    for i in range(31):
+    for i in range(33):
         with pytest.raises(IllegalCharacterError):
             cell.value = chr(i)
     # test legal UTF-8
-    cell.value = chr(32)
+    cell.value = chr(33)
 
 
 def test_time():

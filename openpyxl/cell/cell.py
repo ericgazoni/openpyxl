@@ -56,7 +56,7 @@ from openpyxl.styles import NumberFormat
 # constants
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
 ABSOLUTE_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)(:[$]?([A-Z]+)[$]?(\d+))?$')
-ILLEGAL_CHARACTERS_RE = re.compile('|'.join(chr(x) for x in range(31)))
+ILLEGAL_CHARACTERS_RE = re.compile('|'.join(chr(x) for x in range(33)))
 
 
 
