@@ -521,7 +521,13 @@ class Worksheet(object):
         if self.bad_title_char_re.search(value):
             msg = 'Invalid character found in sheet title'
             raise SheetTitleException(msg)
+        value = self.unique_sheet_name(value)
+        if len(value) > 31:
+            msg = 'Maximum 31 characters allowed in sheet title'
+            raise SheetTitleException(msg)
+        self._title = value
 
+    def unique_sheet_name(self, value):
         # check if sheet_name already exists
         # do this *before* length check
         sheets = self._parent.get_sheet_names()
@@ -536,11 +542,7 @@ class Worksheet(object):
             else:
                 highest = 0
             value = "%s%d" % (value, highest+1)
-
-        if len(value) > 31:
-            msg = 'Maximum 31 characters allowed in sheet title'
-            raise SheetTitleException(msg)
-        self._title = value
+        return value
 
     @property
     def auto_filter(self):
