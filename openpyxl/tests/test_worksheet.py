@@ -81,8 +81,7 @@ class TestWorksheet(object):
 
     def test_unique_sheet_title(self):
         ws = self.wb.create_sheet(title="AGE")
-        ws = self.wb.create_sheet(title="GE")
-        assert self.wb.get_sheet_names() == []
+        assert ws.unique_sheet_name("GE") == "GE"
 
 
     def test_worksheet_dimension(self):

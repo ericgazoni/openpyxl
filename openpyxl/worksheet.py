@@ -531,17 +531,18 @@ class Worksheet(object):
         # check if sheet_name already exists
         # do this *before* length check
         sheets = self._parent.get_sheet_names()
-        sheets = ",".join(sheets)
-        sheet_title_regex=re.compile("(?P<title>%s)(?P<count>\d?),?" % value)
-        matches = sheet_title_regex.findall(sheets)
-        if matches:
-            # use name, but append with the next highest integer
-            counts = [int(idx) for (t, idx) in matches if idx.isdigit()]
-            if counts:
-                highest = max(counts)
-            else:
-                highest = 0
-            value = "%s%d" % (value, highest+1)
+        if value in sheets:
+            sheets = ",".join(sheets)
+            sheet_title_regex=re.compile("(?P<title>%s)(?P<count>\d?),?" % value)
+            matches = sheet_title_regex.findall(sheets)
+            if matches:
+                # use name, but append with the next highest integer
+                counts = [int(idx) for (t, idx) in matches if idx.isdigit()]
+                if counts:
+                    highest = max(counts)
+                else:
+                    highest = 0
+                value = "%s%d" % (value, highest+1)
         return value
 
     @property
