@@ -84,7 +84,8 @@ Installation
 ------------
 
 The best method to install openpyxl is using a PyPi client such as
-easy_install (setuptools) or pip::
+easy_install (setuptools) or pip. It is advisable to do this in a Python
+virtualenv without system packages::
 
     $ pip install openpyxl
 
