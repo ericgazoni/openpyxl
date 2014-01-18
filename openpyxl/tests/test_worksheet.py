@@ -80,6 +80,12 @@ class TestWorksheet(object):
         #assert_raises(SheetTitleException, Worksheet, self.wb, '/')
         #assert_raises(SheetTitleException, Worksheet, self.wb, '\\')
 
+
+    def test_unique_sheet_title(self):
+        ws = self.wb.create_sheet(title="AGE")
+        assert ws.unique_sheet_name("GE") == "GE"
+
+
     def test_worksheet_dimension(self):
         ws = Worksheet(self.wb)
         assert 'A1:A1' == ws.calculate_dimension()

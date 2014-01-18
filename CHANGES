@@ -22,6 +22,7 @@ Bug fixes
 ==================
 
 Bugfix #252 - improved handling of lxml
+Bugfix #253 - better handling of unique sheetnames
 
 
 1.8.1 (2014-01-14)
