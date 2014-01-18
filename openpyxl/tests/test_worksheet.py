@@ -31,9 +31,12 @@ from openpyxl.worksheet import Worksheet, Relationship, flatten
 from openpyxl.writer.worksheet import write_worksheet
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.comments import Comment
-from openpyxl.shared.exc import CellCoordinatesException, \
-        SheetTitleException, InsufficientCoordinatesException, \
-        NamedRangeException
+from openpyxl.shared.exc import (
+    CellCoordinatesException,
+    SheetTitleException,
+    InsufficientCoordinatesException,
+    NamedRangeException
+    )
 from openpyxl.writer.worksheet import write_worksheet
 
 class TestWorksheet(object):
@@ -74,6 +77,12 @@ class TestWorksheet(object):
         assert_raises(SheetTitleException, Worksheet, self.wb, '?')
         assert_raises(SheetTitleException, Worksheet, self.wb, '/')
         assert_raises(SheetTitleException, Worksheet, self.wb, '\\')
+
+
+    def test_unique_sheet_title(self):
+        ws = self.wb.create_sheet(title="AGE")
+        assert ws.unique_sheet_name("GE") == "GE"
+
 
     def test_worksheet_dimension(self):
         ws = Worksheet(self.wb)

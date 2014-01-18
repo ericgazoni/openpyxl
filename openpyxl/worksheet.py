@@ -521,26 +521,29 @@ class Worksheet(object):
         if self.bad_title_char_re.search(value):
             msg = 'Invalid character found in sheet title'
             raise SheetTitleException(msg)
-
-        # check if sheet_name already exists
-        # do this *before* length check
-        sheets = self._parent.get_sheet_names()
-        sheets = ",".join(sheets)
-        sheet_title_regex=re.compile("(?P<title>%s)(?P<count>\d?),?" % value)
-        matches = sheet_title_regex.findall(sheets)
-        if matches:
-            # use name, but append with the next highest integer
-            counts = [int(idx) for (t, idx) in matches if idx.isdigit()]
-            if counts:
-                highest = max(counts)
-            else:
-                highest = 0
-            value = "%s%d" % (value, highest+1)
-
+        value = self.unique_sheet_name(value)
         if len(value) > 31:
             msg = 'Maximum 31 characters allowed in sheet title'
             raise SheetTitleException(msg)
         self._title = value
+
+    def unique_sheet_name(self, value):
+        # check if sheet_name already exists
+        # do this *before* length check
+        sheets = self._parent.get_sheet_names()
+        if value in sheets:
+            sheets = ",".join(sheets)
+            sheet_title_regex=re.compile("(?P<title>%s)(?P<count>\d?),?" % value)
+            matches = sheet_title_regex.findall(sheets)
+            if matches:
+                # use name, but append with the next highest integer
+                counts = [int(idx) for (t, idx) in matches if idx.isdigit()]
+                if counts:
+                    highest = max(counts)
+                else:
+                    highest = 0
+                value = "%s%d" % (value, highest+1)
+        return value
 
     @property
     def auto_filter(self):
