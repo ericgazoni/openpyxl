@@ -53,7 +53,7 @@ from openpyxl.xml.ooxml import (
     ARC_ROOT_RELS
 )
 from openpyxl.xml.xmltools import get_document_content, fromstring
-from openpyxl.shared.date_time import datetime_to_W3CDTF
+from openpyxl.date_time import datetime_to_W3CDTF
 from openpyxl.namedrange import NamedRange, NamedRangeContainingValue
 
 

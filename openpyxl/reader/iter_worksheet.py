@@ -47,7 +47,7 @@ from openpyxl.cell import (
 )
 from openpyxl.reader.style import read_style_table
 from openpyxl.styles import is_date_format
-from openpyxl.shared.date_time import SharedDate
+from openpyxl.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.compat import unicode
 from openpyxl.xml.ooxml import (

@@ -23,7 +23,7 @@
 
 
 # package imports
-from openpyxl.shared.password_hasher import hash_password
+from openpyxl.worksheet.password_hasher import hash_password
 from openpyxl.worksheet import SheetProtection
 
 

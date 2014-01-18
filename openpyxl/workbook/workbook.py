@@ -38,7 +38,7 @@ from openpyxl.namedrange import NamedRange
 from openpyxl.styles import Style
 from openpyxl.writer.excel import save_workbook
 from openpyxl.exceptions import ReadOnlyWorkbookException
-from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
+from openpyxl.date_time import CALENDAR_WINDOWS_1900
 from openpyxl.xml.xmltools import fromstring
 from openpyxl.xml.ooxml import SHEET_MAIN_NS
 

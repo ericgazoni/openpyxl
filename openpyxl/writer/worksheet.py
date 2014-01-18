@@ -50,7 +50,7 @@ from openpyxl.xml.ooxml import (
     COMMENTS_NS,
     VML_NS
 )
-from openpyxl.shared.compat.itertools import iteritems, iterkeys
+from openpyxl.compat.itertools import iteritems, iterkeys
 from openpyxl.styles.formatting import ConditionalFormatting
 
 

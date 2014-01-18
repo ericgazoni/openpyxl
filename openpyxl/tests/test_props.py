@@ -40,7 +40,7 @@ from openpyxl.writer.workbook import (
     write_properties_app
 )
 from openpyxl.xml.ooxml import ARC_CORE
-from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
+from openpyxl.date_time import CALENDAR_WINDOWS_1900
 from openpyxl.workbook import DocumentProperties, Workbook
 
 

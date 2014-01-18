@@ -39,7 +39,7 @@ from openpyxl.styles import NumberFormat, Style
 from openpyxl.reader.worksheet import read_worksheet, read_dimension
 from openpyxl.reader.excel import load_workbook
 from openpyxl.exceptions import InvalidFileException
-from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900, CALENDAR_MAC_1904
+from openpyxl.date_time import CALENDAR_WINDOWS_1900, CALENDAR_MAC_1904
 
 
 def test_read_standalone_worksheet():

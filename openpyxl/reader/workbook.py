@@ -39,7 +39,7 @@ from openpyxl.xml.ooxml import (
     ARC_WORKBOOK_RELS,
 )
 from openpyxl.workbook import DocumentProperties
-from openpyxl.shared.date_time import (
+from openpyxl.date_time import (
     W3CDTF_to_datetime,
     CALENDAR_WINDOWS_1900,
     CALENDAR_MAC_1904
