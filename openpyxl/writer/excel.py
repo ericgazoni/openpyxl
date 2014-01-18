@@ -28,10 +28,10 @@ from __future__ import absolute_import
 from zipfile import ZipFile, ZIP_DEFLATED
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO
+from openpyxl.compat import BytesIO
 
 # package imports
-from openpyxl.shared.ooxml import (
+from openpyxl.xml.ooxml import (
     ARC_SHARED_STRINGS,
     ARC_CONTENT_TYPES,
     ARC_ROOT_RELS,

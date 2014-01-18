@@ -26,7 +26,7 @@ import os.path
 import zipfile
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO
+from openpyxl.compat import BytesIO
 
 # package imports
 from openpyxl.tests.helper import DATADIR

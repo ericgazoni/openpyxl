@@ -30,7 +30,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet, Relationship, flatten
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.comments import Comment
-from openpyxl.shared.exc import (
+from openpyxl.exceptions import (
     CellCoordinatesException,
     SheetTitleException,
     InsufficientCoordinatesException,

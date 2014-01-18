@@ -28,7 +28,7 @@ import datetime
 import pytest
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO
+from openpyxl.compat import BytesIO
 
 # package imports
 from openpyxl.reader.excel import load_workbook

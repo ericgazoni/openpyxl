@@ -24,6 +24,7 @@ from __future__ import absolute_import
 
 """Worksheet is the 2nd-level container in Excel."""
 
+
 # Python stdlib imports
 import re
 
@@ -34,20 +35,23 @@ from openpyxl.cell import (
     column_index_from_string,
     get_column_letter
     )
-from openpyxl.shared.exc import (
+from openpyxl.exceptions import (
     SheetTitleException,
     InsufficientCoordinatesException,
     CellCoordinatesException,
     NamedRangeException
     )
-from openpyxl.shared.units import points_to_pixels
-from openpyxl.shared import DEFAULT_COLUMN_WIDTH, DEFAULT_ROW_HEIGHT
-from openpyxl.shared.password_hasher import hash_password
+from openpyxl.units import (
+    points_to_pixels,
+    DEFAULT_COLUMN_WIDTH,
+    DEFAULT_ROW_HEIGHT
+    )
 from openpyxl.styles import Style, DEFAULTS as DEFAULTS_STYLE
 from openpyxl.styles.formatting import ConditionalFormatting
 from openpyxl.namedrange import NamedRangeContainingValue
-from openpyxl.shared.compat import OrderedDict, unicode, xrange, basestring
-from openpyxl.shared.compat.itertools import iteritems
+from openpyxl.compat import OrderedDict, unicode, xrange, basestring
+from openpyxl.compat.itertools import iteritems
+from .password_hasher import hash_password
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
@@ -58,8 +62,8 @@ def flatten(results):
     for row in results:
         yield(c.value for c in row)
 
-from openpyxl.shared.ooxml import REL_NS, PKG_REL_NS
-from openpyxl.shared.xmltools import Element, SubElement, get_document_content
+from openpyxl.xml.ooxml import REL_NS, PKG_REL_NS
+from openpyxl.xml.xmltools import Element, SubElement, get_document_content
 
 
 class Relationship(object):

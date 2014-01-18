@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+# Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +22,4 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-"""Make sure we're using the fastest backend available"""
-
-from openpyxl import LXML
-
-try:
-    from xml.etree.cElementTree import Element as cElement
-    C = True
-except ImportError:
-    C = False
-
-try:
-    from lxml.etree import Element as lElement
-except ImportError:
-    lElement is None
-
-from xml.etree.ElementTree import Element as pyElement
-
-def test_backend():
-    from openpyxl.xml.xmltools import Element
-    if LXML is True:
-        assert Element == lElement
-    elif C is True:
-        assert Element == cElement
-    else:
-        assert Element == pyElement
+"""Collection of XML resources compatible across different Python versions"""

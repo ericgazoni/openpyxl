@@ -1,4 +1,3 @@
-# coding=UTF-8
 from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
@@ -24,18 +23,18 @@ from __future__ import absolute_import
 # @author: see AUTHORS file
 
 
-from openpyxl.shared.xmltools import (
+from openpyxl.xml.xmltools import (
     Element,
     SubElement,
     get_document_content
     )
-from openpyxl.shared.ooxml import (
+from openpyxl.xml.ooxml import (
     CHART_NS,
     DRAWING_NS,
     REL_NS,
     PKG_REL_NS
     )
-from openpyxl.shared.compat import (
+from openpyxl.compat import (
     iteritems,
     safe_string
     )

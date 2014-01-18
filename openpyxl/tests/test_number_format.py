@@ -27,7 +27,7 @@ from datetime import datetime, date, timedelta
 import pytest
 
 # package imports
-from openpyxl.shared.compat import safe_string
+from openpyxl.compat import safe_string
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import Cell

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,8 +25,8 @@ import os
 
 import pytest
 
-from openpyxl.shared.ooxml import CHART_DRAWING_NS, SHEET_DRAWING_NS
-from openpyxl.shared.xmltools import Element, fromstring
+from openpyxl.xml.ooxml import CHART_DRAWING_NS, SHEET_DRAWING_NS
+from openpyxl.xml.xmltools import Element, fromstring
 
 from .helper import compare_xml, get_xml, DATADIR
 from .schema import drawing_schema, chart_schema

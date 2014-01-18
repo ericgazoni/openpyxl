@@ -137,7 +137,7 @@ def ten_column_sheet(ws):
     ws.append(list(range(10)))
     return ws
 
-from openpyxl.shared.xmltools import Element
+from openpyxl.xml.xmltools import Element
 
 @pytest.fixture
 def root_xml():

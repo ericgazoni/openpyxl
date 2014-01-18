@@ -1,4 +1,3 @@
-# coding=utf-8
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -40,7 +39,7 @@ from openpyxl.writer.workbook import (
     write_properties_core,
     write_properties_app
 )
-from openpyxl.shared.ooxml import ARC_CORE
+from openpyxl.xml.ooxml import ARC_CORE
 from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
 from openpyxl.workbook import DocumentProperties, Workbook
 

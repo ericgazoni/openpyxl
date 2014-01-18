@@ -28,15 +28,15 @@ from __future__ import absolute_import
 from warnings import warn
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO
-from openpyxl.shared.xmltools import iterparse
+from openpyxl.compat import BytesIO
+from openpyxl.xml.xmltools import iterparse
 
 # package imports
 from openpyxl.cell import get_column_letter
-from openpyxl.shared.xmltools import safe_iterator
+from openpyxl.xml.xmltools import safe_iterator
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
-from openpyxl.shared.ooxml import SHEET_MAIN_NS
+from openpyxl.xml.ooxml import SHEET_MAIN_NS
 from openpyxl.styles import Color
 from openpyxl.styles.formatting import ConditionalFormatting
 

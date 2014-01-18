@@ -65,7 +65,7 @@ from xml.sax.xmlreader import AttributesNSImpl
 
 
 # compatibility
-from openpyxl.shared.compat import OrderedDict
+from openpyxl.compat import OrderedDict
 
 # package imports
 from openpyxl import LXML
@@ -104,7 +104,7 @@ else:
         )
     from .namespace import register_namespace
 
-from openpyxl.shared.ooxml import (
+from openpyxl.xml.ooxml import (
     CHART_NS,
     DRAWING_NS,
     SHEET_DRAWING_NS,

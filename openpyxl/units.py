@@ -22,7 +22,16 @@ from __future__ import absolute_import
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+import decimal
 import math
+
+from openpyxl.compat import long
+
+#constants
+# values in points
+DEFAULT_ROW_HEIGHT = 15.
+DEFAULT_COLUMN_WIDTH = 51.85
+NUMERIC_TYPES = (int, float, long, decimal.Decimal)
 
 
 def cm_to_pixels(value):

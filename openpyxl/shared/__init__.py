@@ -23,18 +23,3 @@ from __future__ import absolute_import
 # @author: see AUTHORS file
 
 """Imports for the openpyxl.shared namespace."""
-
-# package imports
-from openpyxl.shared import date_time
-from openpyxl.shared import exc
-from openpyxl.shared import ooxml
-from openpyxl.shared import password_hasher
-from openpyxl.shared import xmltools
-from openpyxl.shared.compat import long
-import decimal
-
-NUMERIC_TYPES = (int, float, long, decimal.Decimal)
-
-# both values in points
-DEFAULT_ROW_HEIGHT = 15.
-DEFAULT_COLUMN_WIDTH = 51.85

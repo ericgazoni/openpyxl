@@ -36,11 +36,14 @@ __docformat__ = "restructuredtext en"
 import datetime
 import re
 
-from openpyxl.shared import (NUMERIC_TYPES, DEFAULT_ROW_HEIGHT,
-    DEFAULT_COLUMN_WIDTH)
-from openpyxl.shared.compat import unicode, basestring
+from openpyxl.units import (
+    NUMERIC_TYPES,
+    DEFAULT_ROW_HEIGHT,
+    DEFAULT_COLUMN_WIDTH
+)
+from openpyxl.compat import unicode, basestring
 from openpyxl.shared.date_time import SharedDate
-from openpyxl.shared.exc import (
+from openpyxl.exceptions import (
     CellCoordinatesException,
     DataTypeException,
     IllegalCharacterError
