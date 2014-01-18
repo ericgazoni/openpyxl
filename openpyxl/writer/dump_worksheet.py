@@ -40,7 +40,7 @@ from openpyxl.shared.exc import WorkbookAlreadySaved
 from openpyxl.writer.excel import ExcelWriter
 from openpyxl.writer.strings import write_string_table
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.style import Style, NumberFormat
+from openpyxl.styles import Style, NumberFormat
 
 from openpyxl.shared.ooxml import (ARC_SHARED_STRINGS, PACKAGE_WORKSHEETS)
 

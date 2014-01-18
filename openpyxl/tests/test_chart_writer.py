@@ -11,7 +11,7 @@ from openpyxl.writer.charts import (ChartWriter,
                                     ScatterChartWriter,
                                     BaseChartWriter
                                     )
-from openpyxl.style import Color
+from openpyxl.styles import Color
 
 from .helper import get_xml, DATADIR, compare_xml
 from .schema import chart_schema

@@ -36,7 +36,7 @@ from openpyxl.reader.style import read_style_table
 from openpyxl.shared.ooxml import ARC_STYLE
 from openpyxl.writer.worksheet import write_worksheet_conditional_formatting
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.style import Border, Color, Fill, Font, Borders, HashableObject
+from openpyxl.styles import Border, Color, Fill, Font, Borders, HashableObject
 
 # test imports
 import pytest

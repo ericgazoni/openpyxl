@@ -24,7 +24,7 @@ from __future__ import absolute_import
 
 import math
 
-from openpyxl.style import NumberFormat, is_date_format
+from openpyxl.styles import NumberFormat, is_date_format
 
 
 def less_than_one(value):

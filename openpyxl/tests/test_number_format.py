@@ -31,7 +31,7 @@ from openpyxl.shared.compat import safe_string
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import Cell
-from openpyxl.style import NumberFormat
+from openpyxl.styles import NumberFormat
 from openpyxl.shared.date_time import SharedDate, CALENDAR_MAC_1904, CALENDAR_WINDOWS_1900
 
 

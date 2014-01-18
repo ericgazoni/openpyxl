@@ -23,7 +23,7 @@ from __future__ import absolute_import
 # @author: see AUTHORS file
 
 import math
-from openpyxl.style import Color
+from openpyxl.styles import Color
 from openpyxl.shared.units import pixels_to_EMU, EMU_to_pixels, short_color
 from openpyxl.cell import column_index_from_string
 
