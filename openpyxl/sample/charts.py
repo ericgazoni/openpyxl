@@ -2,7 +2,7 @@
 from datetime import date
 import os
 from openpyxl import Workbook
-from openpyxl.chart import Chart, Series, Reference, BarChart, PieChart, LineChart, ScatterChart
+from openpyxl.charts import Chart, Series, Reference, BarChart, PieChart, LineChart, ScatterChart
 
 
 def numbers(wb):

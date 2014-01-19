@@ -1,8 +1,8 @@
 import pytest
 import os
 
-from openpyxl.shared.xmltools import Element, fromstring, safe_iterator
-from openpyxl.shared.ooxml import CHART_NS
+from openpyxl.xml.xmltools import Element, fromstring, safe_iterator
+from openpyxl.xml.ooxml import CHART_NS
 
 from openpyxl.writer.charts import (ChartWriter,
                                     PieChartWriter,
@@ -11,7 +11,7 @@ from openpyxl.writer.charts import (ChartWriter,
                                     ScatterChartWriter,
                                     BaseChartWriter
                                     )
-from openpyxl.style import Color
+from openpyxl.styles import Color
 
 from .helper import get_xml, DATADIR, compare_xml
 from .schema import chart_schema

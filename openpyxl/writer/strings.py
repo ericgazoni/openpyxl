@@ -25,10 +25,10 @@ from __future__ import absolute_import
 """Write the shared string table."""
 
 # compatibility imports
-from openpyxl.shared.compat import StringIO
+from openpyxl.compat import StringIO
 
 # package imports
-from openpyxl.shared.xmltools import start_tag, end_tag, tag, XMLGenerator
+from openpyxl.xml.xmltools import start_tag, end_tag, tag, XMLGenerator
 
 
 def create_string_table(workbook):

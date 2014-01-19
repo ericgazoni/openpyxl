@@ -30,11 +30,11 @@ import pytest
 # package imports
 from openpyxl.worksheet import Worksheet
 from openpyxl.workbook import Workbook
-from openpyxl.shared.exc import (
+from openpyxl.exceptions import (
     CellCoordinatesException,
     DataTypeException
     )
-from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
+from openpyxl.date_time import CALENDAR_WINDOWS_1900
 from openpyxl.cell import (
     column_index_from_string,
     coordinate_from_string,
@@ -46,6 +46,7 @@ from openpyxl.comments import Comment
 
 import decimal
 
+@pytest.fixture
 def build_dummy_worksheet():
 
     class Ws(object):
@@ -210,11 +211,23 @@ def test_data_type_check():
     cell.bind_value('1E')
     assert Cell.TYPE_STRING == cell._data_type
 
+
 def test_set_bad_type():
     ws = build_dummy_worksheet()
     cell = Cell(ws, 'A', 1)
     with pytest.raises(DataTypeException):
         cell.set_explicit_value(1, 'q')
+
+
+def test_illegal_chacters():
+    from openpyxl.exceptions import IllegalCharacterError
+    ws = build_dummy_worksheet()
+    cell = Cell(ws, 'A', 1)
+    for i in range(33):
+        with pytest.raises(IllegalCharacterError):
+            cell.value = chr(i)
+    # test legal UTF-8
+    cell.value = chr(33)
 
 
 def test_time():

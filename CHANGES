@@ -8,17 +8,27 @@ Minor changes
 * Pyflakes used for static code analysis
 
 
+Pull requests
+-------------
+#70 Add filterColumn, sortCondition support to AutoFilter (SHIBUKAWA Yoshiki)
+
+
 Bug fixes
 ---------
 #137 - Workbooks with chartsheets
 
+
+1.8.2 (2014-01-17)
+==================
+
+Bugfix #252 - improved handling of lxml
+Bugfix #253 - better handling of unique sheetnames
 
 
 1.8.1 (2014-01-14)
 ==================
 
 Bugfix #246
-
 
 
 1.8.0 (2014-01-08)

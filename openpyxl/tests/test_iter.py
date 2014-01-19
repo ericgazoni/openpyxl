@@ -1,5 +1,3 @@
-# file openpyxl/tests/test_iter.py
-
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,7 +29,7 @@ import pytest
 from openpyxl.tests.helper import DATADIR
 from openpyxl.reader.iter_worksheet import get_range_boundaries
 from openpyxl.reader.excel import load_workbook
-from openpyxl.shared.compat import xrange
+from openpyxl.compat import xrange
 
 class TestWorksheet(object):
 

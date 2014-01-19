@@ -25,8 +25,8 @@ from __future__ import absolute_import
 """Read in global settings to be maintained by the workbook object."""
 
 # package imports
-from openpyxl.shared.xmltools import fromstring, safe_iterator
-from openpyxl.shared.ooxml import (
+from openpyxl.xml.xmltools import fromstring, safe_iterator
+from openpyxl.xml.ooxml import (
     DCORE_NS,
     COREPROPS_NS,
     DCTERMS_NS,
@@ -39,7 +39,7 @@ from openpyxl.shared.ooxml import (
     ARC_WORKBOOK_RELS,
 )
 from openpyxl.workbook import DocumentProperties
-from openpyxl.shared.date_time import (
+from openpyxl.date_time import (
     W3CDTF_to_datetime,
     CALENDAR_WINDOWS_1900,
     CALENDAR_MAC_1904

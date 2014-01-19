@@ -30,11 +30,11 @@ from sys import exc_info
 import warnings
 
 # compatibility imports
-from openpyxl.shared.compat import unicode, file, StringIO
+from openpyxl.compat import unicode, file, StringIO
 
 # package imports
-from openpyxl.shared.exc import OpenModeError, InvalidFileException
-from openpyxl.shared.ooxml import (
+from openpyxl.exceptions import OpenModeError, InvalidFileException
+from openpyxl.xml.ooxml import (
     ARC_SHARED_STRINGS,
     ARC_CORE,
     ARC_WORKBOOK,
