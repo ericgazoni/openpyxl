@@ -24,6 +24,7 @@
 # Python stdlib imports
 import os.path
 import zipfile
+import py
 
 # compatibility imports
 from openpyxl.shared.compat import BytesIO
@@ -58,3 +59,11 @@ def test_save_without_vba():
     files2 = set(zipfile.ZipFile(BytesIO(buf), 'r').namelist())
     difference = files1.difference(files2)
     assert difference.issubset(vbFiles), "Missing files: %s" % ', '.join(difference - vbFiles)
+
+def test_save_same_file(tmpdir):
+    p1 = py._path.local.LocalPath(DATADIR).join('reader').join('vba-test.xlsm')
+    p2 = tmpdir.join('vba-test.xlsm')
+    p1.copy(p2)
+    path = str(p2)
+    wb = load_workbook(path, keep_vba=True)
+    wb.save(path)

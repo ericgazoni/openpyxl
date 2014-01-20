@@ -30,7 +30,7 @@ from sys import exc_info
 import warnings
 
 # compatibility imports
-from openpyxl.shared.compat import unicode, file, StringIO
+from openpyxl.shared.compat import unicode, file, StringIO, BytesIO
 
 # Allow blanket setting of KEEP_VBA for testing
 try:
@@ -144,8 +144,7 @@ def load_workbook(filename, use_iterators=False, keep_vba=KEEP_VBA, guess_types=
         e = exc_info()[1]
         raise InvalidFileException(unicode(e))
 
-    if not keep_vba:
-        archive.close()
+    archive.close()
     return wb
 
 
@@ -153,10 +152,19 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
 
     valid_files = archive.namelist()
 
-    # If are going to preserve the vba then attach the archive to the
+    # If are going to preserve the vba then attach a copy of the archive to the
     # workbook so that is available for the save.
     if keep_vba:
-        wb.vba_archive = archive
+        try:
+            f = open(filename, 'rb')
+            s = f.read()
+            f.close()
+        except:
+            pos = filename.tell()
+            filename.seek(0)
+            s = filename.read()
+            filename.seek(pos)
+        wb.vba_archive = ZipFile(BytesIO(s), 'r')
 
     # get workbook-level information
     try:
