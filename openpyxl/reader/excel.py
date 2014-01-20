@@ -30,7 +30,7 @@ from sys import exc_info
 import warnings
 
 # compatibility imports
-from openpyxl.shared.compat import unicode, file, StringIO, BytesIO
+from openpyxl.compat import unicode, file, StringIO, BytesIO
 
 # Allow blanket setting of KEEP_VBA for testing
 try:
@@ -39,8 +39,8 @@ except ImportError:
     KEEP_VBA = False
 
 # package imports
-from openpyxl.shared.exc import OpenModeError, InvalidFileException
-from openpyxl.shared.ooxml import (
+from openpyxl.exceptions import OpenModeError, InvalidFileException
+from openpyxl.xml.ooxml import (
     ARC_SHARED_STRINGS,
     ARC_CORE,
     ARC_WORKBOOK,

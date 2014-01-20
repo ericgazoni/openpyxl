@@ -34,8 +34,8 @@ from openpyxl.writer import dump_worksheet
 from openpyxl.cell import get_column_letter
 from openpyxl.reader.excel import load_workbook
 from openpyxl.writer.strings import StringTableBuilder
-from openpyxl.shared.compat import xrange
-from openpyxl.shared.exc import WorkbookAlreadySaved
+from openpyxl.compat import xrange
+from openpyxl.exceptions import WorkbookAlreadySaved
 
 
 def _get_test_filename():

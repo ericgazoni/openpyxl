@@ -71,3 +71,5 @@ Roadmap for next version
 [ ] Merge existing patches for charts -> 1.9
 
 [ ] Default to using an iterator when working with charts? 1.9 / 2.0
+
+[ ] Use default settings for columns

@@ -35,12 +35,12 @@ from openpyxl.worksheet import Worksheet
 from openpyxl.writer.dump_worksheet import DumpWorksheet, save_dump
 from openpyxl.writer.strings import StringTableBuilder
 from openpyxl.namedrange import NamedRange
-from openpyxl.style import Style
+from openpyxl.styles import Style
 from openpyxl.writer.excel import save_workbook
-from openpyxl.shared.exc import ReadOnlyWorkbookException
-from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900
-from openpyxl.shared.xmltools import fromstring
-from openpyxl.shared.ooxml import SHEET_MAIN_NS
+from openpyxl.exceptions import ReadOnlyWorkbookException
+from openpyxl.date_time import CALENDAR_WINDOWS_1900
+from openpyxl.xml.xmltools import fromstring
+from openpyxl.xml.ooxml import SHEET_MAIN_NS
 
 
 class DocumentProperties(object):

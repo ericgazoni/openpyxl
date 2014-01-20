@@ -24,5 +24,5 @@ from __future__ import absolute_import
 
 import os
 
-LXML = os.environ.get("OPENPYXL_LXML", True)
+LXML = os.environ.get("OPENPYXL_LXML", "True") == "True"
 KEEP_VBA = os.environ.get("OPENPYXL_KEEP_VBA", "False") == "True"

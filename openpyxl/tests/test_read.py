@@ -29,17 +29,17 @@ import zipfile
 import pytest
 
 # compatibility imports
-from openpyxl.shared.compat import BytesIO, StringIO, unicode, tempfile
+from openpyxl.compat import BytesIO, StringIO, unicode, tempfile
 
 # package imports
 from openpyxl.tests.helper import DATADIR
 from openpyxl.worksheet import Worksheet
 from openpyxl.workbook import Workbook
-from openpyxl.style import NumberFormat, Style
+from openpyxl.styles import NumberFormat, Style
 from openpyxl.reader.worksheet import read_worksheet, read_dimension
 from openpyxl.reader.excel import load_workbook
-from openpyxl.shared.exc import InvalidFileException
-from openpyxl.shared.date_time import CALENDAR_WINDOWS_1900, CALENDAR_MAC_1904
+from openpyxl.exceptions import InvalidFileException
+from openpyxl.date_time import CALENDAR_WINDOWS_1900, CALENDAR_MAC_1904
 
 
 def test_read_standalone_worksheet():

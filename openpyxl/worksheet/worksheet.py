@@ -24,6 +24,7 @@ from __future__ import absolute_import
 
 """Worksheet is the 2nd-level container in Excel."""
 
+
 # Python stdlib imports
 import re
 
@@ -34,20 +35,29 @@ from openpyxl.cell import (
     column_index_from_string,
     get_column_letter
     )
-from openpyxl.shared.exc import (
+from openpyxl.exceptions import (
     SheetTitleException,
     InsufficientCoordinatesException,
     CellCoordinatesException,
     NamedRangeException
     )
-from openpyxl.shared.units import points_to_pixels
-from openpyxl.shared import DEFAULT_COLUMN_WIDTH, DEFAULT_ROW_HEIGHT
-from openpyxl.shared.password_hasher import hash_password
+from openpyxl.units import (
+    points_to_pixels,
+    DEFAULT_COLUMN_WIDTH,
+    DEFAULT_ROW_HEIGHT
+    )
 from openpyxl.styles import Style, DEFAULTS as DEFAULTS_STYLE
 from openpyxl.styles.formatting import ConditionalFormatting
 from openpyxl.namedrange import NamedRangeContainingValue
-from openpyxl.shared.compat import OrderedDict, unicode, xrange, basestring
-from openpyxl.shared.compat.itertools import iteritems
+from openpyxl.compat import OrderedDict, unicode, xrange, basestring
+from openpyxl.compat.itertools import iteritems
+
+from .header_footer import HeaderFooter
+from .relationship import Relationship
+from .page import PageSetup, PageMargins
+from .dimensions import ColumnDimension, RowDimension
+from .protection import SheetProtection
+from .filters import AutoFilter
 
 _DEFAULTS_STYLE_HASH = hash(DEFAULTS_STYLE)
 
@@ -58,354 +68,10 @@ def flatten(results):
     for row in results:
         yield(c.value for c in row)
 
-from openpyxl.shared.ooxml import REL_NS, PKG_REL_NS
-from openpyxl.shared.xmltools import Element, SubElement, get_document_content
-
-
-class Relationship(object):
-    """Represents many kinds of relationships."""
-    # TODO: Use this object for workbook relationships as well as
-    # worksheet relationships
-
-    TYPES = ("hyperlink", "drawing", "image")
-
-    def __init__(self, rel_type, target=None, target_mode=None, id=None):
-        if rel_type not in self.TYPES:
-            raise ValueError("Invalid relationship type %s" % rel_type)
-        self.type = "%s/%s" % (REL_NS, rel_type)
-        self.target = target
-        self.target_mode = target_mode
-        self.id = id
-
-    def __repr__(self):
-        root = Element("{%s}Relationships" % PKG_REL_NS)
-        body = SubElement(root, "{%s}Relationship" % PKG_REL_NS, self.__dict__)
-        return get_document_content(root)
-
-
-class PageSetup(object):
-    """Information about page layout for this sheet"""
-    valid_setup = ("orientation", "paperSize", "scale", "fitToPage",
-                   "fitToHeight", "fitToWidth", "firstPageNumber", "useFirstPageNumber")
-    valid_options = ("horizontalCentered", "verticalCentered")
-    orientation = None
-    paperSize = None
-    scale = None
-    fitToPage = None
-    fitToHeight = None
-    fitToWidth = None
-    firstPageNumber = None
-    useFirstPageNumber = None
-    horizontalCentered = None
-    verticalCentered = None
-
-    @property
-    def setup(self):
-        setupGroup = OrderedDict()
-        for setup_name in self.valid_setup:
-            setup_value = getattr(self, setup_name)
-            if setup_value is not None:
-                if setup_name == 'orientation':
-                    setupGroup[setup_name] = '%s' % setup_value
-                elif setup_name in ('paperSize', 'scale'):
-                    setupGroup[setup_name] = '%d' % int(setup_value)
-                elif setup_name in ('fitToHeight', 'fitToWidth') and int(setup_value) >= 0:
-                    setupGroup[setup_name] = '%d' % int(setup_value)
-
-        return setupGroup
-
-    @property
-    def options(self):
-        optionsGroup = OrderedDict()
-        for options_name in self.valid_options:
-            options_value = getattr(self, options_name)
-            if options_value is not None:
-                optionsGroup[options_name] = '1'
-
-        return optionsGroup
-
-
-class HeaderFooterItem(object):
-    """Individual left/center/right header/footer items
-
-       Header & Footer ampersand codes:
-
-       * &A   Inserts the worksheet name
-       * &B   Toggles bold
-       * &D or &[Date]   Inserts the current date
-       * &E   Toggles double-underline
-       * &F or &[File]   Inserts the workbook name
-       * &I   Toggles italic
-       * &N or &[Pages]   Inserts the total page count
-       * &S   Toggles strikethrough
-       * &T   Inserts the current time
-       * &[Tab]   Inserts the worksheet name
-       * &U   Toggles underline
-       * &X   Toggles superscript
-       * &Y   Toggles subscript
-       * &P or &[Page]   Inserts the current page number
-       * &P+n   Inserts the page number incremented by n
-       * &P-n   Inserts the page number decremented by n
-       * &[Path]   Inserts the workbook path
-       * &&   Escapes the ampersand character
-       * &"fontname"   Selects the named font
-       * &nn   Selects the specified 2-digit font point size
-    """
-    CENTER = 'C'
-    LEFT = 'L'
-    RIGHT = 'R'
-
-    REPLACE_LIST = (
-        ('\n', '_x000D_'),
-        ('&[Page]', '&P'),
-        ('&[Pages]', '&N'),
-        ('&[Date]', '&D'),
-        ('&[Time]', '&T'),
-        ('&[Path]', '&Z'),
-        ('&[File]', '&F'),
-        ('&[Tab]', '&A'),
-        ('&[Picture]', '&G')
-        )
-
-    __slots__ = ('type',
-                 'font_name',
-                 'font_size',
-                 'font_color',
-                 'text')
-
-    def __init__(self, type):
-        self.type = type
-        self.font_name = "Calibri,Regular"
-        self.font_size = None
-        self.font_color = "000000"
-        self.text = None
-
-    def has(self):
-        return True if self.text else False
-
-    def get(self):
-        t = []
-        if self.text:
-            t.append('&%s' % self.type)
-            t.append('&"%s"' % self.font_name)
-            if self.font_size:
-                t.append('&%d' % self.font_size)
-            t.append('&K%s' % self.font_color)
-            text = self.text
-            for old, new in self.REPLACE_LIST:
-                text = text.replace(old, new)
-            t.append(text)
-        return ''.join(t)
-
-    def set(self, itemArray):
-        textArray = []
-        for item in itemArray[1:]:
-            if len(item) and textArray:
-                textArray.append('&%s' % item)
-            elif len(item) and not textArray:
-                if item[0] == '"':
-                    self.font_name = item.replace('"', '')
-                elif item[0] == 'K':
-                    self.font_color = item[1:7]
-                    textArray.append(item[7:])
-                else:
-                    try:
-                        self.font_size = int(item)
-                    except:
-                        textArray.append('&%s' % item)
-        self.text = ''.join(textArray)
-
-class HeaderFooter(object):
-    """Information about the header/footer for this sheet.
-    """
-    __slots__ = ('left_header',
-                 'center_header',
-                 'right_header',
-                 'left_footer',
-                 'center_footer',
-                 'right_footer')
-
-    def __init__(self):
-        self.left_header = HeaderFooterItem(HeaderFooterItem.LEFT)
-        self.center_header = HeaderFooterItem(HeaderFooterItem.CENTER)
-        self.right_header = HeaderFooterItem(HeaderFooterItem.RIGHT)
-        self.left_footer = HeaderFooterItem(HeaderFooterItem.LEFT)
-        self.center_footer = HeaderFooterItem(HeaderFooterItem.CENTER)
-        self.right_footer = HeaderFooterItem(HeaderFooterItem.RIGHT)
-
-    def hasHeader(self):
-        return True if self.left_header.has() or self.center_header.has() or self.right_header.has() else False
-
-    def hasFooter(self):
-        return True if self.left_footer.has() or self.center_footer.has() or self.right_footer.has() else False
-
-    def getHeader(self):
-        t = []
-        if self.left_header.has():
-            t.append(self.left_header.get())
-        if self.center_header.has():
-            t.append(self.center_header.get())
-        if self.right_header.has():
-            t.append(self.right_header.get())
-        return ''.join(t)
-
-    def getFooter(self):
-        t = []
-        if self.left_footer.has():
-            t.append(self.left_footer.get())
-        if self.center_footer.has():
-            t.append(self.center_footer.get())
-        if self.right_footer.has():
-            t.append(self.right_footer.get())
-        return ''.join(t)
-
-    def setHeader(self, item):
-        itemArray = [i.replace('#DOUBLEAMP#', '&&') for i in item.replace('&&', '#DOUBLEAMP#').split('&')]
-        l = itemArray.index('L') if 'L' in itemArray else None
-        c = itemArray.index('C') if 'C' in itemArray else None
-        r = itemArray.index('R') if 'R' in itemArray else None
-        if l:
-            if c:
-                self.left_header.set(itemArray[l:c])
-            elif r:
-                self.left_header.set(itemArray[l:r])
-            else:
-                self.left_header.set(itemArray[l:])
-        if c:
-            if r:
-                self.center_header.set(itemArray[c:r])
-            else:
-                self.center_header.set(itemArray[c:])
-        if r:
-            self.right_header.set(itemArray[r:])
-
-    def setFooter(self, item):
-        itemArray = [i.replace('#DOUBLEAMP#', '&&') for i in item.replace('&&', '#DOUBLEAMP#').split('&')]
-        l = itemArray.index('L') if 'L' in itemArray else None
-        c = itemArray.index('C') if 'C' in itemArray else None
-        r = itemArray.index('R') if 'R' in itemArray else None
-        if l:
-            if c:
-                self.left_footer.set(itemArray[l:c])
-            elif r:
-                self.left_footer.set(itemArray[l:r])
-            else:
-                self.left_footer.set(itemArray[l:])
-        if c:
-            if r:
-                self.center_footer.set(itemArray[c:r])
-            else:
-                self.center_footer.set(itemArray[c:])
-        if r:
-            self.right_footer.set(itemArray[r:])
 
 class SheetView(object):
     """Information about the visible portions of this sheet."""
     pass
-
-
-class RowDimension(object):
-    """Information about the display properties of a row."""
-    __slots__ = ('row_index',
-                 'height',
-                 'visible',
-                 'outline_level',
-                 'collapsed',
-                 'style_index',)
-
-    def __init__(self, index=0):
-        self.row_index = index
-        self.height = -1
-        self.visible = True
-        self.outline_level = 0
-        self.collapsed = False
-        self.style_index = None
-
-
-class ColumnDimension(object):
-    """Information about the display properties of a column."""
-    __slots__ = ('column_index',
-                 'width',
-                 'auto_size',
-                 'visible',
-                 'outline_level',
-                 'collapsed',
-                 'style_index',)
-
-    def __init__(self,
-                 index='A',
-                 width=-1,
-                 auto_size=False,
-                 visible=True,
-                 outline_level=0,
-                 collapsed=False,
-                 style_index=0):
-        self.column_index = index
-        self.width = float(width)
-        self.auto_size = False
-        self.visible = visible
-        self.outline_level = int(outline_level)
-        self.collapsed = collapsed
-        self.style_index = style_index
-
-
-class PageMargins(object):
-    """Information about page margins for view/print layouts."""
-
-    valid_margins = ("left", "right", "top", "bottom", "header", "footer")
-
-    def __init__(self):
-        self.left = self.right = self.top = self.bottom = self.header = self.footer = None
-
-    @property
-    def margins(self):
-        margins = OrderedDict()
-        for margin_name in self.valid_margins:
-            margin_value = getattr(self, margin_name)
-            if margin_value:
-                margins[margin_name] = "%0.2f" % margin_value
-
-        return margins
-
-class SheetProtection(object):
-    """Information about protection of various aspects of a sheet."""
-
-    def __init__(self):
-        self.sheet = False
-        self.objects = False
-        self.scenarios = False
-        self.format_cells = False
-        self.format_columns = False
-        self.format_rows = False
-        self.insert_columns = False
-        self.insert_rows = False
-        self.insert_hyperlinks = False
-        self.delete_columns = False
-        self.delete_rows = False
-        self.select_locked_cells = False
-        self.sort = False
-        self.auto_filter = False
-        self.pivot_tables = False
-        self.select_unlocked_cells = False
-        self._password = ''
-
-    def set_password(self, value='', already_hashed=False):
-        """Set a password on this sheet."""
-        if not already_hashed:
-            value = hash_password(value)
-        self._password = value
-
-    def _set_raw_password(self, value):
-        """Set a password directly, forcing a hash step."""
-        self.set_password(value, already_hashed=False)
-
-    def _get_raw_password(self):
-        """Return the password value, regardless of hash."""
-        return self._password
-
-    password = property(_get_raw_password, _set_raw_password,
-            'get/set the password (if already hashed, '
-            'use set_password() instead)')
 
 
 class Worksheet(object):
@@ -476,7 +142,7 @@ class Worksheet(object):
         self.show_summary_right = True
         self.default_row_dimension = RowDimension()
         self.default_column_dimension = ColumnDimension()
-        self._auto_filter = None
+        self._auto_filter = AutoFilter()
         self._freeze_panes = None
         self.paper_size = None
         self.formula_attributes = {}
@@ -520,41 +186,39 @@ class Worksheet(object):
         if self.bad_title_char_re.search(value):
             msg = 'Invalid character found in sheet title'
             raise SheetTitleException(msg)
-
-        # check if sheet_name already exists
-        # do this *before* length check
-        sheets = self._parent.get_sheet_names()
-        sheets = ",".join(sheets)
-        sheet_title_regex=re.compile("(?P<title>%s)(?P<count>\d?),?" % value)
-        matches = sheet_title_regex.findall(sheets)
-        if matches:
-            # use name, but append with the next highest integer
-            counts = [int(idx) for (t, idx) in matches if idx.isdigit()]
-            if counts:
-                highest = max(counts)
-            else:
-                highest = 0
-            value = "%s%d" % (value, highest+1)
-
+        value = self.unique_sheet_name(value)
         if len(value) > 31:
             msg = 'Maximum 31 characters allowed in sheet title'
             raise SheetTitleException(msg)
         self._title = value
 
+    def unique_sheet_name(self, value):
+        # check if sheet_name already exists
+        # do this *before* length check
+        sheets = self._parent.get_sheet_names()
+        if value in sheets:
+            sheets = ",".join(sheets)
+            sheet_title_regex=re.compile("(?P<title>%s)(?P<count>\d?),?" % value)
+            matches = sheet_title_regex.findall(sheets)
+            if matches:
+                # use name, but append with the next highest integer
+                counts = [int(idx) for (t, idx) in matches if idx.isdigit()]
+                if counts:
+                    highest = max(counts)
+                else:
+                    highest = 0
+                value = "%s%d" % (value, highest+1)
+        return value
+
     @property
     def auto_filter(self):
-        return self._auto_filter
+        """Return :class:`~openpyxl.worksheet.AutoFilter` object.
 
-    @auto_filter.setter
-    def auto_filter(self, cell_range):
-        # Normalize range to a str or None
-        if not cell_range:
-            cell_range = None
-        elif isinstance(cell_range, str):
-            cell_range = cell_range.upper()
-        else:  # Assume a range
-            cell_range = cell_range[0][0].address + ':' + cell_range[-1][-1].address
-        self._auto_filter = cell_range
+        `auto_filter` attribute stores/returns string until 1.8. You should change your code like ``ws.auto_filter.ref = "A1:A3"``.
+
+        .. versionchanged:: 1.9
+        """
+        return self._auto_filter
 
     @property
     def freeze_panes(self):

@@ -25,9 +25,9 @@ from __future__ import absolute_import
 """Write the shared style table."""
 
 # package imports
-from openpyxl.shared.xmltools import Element, SubElement
-from openpyxl.shared.xmltools import get_document_content
-from openpyxl import style
+from openpyxl.xml.xmltools import Element, SubElement
+from openpyxl.xml.xmltools import get_document_content
+from openpyxl.styles import DEFAULTS
 
 class StyleWriter(object):
 
@@ -85,7 +85,7 @@ class StyleWriter(object):
         table = {}
         index = 1
         for st in self._style_list:
-            if hash(st.font) != hash(style.DEFAULTS.font) and hash(st.font) not in table:
+            if hash(st.font) != hash(DEFAULTS.font) and hash(st.font) not in table:
                 table[hash(st.font)] = str(index)
                 font_node = SubElement(fonts, 'font')
                 SubElement(font_node, 'sz', {'val':str(st.font.size)})
@@ -124,12 +124,12 @@ class StyleWriter(object):
         table = {}
         index = 2
         for st in self._style_list:
-            if hash(st.fill) != hash(style.DEFAULTS.fill) and hash(st.fill) not in table:
+            if hash(st.fill) != hash(DEFAULTS.fill) and hash(st.fill) not in table:
                 table[hash(st.fill)] = str(index)
                 fill = SubElement(fills, 'fill')
-                if hash(st.fill.fill_type) != hash(style.DEFAULTS.fill.fill_type):
+                if hash(st.fill.fill_type) != hash(DEFAULTS.fill.fill_type):
                     node = SubElement(fill, 'patternFill', {'patternType':st.fill.fill_type})
-                    if hash(st.fill.start_color) != hash(style.DEFAULTS.fill.start_color):
+                    if hash(st.fill.start_color) != hash(DEFAULTS.fill.start_color):
                         if str(st.fill.start_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
                             if str(st.fill.start_color.index).split(':')[2]:
                                 SubElement(node, 'fgColor', {'theme':str(st.fill.start_color.index).split(':')[1],
@@ -138,7 +138,7 @@ class StyleWriter(object):
                                 SubElement(node, 'fgColor', {'theme':str(st.fill.start_color.index).split(':')[1]})
                         else:
                             SubElement(node, 'fgColor', {'rgb':str(st.fill.start_color.index)})
-                    if hash(st.fill.end_color) != hash(style.DEFAULTS.fill.end_color):
+                    if hash(st.fill.end_color) != hash(DEFAULTS.fill.end_color):
                         if str(st.fill.end_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
                             if str(st.fill.end_color.index).split(':')[2]:
                                 SubElement(node, 'bgColor', {'theme':str(st.fill.end_color.index).split(':')[1],
@@ -167,7 +167,7 @@ class StyleWriter(object):
         table = {}
         index = 1
         for st in self._style_list:
-            if hash(st.borders) != hash(style.DEFAULTS.borders) and hash(st.borders) not in table:
+            if hash(st.borders) != hash(DEFAULTS.borders) and hash(st.borders) not in table:
                 table[hash(st.borders)] = str(index)
                 border = SubElement(borders, 'border')
                 # caution: respect this order
@@ -212,38 +212,38 @@ class StyleWriter(object):
         for st in self._style_list:
             vals = _get_default_vals()
 
-            if hash(st.font) != hash(style.DEFAULTS.font):
+            if hash(st.font) != hash(DEFAULTS.font):
                 vals['fontId'] = fonts_table[hash(st.font)]
                 vals['applyFont'] = '1'
 
-            if hash(st.borders) != hash(style.DEFAULTS.borders):
+            if hash(st.borders) != hash(DEFAULTS.borders):
                 vals['borderId'] = borders_table[hash(st.borders)]
                 vals['applyBorder'] = '1'
 
-            if hash(st.fill) != hash(style.DEFAULTS.fill):
+            if hash(st.fill) != hash(DEFAULTS.fill):
                 vals['fillId'] = fills_table[hash(st.fill)]
                 vals['applyFill'] = '1'
 
-            if st.number_format != style.DEFAULTS.number_format:
+            if st.number_format != DEFAULTS.number_format:
                 vals['numFmtId'] = '%d' % number_format_table[st.number_format]
                 vals['applyNumberFormat'] = '1'
 
-            if hash(st.alignment) != hash(style.DEFAULTS.alignment):
+            if hash(st.alignment) != hash(DEFAULTS.alignment):
                 vals['applyAlignment'] = '1'
 
             node = SubElement(cell_xfs, 'xf', vals)
 
-            if hash(st.alignment) != hash(style.DEFAULTS.alignment):
+            if hash(st.alignment) != hash(DEFAULTS.alignment):
                 alignments = {}
 
                 for align_attr in ['horizontal', 'vertical']:
-                    if hash(getattr(st.alignment, align_attr)) != hash(getattr(style.DEFAULTS.alignment, align_attr)):
+                    if hash(getattr(st.alignment, align_attr)) != hash(getattr(DEFAULTS.alignment, align_attr)):
                         alignments[align_attr] = getattr(st.alignment, align_attr)
 
-                    if hash(st.alignment.wrap_text) != hash(style.DEFAULTS.alignment.wrap_text):
+                    if hash(st.alignment.wrap_text) != hash(DEFAULTS.alignment.wrap_text):
                         alignments['wrapText'] = '1'
 
-                    if hash(st.alignment.shrink_to_fit) != hash(style.DEFAULTS.alignment.shrink_to_fit):
+                    if hash(st.alignment.shrink_to_fit) != hash(DEFAULTS.alignment.shrink_to_fit):
                         alignments['shrinkToFit'] = '1'
 
                     if st.alignment.indent > 0:
@@ -294,7 +294,7 @@ class StyleWriter(object):
                         node = SubElement(fill, 'patternFill', {'patternType': f.fill_type})
                     else:
                         node = SubElement(fill, 'patternFill')
-                    if hash(f.start_color) != hash(style.DEFAULTS.fill.start_color):
+                    if hash(f.start_color) != hash(DEFAULTS.fill.start_color):
                         if str(f.start_color.index).split(':')[0] == 'theme':  # strip prefix theme if marked
                             if str(f.start_color.index).split(':')[2]:
                                 SubElement(node, 'fgColor', {'theme': str(f.start_color.index).split(':')[1],
@@ -303,7 +303,7 @@ class StyleWriter(object):
                                 SubElement(node, 'fgColor', {'theme': str(f.start_color.index).split(':')[1]})
                         else:
                             SubElement(node, 'fgColor', {'rgb': str(f.start_color.index)})
-                    if hash(f.end_color) != hash(style.DEFAULTS.fill.end_color):
+                    if hash(f.end_color) != hash(DEFAULTS.fill.end_color):
                         if str(f.end_color.index).split(':')[0] == 'theme':  # strip prefix theme if marked
                             if str(f.end_color.index).split(':')[2]:
                                 SubElement(node, 'bgColor', {'theme': str(f.end_color.index).split(':')[1],

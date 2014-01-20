@@ -36,23 +36,28 @@ __docformat__ = "restructuredtext en"
 import datetime
 import re
 
-from openpyxl.shared import (NUMERIC_TYPES, DEFAULT_ROW_HEIGHT,
-    DEFAULT_COLUMN_WIDTH)
-from openpyxl.shared.compat import unicode, basestring
-from openpyxl.shared.date_time import SharedDate
-from openpyxl.shared.exc import (
-    CellCoordinatesException,
-    DataTypeException
+from openpyxl.units import (
+    NUMERIC_TYPES,
+    DEFAULT_ROW_HEIGHT,
+    DEFAULT_COLUMN_WIDTH
 )
-from openpyxl.shared.units import points_to_pixels
-from openpyxl.style import NumberFormat
+from openpyxl.compat import unicode, basestring
+from openpyxl.date_time import SharedDate
+from openpyxl.exceptions import (
+    CellCoordinatesException,
+    DataTypeException,
+    IllegalCharacterError
+)
+from openpyxl.units import points_to_pixels
+from openpyxl.styles import NumberFormat
 
 # package imports
 
 # constants
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
-
 ABSOLUTE_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)(:[$]?([A-Z]+)[$]?(\d+))?$')
+ILLEGAL_CHARACTERS_RE = re.compile('|'.join(chr(x) for x in range(33)))
+
 
 
 def coordinate_from_string(coord_string):
@@ -95,7 +100,7 @@ def column_index_from_string(column, fast=False):
     if not m:
         raise ValueError('Column string must contain only characters A-Z: got %s' % column)
     idx = 0
-    for i, l in enumerate(m.group(0)):
+    for i, l in enumerate(reversed(m.group(0))):
         idx += (ord(l) - 64) * pow(26, i)
     return idx
 
@@ -199,6 +204,8 @@ class Cell(object):
         # string must never be longer than 32,767 characters
         # truncate if necessary
         value = value[:32767]
+        if ILLEGAL_CHARACTERS_RE.match(value):
+            raise IllegalCharacterError
         # we require that newline is represented as "\n" in core,
         # not as "\r\n" or "\r"
         value = value.replace('\r\n', '\n')

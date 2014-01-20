@@ -32,8 +32,11 @@ import re
 import zipfile
 from collections import namedtuple
 
+
 # compatibility
-from openpyxl.shared.compat import iterparse, xrange
+from openpyxl.compat import xrange
+from openpyxl.xml.xmltools import iterparse
+
 
 # package
 from openpyxl.worksheet import Worksheet
@@ -44,10 +47,10 @@ from openpyxl.cell import (
 )
 from openpyxl.reader.style import read_style_table
 from openpyxl.styles import is_date_format
-from openpyxl.shared.date_time import SharedDate
+from openpyxl.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
-from openpyxl.shared.compat import unicode
-from openpyxl.shared.ooxml import (
+from openpyxl.compat import unicode
+from openpyxl.xml.ooxml import (
     ARC_STYLE,
     SHEET_MAIN_NS
 )

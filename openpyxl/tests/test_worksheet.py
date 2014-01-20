@@ -30,7 +30,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet, Relationship, flatten
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.comments import Comment
-from openpyxl.shared.exc import (
+from openpyxl.exceptions import (
     CellCoordinatesException,
     SheetTitleException,
     InsufficientCoordinatesException,
@@ -79,6 +79,12 @@ class TestWorksheet(object):
         #assert_raises(SheetTitleException, Worksheet, self.wb, '?')
         #assert_raises(SheetTitleException, Worksheet, self.wb, '/')
         #assert_raises(SheetTitleException, Worksheet, self.wb, '\\')
+
+
+    def test_unique_sheet_title(self):
+        ws = self.wb.create_sheet(title="AGE")
+        assert ws.unique_sheet_name("GE") == "GE"
+
 
     def test_worksheet_dimension(self):
         ws = Worksheet(self.wb)
@@ -250,14 +256,14 @@ class TestWorksheet(object):
 
     def test_auto_filter(self):
         ws = Worksheet(self.wb)
-        ws.auto_filter = ws.range('a1:f1')
-        assert ws.auto_filter == 'A1:F1'
+        ws.auto_filter.ref = ws.range('a1:f1')
+        assert ws.auto_filter.ref == 'A1:F1'
 
-        ws.auto_filter = ''
-        assert ws.auto_filter is None
+        ws.auto_filter.ref = ''
+        assert ws.auto_filter.ref is None
 
-        ws.auto_filter = 'c1:g9'
-        assert ws.auto_filter == 'C1:G9'
+        ws.auto_filter.ref = 'c1:g9'
+        assert ws.auto_filter.ref == 'C1:G9'
 
     def test_page_margins(self):
         ws = Worksheet(self.wb)

@@ -26,10 +26,10 @@ from __future__ import absolute_import
 
 # package imports
 
-#from openpyxl.shared.compat import register_namespace
-from openpyxl.shared.xmltools import Element, SubElement
+#from openpyxl.compat import register_namespace
+from openpyxl.xml.xmltools import Element, SubElement
 from openpyxl.cell import absolute_coordinate
-from openpyxl.shared.ooxml import (
+from openpyxl.xml.ooxml import (
     ARC_CORE,
     ARC_WORKBOOK,
     ARC_APP,
@@ -52,8 +52,8 @@ from openpyxl.shared.ooxml import (
     ARC_CONTENT_TYPES,
     ARC_ROOT_RELS
 )
-from openpyxl.shared.xmltools import get_document_content, fromstring
-from openpyxl.shared.date_time import datetime_to_W3CDTF
+from openpyxl.xml.xmltools import get_document_content, fromstring
+from openpyxl.date_time import datetime_to_W3CDTF
 from openpyxl.namedrange import NamedRange, NamedRangeContainingValue
 
 
@@ -261,7 +261,7 @@ def write_workbook(workbook):
     # Defined names -> autoFilter
     for i, sheet in enumerate(workbook.worksheets):
         #continue
-        auto_filter = sheet.auto_filter
+        auto_filter = sheet.auto_filter.ref
         if not auto_filter:
             continue
         name = SubElement(

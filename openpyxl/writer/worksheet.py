@@ -29,11 +29,11 @@ import decimal
 
 # compatibility imports
 
-from openpyxl.shared.compat import StringIO, long
+from openpyxl.compat import StringIO, long
 
 # package imports
 from openpyxl.cell import coordinate_from_string, column_index_from_string
-from openpyxl.shared.xmltools import (
+from openpyxl.xml.xmltools import (
     Element,
     SubElement,
     XMLGenerator,
@@ -43,14 +43,14 @@ from openpyxl.shared.xmltools import (
     tag,
     fromstring,
     )
-from openpyxl.shared.ooxml import (
+from openpyxl.xml.ooxml import (
     SHEET_MAIN_NS,
     PKG_REL_NS,
     REL_NS,
     COMMENTS_NS,
     VML_NS
 )
-from openpyxl.shared.compat.itertools import iteritems, iterkeys
+from openpyxl.compat.itertools import iteritems, iterkeys
 from openpyxl.styles.formatting import ConditionalFormatting
 
 
@@ -95,8 +95,7 @@ def write_worksheet(worksheet, string_table, style_table):
     tag(doc, 'sheetFormatPr', {'defaultRowHeight': '15'})
     write_worksheet_cols(doc, worksheet, style_table)
     write_worksheet_data(doc, worksheet, string_table, style_table)
-    if worksheet.auto_filter:
-        tag(doc, 'autoFilter', {'ref': worksheet.auto_filter})
+    write_worksheet_autofilter(doc, worksheet)
     write_worksheet_mergecells(doc, worksheet)
     write_worksheet_datavalidations(doc, worksheet)
     write_worksheet_hyperlinks(doc, worksheet)
@@ -323,6 +322,31 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
         end_tag(doc, 'row')
     end_tag(doc, 'sheetData')
 
+def write_worksheet_autofilter(doc, worksheet):
+    auto_filter = worksheet.auto_filter
+    if auto_filter.filter_columns or auto_filter.sort_conditions:
+        start_tag(doc, 'autoFilter', {'ref': auto_filter.ref})
+        for col_id, filter_column in sorted(auto_filter.filter_columns.items()):
+            start_tag(doc, 'filterColumn', {'colId': str(col_id)})
+            if filter_column.blank:
+                start_tag(doc, 'filters', {'blank': '1'})
+            else:
+                start_tag(doc, 'filters')
+            for val in filter_column.vals:
+                tag(doc, 'filter', {'val': val})
+            end_tag(doc, 'filters')
+            end_tag(doc, 'filterColumn')
+        if auto_filter.sort_conditions:
+            start_tag(doc, 'sortState', {'ref': auto_filter.ref})
+            for sort_condition in auto_filter.sort_conditions:
+                sort_attr = {'ref': sort_condition.ref}
+                if sort_condition.descending:
+                    sort_attr['descending'] = '1'
+                tag(doc, 'sortCondtion', sort_attr)
+            end_tag(doc, 'sortState')
+        end_tag(doc, 'autoFilter')
+    elif auto_filter.ref:
+        tag(doc, 'autoFilter', {'ref': auto_filter.ref})
 
 def write_worksheet_mergecells(doc, worksheet):
     """Write merged cells to xml."""

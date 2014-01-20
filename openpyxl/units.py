@@ -22,34 +22,70 @@ from __future__ import absolute_import
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+import decimal
+import math
 
-try:
-    from xml.etree.cElementTree import iterparse
-except ImportError:
-    import warnings
-    from xml.etree.ElementTree import iterparse
-    warnings.warn("""Unable to import 'xml.etree.cElementree'. Falling back on 'xml.etree.Elementree'""")
+from openpyxl.compat import long
 
-import re
+#constants
+# values in points
+DEFAULT_ROW_HEIGHT = 15.
+DEFAULT_COLUMN_WIDTH = 51.85
+NUMERIC_TYPES = (int, float, long, decimal.Decimal)
 
-# Python 2.6 without lxml
-def register_namespace(prefix, uri):
-    if re.match("ns\d+$", prefix):
-        raise ValueError("Prefix format reserved for internal use")
-    for k, v in _namespace_map.items():
-        if k == uri or v == prefix:
-            del _namespace_map[k]
-    _namespace_map[uri] = prefix
 
-_namespace_map = {
-    # "well-known" namespace prefixes
-    "http://www.w3.org/XML/1998/namespace": "xml",
-    "http://www.w3.org/1999/xhtml": "html",
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns#": "rdf",
-    "http://schemas.xmlsoap.org/wsdl/": "wsdl",
-    # xml schema
-    "http://www.w3.org/2001/XMLSchema": "xs",
-    "http://www.w3.org/2001/XMLSchema-instance": "xsi",
-    # dublin core
-    "http://purl.org/dc/elements/1.1/": "dc",
-}
+def cm_to_pixels(value):
+    return int(value * 44.6)
+
+
+def pixels_to_cm(value):
+    return (1 / cm_to_pixels(value))
+
+
+def pixels_to_EMU(value):
+    return int(round(value * 9525))
+
+
+def EMU_to_pixels(value):
+    if not value:
+        return 0
+    else:
+        return round(value / 9525.)
+
+
+def EMU_to_cm(value):
+    if not value:
+        return 0
+    else:
+        return (EMU_to_pixels(value) * 2.57 / 96)
+
+
+def pixels_to_points(value):
+    return value * 0.67777777
+
+
+def points_to_pixels(value):
+    if not value:
+        return 0
+    else:
+        return int(math.ceil(value * 1.333333333))
+
+
+def degrees_to_angle(value):
+    return int(round(value * 60000))
+
+
+def angle_to_degrees(value):
+    if not value:
+        return 0
+    else:
+        return round(value / 60000.)
+
+
+def short_color(color):
+    """ format a color to its short size """
+
+    if len(color) > 6:
+        return color[2:]
+    else:
+        return color

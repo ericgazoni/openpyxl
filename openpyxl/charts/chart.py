@@ -23,7 +23,7 @@ from __future__ import absolute_import
 # @author: see AUTHORS file
 
 from openpyxl.drawing import Drawing, Shape
-from openpyxl.shared.units import pixels_to_EMU
+from openpyxl.units import pixels_to_EMU
 
 
 from .axis import CategoryAxis, ValueAxis

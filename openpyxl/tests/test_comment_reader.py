@@ -29,7 +29,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet import Worksheet
 from openpyxl.reader import comments
 from openpyxl.reader.excel import load_workbook
-from openpyxl.shared.xmltools import fromstring
+from openpyxl.xml.xmltools import fromstring
 from openpyxl.tests.helper import DATADIR
 
 def test_get_author_list():
