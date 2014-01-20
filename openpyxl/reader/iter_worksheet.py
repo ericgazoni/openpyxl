@@ -29,14 +29,12 @@ from __future__ import absolute_import
 import operator
 from itertools import groupby
 import re
-import zipfile
 from collections import namedtuple
 
 
 # compatibility
-from openpyxl.compat import xrange
+from openpyxl.compat import xrange, unicode
 from openpyxl.xml.xmltools import iterparse
-
 
 # package
 from openpyxl.worksheet import Worksheet
@@ -45,13 +43,11 @@ from openpyxl.cell import (
     get_column_letter,
     Cell,
 )
-from openpyxl.reader.style import read_style_table
 from openpyxl.styles import is_date_format
 from openpyxl.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
-from openpyxl.compat import unicode
 from openpyxl.xml.ooxml import (
-    ARC_STYLE,
+    PACKAGE_WORKSHEETS,
     SHEET_MAIN_NS
 )
 
@@ -125,14 +121,13 @@ def get_missing_cells(row, columns):
 
 class IterableWorksheet(Worksheet):
 
-    def __init__(self, parent_workbook, title, workbook_name,
-            worksheet_path, xml_source, string_table):
-
+    def __init__(self, parent_workbook, title, workbook_name, worksheet_path,
+                 xml_source, string_table, style_table):
         Worksheet.__init__(self, parent_workbook, title)
-        self.archive = zipfile.ZipFile(workbook_name, 'r')
         self._workbook_name = workbook_name
         self.worksheet_path = worksheet_path
         self._string_table = string_table
+        self._style_table = style_table
 
         min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
         self.min_col = min_col
@@ -144,7 +139,7 @@ class IterableWorksheet(Worksheet):
 
     @property
     def xml_source(self):
-        return self.archive.open(self.worksheet_path)
+        return self.parent._archive.open(self.worksheet_path)
 
     @xml_source.setter
     def xml_source(self, value):
@@ -186,9 +181,7 @@ class IterableWorksheet(Worksheet):
         expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
         current_row = min_row
 
-        style_properties = read_style_table(self.archive.read(ARC_STYLE))
-        style_table = style_properties.pop('table')
-
+        style_table = self._style_table
         for row, cells in groupby(self.get_cells(min_row, min_col,
                                                  max_row, max_col),
                                   operator.attrgetter('row')):
@@ -259,6 +252,7 @@ class IterableWorksheet(Worksheet):
 
     def cell(self, *args, **kwargs):
         # TODO return an individual cell
+
         raise NotImplementedError("use 'iter_rows()' instead")
 
     def range(self, *args, **kwargs):
