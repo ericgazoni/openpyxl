@@ -30,10 +30,6 @@
 import operator
 from itertools import groupby
 import re
-import tempfile
-import zlib
-import zipfile
-import struct
 from collections import namedtuple
 
 
@@ -50,14 +46,12 @@ from openpyxl.cell import (
     Cell,
     column_index_from_string
 )
-from openpyxl.reader.style import read_style_table
 from openpyxl.styles import is_date_format
 from openpyxl.shared.date_time import SharedDate
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.shared.compat import unicode
 from openpyxl.shared.ooxml import (
     PACKAGE_WORKSHEETS,
-    ARC_STYLE,
     SHEET_MAIN_NS
 )
 
@@ -132,13 +126,13 @@ def get_missing_cells(row, columns):
 class IterableWorksheet(Worksheet):
 
     def __init__(self, parent_workbook, title, workbook_name,
-            sheet_codename, xml_source, string_table):
+            sheet_codename, xml_source, string_table, style_table):
 
         Worksheet.__init__(self, parent_workbook, title)
-        self.archive = zipfile.ZipFile(workbook_name, 'r')
         self._workbook_name = workbook_name
         self._sheet_codename = sheet_codename
         self._string_table = string_table
+        self._style_table = style_table
 
         min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
         self.min_col = min_col
@@ -151,7 +145,7 @@ class IterableWorksheet(Worksheet):
     @property
     def xml_source(self):
         worksheet_path = '%s/%s' % (PACKAGE_WORKSHEETS, self._sheet_codename)
-        return self.archive.open(worksheet_path)
+        return self.parent._archive.open(worksheet_path)
 
     @xml_source.setter
     def xml_source(self, value):
@@ -193,9 +187,7 @@ class IterableWorksheet(Worksheet):
         expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
         current_row = min_row
 
-        style_properties = read_style_table(self.archive.read(ARC_STYLE))
-        style_table = style_properties.pop('table')
-
+        style_table = self._style_table
         for row, cells in groupby(self.get_cells(min_row, min_col,
                                                  max_row, max_col),
                                   operator.attrgetter('row')):
@@ -262,7 +254,6 @@ class IterableWorksheet(Worksheet):
                 or element.tag == '{%s}f' % SHEET_MAIN_NS):
                 continue
             element.clear()
-
 
     def cell(self, *args, **kwargs):
         raise NotImplementedError("use 'iter_rows()' instead")
