@@ -311,11 +311,11 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 
 
 def read_worksheet(xml_source, parent, preset_title, string_table,
-                   style_table, color_index=None, workbook_name=None, worksheet_path=None, keep_vba=False):
+                   style_table, color_index=None, worksheet_path=None, keep_vba=False):
     """Read an xml worksheet"""
-    if workbook_name and worksheet_path:
+    if worksheet_path:
         from openpyxl.reader.iter_worksheet import IterableWorksheet
-        ws = IterableWorksheet(parent, preset_title, workbook_name,
+        ws = IterableWorksheet(parent, preset_title,
                 worksheet_path, xml_source, string_table, style_table)
     else:
         ws = Worksheet(parent, preset_title)

@@ -121,10 +121,9 @@ def get_missing_cells(row, columns):
 
 class IterableWorksheet(Worksheet):
 
-    def __init__(self, parent_workbook, title, workbook_name, worksheet_path,
+    def __init__(self, parent_workbook, title, worksheet_path,
                  xml_source, string_table, style_table):
         Worksheet.__init__(self, parent_workbook, title)
-        self._workbook_name = workbook_name
         self.worksheet_path = worksheet_path
         self._string_table = string_table
         self._style_table = style_table
