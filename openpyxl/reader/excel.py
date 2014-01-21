@@ -90,6 +90,9 @@ def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=Tru
 
     :param guess_types: guess cell content type and do not read it from the file
     :type guess_types: bool
+    
+    :param data_only: controls whether cells with formulae have either the formula (default) or the value stored the last time Excel read the sheet
+    :type data_only: bool
 
     :rtype: :class:`openpyxl.workbook.Workbook`
 
