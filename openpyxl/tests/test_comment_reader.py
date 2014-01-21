@@ -84,3 +84,7 @@ def test_comments_cell_association():
     assert wb.worksheets[0].cell(coordinate="A1").comment.text == "Cuke:\nFirst Comment"
     assert wb.worksheets[1].cell(coordinate="A1").comment is None
     assert wb.worksheets[0].cell(coordinate="D1").comment.text == "Cuke:\nSecond Comment"
+
+def test_comments_with_iterators():
+    wb = load_workbook(filename=os.path.join(DATADIR, 'reader', 'comments.xlsx'), use_iterators=True)
+    ws = wb.get_sheet_by_name(name='Sheet1')

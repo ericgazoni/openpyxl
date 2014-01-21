@@ -204,9 +204,10 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
                                     sheet_codename=sheet_codename)
         wb.add_sheet(new_ws, index=i)
 
-        # load comments into the worksheet cells
-        comments_file = get_comments_file(sheet_codename, archive, valid_files)
-        if comments_file is not None:
-            read_comments(new_ws, archive.read(comments_file))
+        if not use_iterators:
+            # load comments into the worksheet cells
+            comments_file = get_comments_file(sheet_codename, archive, valid_files)
+            if comments_file is not None:
+                read_comments(new_ws, archive.read(comments_file))
 
     wb._named_ranges = read_named_ranges(archive.read(ARC_WORKBOOK), wb)
