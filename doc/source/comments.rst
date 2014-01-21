@@ -5,6 +5,7 @@ Comments
 
     Openpyxl currently supports the reading and writing of comment text only.
     Formatting information is lost.
+    Comments are not currently supported if `use_iterators=True` is used.
 
 
 Adding a comment to a cell

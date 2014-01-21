@@ -31,6 +31,13 @@ from openpyxl.reader.iter_worksheet import get_range_boundaries
 from openpyxl.reader.excel import load_workbook
 from openpyxl.compat import xrange
 
+
+def test_open_many_sheets():
+    src = os.path.join(DATADIR, "reader", "bigfoot.xlsx")
+    wb = load_workbook(src, True) # if
+    assert len(wb.worksheets) == 1024
+
+
 class TestWorksheet(object):
 
     workbook_name = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
