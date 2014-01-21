@@ -4,6 +4,7 @@
 Bugfix #247 - iterable worksheets open too many files
 Bugfix #252 - improved handling of lxml
 Bugfix #253 - better handling of unique sheetnames
+Bugfix #256 - error when trying to read comments with optimised reader
 
 
 1.8.1 (2014-01-14)
