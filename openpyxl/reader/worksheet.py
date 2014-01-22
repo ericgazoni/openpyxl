@@ -172,12 +172,15 @@ class WorkSheetParser(object):
                     visible = col.get('hidden') != '1'
                     outline = col.get('outlineLevel') or 0
                     collapsed = col.get('collapsed') == '1'
-                    style_index =  self.style_table.get(int(col.get('style', 0)))
+                    style_index = col.get('style')
+                    if style_index is not None:
+                        self.ws._styles[column] = self.style_table.get(int(style_index))
                     if column not in self.ws.column_dimensions:
-                        new_dim = ColumnDimension(index=column,
+                        new_dim = ColumnDimension(self.ws,
+                                                  index=column,
                                                   width=width, auto_size=auto_size,
                                                   visible=visible, outline_level=outline,
-                                                  collapsed=collapsed, style_index=style_index)
+                                                  collapsed=collapsed)
                         self.ws.column_dimensions[column] = new_dim
 
 
@@ -185,7 +188,10 @@ class WorkSheetParser(object):
         for row in safe_iterator(element, '{%s}row' % SHEET_MAIN_NS):
             rowId = int(row.get('r'))
             if rowId not in self.ws.row_dimensions:
-                self.ws.row_dimensions[rowId] = RowDimension(rowId)
+                self.ws.row_dimensions[rowId] = RowDimension(self.ws, rowId)
+            style_index = row.get('s')
+            if row.get('customFormat') and style_index:
+                self.ws._styles[rowId] = self.style_table.get(int(style_index))
             ht = row.get('ht')
             if ht is not None:
                 self.ws.row_dimensions[rowId].height = float(ht)

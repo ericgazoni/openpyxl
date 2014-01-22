@@ -148,7 +148,7 @@ def test_write_style():
     wb = Workbook()
     ws = wb.create_sheet()
     ws.cell('F1').value = '13%'
-    ws.column_dimensions['F'].style_index = ws._styles['F1']
+    ws._styles['F'] = ws._styles['F1']
     style_id_by_hash = StyleWriter(wb).get_style_by_hash()
     content = write_worksheet(ws, {}, style_id_by_hash)
     reference_file = os.path.join(DATADIR, 'writer', 'expected', 'sheet1_style.xml')

@@ -25,46 +25,62 @@ from __future__ import absolute_import
 
 class RowDimension(object):
     """Information about the display properties of a row."""
-    __slots__ = ('row_index',
+    __slots__ = ('parent',
+                 'row_index',
                  'height',
                  'visible',
                  'outline_level',
-                 'collapsed',
-                 'style_index',)
+                 'collapsed',)
 
-    def __init__(self, index=0):
+    def __init__(self,
+                 worksheet,
+                 index=0,
+                 height=-1,
+                 visible=True,
+                 outline_level=0,
+                 collapsed=False):
+        self.parent = worksheet
         self.row_index = index
-        self.height = -1
-        self.visible = True
-        self.outline_level = 0
-        self.collapsed = False
-        self.style_index = None
+        self.height = height
+        self.visible = visible
+        self.outline_level = outline_level
+        self.collapsed = collapsed
+
+    @property
+    def style(self):
+        """Returns the :class:`openpyxl.styles.Style` object for this row"""
+        return self.parent.get_style(self.row_index)
 
 
 class ColumnDimension(object):
     """Information about the display properties of a column."""
-    __slots__ = ('column_index',
+    __slots__ = ('parent',
+                 'column_index',
                  'width',
                  'auto_size',
                  'visible',
                  'outline_level',
-                 'collapsed',
-                 'style_index',)
+                 'collapsed',)
 
     def __init__(self,
+                 worksheet,
                  index='A',
                  width=-1,
                  auto_size=False,
                  visible=True,
                  outline_level=0,
-                 collapsed=False,
-                 style_index=0):
+                 collapsed=False):
+        self.parent = worksheet
         self.column_index = index
         self.width = float(width)
-        self.auto_size = False
+        self.auto_size = auto_size
         self.visible = visible
         self.outline_level = int(outline_level)
         self.collapsed = collapsed
-        self.style_index = style_index
+
+    @property
+    def style(self):
+        """Returns the :class:`openpyxl.styles.Style` object for this column"""
+        return self.parent.get_style(self.column_index)
 
 

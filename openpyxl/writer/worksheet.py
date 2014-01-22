@@ -26,6 +26,7 @@ from __future__ import absolute_import
 
 # Python stdlib imports
 import decimal
+import re
 
 # compatibility imports
 
@@ -202,8 +203,8 @@ def write_worksheet_cols(doc, worksheet, style_table):
                 col_def['collapsed'] = 'true'
             if columndimension.auto_size:
                 col_def['bestFit'] = 'true'
-            if columndimension.style_index:
-                col_def['style'] = str(style_table[hash(columndimension.style_index)])
+            if columndimension.column_index in worksheet._styles:
+                col_def['style'] = str(style_table[hash(worksheet.get_style(columndimension.column_index))])
             if columndimension.width > 0:
                 col_def['width'] = str(columndimension.width)
             else:
@@ -264,9 +265,11 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
     max_column = worksheet.get_highest_column()
     style_id_by_hash = style_table
     cells_by_row = {}
+    isCell = re.compile('.*[a-zA-Z].*[0-9]')
     for styleCoord in iterkeys(worksheet._styles):
         # Ensure a blank cell exists if it has a style
-        worksheet.cell(styleCoord)
+        if isinstance(styleCoord, str) and isCell.search(styleCoord):
+            worksheet.cell(styleCoord)
     for cell in worksheet.get_cell_collection():
         cells_by_row.setdefault(cell.row, []).append(cell)
     for row_idx in sorted(cells_by_row):
@@ -278,6 +281,9 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
         if row_dimension.height > 0:
             attrs['ht'] = str(row_dimension.height)
             attrs['customHeight'] = '1'
+        if row_dimension.row_index in worksheet._styles:
+            attrs['s'] = str(style_table[hash(worksheet.get_style(row_dimension.row_index))])
+            attrs['customFormat'] = '1'
         start_tag(doc, 'row', attrs)
         row_cells = cells_by_row[row_idx]
         sorted_cells = sorted(row_cells, key=row_sort)

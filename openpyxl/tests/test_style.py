@@ -183,6 +183,19 @@ class TestStyleWriter(object):
         assert 'indent="0"' not in xml
         assert 'indent="-1"' not in xml
 
+    def test_rewrite_styles(self):
+        """Test to verify Bugfix # 46"""
+        self.worksheet['A1'].value = 'Value'
+        self.worksheet['B2'].value = '14%'
+        saved_wb = save_virtual_workbook(self.workbook)
+        second_wb = load_workbook(BytesIO(saved_wb))
+        assert isinstance(second_wb, Workbook)
+        ws = second_wb.get_sheet_by_name('Sheet1')
+        assert ws.cell('A1').value == 'Value'
+        ws['A2'].value = 'Bar!'
+        saved_wb = save_virtual_workbook(second_wb)
+        third_wb = load_workbook(BytesIO(saved_wb))
+        assert third_wb
 
 def test_read_style():
     reference_file = os.path.join(DATADIR, 'reader', 'simple-styles.xml')
@@ -204,6 +217,8 @@ def test_read_complex_style():
     wb = load_workbook(reference_file)
     ws = wb.get_active_sheet()
     assert ws.column_dimensions['A'].width == 31.1640625
+    assert ws.column_dimensions['I'].style.fill.start_color.index == 'FF006600'
+    assert ws.column_dimensions['I'].style.font.color.index == 'FF3300FF'
     assert ws.cell('A2').style.font.name == 'Arial'
     assert ws.cell('A2').style.font.size == '10'
     assert not ws.cell('A2').style.font.bold
@@ -255,6 +270,8 @@ def test_change_existing_styles():
     ws = wb.get_active_sheet()
 
     ws.column_dimensions['A'].width = 20
+    ws.column_dimensions['I'].style.fill.start_color.index = 'FF442200'
+    ws.column_dimensions['I'].style.font.color.index = 'FF002244'
     ws.cell('A2').style.font.name = 'Times New Roman'
     ws.cell('A2').style.font.size = 12
     ws.cell('A2').style.font.bold = True
@@ -300,6 +317,8 @@ def test_change_existing_styles():
     ws = new_wb.get_active_sheet()
 
     assert ws.column_dimensions['A'].width == 20.0
+    assert ws.column_dimensions['I'].style.fill.start_color.index == 'FF442200'
+    assert ws.column_dimensions['I'].style.font.color.index == 'FF002244'
     assert ws.cell('A2').style.font.name == 'Times New Roman'
     assert ws.cell('A2').style.font.size == '12'
     assert ws.cell('A2').style.font.bold
