@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+from __future__ import division
+
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
