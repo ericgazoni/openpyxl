@@ -52,7 +52,7 @@ Roadmap for next version
 
 [ ] Cleanup use of keys when writing styles
 
-[ ] Add support for Python 3.4
+[x] Add support for Python 3.4
 
 [ ] Improve handling of relationships
 

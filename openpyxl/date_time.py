@@ -25,7 +25,6 @@ from __future__ import absolute_import
 """Manage Excel date weirdness."""
 
 # Python stdlib imports
-from __future__ import division
 from math import floor
 import calendar
 import datetime
