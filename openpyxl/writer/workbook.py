@@ -26,7 +26,7 @@ from __future__ import absolute_import
 
 # package imports
 
-#from openpyxl.compat import register_namespace
+from openpyxl import LXML
 from openpyxl.xml.xmltools import Element, SubElement
 from openpyxl.cell import absolute_coordinate
 from openpyxl.xml.ooxml import (
@@ -104,7 +104,11 @@ def write_content_types(workbook):
         for elem in root.findall('{%s}Override' % CONTYPES_NS):
             seen.add(elem.attrib['PartName'])
     else:
-        root = Element('{%s}Types' % CONTYPES_NS)
+        if LXML:
+            NSMAP = {None : CONTYPES_NS}
+            root = Element('{%s}Types' % CONTYPES_NS, nsmap=NSMAP)
+        else:
+            root = Element('{%s}Types' % CONTYPES_NS)
         for setting_type, name, content_type in static_content_types_config:
             if setting_type == 'Override':
                 tag = '{%s}Override' % CONTYPES_NS
