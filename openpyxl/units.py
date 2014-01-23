@@ -39,6 +39,8 @@ def cm_to_pixels(value):
 
 
 def pixels_to_cm(value):
+    if value == 0:
+        return 0
     return (1 / cm_to_pixels(value))
 
 
