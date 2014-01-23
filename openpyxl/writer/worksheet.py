@@ -26,14 +26,13 @@ from __future__ import absolute_import
 
 # Python stdlib imports
 import decimal
-import re
 
 # compatibility imports
 
 from openpyxl.compat import StringIO, long
 
 # package imports
-from openpyxl.cell import coordinate_from_string, column_index_from_string
+from openpyxl.cell import coordinate_from_string, column_index_from_string, COORD_RE
 from openpyxl.xml.xmltools import (
     Element,
     SubElement,
@@ -265,10 +264,9 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
     max_column = worksheet.get_highest_column()
     style_id_by_hash = style_table
     cells_by_row = {}
-    isCell = re.compile('.*[a-zA-Z].*[0-9]')
     for styleCoord in iterkeys(worksheet._styles):
         # Ensure a blank cell exists if it has a style
-        if isinstance(styleCoord, str) and isCell.search(styleCoord):
+        if isinstance(styleCoord, str) and COORD_RE.search(styleCoord):
             worksheet.cell(styleCoord)
     for cell in worksheet.get_cell_collection():
         cells_by_row.setdefault(cell.row, []).append(cell)
