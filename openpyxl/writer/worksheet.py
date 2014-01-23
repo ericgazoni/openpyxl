@@ -205,7 +205,7 @@ def write_worksheet_cols(doc, worksheet, style_table):
                 col_def['collapsed'] = 'true'
             if columndimension.auto_size:
                 col_def['bestFit'] = 'true'
-            if columndimension.style_index:
+            if columndimension.style_index and hash(columndimension.style_index) in style_table:
                 col_def['style'] = str(style_table[hash(columndimension.style_index)])
             if columndimension.width > 0:
                 col_def['width'] = str(columndimension.width)
