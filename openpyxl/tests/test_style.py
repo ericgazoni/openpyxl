@@ -181,6 +181,20 @@ class TestStyleWriter(object):
         assert 'indent="0"' not in xml
         assert 'indent="-1"' not in xml
 
+    def test_rewrite_styles(self):
+        """Test to verify Bugfix # 46"""
+        self.worksheet['A1'].value = 'Value'
+        self.worksheet['B2'].value = '14%'
+        saved_wb = save_virtual_workbook(self.workbook)
+        second_wb = load_workbook(BytesIO(saved_wb))
+        assert isinstance(second_wb, Workbook)
+        ws = second_wb.get_sheet_by_name('Sheet1')
+        assert ws.cell('A1').value == 'Value'
+        ws['A2'].value = 'Bar!'
+        saved_wb = save_virtual_workbook(second_wb)
+        third_wb = load_workbook(BytesIO(saved_wb))
+        assert third_wb
+
 
 def test_read_style():
     reference_file = os.path.join(DATADIR, 'reader', 'simple-styles.xml')
