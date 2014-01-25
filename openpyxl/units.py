@@ -34,6 +34,22 @@ DEFAULT_COLUMN_WIDTH = 51.85
 NUMERIC_TYPES = (int, float, long, decimal.Decimal)
 
 
+# Conversion functions
+"""
+Docs from
+http://startbigthinksmall.wordpress.com/2010/01/04/points-inches-and-emus-measuring-units-in-office-open-xml/
+
+See also http://msdn.microsoft.com/en-us/library/dd560821(v=office.12).aspx
+
+dxa: The main unit in OOXML is a twentieth of a point. This is used for specifying page dimensions, margins, tabs, etc.
+pt: point. In Excel there are 72 points to an inch
+Half-points are used to specify font sizes. A font-size of 12pt equals 24 half points
+pct: Half-points are used to specify font sizes. A font-size of 12pt equals 24 half points:
+
+EMU: English Metric Unit, EMUs are used for coordinates in vector-based drawings and embedded pictures. One inch equates to 914400 EMUs and a centimeter is 360000
+"""
+
+
 def cm_to_pixels(value):
     return int(value * 44.6)
 
