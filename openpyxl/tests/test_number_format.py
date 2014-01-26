@@ -44,7 +44,7 @@ class TestNumberFormat(object):
         cls.sd = SharedDate()
 
     def test_convert_date_to_julian(self):
-        assert 40167, self.sd.to_julian(2009, 12 == 20)
+        assert 40167 == self.sd.to_julian(2009, 12, 20)
 
     def test_convert_date_from_julian(self):
 
