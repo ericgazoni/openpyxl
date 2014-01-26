@@ -27,20 +27,15 @@ from datetime import datetime, date, timedelta
 import pytest
 
 # package imports
-from openpyxl.compat import safe_string
-from openpyxl.workbook import Workbook
-from openpyxl.worksheet import Worksheet
 from openpyxl.cell import Cell
-from openpyxl.styles import NumberFormat
 from openpyxl.date_time import SharedDate, CALENDAR_MAC_1904, CALENDAR_WINDOWS_1900
+
 
 
 class TestNumberFormat(object):
 
     @classmethod
     def setup_class(cls):
-        cls.workbook = Workbook()
-        cls.worksheet = Worksheet(cls.workbook, 'Test')
         cls.sd = SharedDate()
 
     def test_convert_date_to_julian(self):
@@ -61,55 +56,6 @@ class TestNumberFormat(object):
     def test_convert_timedelta_to_julian(self):
         assert 1.125 == self.sd.datetime_to_julian(timedelta(days=1, hours=3))
 
-    def test_insert_float(self):
-        self.worksheet.cell('A1').value = 3.14
-        assert Cell.TYPE_NUMERIC == self.worksheet.cell('A1')._data_type
-
-    def test_insert_percentage(self):
-        self.worksheet.cell('A1').value = '3.14%'
-        assert Cell.TYPE_NUMERIC == self.worksheet.cell('A1')._data_type
-        assert safe_string(0.0314) == safe_string(self.worksheet.cell('A1').value)
-
-    def test_insert_datetime(self):
-        self.worksheet.cell('A1').value = date.today()
-        assert Cell.TYPE_NUMERIC == self.worksheet.cell('A1')._data_type
-
-    def test_insert_date(self):
-        self.worksheet.cell('A1').value = datetime.now()
-        assert Cell.TYPE_NUMERIC == self.worksheet.cell('A1')._data_type
-
-    def test_internal_date(self):
-        dt = datetime(2010, 7, 13, 6, 37, 41)
-        self.worksheet.cell('A3').value = dt
-        assert 40372.27616898148 == self.worksheet.cell('A3')._value
-
-    def test_datetime_interpretation(self):
-        dt = datetime(2010, 7, 13, 6, 37, 41)
-        self.worksheet.cell('A3').value = dt
-        assert dt == self.worksheet.cell('A3').value
-
-    def test_date_interpretation(self):
-        dt = date(2010, 7, 13)
-        self.worksheet.cell('A3').value = dt
-        assert datetime(2010, 7, 13, 0, 0) == self.worksheet.cell('A3').value
-
-    def test_number_format_style(self):
-        self.worksheet.cell('A1').value = '12.6%'
-        assert NumberFormat.FORMAT_PERCENTAGE == self.worksheet.cell('A1').style.number_format.format_code
-
-    @pytest.mark.parametrize("date_string, ordinal",
-            [
-            ('1900-01-15', 15),
-            ('1900-02-28', 59),
-            ('1900-03-01', 61),
-            ('1901-01-01', 367),
-            ('9999-12-31', 2958465),
-            ]
-            )
-    def test_date_format_on_non_date(self, date_string, ordinal):
-        cell = self.worksheet.cell('A1')
-        cell.value = datetime.strptime(date_string, '%Y-%m-%d')
-        assert cell.internal_value == ordinal
 
     def test_1900_leap_year(self):
         with pytest.raises(ValueError):
