@@ -36,12 +36,9 @@ import re
 # constants
 CALENDAR_WINDOWS_1900 = 1900
 CALENDAR_MAC_1904 = 1904
-
+EPOCH = datetime.datetime.utcfromtimestamp(0)
 W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
-RE_W3CDTF = '(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{2}))?Z?'
-
-EPOCH = datetime.datetime.utcfromtimestamp(0)
 
 def datetime_to_W3CDTF(dt):
     """Convert from a datetime to a timestamp string."""
@@ -50,9 +47,7 @@ def datetime_to_W3CDTF(dt):
 
 def W3CDTF_to_datetime(formatted_string):
     """Convert from a timestamp string to a datetime object."""
-    match = re.match(RE_W3CDTF,formatted_string)
-    digits = map(int, match.groups()[:6])
-    return datetime.datetime(*digits)
+    return datetime.datetime.strptime(formatted_string, W3CDTF_FORMAT)
 
 
 class SharedDate(object):
