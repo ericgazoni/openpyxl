@@ -152,15 +152,27 @@ class TestCellValueTypes(object):
         self.cell.value = None
         assert self.cell.TYPE_NULL == self.cell.data_type
 
-    def test_numeric(self):
-
-        def check_numeric(value):
-            self.cell.value = value
-            assert self.cell.TYPE_NUMERIC == self.cell.data_type
-
-        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', '99E-02', 1e1, '4', '-1E3', 4, decimal.Decimal('3.14'))
-        for value in values:
-            yield check_numeric, value
+    @pytest.mark.parametrize("value, expected",
+                             [
+                                 (42, 42),
+                                 ('4.2', 4.2),
+                                 ('-42.000', -42),
+                                 ( '0', 0),
+                                 (0, 0),
+                                 ( 0.0001, 0.0001),
+                                 ('0.9999', 0.9999),
+                                 ('99E-02', 0.99),
+                                 ( 1e1, 10),
+                                 ('4', 4),
+                                 ('-1E3', -1000),
+                                 (4, 4),
+                                 (decimal.Decimal('3.14'), decimal.Decimal('3.14')),
+                             ]
+                            )
+    def test_numeric(self, value, expected):
+        self.cell.value = value
+        assert self.cell.internal_value == expected
+        assert self.cell.TYPE_NUMERIC == self.cell.data_type
 
     def test_string(self):
         self.cell.value = 'hello'
