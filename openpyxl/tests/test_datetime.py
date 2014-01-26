@@ -30,59 +30,57 @@ import pytest
 from openpyxl.cell import Cell
 from openpyxl.date_time import SharedDate, CALENDAR_MAC_1904, CALENDAR_WINDOWS_1900
 
+@pytest.fixture
+def sd():
+    from openpyxl.date_time import SharedDate
+    return SharedDate()
 
 
-class TestNumberFormat(object):
+def test_convert_date_to_julian(sd):
+    assert 40167 == sd.to_julian(2009, 12, 20)
 
-    @classmethod
-    def setup_class(cls):
-        cls.sd = SharedDate()
+@pytest.mark.parametrize("value, expected",
+                         [
+                             (40167, datetime(2009, 12, 20)),
+                             (21980, datetime(1960,  3,  5)),
+                         ])
+def test_convert_date_from_julian(sd, value, expected):
+    assert sd.from_julian(value) == expected
 
-    def test_convert_date_to_julian(self):
-        assert 40167 == self.sd.to_julian(2009, 12, 20)
+def test_convert_datetime_to_julian(sd):
+    assert 40167 == sd.datetime_to_julian(datetime(2009, 12, 20))
+    assert 40196.5939815 == sd.datetime_to_julian(datetime(2010, 1, 18, 14, 15, 20, 1600))
 
-    @pytest.mark.parametrize("value, expected",
-                             [
-                                 (40167, datetime(2009, 12, 20)),
-                                 (21980, datetime(1960,  3,  5)),
-                             ])
-    def test_convert_date_from_julian(self, value, expected):
-        assert self.sd.from_julian(value) == expected
-
-    def test_convert_datetime_to_julian(self):
-        assert 40167 == self.sd.datetime_to_julian(datetime(2009, 12, 20))
-        assert 40196.5939815 == self.sd.datetime_to_julian(datetime(2010, 1, 18, 14, 15, 20, 1600))
-
-    def test_convert_timedelta_to_julian(self):
-        assert 1.125 == self.sd.datetime_to_julian(timedelta(days=1, hours=3))
+def test_convert_timedelta_to_julian(sd):
+    assert 1.125 == sd.datetime_to_julian(timedelta(days=1, hours=3))
 
 
-    def test_1900_leap_year(self):
-        with pytest.raises(ValueError):
-            self.sd.from_julian(60)
-        with pytest.raises(ValueError):
-            self.sd.to_julian(1900, 2, 29)
+def test_1900_leap_year(sd):
+    with pytest.raises(ValueError):
+        sd.from_julian(60)
+    with pytest.raises(ValueError):
+        sd.to_julian(1900, 2, 29)
 
-    bad_dates = (
-        (1776,  7,  4),
-        (1899, 12, 31),
-    )
-    @pytest.mark.parametrize("dt", bad_dates)
-    def test_bad_date(self, dt):
-        with pytest.raises(ValueError):
-            self.sd.to_julian(*dt)
+bad_dates = (
+    (1776,  7,  4),
+    (1899, 12, 31),
+)
+@pytest.mark.parametrize("dt", bad_dates)
+def test_bad_date(sd, dt):
+    with pytest.raises(ValueError):
+        sd.to_julian(*dt)
 
-    def test_bad_julian_date(self):
-        with pytest.raises(ValueError):
-            self.sd.from_julian(-1)
+def test_bad_julian_date(sd):
+    with pytest.raises(ValueError):
+        sd.from_julian(-1)
 
-    def test_mac_date(self):
-        self.sd.excel_base_date = CALENDAR_MAC_1904
+def test_mac_date(sd):
+    sd.excel_base_date = CALENDAR_MAC_1904
 
-        datetuple = (2011, 10, 31)
+    datetuple = (2011, 10, 31)
 
-        dt = date(datetuple[0],datetuple[1],datetuple[2])
-        julian = self.sd.to_julian(datetuple[0],datetuple[1],datetuple[2])
-        reverse = self.sd.from_julian(julian).date()
-        assert dt == reverse
-        self.sd.excel_base_date = CALENDAR_WINDOWS_1900
+    dt = date(datetuple[0],datetuple[1],datetuple[2])
+    julian = sd.to_julian(datetuple[0],datetuple[1],datetuple[2])
+    reverse = sd.from_julian(julian).date()
+    assert dt == reverse
+    sd.excel_base_date = CALENDAR_WINDOWS_1900
