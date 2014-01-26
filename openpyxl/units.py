@@ -128,7 +128,7 @@ def angle_to_degrees(value):
     if not value:
         return 0
     else:
-        return round(value / 60000.)
+        return round(value / 60000, 2)
 
 
 def short_color(color):

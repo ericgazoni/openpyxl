@@ -187,9 +187,9 @@ def test_degrees_to_angle(value, expected):
                          [
                              (-10, 0),
                              (0, 0),
-                             (1, 0),
-                             (10.0, 0),
-                             (1000, 0),
+                             (10, 0),
+                             (50000, 0.83),
+                             (60000, 1),
                          ]
                          )
 def test_angle_to_degrees(value, expected):
