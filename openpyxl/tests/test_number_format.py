@@ -46,19 +46,13 @@ class TestNumberFormat(object):
     def test_convert_date_to_julian(self):
         assert 40167 == self.sd.to_julian(2009, 12, 20)
 
-    def test_convert_date_from_julian(self):
-
-        def test_date_equal(julian, datetime):
-
-            assert self.sd.from_julian(julian) == datetime
-
-        date_pairs= (
-                        (40167, datetime(2009, 12, 20)),
-                        (21980, datetime(1960,  3,  5)),
-                    )
-
-        for count, dt in date_pairs:
-            yield test_date_equal, count, dt
+    @pytest.mark.parametrize("value, expected",
+                             [
+                                 (40167, datetime(2009, 12, 20)),
+                                 (21980, datetime(1960,  3,  5)),
+                             ])
+    def test_convert_date_from_julian(self, value, expected):
+        assert self.sd.from_julian(value) == expected
 
     def test_convert_datetime_to_julian(self):
         assert 40167 == self.sd.datetime_to_julian(datetime(2009, 12, 20))
