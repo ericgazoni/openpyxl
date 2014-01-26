@@ -27,8 +27,7 @@ from datetime import datetime, date, timedelta
 import pytest
 
 # package imports
-from openpyxl.cell import Cell
-from openpyxl.date_time import SharedDate, CALENDAR_MAC_1904, CALENDAR_WINDOWS_1900
+from openpyxl.date_time import CALENDAR_MAC_1904, CALENDAR_WINDOWS_1900
 
 @pytest.fixture
 def sd():
