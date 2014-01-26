@@ -3,33 +3,6 @@ import pytest
 from openpyxl import units
 
 
-@pytest.mark.parametrize("value, expected",
-                        [
-                            (-10, -446),
-                            (0, 0),
-                            (1, 44),
-                            (10.0, 446),
-                            (1000, 44600)
-                        ]
-                        )
-def test_cm_to_pixels(value, expected):
-    FUT = units.cm_to_pixels
-    assert FUT(value) == expected
-
-
-@pytest.mark.parametrize("value, expected",
-                         [
-                             (-10, -1),
-                             (0, 0),
-                             (1, 0),
-                             (10.0, 0),
-                             (1000, 0),
-                         ]
-                         )
-def test_pixels_to_cm(value, expected):
-    FUT = units.pixels_to_cm
-    assert FUT(value) == expected
-
 
 @pytest.mark.parametrize("value, expected",
                          [
@@ -47,11 +20,10 @@ def test_pixels_to_EMU(value, expected):
 
 @pytest.mark.parametrize("value, expected",
                          [
-                            (-10, 0),
                             (0, 0),
-                            (1, 0),
-                            (10.0, 0),
                             (1000, 0),
+                            (5000, 1),
+                            (9525, 1),
                          ]
                          )
 def test_EMU_to_pixels(value, expected):
@@ -75,11 +47,11 @@ def test_EMU_to_cm(value, expected):
 
 @pytest.mark.parametrize("value, expected",
                          [
-                             (-10, -6.7777777),
+                             (-10, -7.5),
                              (0, 0),
-                             (1, 0.67777777),
-                             (10.0, 6.7777777),
-                             (1000, 677.7777699999999),
+                             (1, 0.75),
+                             (96, 72),
+                             (144, 108),
                          ]
                          )
 def test_pixels_to_points(value, expected):
@@ -93,7 +65,7 @@ def test_pixels_to_points(value, expected):
                              (0, 0),
                              (1, 2),
                              (10.0, 14),
-                             (1000, 1334),
+                             (72, 96),
                          ]
                          )
 def test_points_to_pixels(value, expected):
