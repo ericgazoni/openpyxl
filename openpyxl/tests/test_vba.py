@@ -22,20 +22,18 @@
 # @author: see AUTHORS file
 
 # Python stdlib imports
-import os.path
 import zipfile
 
 # compatibility imports
 from openpyxl.compat import BytesIO
 
 # package imports
-from openpyxl.tests.helper import DATADIR
 from openpyxl.reader.excel import load_workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
 
-def test_save_vba():
-    path = os.path.join(DATADIR, 'reader', 'vba-test.xlsm')
+def test_save_vba(datadir):
+    path = str(datadir.join('reader').join('vba-test.xlsm'))
     wb = load_workbook(path, keep_vba=True)
     buf = save_virtual_workbook(wb)
     files1 = set(zipfile.ZipFile(path, 'r').namelist())
@@ -43,8 +41,8 @@ def test_save_vba():
     assert files1.issubset(files2), "Missing files: %s" % ', '.join(files1 - files2)
 
 
-def test_save_without_vba():
-    path = os.path.join(DATADIR, 'reader', 'vba-test.xlsm')
+def test_save_without_vba(datadir):
+    path = str(datadir.join('reader').join('vba-test.xlsm'))
     vbFiles = set(['xl/activeX/activeX2.xml', 'xl/drawings/_rels/vmlDrawing1.vml.rels',
                    'xl/activeX/_rels/activeX1.xml.rels', 'xl/drawings/vmlDrawing1.vml', 'xl/activeX/activeX1.bin',
                    'xl/media/image1.emf', 'xl/vbaProject.bin', 'xl/activeX/_rels/activeX2.xml.rels',
@@ -58,3 +56,11 @@ def test_save_without_vba():
     files2 = set(zipfile.ZipFile(BytesIO(buf), 'r').namelist())
     difference = files1.difference(files2)
     assert difference.issubset(vbFiles), "Missing files: %s" % ', '.join(difference - vbFiles)
+
+def test_save_same_file(tmpdir, datadir):
+    p1 = datadir.join('reader').join('vba-test.xlsm')
+    p2 = tmpdir.join('vba-test.xlsm')
+    p1.copy(p2)
+    path = str(p2)
+    wb = load_workbook(path, keep_vba=True)
+    wb.save(path)
