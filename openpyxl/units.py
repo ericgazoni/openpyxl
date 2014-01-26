@@ -66,14 +66,12 @@ For radial geometry Excel uses integert units of 1/60000th of a degree.
 
 
 
-def dxa_to_inch(value):
-    """1 inch = 72 * 20 dxa"""
-    return value * 20 * 72
-
 def inch_to_dxa(value):
-    if value == 0:
-        return value
-    return 1 / dxa_to_inch(value)
+    """1 inch = 72 * 20 dxa"""
+    return int(value * 20 * 72)
+
+def dxa_to_inch(value):
+    return value / 72 / 20
 
 
 def dxa_to_cm(value):
@@ -95,22 +93,18 @@ def EMU_to_pixels(value):
 
 def cm_to_EMU(value):
     """1 cm = 360000 EMUs"""
-    return value * 360000
+    return int(value * 360000)
 
 def EMU_to_cm(value):
-    if value == 0:
-        return value
-    return round(1 / cm_to_EMU(value))
+    return round(value / 360000, 4)
 
 
 def inch_to_EMU(value):
     """1 inch = 914400 EMUs"""
-    return value * 914400
+    return int(value * 914400)
 
 def EMU_to_inch(value):
-    if value == 0:
-        return value
-    return round(1 / inch_to_EMU(value))
+    return round(value / 914400, 4)
 
 
 def pixels_to_points(value, dpi=96):
