@@ -113,10 +113,7 @@ def pixels_to_points(value, dpi=96):
 
 
 def points_to_pixels(value, dpi=96):
-    if not value:
-        return 0
-    else:
-        return int(math.ceil(value * dpi / 72))
+    return int(math.ceil(value * dpi / 72))
 
 
 def degrees_to_angle(value):
@@ -125,16 +122,11 @@ def degrees_to_angle(value):
 
 
 def angle_to_degrees(value):
-    if not value:
-        return 0
-    else:
-        return round(value / 60000, 2)
+    return round(value / 60000, 2)
 
 
 def short_color(color):
     """ format a color to its short size """
-
     if len(color) > 6:
         return color[2:]
-    else:
-        return color
+    return color

@@ -200,6 +200,11 @@ def test_angle_to_degrees(value, expected):
 @pytest.mark.parametrize("value, expected",
                          [
                              ("#FFFFF", "#FFFFF"),
+                             ('FF000000', "000000"),
+                             ('FFFF0000', "FF0000"),
+                             ('FF800000', "800000"),
+                             ('FFFFFF00', "FFFF00"),
+                             ('FF808000', "808000"),
                          ]
                          )
 def test_short_color(value, expected):
