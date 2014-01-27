@@ -28,15 +28,12 @@ from __future__ import division
 
 # Python stdlib imports
 from math import floor
-import calendar
 import datetime
-import time
 import re
 
 from jdcal import (
     gcal2jd,
     jd2gcal,
-    jd2jcal,
     MJD_0
 )
 
