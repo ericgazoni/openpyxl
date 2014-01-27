@@ -296,19 +296,19 @@ def test_illegal_chacters():
     cell.value = chr(33)
 
 
-def test_time():
-
-    def check_time(raw_value, coerced_value):
-        cell.value = raw_value
-        assert cell.value == coerced_value
-        assert cell.TYPE_NUMERIC == cell.data_type
-
+values = (
+    ('03:40:16', time(3, 40, 16)),
+    ('03:40', time(3, 40)),
+)
+@pytest.mark.parametrize("value, expected",
+                         values)
+def test_time(value, expected):
     wb = Workbook()
     ws = Worksheet(wb)
     cell = Cell(ws, 'A', 1)
-    values = (('03:40:16', time(3, 40, 16)), ('03:40', time(3, 40)),)
-    for raw_value, coerced_value in values:
-        yield check_time, raw_value, coerced_value
+    cell.value = value
+    assert cell.value == expected
+    assert cell.TYPE_NUMERIC == cell.data_type
 
 
 def test_timedelta():
