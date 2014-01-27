@@ -198,14 +198,10 @@ class TestCellValueTypes(object):
         self.cell.value = '0800'
         assert self.cell.TYPE_STRING == self.cell.data_type
 
-    def test_error_codes(self):
-
-        def check_error(cell):
-            assert cell.TYPE_ERROR == cell.data_type
-
-        for error_string in self.cell.ERROR_CODES.keys():
-            self.cell.value = error_string
-            yield check_error, self.cell
+    @pytest.mark.parametrize("error_string", Cell.ERROR_CODES.keys())
+    def test_error_codes(self, error_string):
+        self.cell.value = error_string
+        assert self.cell.TYPE_ERROR == self.cell.data_type
 
     def test_insert_float(self):
         self.cell.value = 3.14
