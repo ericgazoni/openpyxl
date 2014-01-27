@@ -125,7 +125,7 @@ class SharedDate(object):
 
         # Calculate the Julian Date, then subtract the Excel base date
         # JD 2415020 = 31 - Dec - 1899 -> Excel Date of 0
-        century, decade = int(str(year)[:2]), int(str(year)[2:])
+        century, decade = divmod(year, 100)
         excel_date = floor(146097 * century / 4) + \
                 floor((1461 * decade) / 4) + floor((153 * month + 2) / 5) + \
                 day + 1721119 - excel_base_date
