@@ -7,8 +7,7 @@ python:
 # command to run tests
 
 install:
-  pip install .
-  pip install lxml pytest pillow
+  pip install . lxml pytest pillow
 
 script:
   py.test openpyxl

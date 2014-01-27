@@ -7,8 +7,7 @@ python:
 # command to run tests
 
 install:
-  python setup.py develop
-  pip install lxml pytest pytest-cov pillow
+  pip install . lxml pytest pytest-cov pillow
 
 before_script:
   mkdir -p shippable/codecoverage shippable/testresults
