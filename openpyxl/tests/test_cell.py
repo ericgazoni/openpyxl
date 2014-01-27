@@ -28,6 +28,7 @@ from datetime import time, datetime, timedelta, date
 import pytest
 
 # package imports
+from openpyxl.compat import safe_string
 from openpyxl.worksheet import Worksheet
 from openpyxl.workbook import Workbook
 from openpyxl.exceptions import (
@@ -43,6 +44,7 @@ from openpyxl.cell import (
     absolute_coordinate
     )
 from openpyxl.comments import Comment
+from openpyxl.styles import NumberFormat
 
 import decimal
 
@@ -141,8 +143,8 @@ class TestCellValueTypes(object):
 
     @classmethod
     def setup_class(cls):
-
-        ws = build_dummy_worksheet()
+        wb = Workbook()
+        ws = Worksheet(wb)
         cls.cell = Cell(ws, 'A', 1)
 
     def test_1st(self):
@@ -207,46 +209,40 @@ class TestCellValueTypes(object):
         self.cell.value = 3.14
         assert Cell.TYPE_NUMERIC == self.cell._data_type
 
-    @pytest.mark.xfail
     def test_insert_percentage(self):
         self.cell.value = '3.14%'
         assert Cell.TYPE_NUMERIC == self.cell._data_type
         assert safe_string(0.0314) == safe_string(self.cell.internal_value)
 
-    @pytest.mark.xfail
     def test_insert_datetime(self):
         self.cell.value = date.today()
         assert Cell.TYPE_NUMERIC == self.cell._data_type
 
-    @pytest.mark.xfail
     def test_insert_date(self):
         self.cell.value = datetime.now()
         assert Cell.TYPE_NUMERIC == self.cell._data_type
 
-    @pytest.mark.xfail
     def test_internal_date(self):
         dt = datetime(2010, 7, 13, 6, 37, 41)
         self.cell.value = dt
         assert 40372.27616898148 == self.cell.internal_value
 
-    @pytest.mark.xfail
     def test_datetime_interpretation(self):
         dt = datetime(2010, 7, 13, 6, 37, 41)
         self.cell.value = dt
-        assert dt == self.cell.internal_value
+        assert self.cell.value == dt
+        assert self.cell.internal_value == 40372.27616898148
 
-    @pytest.mark.xfail
     def test_date_interpretation(self):
         dt = date(2010, 7, 13)
         self.cell.value = dt
-        assert datetime(2010, 7, 13, 0, 0) == self.cell.internal_value
+        assert self.cell.value == datetime(2010, 7, 13, 0, 0)
+        assert self.cell.internal_value == 40372
 
-    @pytest.mark.xfail
     def test_number_format_style(self):
         self.cell.value = '12.6%'
         assert NumberFormat.FORMAT_PERCENTAGE == self.cell.style.number_format.format_code
 
-    @pytest.mark.xfail
     @pytest.mark.parametrize("date_string, ordinal",
             [
             ('1900-01-15', 15),
