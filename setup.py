@@ -51,6 +51,9 @@ setup(name = 'openpyxl',
     requires = [
           'python (>=2.6.0)',
           ],
+    install_requires = [
+        'jdcal',
+    ],
     classifiers = ['Development Status :: 4 - Beta',
           'Operating System :: MacOS :: MacOS X',
           'Operating System :: Microsoft :: Windows',

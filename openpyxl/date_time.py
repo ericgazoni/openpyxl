@@ -33,6 +33,14 @@ import datetime
 import time
 import re
 
+from jdcal import (
+    gcal2jd,
+    jd2gcal,
+    jd2jcal,
+    MJD_0
+)
+
+
 # constants
 CALENDAR_WINDOWS_1900 = 1900
 CALENDAR_MAC_1904 = 1904
@@ -170,3 +178,14 @@ class SharedDate(object):
         else:
             msg = 'Negative dates (%s) are not supported' % value
             raise ValueError(msg)
+
+
+def to_excel(dt):
+    jul = sum(gcal2jd(dt.year, dt.month, dt.day))
+    return jul - 2415018.5
+
+
+def from_excel(value):
+    parts = list(jd2gcal(MJD_0, value + 2415018.5 - MJD_0))
+    parts[-1] = int(parts[-1]*12)
+    return datetime.datetime(*parts)

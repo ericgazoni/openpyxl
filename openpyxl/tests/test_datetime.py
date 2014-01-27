@@ -97,3 +97,29 @@ def test_mac_date(sd):
     reverse = sd.from_julian(julian).date()
     assert dt == reverse
     sd.excel_base_date = CALENDAR_WINDOWS_1900
+
+
+@pytest.mark.parametrize("value, expected",
+                         [
+                             (datetime(1899, 12, 31), 1),
+                             (datetime(2010, 1, 18, 14, 15, 20, 1600), 40196),
+                             (datetime(2009, 12, 20), 40167),
+                             (datetime(1506, 10, 15), -143617.0)
+                         ])
+def test_to_excel(value, expected):
+    from openpyxl.date_time import to_excel
+    FUT = to_excel
+    assert FUT(value) == expected
+
+
+@pytest.mark.parametrize("value, expected",
+                         [
+                             (40167, datetime(2009, 12, 20)),
+                             (21980, datetime(1960,  3,  5)),
+                             (60, datetime(1900, 2, 28)),
+                             (-25063, datetime(1831, 5, 18, 0, 0))
+                         ])
+def test_from_excel(value, expected):
+    from openpyxl.date_time import from_excel
+    FUT = from_excel
+    assert FUT(value) == expected
