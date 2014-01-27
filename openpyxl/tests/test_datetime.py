@@ -32,7 +32,7 @@ from openpyxl.date_time import CALENDAR_MAC_1904, CALENDAR_WINDOWS_1900
 
 def test_datetime_to_W3CDTF():
     from openpyxl.date_time import datetime_to_W3CDTF
-    assert datetime_to_W3CDTF(datetime(2013, 07, 15, 06, 52, 33)) == "2013-07-15T06:52:33Z"
+    assert datetime_to_W3CDTF(datetime(2013, 7, 15, 6, 52, 33)) == "2013-07-15T06:52:33Z"
 
 
 def test_W3CDTF_to_datetime():
