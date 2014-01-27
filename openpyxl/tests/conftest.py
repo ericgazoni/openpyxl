@@ -144,6 +144,12 @@ def root_xml():
     """Root XML element <test>"""
     return Element("test")
 
+@pytest.fixture
+def datadir():
+    """DATADIR as a LocalPath"""
+    from openpyxl.tests.helper import DATADIR
+    from py._path.local import LocalPath
+    return LocalPath(DATADIR)
 
 ### Markers ###
 

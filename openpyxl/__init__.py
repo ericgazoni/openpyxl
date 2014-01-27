@@ -32,18 +32,12 @@ try:
 except ImportError:
     LXML = False
 
-# package imports
-#from openpyxl import cell
-#from openpyxl import namedrange
-#from openpyxl import workbook
-#from openpyxl import worksheet
-#from openpyxl import reader
-#from openpyxl import writer
-#from openpyxl import comments
-
 # shortcuts
-from openpyxl.workbook import Workbook
-from openpyxl.reader.excel import load_workbook
+try:
+    from openpyxl.workbook import Workbook
+    from openpyxl.reader.excel import load_workbook
+except ImportError:
+    pass
 
 # constants
 

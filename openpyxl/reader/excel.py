@@ -30,7 +30,13 @@ from sys import exc_info
 import warnings
 
 # compatibility imports
-from openpyxl.compat import unicode, file, StringIO
+from openpyxl.compat import unicode, file, StringIO, BytesIO
+
+# Allow blanket setting of KEEP_VBA for testing
+try:
+    from ..tests import KEEP_VBA
+except ImportError:
+    KEEP_VBA = False
 
 
 # package imports
@@ -81,7 +87,7 @@ def repair_central_directory(zipFile, is_file_instance):
     return f
 
 
-def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=True, data_only=False):
+def load_workbook(filename, use_iterators=False, keep_vba=KEEP_VBA, guess_types=True, data_only=False):
     """Open the given filename and return the workbook
 
     :param filename: the path to open or a file-like object
@@ -143,8 +149,7 @@ def load_workbook(filename, use_iterators=False, keep_vba=False, guess_types=Tru
         e = exc_info()[1]
         raise InvalidFileException(unicode(e))
 
-    if not keep_vba:
-        archive.close()
+    archive.close()
     return wb
 
 
@@ -152,10 +157,19 @@ def _load_workbook(wb, archive, filename, use_iterators, keep_vba):
 
     valid_files = archive.namelist()
 
-    # If are going to preserve the vba then attach the archive to the
+    # If are going to preserve the vba then attach a copy of the archive to the
     # workbook so that is available for the save.
     if keep_vba:
-        wb.vba_archive = archive
+        try:
+            f = open(filename, 'rb')
+            s = f.read()
+            f.close()
+        except:
+            pos = filename.tell()
+            filename.seek(0)
+            s = filename.read()
+            filename.seek(pos)
+        wb.vba_archive = ZipFile(BytesIO(s), 'r')
 
     if use_iterators:
         wb._archive = ZipFile(filename)

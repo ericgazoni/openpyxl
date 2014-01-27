@@ -21,8 +21,15 @@
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+import pytest
+
 # package imports
-from openpyxl.datavalidation import collapse_cell_addresses, DataValidation, ValidationType
+from openpyxl.datavalidation import (
+    collapse_cell_addresses,
+    DataValidation,
+    ValidationType
+    )
+
 
 # There are already unit-tests in test_cell.py that test out the
 # coordinate_from_string method.  This should be the only way the
@@ -34,17 +41,10 @@ COLLAPSE_TEST_DATA = [
     (["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4"], "A1:A4 B1:B4"),
     (["A2", "A4", "A3", "A1", "A5"], "A1:A5"),
 ]
-
-
-def test_collapse_cell_addresses():
-
-    def check_address(data):
-        cells, expected = data
-        collapsed = collapse_cell_addresses(cells)
-        assert collapsed == expected
-
-    for data in COLLAPSE_TEST_DATA:
-        yield check_address, data
+@pytest.mark.parametrize("cells, expected",
+                         COLLAPSE_TEST_DATA)
+def test_collapse_cell_addresses(cells, expected):
+    assert collapse_cell_addresses(cells) == expected
 
 
 def test_list_validation():

@@ -33,15 +33,21 @@ import datetime
 import time
 import re
 
+from jdcal import (
+    gcal2jd,
+    jd2gcal,
+    jd2jcal,
+    MJD_0
+)
+
+
 # constants
 CALENDAR_WINDOWS_1900 = 1900
 CALENDAR_MAC_1904 = 1904
-
-W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
-RE_W3CDTF = '(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{2}))?Z?'
-
 EPOCH = datetime.datetime.utcfromtimestamp(0)
+W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+W3CDTF_REGEX = re.compile('(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{2}))?Z?')
+
 
 def datetime_to_W3CDTF(dt):
     """Convert from a datetime to a timestamp string."""
@@ -50,9 +56,9 @@ def datetime_to_W3CDTF(dt):
 
 def W3CDTF_to_datetime(formatted_string):
     """Convert from a timestamp string to a datetime object."""
-    match = re.match(RE_W3CDTF,formatted_string)
-    digits = map(int, match.groups()[:6])
-    return datetime.datetime(*digits)
+    match = W3CDTF_REGEX.match(formatted_string)
+    dt = [int(v) for v in match.groups()[:6]]
+    return datetime.datetime(*dt)
 
 
 class SharedDate(object):
@@ -127,7 +133,7 @@ class SharedDate(object):
 
         # Calculate the Julian Date, then subtract the Excel base date
         # JD 2415020 = 31 - Dec - 1899 -> Excel Date of 0
-        century, decade = int(str(year)[:2]), int(str(year)[2:])
+        century, decade = divmod(year, 100)
         excel_date = floor(146097 * century / 4) + \
                 floor((1461 * decade) / 4) + floor((153 * month + 2) / 5) + \
                 day + 1721119 - excel_base_date
@@ -172,3 +178,14 @@ class SharedDate(object):
         else:
             msg = 'Negative dates (%s) are not supported' % value
             raise ValueError(msg)
+
+
+def to_excel(dt):
+    jul = sum(gcal2jd(dt.year, dt.month, dt.day))
+    return jul - 2415018.5
+
+
+def from_excel(value):
+    parts = list(jd2gcal(MJD_0, value + 2415018.5 - MJD_0))
+    parts[-1] = int(parts[-1]*12)
+    return datetime.datetime(*parts)

@@ -22,12 +22,13 @@
 # @author: see AUTHORS file
 
 # Python stdlib imports
-from datetime import time, datetime, timedelta
+from datetime import time, datetime, timedelta, date
 
 # 3rd party imports
 import pytest
 
 # package imports
+from openpyxl.compat import safe_string
 from openpyxl.worksheet import Worksheet
 from openpyxl.workbook import Workbook
 from openpyxl.exceptions import (
@@ -43,6 +44,7 @@ from openpyxl.cell import (
     absolute_coordinate
     )
 from openpyxl.comments import Comment
+from openpyxl.styles import NumberFormat
 
 import decimal
 
@@ -141,8 +143,8 @@ class TestCellValueTypes(object):
 
     @classmethod
     def setup_class(cls):
-
-        ws = build_dummy_worksheet()
+        wb = Workbook()
+        ws = Worksheet(wb)
         cls.cell = Cell(ws, 'A', 1)
 
     def test_1st(self):
@@ -152,15 +154,27 @@ class TestCellValueTypes(object):
         self.cell.value = None
         assert self.cell.TYPE_NULL == self.cell.data_type
 
-    def test_numeric(self):
-
-        def check_numeric(value):
-            self.cell.value = value
-            assert self.cell.TYPE_NUMERIC == self.cell.data_type
-
-        values = (42, '4.2', '-42.000', '0', 0, 0.0001, '0.9999', '99E-02', 1e1, '4', '-1E3', 4, decimal.Decimal('3.14'))
-        for value in values:
-            yield check_numeric, value
+    @pytest.mark.parametrize("value, expected",
+                             [
+                                 (42, 42),
+                                 ('4.2', 4.2),
+                                 ('-42.000', -42),
+                                 ( '0', 0),
+                                 (0, 0),
+                                 ( 0.0001, 0.0001),
+                                 ('0.9999', 0.9999),
+                                 ('99E-02', 0.99),
+                                 ( 1e1, 10),
+                                 ('4', 4),
+                                 ('-1E3', -1000),
+                                 (4, 4),
+                                 (decimal.Decimal('3.14'), decimal.Decimal('3.14')),
+                             ]
+                            )
+    def test_numeric(self, value, expected):
+        self.cell.value = value
+        assert self.cell.internal_value == expected
+        assert self.cell.TYPE_NUMERIC == self.cell.data_type
 
     def test_string(self):
         self.cell.value = 'hello'
@@ -186,14 +200,62 @@ class TestCellValueTypes(object):
         self.cell.value = '0800'
         assert self.cell.TYPE_STRING == self.cell.data_type
 
-    def test_error_codes(self):
+    @pytest.mark.parametrize("error_string", Cell.ERROR_CODES.keys())
+    def test_error_codes(self, error_string):
+        self.cell.value = error_string
+        assert self.cell.TYPE_ERROR == self.cell.data_type
 
-        def check_error(cell):
-            assert cell.TYPE_ERROR == cell.data_type
+    def test_insert_float(self):
+        self.cell.value = 3.14
+        assert Cell.TYPE_NUMERIC == self.cell._data_type
 
-        for error_string in self.cell.ERROR_CODES.keys():
-            self.cell.value = error_string
-            yield check_error, self.cell
+    def test_insert_percentage(self):
+        self.cell.value = '3.14%'
+        assert Cell.TYPE_NUMERIC == self.cell._data_type
+        assert safe_string(0.0314) == safe_string(self.cell.internal_value)
+
+    def test_insert_datetime(self):
+        self.cell.value = date.today()
+        assert Cell.TYPE_NUMERIC == self.cell._data_type
+
+    def test_insert_date(self):
+        self.cell.value = datetime.now()
+        assert Cell.TYPE_NUMERIC == self.cell._data_type
+
+    def test_internal_date(self):
+        dt = datetime(2010, 7, 13, 6, 37, 41)
+        self.cell.value = dt
+        assert 40372.27616898148 == self.cell.internal_value
+
+    def test_datetime_interpretation(self):
+        dt = datetime(2010, 7, 13, 6, 37, 41)
+        self.cell.value = dt
+        assert self.cell.value == dt
+        assert self.cell.internal_value == 40372.27616898148
+
+    def test_date_interpretation(self):
+        dt = date(2010, 7, 13)
+        self.cell.value = dt
+        assert self.cell.value == datetime(2010, 7, 13, 0, 0)
+        assert self.cell.internal_value == 40372
+
+    def test_number_format_style(self):
+        self.cell.value = '12.6%'
+        assert NumberFormat.FORMAT_PERCENTAGE == self.cell.style.number_format.format_code
+
+    @pytest.mark.parametrize("date_string, ordinal",
+            [
+            ('1900-01-15', 15),
+            ('1900-02-28', 59),
+            ('1900-03-01', 61),
+            ('1901-01-01', 367),
+            ('9999-12-31', 2958465),
+            ]
+            )
+    def test_date_format_on_non_date(self, date_string, ordinal):
+        cell = self.cell
+        cell.value = datetime.strptime(date_string, '%Y-%m-%d')
+        assert cell.internal_value == ordinal
 
 
 def test_data_type_check():
@@ -230,19 +292,19 @@ def test_illegal_chacters():
     cell.value = chr(33)
 
 
-def test_time():
-
-    def check_time(raw_value, coerced_value):
-        cell.value = raw_value
-        assert cell.value == coerced_value
-        assert cell.TYPE_NUMERIC == cell.data_type
-
+values = (
+    ('03:40:16', time(3, 40, 16)),
+    ('03:40', time(3, 40)),
+)
+@pytest.mark.parametrize("value, expected",
+                         values)
+def test_time(value, expected):
     wb = Workbook()
     ws = Worksheet(wb)
     cell = Cell(ws, 'A', 1)
-    values = (('03:40:16', time(3, 40, 16)), ('03:40', time(3, 40)),)
-    for raw_value, coerced_value in values:
-        yield check_time, raw_value, coerced_value
+    cell.value = value
+    assert cell.value == expected
+    assert cell.TYPE_NUMERIC == cell.data_type
 
 
 def test_timedelta():
