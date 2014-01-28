@@ -288,12 +288,8 @@ class Cell(object):
             return True
         elif self._data_type == self.TYPE_STRING:
             # percentage detection
-            percentage_search = self.RE_PATTERNS['percentage'].match(value)
-            if percentage_search and value.strip() != '%':
-                value = float(value.replace('%', '')) / 100.0
-                self.set_explicit_value(value, self.TYPE_NUMERIC)
-                self._set_number_format(NumberFormat.FORMAT_PERCENTAGE)
-                return True
+            if self._bind_percentage(value):
+                return
             # time detection
             if self._bind_time(value):
                 return
@@ -302,6 +298,13 @@ class Cell(object):
                 return
         self.set_explicit_value(value, self._data_type)
 
+    def _bind_percentage(self, value):
+        percentage_search = self.RE_PATTERNS['percentage'].match(value)
+        if percentage_search and value.strip() != '%':
+            value = float(value.replace('%', '')) / 100.0
+            self.set_explicit_value(value, self.TYPE_NUMERIC)
+            self._set_number_format(NumberFormat.FORMAT_PERCENTAGE)
+            return True
 
     def _bind_time(self, value):
         time_search = self.RE_PATTERNS['time'].match(str(value))
