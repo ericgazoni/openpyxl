@@ -207,20 +207,20 @@ class TestCellValueTypes(object):
 
     def test_insert_float(self):
         self.cell.value = 3.14
-        assert Cell.TYPE_NUMERIC == self.cell._data_type
+        assert Cell.TYPE_NUMERIC == self.cell.data_type
 
     def test_insert_percentage(self):
         self.cell.value = '3.14%'
-        assert Cell.TYPE_NUMERIC == self.cell._data_type
+        assert Cell.TYPE_NUMERIC == self.cell.data_type
         assert safe_string(0.0314) == safe_string(self.cell.internal_value)
 
     def test_insert_datetime(self):
         self.cell.value = date.today()
-        assert Cell.TYPE_NUMERIC == self.cell._data_type
+        assert Cell.TYPE_NUMERIC == self.cell.data_type
 
     def test_insert_date(self):
         self.cell.value = datetime.now()
-        assert Cell.TYPE_NUMERIC == self.cell._data_type
+        assert Cell.TYPE_NUMERIC == self.cell.data_type
 
     def test_internal_date(self):
         dt = datetime(2010, 7, 13, 6, 37, 41)
