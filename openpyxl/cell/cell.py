@@ -42,7 +42,13 @@ from openpyxl.units import (
     DEFAULT_COLUMN_WIDTH
 )
 from openpyxl.compat import unicode, basestring
-from openpyxl.date_time import SharedDate, to_excel, from_excel
+from openpyxl.date_time import (
+    SharedDate,
+    to_excel,
+    time_to_days,
+    timedelta_to_days,
+    from_excel
+    )
 from openpyxl.exceptions import (
     CellCoordinatesException,
     DataTypeException,
@@ -311,23 +317,24 @@ class Cell(object):
                 self._set_number_format(NumberFormat.FORMAT_DATE_TIME3)
                 return True
         if self._data_type == self.TYPE_NUMERIC:
-            # date detection
-            # if the value is a date, but not a date time, make it a
-            # datetime, and set the time part to 0
-            if isinstance(value, datetime.date) and not \
-                    isinstance(value, datetime.datetime):
-                value = datetime.datetime.combine(value, datetime.time())
-            if isinstance(value, (datetime.datetime, datetime.time, datetime.timedelta)):
-                if isinstance(value, datetime.datetime):
-                    self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
-                elif isinstance(value, datetime.time):
-                    self._set_number_format(NumberFormat.FORMAT_DATE_TIME6)
-                elif isinstance(value, datetime.timedelta):
-                    self._set_number_format(NumberFormat.FORMAT_DATE_TIMEDELTA)
-                value = SharedDate(self.base_date).datetime_to_julian(date=value)
-                self.set_explicit_value(value, self.TYPE_NUMERIC)
-                return True
+            if self._bind_datetime(value):
+                return
         self.set_explicit_value(value, self._data_type)
+
+
+    def _bind_datetime(self, value):
+        if isinstance(value, datetime.date):
+            value = to_excel(value, self.base_date)
+            self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
+        elif isinstance(value, datetime.time):
+            value = time_to_days(value)
+            self._set_number_format(NumberFormat.FORMAT_DATE_TIME6)
+        elif isinstance(value, datetime.timedelta):
+            value = timedelta_to_days(value)
+            self._set_number_format(NumberFormat.FORMAT_DATE_TIMEDELTA)
+        self.set_explicit_value(value, self.TYPE_NUMERIC)
+        return True
+
 
     @property
     def value(self):
