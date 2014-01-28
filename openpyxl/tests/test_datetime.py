@@ -129,7 +129,8 @@ def test_to_excel_mac(value, expected):
                              (40167, datetime(2009, 12, 20)),
                              (21980, datetime(1960,  3,  5)),
                              (60, datetime(1900, 2, 28)),
-                             (-25063, datetime(1831, 5, 18, 0, 0))
+                             (-25063, datetime(1831, 5, 18, 0, 0)),
+                             (40372.27616898148, datetime(2010, 7, 13, 6, 37, 41, 7)),
                          ])
 def test_from_excel(value, expected):
     from openpyxl.date_time import from_excel

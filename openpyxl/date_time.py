@@ -154,13 +154,18 @@ class SharedDate(object):
 def to_excel(dt, offset=CALENDAR_WINDOWS_1900):
     jul = sum(gcal2jd(dt.year, dt.month, dt.day))
     if hasattr(dt, 'time'):
+        # need all calcs at once to avoid rounding errors
         return jul - offset + time_to_days(dt)
     return jul - offset
 
 
 def from_excel(value, offset=CALENDAR_WINDOWS_1900):
     parts = list(jd2gcal(MJD_0, value + offset - MJD_0))
-    parts[-1] = int(parts[-1]*12)
+    td = datetime.timedelta(days=parts[-1])
+    ms = td.microseconds
+    mins, secs = divmod(td.seconds, 60)
+    hours, mins = divmod(mins, 60)
+    parts[-1:] = [hours, mins, secs, ms]
     return datetime.datetime(*parts)
 
 
