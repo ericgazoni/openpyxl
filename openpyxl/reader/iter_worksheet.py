@@ -44,7 +44,7 @@ from openpyxl.cell import (
     Cell,
 )
 from openpyxl.styles import is_date_format
-from openpyxl.date_time import SharedDate
+from openpyxl.date_time import from_excel
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.xml.ooxml import (
     PACKAGE_WORKSHEETS,
@@ -55,8 +55,6 @@ TYPE_NULL = Cell.TYPE_NULL
 MISSING_VALUE = None
 
 RE_COORDINATE = re.compile('^([A-Z]+)([0-9]+)$')
-
-SHARED_DATE = SharedDate()
 
 _COL_CONVERSION_CACHE = dict((get_column_letter(i), i) for i in xrange(1, 18279))
 def column_index_from_string(str_col, _col_conversion_cache=_COL_CONVERSION_CACHE):
@@ -133,8 +131,7 @@ class IterableWorksheet(Worksheet):
         self.min_row = min_row
         self.max_row = max_row
         self.max_col = max_col
-
-        self._shared_date = SharedDate(base_date=parent_workbook.excel_base_date)
+        self.base_date = parent_workbook.excel_base_date
 
     @property
     def xml_source(self):
@@ -209,7 +206,8 @@ class IterableWorksheet(Worksheet):
                         elif cell.data_type == Cell.TYPE_BOOL:
                             cell = cell._replace(internal_value=cell.internal_value == '1')
                         elif cell.is_date:
-                            cell = cell._replace(internal_value=self._shared_date.from_julian(float(cell.internal_value)))
+                            cell = cell._replace(internal_value=from_excel(
+                                float(cell.internal_value), self.base_date))
                         elif cell.data_type == Cell.TYPE_NUMERIC:
                             cell = cell._replace(internal_value=float(cell.internal_value))
                         elif cell.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
