@@ -40,8 +40,8 @@ from jdcal import (
 
 
 # constants
-MAC_EPOCH = datetime.datetime(1904, 1, 1)
-WINDOWS_EPOCH = datetime.datetime(1899, 12, 30)
+MAC_EPOCH = datetime.date(1904, 1, 1)
+WINDOWS_EPOCH = datetime.date(1899, 12, 30)
 CALENDAR_WINDOWS_1900 = sum(gcal2jd(WINDOWS_EPOCH.year, WINDOWS_EPOCH.month, WINDOWS_EPOCH.day))
 CALENDAR_MAC_1904 = sum(gcal2jd(MAC_EPOCH.year, MAC_EPOCH.month, MAC_EPOCH.day))
 SECS_PER_DAY = 86400
@@ -152,11 +152,12 @@ class SharedDate(object):
 
 
 def to_excel(dt, offset=CALENDAR_WINDOWS_1900):
-    jul = sum(gcal2jd(dt.year, dt.month, dt.day))
+    jul = sum(gcal2jd(dt.year, dt.month, dt.day)) - offset
+    if jul <= 60 and offset == CALENDAR_WINDOWS_1900:
+        jul -= 1
     if hasattr(dt, 'time'):
-        # need all calcs at once to avoid rounding errors
-        return jul - offset + time_to_days(dt)
-    return jul - offset
+        jul += time_to_days(dt)
+    return jul
 
 
 def from_excel(value, offset=CALENDAR_WINDOWS_1900):
