@@ -147,35 +147,8 @@ class SharedDate(object):
         return excel_date + excel_time
 
     def from_julian(self, value=0):
+        return from_excel(value, self.excel_base_date)
         """Convert from the Excel JD back to a date"""
-        if self.excel_base_date == CALENDAR_WINDOWS_1900:
-            excel_base_date = 25569
-            if value < 60:
-                excel_base_date -= 1
-            elif value == 60:
-                msg = 'Error: Excel believes 1900 was a leap year'
-                raise ValueError(msg)
-
-        elif self.excel_base_date == CALENDAR_MAC_1904:
-            excel_base_date = 24107
-
-        else:
-            raise NotImplementedError('base date supported.')
-
-        if value >= 1:
-            utc_days = value - excel_base_date
-
-            return EPOCH + datetime.timedelta(days=utc_days)
-
-        elif value >= 0:
-            hours = floor(value * 24)
-            mins = floor(value * 24 * 60) - floor(hours * 60)
-            secs = floor(value * 24 * 60 * 60) - floor(hours * 60 * 60) - \
-                    floor(mins * 60)
-            return datetime.time(int(hours), int(mins), int(secs))
-        else:
-            msg = 'Negative dates (%s) are not supported' % value
-            raise ValueError(msg)
 
 
 def to_excel(dt, offset=CALENDAR_WINDOWS_1900):

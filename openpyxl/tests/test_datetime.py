@@ -75,8 +75,6 @@ def test_convert_time_to_julian(sd):
 
 def test_1900_leap_year(sd):
     with pytest.raises(ValueError):
-        sd.from_julian(60)
-    with pytest.raises(ValueError):
         sd.to_julian(1900, 2, 29)
 
 bad_dates = (
@@ -87,10 +85,6 @@ bad_dates = (
 def test_bad_date(sd, dt):
     with pytest.raises(ValueError):
         sd.to_julian(*dt)
-
-def test_bad_julian_date(sd):
-    with pytest.raises(ValueError):
-        sd.from_julian(-1)
 
 
 def test_mac_to_date(sd):
