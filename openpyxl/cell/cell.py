@@ -288,20 +288,14 @@ class Cell(object):
             return True
         elif self._data_type == self.TYPE_STRING:
             # percentage detection
-            if isinstance(value, unicode):
-                percentage_search = self.RE_PATTERNS['percentage'].match(value)
-            else:
-                percentage_search = self.RE_PATTERNS['percentage'].match(str(value))
+            percentage_search = self.RE_PATTERNS['percentage'].match(value)
             if percentage_search and value.strip() != '%':
                 value = float(value.replace('%', '')) / 100.0
                 self.set_explicit_value(value, self.TYPE_NUMERIC)
                 self._set_number_format(NumberFormat.FORMAT_PERCENTAGE)
                 return True
             # time detection
-            if isinstance(value, unicode):
-                time_search = self.RE_PATTERNS['time'].match(value)
-            else:
-                time_search = self.RE_PATTERNS['time'].match(str(value))
+            time_search = self.RE_PATTERNS['time'].match(str(value))
             if time_search:
                 sep_count = value.count(':')  # pylint: disable=E1103
                 if sep_count == 1:
