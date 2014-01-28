@@ -49,54 +49,14 @@ def sd():
     return SharedDate()
 
 
-def test_convert_date_to_julian(sd):
-    assert 40167 == sd.to_julian(2009, 12, 20)
-
-#@pytest.mark.parametrize("value, expected",
-                         #[
-                             #(40167, datetime(2009, 12, 20)),
-                             #(21980, datetime(1960,  3,  5)),
-                             #(40196.5939815, datetime(2010, 1, 18, 14, 15, 20, 1600)),
-                         #])
-#def test_convert_date_from_julian(sd, value, expected):
-    #assert sd.from_julian(value) == expected
-
-def test_convert_datetime_to_julian(sd):
-    assert 40167 == sd.to_julian(2009, 12, 20)
-    assert 40196.5939815 == sd.datetime_to_julian(datetime(2010, 1, 18, 14, 15, 20, 1600))
-    assert sd.to_julian(1900, 1, 15) == 15
-
-def test_convert_timedelta_to_julian(sd):
-    assert 1.125 == sd.datetime_to_julian(timedelta(days=1, hours=3))
-
-
-def test_convert_time_to_julian(sd):
-    t = time(3, 0, 0)
-    assert sd.time_to_julian(t.hour, t.minute, t.second) == 0.125
-
-
-def test_1900_leap_year(sd):
-    with pytest.raises(ValueError):
-        sd.to_julian(1900, 2, 29)
-
-bad_dates = (
-    (1776,  7,  4),
-    (1899, 12, 31),
-)
-@pytest.mark.parametrize("dt", bad_dates)
-def test_bad_date(sd, dt):
-    with pytest.raises(ValueError):
-        sd.to_julian(*dt)
-
-
-def test_mac_to_date(sd):
-    sd.excel_base_date = CALENDAR_MAC_1904
-    assert  sd.to_julian(2011, 10, 3) == 39385
-
-
-def test_mac_to_date(sd):
-    sd.excel_base_date = CALENDAR_MAC_1904
-    assert sd.from_julian(39385) == datetime(2011, 10, 31)
+@pytest.mark.parametrize("value, expected",
+                         [
+                             (40167, datetime(2009, 12, 20)),
+                             (21980, datetime(1960,  3,  5)),
+                             (40196.5939815, datetime(2010, 1, 18, 14, 15, 20, 1600)),
+                         ])
+def test_convert_date_from_julian(sd, value, expected):
+    assert sd.from_julian(value) == expected
 
 
 @pytest.mark.parametrize("value, expected",
