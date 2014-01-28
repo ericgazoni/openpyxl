@@ -87,16 +87,15 @@ def test_bad_julian_date(sd):
     with pytest.raises(ValueError):
         sd.from_julian(-1)
 
-def test_mac_date(sd):
+
+def test_mac_to_date(sd):
     sd.excel_base_date = CALENDAR_MAC_1904
+    assert  sd.to_julian(2011, 10, 3) == 39385
 
-    datetuple = (2011, 10, 31)
 
-    dt = date(datetuple[0],datetuple[1],datetuple[2])
-    julian = sd.to_julian(datetuple[0],datetuple[1],datetuple[2])
-    reverse = sd.from_julian(julian).date()
-    assert dt == reverse
-    sd.excel_base_date = CALENDAR_WINDOWS_1900
+def test_mac_to_date(sd):
+    sd.excel_base_date = CALENDAR_MAC_1904
+    assert sd.from_julian(39385) == datetime(2011, 10, 31)
 
 
 @pytest.mark.parametrize("value, expected",
@@ -114,6 +113,20 @@ def test_to_excel(value, expected):
 
 @pytest.mark.parametrize("value, expected",
                          [
+                             (datetime(1904, 1, 1), 0),
+                             (datetime(2011, 10, 31), 39385),
+                             (datetime(2010, 1, 18, 14, 15, 20, 1600), 38734),
+                             (datetime(2009, 12, 20), 38705),
+                             (datetime(1506, 10, 15), -145079.0)
+                         ])
+def test_to_excel_mac(value, expected):
+    from openpyxl.date_time import to_excel
+    FUT = to_excel
+    assert FUT(value, CALENDAR_MAC_1904) == expected
+
+
+@pytest.mark.parametrize("value, expected",
+                         [
                              (40167, datetime(2009, 12, 20)),
                              (21980, datetime(1960,  3,  5)),
                              (60, datetime(1900, 2, 28)),
@@ -123,3 +136,17 @@ def test_from_excel(value, expected):
     from openpyxl.date_time import from_excel
     FUT = from_excel
     assert FUT(value) == expected
+
+
+@pytest.mark.parametrize("value, expected",
+                         [
+                             (39385, datetime(2011, 10, 31)),
+                             (21980, datetime(1964,  3,  6)),
+                             (0, datetime(1904, 1, 1)),
+                             (-25063, datetime(1835, 5, 19))
+                         ])
+def test_from_excel_mac(value, expected):
+    from openpyxl.date_time import from_excel
+    FUT = from_excel
+    assert FUT(value, CALENDAR_MAC_1904) == expected
+

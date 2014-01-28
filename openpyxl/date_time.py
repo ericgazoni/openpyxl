@@ -39,8 +39,11 @@ from jdcal import (
 
 
 # constants
-CALENDAR_WINDOWS_1900 = 1900
-CALENDAR_MAC_1904 = 1904
+MAC_EPOCH = datetime.datetime(1904, 1, 1)
+WINDOWS_EPOCH = datetime.datetime(1899, 12, 30)
+CALENDAR_WINDOWS_1900 = sum(gcal2jd(WINDOWS_EPOCH.year, WINDOWS_EPOCH.month, WINDOWS_EPOCH.day))
+CALENDAR_MAC_1904 = sum(gcal2jd(MAC_EPOCH.year, MAC_EPOCH.month, MAC_EPOCH.day))
+
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 W3CDTF_REGEX = re.compile('(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{2}))?Z?')
@@ -72,9 +75,9 @@ class SharedDate(object):
     datetime_object_type = 'DateTime'
 
     def __init__(self,base_date=CALENDAR_WINDOWS_1900):
-        if int(base_date)==CALENDAR_MAC_1904:
+        if base_date==CALENDAR_MAC_1904:
             self.excel_base_date = CALENDAR_MAC_1904
-        elif int(base_date)==CALENDAR_WINDOWS_1900:
+        elif base_date==CALENDAR_WINDOWS_1900:
             self.excel_base_date = CALENDAR_WINDOWS_1900
         else:
             raise ValueError("base_date:%s invalid"%base_date)
@@ -177,12 +180,11 @@ class SharedDate(object):
             raise ValueError(msg)
 
 
-def to_excel(dt):
+def to_excel(dt, offset=CALENDAR_WINDOWS_1900):
     jul = sum(gcal2jd(dt.year, dt.month, dt.day))
-    return jul - 2415018.5
+    return jul - offset
 
-
-def from_excel(value):
-    parts = list(jd2gcal(MJD_0, value + 2415018.5 - MJD_0))
+def from_excel(value, offset=CALENDAR_WINDOWS_1900):
+    parts = list(jd2gcal(MJD_0, value + offset - MJD_0))
     parts[-1] = int(parts[-1]*12)
     return datetime.datetime(*parts)
