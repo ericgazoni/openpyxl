@@ -64,6 +64,7 @@ def test_convert_date_from_julian(sd, value, expected):
 def test_convert_datetime_to_julian(sd):
     assert 40167 == sd.datetime_to_julian(datetime(2009, 12, 20))
     assert 40196.5939815 == sd.datetime_to_julian(datetime(2010, 1, 18, 14, 15, 20, 1600))
+    assert sd.to_julian(1900, 1, 15) == 15
 
 def test_convert_timedelta_to_julian(sd):
     assert 1.125 == sd.datetime_to_julian(timedelta(days=1, hours=3))
