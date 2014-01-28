@@ -103,7 +103,8 @@ def test_mac_to_date(sd):
                              (date(1899, 12, 31), 1),
                              (datetime(2010, 1, 18, 14, 15, 20, 1600), 40196.5939815),
                              (date(2009, 12, 20), 40167),
-                             (datetime(1506, 10, 15), -143617.0)
+                             (datetime(1506, 10, 15), -143617.0),
+                             (datetime(1900, 1, 15), 16)
                          ])
 def test_to_excel(value, expected):
     from openpyxl.date_time import to_excel
