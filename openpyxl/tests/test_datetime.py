@@ -156,7 +156,7 @@ def test_time_to_days():
     from openpyxl.date_time import time_to_days
     FUT = time_to_days
     t1 = time(13, 55, 12, 36)
-    assert FUT(t1) == 0.5800004166666667
+    assert FUT(t1) == 0.5800000004166667
 
 
 def test_timedelta_to_days():

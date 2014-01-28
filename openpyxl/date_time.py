@@ -198,7 +198,7 @@ def time_to_days(value):
         (value.hour * 3600)
         + (value.minute * 60)
         + value.second
-        + value.microsecond / 1000
+        + value.microsecond / 10**6
         ) / SECS_PER_DAY
 
 
