@@ -144,7 +144,7 @@ class SharedDate(object):
             msg = 'Error: Excel believes 1900 was a leap year'
             raise ValueError(msg)
         excel_time = self.time_to_julian(hours, minutes, seconds)
-       return excel_date + excel_time
+        return excel_date + excel_time
 
     def from_julian(self, value=0):
         return from_excel(value, self.excel_base_date)
@@ -162,7 +162,10 @@ def to_excel(dt, offset=CALENDAR_WINDOWS_1900):
 def from_excel(value, offset=CALENDAR_WINDOWS_1900):
     parts = list(jd2gcal(MJD_0, value + offset - MJD_0))
     fractions = value - int(value)
-    return datetime.datetime(*parts[:3]) + datetime.timedelta(days=fractions)
+    diff = datetime.timedelta(days=fractions)
+    if 1 > value > 0 or 0 > value > -1:
+        return days_to_time(diff)
+    return datetime.datetime(*parts[:3]) + diff
 
 
 def time_to_days(value):
@@ -181,8 +184,6 @@ def timedelta_to_days(value):
 
 
 def days_to_time(value):
-    hours = floor(value * 24)
-    mins = floor(value * 24 * 60) - floor(hours * 60)
-    secs = floor(value * 24 * 60 * 60) - floor(hours * 60 * 60) - floor(mins * 60)
-    return hours, mins, secs
-
+    mins, seconds = divmod(value.seconds, 60)
+    hours, mins = divmod(mins, 60)
+    return datetime.time(hours, mins, seconds, value.microseconds)
