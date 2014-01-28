@@ -87,16 +87,13 @@ class SharedDate(object):
         """Convert from python datetime to excel julian date representation."""
 
         if isinstance(date, datetime.datetime):
-            return self.to_julian(date.year, date.month, date.day, \
-                hours=date.hour, minutes=date.minute,
-                                  seconds=date.second + date.microsecond * 1.0e-6)
+            return to_excel(date, self.excel_base_date)
         elif isinstance(date, datetime.date):
-            return self.to_julian(date.year, date.month, date.day)
+            return to_excel(date, self.excel_base_date)
         elif isinstance(date, datetime.time):
-            return self.time_to_julian(hours=date.hour, minutes=date.minute,
-                                    seconds=date.second + date.microsecond * 1.0e-6)
+            return time_to_days(date)
         elif isinstance(date, datetime.timedelta):
-            return self.time_to_julian(hours=0, minutes=0, seconds=date.seconds + date.days * SECS_PER_DAY)
+            return timedelta_to_days(date)
 
     def time_to_julian(self, hours, minutes, seconds):
         return ((hours * 3600) + (minutes * 60) + seconds) / SECS_PER_DAY
