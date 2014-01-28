@@ -22,7 +22,7 @@
 # @author: see AUTHORS file
 
 # Python stdlib imports
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time
 
 import pytest
 
@@ -150,3 +150,17 @@ def test_from_excel_mac(value, expected):
     FUT = from_excel
     assert FUT(value, CALENDAR_MAC_1904) == expected
 
+
+
+def test_time_to_days():
+    from openpyxl.date_time import time_to_days
+    FUT = time_to_days
+    t1 = time(13, 55, 12, 36)
+    assert FUT(t1) == 0.5800004166666667
+
+
+def test_timedelta_to_days():
+    from openpyxl.date_time import timedelta_to_days
+    FUT = timedelta_to_days
+    td = timedelta(days=1, hours=3)
+    assert FUT(td) == 1.125

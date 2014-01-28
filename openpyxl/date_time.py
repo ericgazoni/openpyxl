@@ -43,6 +43,7 @@ MAC_EPOCH = datetime.datetime(1904, 1, 1)
 WINDOWS_EPOCH = datetime.datetime(1899, 12, 30)
 CALENDAR_WINDOWS_1900 = sum(gcal2jd(WINDOWS_EPOCH.year, WINDOWS_EPOCH.month, WINDOWS_EPOCH.day))
 CALENDAR_MAC_1904 = sum(gcal2jd(MAC_EPOCH.year, MAC_EPOCH.month, MAC_EPOCH.day))
+SECS_PER_DAY = 86400
 
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 W3CDTF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
@@ -98,7 +99,7 @@ class SharedDate(object):
             return self.time_to_julian(hours=0, minutes=0, seconds=date.seconds + date.days * 3600 * 24)
 
     def time_to_julian(self, hours, minutes, seconds):
-        return ((hours * 3600) + (minutes * 60) + seconds) / 86400
+        return ((hours * 3600) + (minutes * 60) + seconds) / SECS_PER_DAY
 
     def to_julian(self, year, month, day, hours=0, minutes=0, seconds=0):
         """Convert from Python date to Excel JD."""
@@ -184,7 +185,23 @@ def to_excel(dt, offset=CALENDAR_WINDOWS_1900):
     jul = sum(gcal2jd(dt.year, dt.month, dt.day))
     return jul - offset
 
+
 def from_excel(value, offset=CALENDAR_WINDOWS_1900):
     parts = list(jd2gcal(MJD_0, value + offset - MJD_0))
     parts[-1] = int(parts[-1]*12)
     return datetime.datetime(*parts)
+
+
+def time_to_days(value):
+    """Convert a time value to fractions of day"""
+    return (
+        (value.hour * 3600)
+        + (value.minute * 60)
+        + value.second
+        + value.microsecond / 1000
+        ) / SECS_PER_DAY
+
+
+def timedelta_to_days(value):
+    """Convert a timedelta value to fractions of a day"""
+    return value.total_seconds() / SECS_PER_DAY
