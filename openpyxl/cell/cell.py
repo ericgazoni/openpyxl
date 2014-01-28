@@ -295,24 +295,29 @@ class Cell(object):
                 self._set_number_format(NumberFormat.FORMAT_PERCENTAGE)
                 return True
             # time detection
-            time_search = self.RE_PATTERNS['time'].match(str(value))
-            if time_search:
-                sep_count = value.count(':')  # pylint: disable=E1103
-                if sep_count == 1:
-                    hours, minutes = [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
-                    seconds = 0
-                elif sep_count == 2:
-                    hours, minutes, seconds = \
-                            [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
-                days = (hours / 24.0) + (minutes / 1440.0) + \
-                        (seconds / 86400.0)
-                self.set_explicit_value(days, self.TYPE_NUMERIC)
-                self._set_number_format(NumberFormat.FORMAT_DATE_TIME3)
-                return True
+            if self._bind_time(value):
+                return
         if self._data_type == self.TYPE_NUMERIC:
             if self._bind_datetime(value):
                 return
         self.set_explicit_value(value, self._data_type)
+
+
+    def _bind_time(self, value):
+        time_search = self.RE_PATTERNS['time'].match(str(value))
+        if time_search:
+            sep_count = value.count(':')  # pylint: disable=E1103
+            if sep_count == 1:
+                hours, minutes = [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
+                seconds = 0
+            elif sep_count == 2:
+                hours, minutes, seconds = \
+                        [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
+            days = (hours / 24.0) + (minutes / 1440.0) + \
+                    (seconds / 86400.0)
+            self.set_explicit_value(days, self.TYPE_NUMERIC)
+            self._set_number_format(NumberFormat.FORMAT_DATE_TIME3)
+            return True
 
 
     def _bind_datetime(self, value):
