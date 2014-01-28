@@ -172,7 +172,7 @@ class Cell(object):
                    TYPE_NULL, TYPE_INLINE, TYPE_ERROR, TYPE_FORMULA_CACHE_STRING]
 
     RE_PATTERNS = {
-        'percentage': re.compile(r'^\-?[0-9]*\.?[0-9]*\s?\%$'),
+        'percentage': re.compile(r'^\-?(?P<number>[0-9]*\.?[0-9]*\s?)\%$'),
         'time': re.compile(r'^(\d|[0-1]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'),
         'numeric': re.compile(r'^-?([\d]|[\d]+\.[\d]*|\.[\d]+|[1-9][\d]+\.?[\d]*)((E|e)-?[\d]+)?$'),
         }
@@ -299,29 +299,25 @@ class Cell(object):
         self.set_explicit_value(value, self._data_type)
 
     def _bind_percentage(self, value):
-        percentage_search = self.RE_PATTERNS['percentage'].match(value)
-        if percentage_search and value.strip() != '%':
-            value = float(value.replace('%', '')) / 100.0
+        match = self.RE_PATTERNS['percentage'].match(value)
+        if match:
+            value = float(match.group('number')) / 100
             self.set_explicit_value(value, self.TYPE_NUMERIC)
             self._set_number_format(NumberFormat.FORMAT_PERCENTAGE)
             return True
 
     def _bind_time(self, value):
-        time_search = self.RE_PATTERNS['time'].match(str(value))
-        if time_search:
-            sep_count = value.count(':')  # pylint: disable=E1103
+        match = self.RE_PATTERNS['time'].match(str(value))
+        if match:
+            sep_count = value.count(':')
             if sep_count == 1:
-                hours, minutes = [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
-                seconds = 0
-            elif sep_count == 2:
-                hours, minutes, seconds = \
-                        [int(bit) for bit in value.split(':')]  # pylint: disable=E1103
-            days = (hours / 24.0) + (minutes / 1440.0) + \
-                    (seconds / 86400.0)
-            self.set_explicit_value(days, self.TYPE_NUMERIC)
+                value = datetime.datetime.strptime(value, "%H:%M")
+            else:
+                value = datetime.datetime.strptime(value, "%H:%M:%S")
+            value = time_to_days(value)
+            self.set_explicit_value(value, self.TYPE_NUMERIC)
             self._set_number_format(NumberFormat.FORMAT_DATE_TIME3)
             return True
-
 
     def _bind_datetime(self, value):
         if isinstance(value, datetime.date):
