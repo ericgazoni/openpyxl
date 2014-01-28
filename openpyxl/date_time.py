@@ -30,6 +30,7 @@ from __future__ import division
 from math import floor
 import datetime
 import re
+import warnings
 
 from jdcal import (
     gcal2jd,
@@ -76,12 +77,11 @@ class SharedDate(object):
     datetime_object_type = 'DateTime'
 
     def __init__(self,base_date=CALENDAR_WINDOWS_1900):
-        if base_date==CALENDAR_MAC_1904:
-            self.excel_base_date = CALENDAR_MAC_1904
-        elif base_date==CALENDAR_WINDOWS_1900:
-            self.excel_base_date = CALENDAR_WINDOWS_1900
+        warnings.warn("Use module functions directly fo conversion")
+        if base_date not in (CALENDAR_MAC_1904, CALENDAR_WINDOWS_1900):
+            raise ValueError("base_date:%s invalid" % base_date)
         else:
-            raise ValueError("base_date:%s invalid"%base_date)
+            self.excel_base_date = base_date
 
     def datetime_to_julian(self, date):
         """Convert from python datetime to excel julian date representation."""
@@ -153,7 +153,9 @@ class SharedDate(object):
 
 def to_excel(dt, offset=CALENDAR_WINDOWS_1900):
     jul = sum(gcal2jd(dt.year, dt.month, dt.day))
-    return jul - offset + time_to_days(dt)
+    if hasattr(dt, 'time'):
+        return jul - offset + time_to_days(dt)
+    return jul - offset
 
 
 def from_excel(value, offset=CALENDAR_WINDOWS_1900):

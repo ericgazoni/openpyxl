@@ -99,9 +99,9 @@ def test_mac_to_date(sd):
 
 @pytest.mark.parametrize("value, expected",
                          [
-                             (datetime(1899, 12, 31), 1),
+                             (date(1899, 12, 31), 1),
                              (datetime(2010, 1, 18, 14, 15, 20, 1600), 40196.5939815),
-                             (datetime(2009, 12, 20), 40167),
+                             (date(2009, 12, 20), 40167),
                              (datetime(1506, 10, 15), -143617.0)
                          ])
 def test_to_excel(value, expected):
@@ -112,10 +112,10 @@ def test_to_excel(value, expected):
 
 @pytest.mark.parametrize("value, expected",
                          [
-                             (datetime(1904, 1, 1), 0),
-                             (datetime(2011, 10, 31), 39385),
+                             (date(1904, 1, 1), 0),
+                             (date(2011, 10, 31), 39385),
                              (datetime(2010, 1, 18, 14, 15, 20, 1600), 38734.5939815),
-                             (datetime(2009, 12, 20), 38705),
+                             (date(2009, 12, 20), 38705),
                              (datetime(1506, 10, 15), -145079.0)
                          ])
 def test_to_excel_mac(value, expected):
