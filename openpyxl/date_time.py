@@ -132,7 +132,12 @@ def time_to_days(value):
 
 def timedelta_to_days(value):
     """Convert a timedelta value to fractions of a day"""
-    return value.total_seconds() / SECS_PER_DAY
+    if not hasattr(value, 'total_seconds'):
+        secs = (value.microseconds +
+                (value.seconds + value.days * SECS_PER_DAY) * 10**6) / 10**6
+    else:
+        secs =value.total_seconds()
+    return secs / SECS_PER_DAY
 
 
 def days_to_time(value):
