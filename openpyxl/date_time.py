@@ -183,7 +183,7 @@ class SharedDate(object):
 
 def to_excel(dt, offset=CALENDAR_WINDOWS_1900):
     jul = sum(gcal2jd(dt.year, dt.month, dt.day))
-    return jul - offset
+    return jul - offset + time_to_days(dt)
 
 
 def from_excel(value, offset=CALENDAR_WINDOWS_1900):

@@ -106,7 +106,7 @@ def test_mac_to_date(sd):
 @pytest.mark.parametrize("value, expected",
                          [
                              (datetime(1899, 12, 31), 1),
-                             (datetime(2010, 1, 18, 14, 15, 20, 1600), 40196),
+                             (datetime(2010, 1, 18, 14, 15, 20, 1600), 40196.5939815),
                              (datetime(2009, 12, 20), 40167),
                              (datetime(1506, 10, 15), -143617.0)
                          ])
@@ -120,7 +120,7 @@ def test_to_excel(value, expected):
                          [
                              (datetime(1904, 1, 1), 0),
                              (datetime(2011, 10, 31), 39385),
-                             (datetime(2010, 1, 18, 14, 15, 20, 1600), 38734),
+                             (datetime(2010, 1, 18, 14, 15, 20, 1600), 38734.5939815),
                              (datetime(2009, 12, 20), 38705),
                              (datetime(1506, 10, 15), -145079.0)
                          ])
@@ -162,6 +162,8 @@ def test_time_to_days():
     FUT = time_to_days
     t1 = time(13, 55, 12, 36)
     assert FUT(t1) == 0.5800000004166667
+    t2 = time(3, 0, 0)
+    assert FUT(t2) == 0.125
 
 
 def test_timedelta_to_days():
