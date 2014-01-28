@@ -243,20 +243,6 @@ class TestCellValueTypes(object):
         self.cell.value = '12.6%'
         assert NumberFormat.FORMAT_PERCENTAGE == self.cell.style.number_format.format_code
 
-    @pytest.mark.parametrize("date_string, ordinal",
-            [
-            ('1900-01-15', 15),
-            ('1900-02-28', 59),
-            ('1900-03-01', 61),
-            ('1901-01-01', 367),
-            ('9999-12-31', 2958465),
-            ]
-            )
-    def test_date_format_on_non_date(self, date_string, ordinal):
-        cell = self.cell
-        cell.value = datetime.strptime(date_string, '%Y-%m-%d')
-        assert cell.internal_value == ordinal
-
 
 def test_data_type_check():
     ws = build_dummy_worksheet()

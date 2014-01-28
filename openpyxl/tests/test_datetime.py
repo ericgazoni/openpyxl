@@ -102,10 +102,12 @@ def test_mac_to_date(sd):
 @pytest.mark.parametrize("value, expected",
                          [
                              (date(1899, 12, 31), 0),
+                             (date(1900, 1, 15), 15),
+                             (date(1900, 2, 28), 59),
+                             (date(1900, 3, 1), 61),
                              (datetime(2010, 1, 18, 14, 15, 20, 1600), 40196.5939815),
                              (date(2009, 12, 20), 40167),
                              (datetime(1506, 10, 15), -143618.0),
-                             (datetime(1900, 1, 15), 15)
                          ])
 def test_to_excel(value, expected):
     from openpyxl.date_time import to_excel
