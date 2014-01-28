@@ -134,6 +134,10 @@ def get_column_letter(col_idx):
     return ''.join(reversed(letters))
 
 
+PERCENT_REGEX = re.compile(r'^\-?(?P<number>[0-9]*\.?[0-9]*\s?)\%$')
+TIME_REGEX = re.compile(r'^(\d|[0-1]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$')
+NUMBER_REGEX = re.compile(r'^-?([\d]|[\d]+\.[\d]*|\.[\d]+|[1-9][\d]+\.?[\d]*)((E|e)-?[\d]+)?$')
+
 
 class Cell(object):
     """Describes cell associated properties.
@@ -170,12 +174,6 @@ class Cell(object):
 
     VALID_TYPES = [TYPE_STRING, TYPE_FORMULA, TYPE_NUMERIC, TYPE_BOOL,
                    TYPE_NULL, TYPE_INLINE, TYPE_ERROR, TYPE_FORMULA_CACHE_STRING]
-
-    RE_PATTERNS = {
-        'percentage': re.compile(r'^\-?(?P<number>[0-9]*\.?[0-9]*\s?)\%$'),
-        'time': re.compile(r'^(\d|[0-1]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'),
-        'numeric': re.compile(r'^-?([\d]|[\d]+\.[\d]*|\.[\d]+|[1-9][\d]+\.?[\d]*)((E|e)-?[\d]+)?$'),
-        }
 
     def __init__(self, worksheet, column, row, value=None):
         self.column = column.upper()
@@ -268,9 +266,7 @@ class Cell(object):
             data_type = self.TYPE_STRING
         elif isinstance(value, basestring) and value[0] == '=':
             data_type = self.TYPE_FORMULA
-        elif isinstance(value, unicode) and self.RE_PATTERNS['numeric'].match(value):
-            data_type = self.TYPE_NUMERIC
-        elif not isinstance(value, unicode) and self.RE_PATTERNS['numeric'].match(str(value)):
+        elif NUMBER_REGEX.match(str(value)):
             data_type = self.TYPE_NUMERIC
         elif isinstance(value, basestring) and value.strip() in self.ERROR_CODES:
             data_type = self.TYPE_ERROR
@@ -299,7 +295,7 @@ class Cell(object):
         self.set_explicit_value(value, self._data_type)
 
     def _bind_percentage(self, value):
-        match = self.RE_PATTERNS['percentage'].match(value)
+        match = PERCENT_REGEX.match(str(value))
         if match:
             value = float(match.group('number')) / 100
             self.set_explicit_value(value, self.TYPE_NUMERIC)
@@ -307,7 +303,7 @@ class Cell(object):
             return True
 
     def _bind_time(self, value):
-        match = self.RE_PATTERNS['time'].match(str(value))
+        match = TIME_REGEX.match(str(value))
         if match:
             sep_count = value.count(':')
             if sep_count == 1:
