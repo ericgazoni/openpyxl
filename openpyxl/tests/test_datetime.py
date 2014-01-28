@@ -68,6 +68,11 @@ def test_convert_timedelta_to_julian(sd):
     assert 1.125 == sd.datetime_to_julian(timedelta(days=1, hours=3))
 
 
+def test_convert_time_to_julian(sd):
+    t = time(3, 0, 0)
+    assert sd.time_to_julian(t.hour, t.minute, t.second) == 0.125
+
+
 def test_1900_leap_year(sd):
     with pytest.raises(ValueError):
         sd.from_julian(60)
