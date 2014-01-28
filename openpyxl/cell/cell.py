@@ -42,7 +42,7 @@ from openpyxl.units import (
     DEFAULT_COLUMN_WIDTH
 )
 from openpyxl.compat import unicode, basestring
-from openpyxl.date_time import SharedDate
+from openpyxl.date_time import SharedDate, to_excel, from_excel
 from openpyxl.exceptions import (
     CellCoordinatesException,
     DataTypeException,
@@ -143,7 +143,6 @@ class Cell(object):
                  'parent',
                  'xf_index',
                  '_hyperlink_rel',
-                 '_shared_date',
                  'merged',
                  '_comment')
 
@@ -184,13 +183,16 @@ class Cell(object):
             self.value = value
         self.parent = worksheet
         self.xf_index = 0
-        self._shared_date = SharedDate(base_date=worksheet.parent.excel_base_date)
         self.merged = False
         self._comment = None
 
     @property
     def encoding(self):
         return self.parent.encoding
+
+    @property
+    def base_date(self):
+        return self.parent.parent.excel_base_date
 
     def __repr__(self):
         return unicode("<Cell %s.%s>") % (self.parent.title, self.get_coordinate())
@@ -322,7 +324,7 @@ class Cell(object):
                     self._set_number_format(NumberFormat.FORMAT_DATE_TIME6)
                 elif isinstance(value, datetime.timedelta):
                     self._set_number_format(NumberFormat.FORMAT_DATE_TIMEDELTA)
-                value = SharedDate().datetime_to_julian(date=value)
+                value = SharedDate(self.base_date).datetime_to_julian(date=value)
                 self.set_explicit_value(value, self.TYPE_NUMERIC)
                 return True
         self.set_explicit_value(value, self._data_type)
@@ -334,7 +336,7 @@ class Cell(object):
             ':class:`datetime.datetime`)'"""
         value = self._value
         if self.is_date():
-            value = self._shared_date.from_julian(value)
+            value = from_excel(value, self.base_date)
         return value
 
     @value.setter
