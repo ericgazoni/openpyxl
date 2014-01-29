@@ -266,7 +266,9 @@ class Cell(object):
             data_type = self.TYPE_STRING
         elif isinstance(value, basestring) and value[0] == '=':
             data_type = self.TYPE_FORMULA
-        elif NUMBER_REGEX.match(str(value)):
+        elif isinstance(value, unicode) and NUMBER_REGEX.match(value):
+            data_type = self.TYPE_NUMERIC
+        elif not isinstance(value, unicode) and NUMBER_REGEX.match(str(value)):
             data_type = self.TYPE_NUMERIC
         elif isinstance(value, basestring) and value.strip() in self.ERROR_CODES:
             data_type = self.TYPE_ERROR
@@ -295,7 +297,9 @@ class Cell(object):
         self.set_explicit_value(value, self._data_type)
 
     def _bind_percentage(self, value):
-        match = PERCENT_REGEX.match(str(value))
+        if not isinstance(value, unicode):
+            value = str(value)
+        match = PERCENT_REGEX.match(value)
         if match:
             value = float(match.group('number')) / 100
             self.set_explicit_value(value, self.TYPE_NUMERIC)
@@ -303,7 +307,9 @@ class Cell(object):
             return True
 
     def _bind_time(self, value):
-        match = TIME_REGEX.match(str(value))
+        if not isinstance(value, unicode):
+            value = str(value)
+        match = TIME_REGEX.match(value)
         if match:
             sep_count = value.count(':')
             if sep_count == 1:
