@@ -75,13 +75,14 @@ def read_dimension(xml_source):
             if min_row is None:
                 min_row = int(row)
             span = el.get("spans")
-            start, stop = span.split(":")
-            if min_col is None:
-                min_col = int(start)
-                max_col = int(stop)
-            else:
-                min_col = min(min_col, int(start))
-                max_col = max(max_col, int(stop))
+            if ":" in span:
+                start, stop = span.split(":")
+                if min_col is None:
+                    min_col = int(start)
+                    max_col = int(stop)
+                else:
+                    min_col = min(min_col, int(start))
+                    max_col = max(max_col, int(stop))
     max_row = int(row)
     warn("Unsized worksheet")
     return get_column_letter(min_col), min_row, get_column_letter(max_col),  max_row
