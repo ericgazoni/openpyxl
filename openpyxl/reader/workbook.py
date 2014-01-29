@@ -104,7 +104,8 @@ def read_rels(archive):
     rels = {}
     tree = fromstring(xml_source)
     for element in safe_iterator(tree, '{%s}Relationship' % PKG_REL_NS):
-        rels[element.get('Id')] = {'path':element.get('Target')}
+        rId = int(element.get('Id').replace("rId", ""))
+        rels[rId] = {'path':element.get('Target')}
     return rels
 
 
@@ -113,7 +114,8 @@ def read_sheets(archive):
     xml_source = archive.read(ARC_WORKBOOK)
     tree = fromstring(xml_source)
     for element in safe_iterator(tree, '{%s}sheet' % SHEET_MAIN_NS):
-        yield element.get('name'), element.get("{%s}id" % REL_NS)
+        rId = int(element.get("{%s}id" % REL_NS).replace("rId", ""))
+        yield element.get('name'), rId
 
 
 def detect_worksheets(archive):

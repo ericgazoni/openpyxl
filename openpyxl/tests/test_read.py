@@ -349,11 +349,11 @@ def test_read_rels():
     fname = os.path.join(DATADIR, "reader", "bug137.xlsx")
     archive = zipfile.ZipFile(fname)
     assert read_rels(archive) == {
-        'rId1': {'path': 'chartsheets/sheet1.xml'},
-        'rId2': {'path': 'worksheets/sheet1.xml'},
-        'rId3': {'path': 'theme/theme1.xml'},
-        'rId4': {'path': 'styles.xml'},
-        'rId5': {'path': 'sharedStrings.xml'}
+        1: {'path': 'chartsheets/sheet1.xml'},
+        2: {'path': 'worksheets/sheet1.xml'},
+        3: {'path': 'theme/theme1.xml'},
+        4: {'path': 'styles.xml'},
+        5: {'path': 'sharedStrings.xml'}
     }
 
 
@@ -383,7 +383,7 @@ def test_read_sheets():
     from openpyxl.reader.workbook import read_sheets
     fname = os.path.join(DATADIR, "reader", "bug137.xlsx")
     archive = zipfile.ZipFile(fname)
-    assert list(read_sheets(archive)) == [("Chart1", "rId1"), ("Sheet1","rId2")]
+    assert list(read_sheets(archive)) == [("Chart1", 1), ("Sheet1",2)]
 
 
 def test_guess_types():
