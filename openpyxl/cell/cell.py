@@ -190,7 +190,7 @@ class Cell(object):
         # _value is the stored value, while value is the displayed value
         self._value = None
         self._hyperlink_rel = None
-        self._data_type = self.TYPE_NULL
+        self.data_type = self.TYPE_NULL
         if value:
             self.value = value
         self.parent = worksheet
