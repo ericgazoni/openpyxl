@@ -392,11 +392,11 @@ class TestPositioning(object):
         ws = wb.get_active_sheet()
         assert ws.point_pos(top=40, left=150), ('C' == 3)
 
-    def test_roundtrip(self):
+    @pytest.mark.parametrize("value", ('A1', 'D52', 'X11'))
+    def test_roundtrip(self, value):
         wb = Workbook()
         ws = wb.get_active_sheet()
-        for address in ('A1', 'D52', 'X11'):
-            assert ws.point_pos(*ws.cell(address).anchor) ==                 coordinate_from_string(address)
+        assert ws.point_pos(*ws.cell(value).anchor) == coordinate_from_string(value)
 
 
 @pytest.fixture
