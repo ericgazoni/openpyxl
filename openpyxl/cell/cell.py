@@ -256,7 +256,7 @@ class Cell(object):
             if data_type not in self.VALID_TYPES:
                 msg = 'Invalid data type: %s' % data_type
                 raise DataTypeException(msg)
-        self._data_type = data_type
+        self.data_type = data_type
 
     # preserve old method name
     set_value_explicit = set_explicit_value
