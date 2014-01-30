@@ -243,21 +243,20 @@ class TestCellValueTypes(object):
         self.cell.value = '12.6%'
         assert NumberFormat.FORMAT_PERCENTAGE == self.cell.style.number_format.format_code
 
-
 def test_data_type_check():
     ws = build_dummy_worksheet()
     cell = Cell(ws, 'A', 1)
     cell.bind_value(None)
-    assert Cell.TYPE_NULL == cell._data_type
+    assert Cell.TYPE_NULL == cell.data_type
 
     cell.bind_value('.0e000')
-    assert Cell.TYPE_NUMERIC == cell._data_type
+    assert Cell.TYPE_NUMERIC == cell.data_type
 
     cell.bind_value('-0.e-0')
-    assert Cell.TYPE_NUMERIC == cell._data_type
+    assert Cell.TYPE_NUMERIC == cell.data_type
 
     cell.bind_value('1E')
-    assert Cell.TYPE_STRING == cell._data_type
+    assert Cell.TYPE_STRING == cell.data_type
 
 
 def test_set_bad_type():

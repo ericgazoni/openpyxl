@@ -289,21 +289,21 @@ class Cell(object):
 
     def bind_value(self, value):
         """Given a value, infer type and display options."""
-        self._data_type = self.data_type_for_value(value)
+        self.data_type = self.data_type_for_value(value)
         if value is None:
             self.set_explicit_value('', self.TYPE_NULL)
             return True
-        elif self._data_type == self.TYPE_STRING:
+        elif self.data_type == self.TYPE_STRING:
             # percentage detection
             if self._bind_percentage(value):
                 return
             # time detection
             if self._bind_time(value):
                 return
-        if self._data_type == self.TYPE_NUMERIC:
+        if self.data_type == self.TYPE_NUMERIC:
             if self._bind_datetime(value):
                 return
-        self.set_explicit_value(value, self._data_type)
+        self.set_explicit_value(value, self.data_type)
 
     def _bind_percentage(self, value):
         if not isinstance(value, unicode):
@@ -413,6 +413,10 @@ class Cell(object):
     def data_type(self):
         """Return the data type represented by this cell"""
         return self._data_type
+
+    @data_type.setter
+    def data_type(self, value):
+        self._data_type = value
 
     def get_coordinate(self):
         """Return the coordinate string for this cell (e.g. 'B12')
