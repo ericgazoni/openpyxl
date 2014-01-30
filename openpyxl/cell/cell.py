@@ -135,9 +135,8 @@ def get_column_letter(col_idx):
 
 
 PERCENT_REGEX = re.compile(r'^\-?(?P<number>[0-9]*\.?[0-9]*\s?)\%$')
-TIME_REGEX = re.compile(r'^(\d|[0-1]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$')
+TIME_REGEX = re.compile(r"^([0-1]{0,1}[0-9]{1,2}):([0-5][0-9]):?([0-5][0-9])?$")
 NUMBER_REGEX = re.compile(r'^-?([\d]|[\d]+\.[\d]*|\.[\d]+|[1-9][\d]+\.?[\d]*)((E|e)-?[\d]+)?$')
-
 
 class Cell(object):
     """Describes cell associated properties.
@@ -311,14 +310,16 @@ class Cell(object):
             value = str(value)
         match = TIME_REGEX.match(value)
         if match:
-            sep_count = value.count(':')
-            if sep_count == 1:
-                value = datetime.datetime.strptime(value, "%H:%M")
+            if match.group(3) is None:
+                fmt = NumberFormat.FORMAT_DATE_TIME3
+                pattern = "%H:%M"
             else:
-                value = datetime.datetime.strptime(value, "%H:%M:%S")
+                pattern = "%H:%M:%S"
+                fmt = NumberFormat.FORMAT_DATE_TIME6
+            value = datetime.datetime.strptime(value, pattern)
             value = time_to_days(value)
             self.set_explicit_value(value, self.TYPE_NUMERIC)
-            self._set_number_format(NumberFormat.FORMAT_DATE_TIME3)
+            self._set_number_format(fmt)
             return True
 
     def _bind_datetime(self, value):

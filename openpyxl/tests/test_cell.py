@@ -279,6 +279,19 @@ def test_illegal_chacters():
 
 
 values = (
+    ('03:40:16', [('03', '40', '16')]),
+    ('03:40', [('03', '40', '')]),
+    ('55:72:12', []),
+    )
+@pytest.mark.parametrize("value, expected",
+                             values)
+def test_time_regex(value, expected):
+    from openpyxl.cell.cell import TIME_REGEX
+    m = TIME_REGEX.findall(value)
+    assert m == expected
+
+
+values = (
     ('03:40:16', time(3, 40, 16)),
     ('03:40', time(3, 40)),
 )
