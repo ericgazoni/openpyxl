@@ -138,10 +138,8 @@ def load_workbook(filename, use_iterators=False, keep_vba=KEEP_VBA, guess_types=
 
     if use_iterators:
         wb._set_optimized_read()
-        if not guess_types:
-            warnings.warn('please note that data types are not guessed '
-                          'when using iterator reader, so you do not need '
-                          'to use guess_types=False')
+        if guess_types:
+            warnings.warn('Data types are not guessed when using iterator reader')
 
     try:
         _load_workbook(wb, archive, filename, use_iterators, keep_vba)
