@@ -111,6 +111,10 @@ def get_missing_cells(row, columns):
 
 #------------------------------------------------------------------------------
 
+CELL_TAG = '{%s}c' % SHEET_MAIN_NS
+VALUE_TAG = '{%s}v' % SHEET_MAIN_NS
+FORMULA_TAG = '{%s}f' % SHEET_MAIN_NS
+
 class IterableWorksheet(Worksheet):
 
     def __init__(self, parent_workbook, title, worksheet_path,
@@ -214,20 +218,15 @@ class IterableWorksheet(Worksheet):
 
 
     def get_cells(self, min_row, min_col, max_row, max_col):
-        CELL_TAG = '{%s}c' % SHEET_MAIN_NS
-        VALUE_TAG = '{%s}v' % SHEET_MAIN_NS
-        FORMULA_TAG = '{%s}f' % SHEET_MAIN_NS
-        tags = [CELL_TAG] # tags to be investigated
-        p = iterparse(self.xml_source, tag=tags, remove_blank_text=True)
-
+        p = iterparse(self.xml_source, tag=CELL_TAG, remove_blank_text=True)
         for _event, element in p:
-
             if element.tag == CELL_TAG:
                 coord = element.get('r')
                 column_str, row = coordinate_from_string(coord)
                 column = column_index_from_string(column_str)
 
-                if min_col <= column <= max_col and min_row <= row <= max_row:
+                if (min_col <= column <= max_col
+                    and min_row <= row <= max_row):
                     data_type = element.get('t', 'n')
                     style_id = element.get('s')
                     formula = element.findtext(FORMULA_TAG)
