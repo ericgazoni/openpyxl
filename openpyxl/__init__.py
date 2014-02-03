@@ -32,26 +32,10 @@ try:
 except ImportError:
     LXML = False
 
-# shortcuts
-try:
-    from openpyxl.workbook import Workbook
-    from openpyxl.reader.excel import load_workbook
-except ImportError:
-    pass
 
-# constants
+from openpyxl.workbook import Workbook
+from openpyxl.reader.excel import load_workbook
 
-__major__ = 1  # for major interface/format changes
-__minor__ = 9  # for minor interface/format changes
-__release__ = 0  # for tweaks, bug-fixes, or development
+__author__ = 'Eric Gazoni and contributors'
 
-__version__ = '%d.%d.%d' % (__major__, __minor__, __release__)
-
-__author__ = 'Eric Gazoni'
-__license__ = 'MIT/Expat'
-__author_email__ = 'eric.gazoni@gmail.com'
-__maintainer_email__ = 'openpyxl-users@googlegroups.com'
-__url__ = 'http://openpyxl.readthedocs.org'
-__downloadUrl__ = "http://bitbucket.org/ericgazoni/openpyxl/downloads"
-
-__all__ = ('reader', 'shared', 'writer',)
+__version__ = '1.9.0' # major.minor.patch
