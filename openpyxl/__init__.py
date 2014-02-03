@@ -25,12 +25,15 @@
 import warnings
 
 try:
-    from lxml.etree import LXML_VERSION
-    LXML = LXML_VERSION >= (3, 2, 5, 0)
-    if LXML is False:
-        warnings.warn("The installed version of lxml is too old to be used with openpyxl")
-except ImportError:
-    LXML = False
+    from .tests import LXML
+except  ImportError:
+    try:
+        from lxml.etree import LXML_VERSION
+        LXML = LXML_VERSION >= (3, 2, 5, 0)
+        if LXML is False:
+            warnings.warn("The installed version of lxml is too old to be used with openpyxl")
+    except ImportError:
+        LXML = False
 
 
 from openpyxl.workbook import Workbook
