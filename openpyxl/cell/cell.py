@@ -103,6 +103,8 @@ def get_column_letter(col_idx):
     """
     # these indicies corrospond to A -> ZZZ and include all allowed
     # columns
+    if not 1 <= col_idx <= 18278:
+        raise ValueError("Invalid column index {0}".format(col_idx))
     letters = []
     while col_idx > 0:
         col_idx, remainder = divmod(col_idx, 26)
