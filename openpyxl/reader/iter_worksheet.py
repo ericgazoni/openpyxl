@@ -37,9 +37,11 @@ from openpyxl.compat import xrange, unicode
 from openpyxl.xml.xmltools import iterparse
 
 # package
+from openpyxl import LXML
 from openpyxl.worksheet import Worksheet
 from openpyxl.cell import (
     coordinate_from_string,
+    column_index_from_string,
     get_column_letter,
     Cell,
 )
@@ -53,14 +55,6 @@ from openpyxl.xml.ooxml import (
 
 TYPE_NULL = Cell.TYPE_NULL
 MISSING_VALUE = None
-
-RE_COORDINATE = re.compile('^([A-Z]+)([0-9]+)$')
-
-_COL_CONVERSION_CACHE = dict((get_column_letter(i), i) for i in xrange(1, 18279))
-def column_index_from_string(str_col, _col_conversion_cache=_COL_CONVERSION_CACHE):
-    # we use a function argument to get indexed name lookup
-    return _col_conversion_cache[str_col]
-del _COL_CONVERSION_CACHE
 
 RAW_ATTRIBUTES = ['row', 'column', 'coordinate', 'internal_value',
                   'data_type', 'style_id', 'number_format']
@@ -220,32 +214,33 @@ class IterableWorksheet(Worksheet):
 
 
     def get_cells(self, min_row, min_col, max_row, max_col):
-        p = iterparse(self.xml_source)
+        ROW_TAG = '{%s}row' % SHEET_MAIN_NS
+        CELL_TAG = '{%s}c' % SHEET_MAIN_NS
+        VALUE_TAG = '{%s}v' % SHEET_MAIN_NS
+        FORMULA_TAG = '{%s}f' % SHEET_MAIN_NS
+        tags = [CELL_TAG] # tags to be investigated
+        p = iterparse(self.xml_source, tag=tags, remove_blank_text=True)
 
         for _event, element in p:
 
-            if element.tag == '{%s}c' % SHEET_MAIN_NS:
+            if element.tag == CELL_TAG:
                 coord = element.get('r')
-                column_str, row = RE_COORDINATE.match(coord).groups()
-
-                row = int(row)
+                column_str, row = coordinate_from_string(coord)
                 column = column_index_from_string(column_str)
 
                 if min_col <= column <= max_col and min_row <= row <= max_row:
                     data_type = element.get('t', 'n')
                     style_id = element.get('s')
-                    formula = element.findtext('{%s}f' % SHEET_MAIN_NS)
-                    value = element.findtext('{%s}v' % SHEET_MAIN_NS)
+                    formula = element.findtext(FORMULA_TAG)
+                    value = element.findtext(VALUE_TAG)
                     if formula is not None and not self.parent.data_only:
                         data_type = Cell.TYPE_FORMULA
-                        value = "=" + formula
+                        value = "=%s" % formula
                     yield RawCell(row, column_str, coord, value, data_type, style_id, None)
-            # sub-elements of cells should be skipped
-            if (element.tag == '{%s}v' % SHEET_MAIN_NS
-                or element.tag == '{%s}f' % SHEET_MAIN_NS):
+            if not LXML and element.tag in (VALUE_TAG, FORMULA_TAG):
+                # sub-elements of cells should be skipped
                 continue
             element.clear()
-
 
     def cell(self, *args, **kwargs):
         # TODO return an individual cell
