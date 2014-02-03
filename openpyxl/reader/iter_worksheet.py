@@ -214,7 +214,6 @@ class IterableWorksheet(Worksheet):
 
 
     def get_cells(self, min_row, min_col, max_row, max_col):
-        ROW_TAG = '{%s}row' % SHEET_MAIN_NS
         CELL_TAG = '{%s}c' % SHEET_MAIN_NS
         VALUE_TAG = '{%s}v' % SHEET_MAIN_NS
         FORMULA_TAG = '{%s}f' % SHEET_MAIN_NS
