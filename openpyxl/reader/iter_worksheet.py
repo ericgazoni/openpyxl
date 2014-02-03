@@ -29,7 +29,6 @@ from __future__ import absolute_import
 import operator
 from itertools import groupby
 import re
-from collections import namedtuple
 
 
 # compatibility
@@ -60,29 +59,30 @@ RAW_ATTRIBUTES = ['row', 'column', 'coordinate', 'internal_value',
                   'data_type', 'style_id', 'number_format']
 
 
-BaseRawCell = namedtuple('RawCell', RAW_ATTRIBUTES)
+class RawCell(object):
 
+    __slots__ = RAW_ATTRIBUTES
 
-class RawCell(BaseRawCell):
-    """Optimized version of the :class:`openpyxl.cell.Cell`, using named tuples.
-
-    Useful attributes are:
-
-    * row
-    * column
-    * coordinate
-    * internal_value
-
-    You can also access if needed:
-
-    * data_type
-    * number_format
-
-    """
+    def __init__(self, row, column, coordinate, value, data_type, style_id=None,
+                 number_format=None):
+        self.row = row
+        self.column = column
+        self.coordinate = coordinate
+        self.internal_value = value
+        self.data_type = data_type
+        self.style_id = style_id
+        self.number_format = number_format
 
     @property
     def is_date(self):
         return is_date_format(self.number_format)
+
+    def __eq__(self, other):
+        for a in RawCell.__slots__:
+            if getattr(self, a) != getattr(other, a):
+                return False
+        return True
+
 
 def get_range_boundaries(range_string, row_offset=0, column_offset=1):
 
@@ -114,6 +114,7 @@ def get_missing_cells(row, columns):
 CELL_TAG = '{%s}c' % SHEET_MAIN_NS
 VALUE_TAG = '{%s}v' % SHEET_MAIN_NS
 FORMULA_TAG = '{%s}f' % SHEET_MAIN_NS
+
 
 class IterableWorksheet(Worksheet):
 
@@ -186,9 +187,7 @@ class IterableWorksheet(Worksheet):
                     dummy_cells = get_missing_cells(gap_row, expected_columns)
                     yield tuple([dummy_cells[column] for column in expected_columns])
                     current_row = row
-
-            temp_cells = list(cells)
-            retrieved_columns = dict([(c.column, c) for c in temp_cells])
+            retrieved_columns = dict([(c.column, c) for c in cells])
             missing_columns = list(set(expected_columns) - set(retrieved_columns.keys()))
             replacement_columns = get_missing_cells(row, missing_columns)
 
@@ -202,22 +201,23 @@ class IterableWorksheet(Worksheet):
             current_row = row + 1
             yield tuple(full_row)
 
+
     def _update_cell(self, cell):
         if cell.style_id is not None:
             style = self._style_table[int(cell.style_id)]
-            cell = cell._replace(number_format=style.number_format.format_code)
+            cell.number_format = style.number_format.format_code
         if cell.internal_value is not None:
             if cell.data_type in Cell.TYPE_STRING:
-                cell = cell._replace(internal_value=unicode(self._string_table[int(cell.internal_value)]))
+                cell.internal_value = unicode(self._string_table[int(cell.internal_value)])
             elif cell.data_type == Cell.TYPE_BOOL:
-                cell = cell._replace(internal_value=cell.internal_value == '1')
+                cell.internal_value = cell.internal_value == '1'
             elif cell.is_date:
-                cell = cell._replace(internal_value=from_excel(
-                    float(cell.internal_value), self.base_date))
+                cell.internal_value = from_excel(float(cell.internal_value),
+                                                self.base_date)
             elif cell.data_type == Cell.TYPE_NUMERIC:
-                cell = cell._replace(internal_value=float(cell.internal_value))
+                cell.internal_value = float(cell.internal_value)
             elif cell.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
-                cell = cell._replace(internal_value=unicode(cell.internal_value))
+                cell.internal_value = unicode(cell.internal_value)
         return cell
 
 
