@@ -356,16 +356,47 @@ class TestWorksheet(object):
         ws.header_footer.right_footer.font_size = 14
         ws.header_footer.right_footer.font_color = "AABBCC"
         xml_string = write_worksheet(ws, None, None)
-        assert '<headerFooter>' in xml_string
-        assert '<oddHeader>&amp;L&amp;"Calibri,Regular"&amp;K000000Left Header Text&amp;C&amp;"Arial,Regular"&amp;6&amp;K445566Center Header Text&amp;R&amp;"Arial,Bold"&amp;8&amp;K112233Right Header Text</oddHeader>' in xml_string
-        assert '<oddFooter>&amp;L&amp;"Times New Roman,Regular"&amp;10&amp;K445566Left Footer Text_x000D_And &amp;D and &amp;T&amp;C&amp;"Times New Roman,Bold"&amp;12&amp;K778899Center Footer Text &amp;Z&amp;F on &amp;A&amp;R&amp;"Times New Roman,Italic"&amp;14&amp;KAABBCCRight Footer Text &amp;P of &amp;N</oddFooter></headerFooter>' in xml_string
-        assert '</headerFooter>' in xml_string
+        from .helper import compare_xml
+        diff = compare_xml(xml_string, """
+        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+          <sheetPr>
+            <outlinePr summaryRight="1" summaryBelow="1"/>
+          </sheetPr>
+          <dimension ref="A1:A1"/>
+          <sheetViews>
+            <sheetView workbookViewId="0">
+              <selection sqref="A1" activeCell="A1"/>
+            </sheetView>
+          </sheetViews>
+          <sheetFormatPr defaultRowHeight="15"/>
+          <sheetData/>
+          <headerFooter>
+            <oddHeader>&amp;L&amp;"Calibri,Regular"&amp;K000000Left Header Text&amp;C&amp;"Arial,Regular"&amp;6&amp;K445566Center Header Text&amp;R&amp;"Arial,Bold"&amp;8&amp;K112233Right Header Text</oddHeader>
+            <oddFooter>&amp;L&amp;"Times New Roman,Regular"&amp;10&amp;K445566Left Footer Text_x000D_And &amp;D and &amp;T&amp;C&amp;"Times New Roman,Bold"&amp;12&amp;K778899Center Footer Text &amp;Z&amp;F on &amp;A&amp;R&amp;"Times New Roman,Italic"&amp;14&amp;KAABBCCRight Footer Text &amp;P of &amp;N</oddFooter>
+          </headerFooter>
+        </worksheet>
+        """)
+        assert diff is None, diff
 
         ws = Worksheet(self.wb)
         xml_string = write_worksheet(ws, None, None)
-        assert "<headerFooter>" not in xml_string
-        assert "<oddHeader>" not in xml_string
-        assert "<oddFooter>" not in xml_string
+        diff = compare_xml(xml_string, """
+        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+          <sheetPr>
+            <outlinePr summaryRight="1" summaryBelow="1"/>
+          </sheetPr>
+          <dimension ref="A1:A1"/>
+          <sheetViews>
+            <sheetView workbookViewId="0">
+              <selection sqref="A1" activeCell="A1"/>
+            </sheetView>
+          </sheetViews>
+          <sheetFormatPr defaultRowHeight="15"/>
+          <sheetData/>
+        </worksheet>
+        """)
+        assert diff is None, diff
+
 
     def test_getitem(self):
         ws = Worksheet(self.wb)
