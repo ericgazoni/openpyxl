@@ -116,7 +116,13 @@ from openpyxl.xml.ooxml import (
     DCTERMS_NS,
     DCTERMS_PREFIX
 )
-from openpyxl import __name__ as prefix
+
+if LXML is False:
+    _iterparse = iterparse
+    def safe_iterparse(source, *args, **kw):
+        return _iterparse(source)
+
+    iterparse = safe_iterparse
 
 
 register_namespace(DCTERMS_PREFIX, DCTERMS_NS)
