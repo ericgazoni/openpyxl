@@ -188,7 +188,7 @@ class IterableWorksheet(Worksheet):
                     yield tuple([dummy_cells[column] for column in expected_columns])
                     current_row = row
             retrieved_columns = dict([(c.column, c) for c in cells])
-            missing_columns = list(set(expected_columns) - set(retrieved_columns.keys()))
+            missing_columns = list(set(expected_columns) - set(retrieved_columns))
             replacement_columns = get_missing_cells(row, missing_columns)
 
             for column in expected_columns:
