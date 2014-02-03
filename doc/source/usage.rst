@@ -48,7 +48,7 @@ Read an existing workbook
 
     There are several flags that can be used in load_workbook.
 
-    - `guess_types` will enable (default) or disable type inference when
+    - `guess_types` will enable or disable (default) type inference when
       reading cells.
 
     - `data_only` controls whether cells with formulae have either the
