@@ -195,26 +195,30 @@ class IterableWorksheet(Worksheet):
             for column in expected_columns:
                 if column in retrieved_columns:
                     cell = retrieved_columns[column]
-                    if cell.style_id is not None:
-                        style = style_table[int(cell.style_id)]
-                        cell = cell._replace(number_format=style.number_format.format_code) #pylint: disable-msg=W0212
-                    if cell.internal_value is not None:
-                        if cell.data_type in Cell.TYPE_STRING:
-                            cell = cell._replace(internal_value=unicode(self._string_table[int(cell.internal_value)])) #pylint: disable-msg=W0212
-                        elif cell.data_type == Cell.TYPE_BOOL:
-                            cell = cell._replace(internal_value=cell.internal_value == '1')
-                        elif cell.is_date:
-                            cell = cell._replace(internal_value=from_excel(
-                                float(cell.internal_value), self.base_date))
-                        elif cell.data_type == Cell.TYPE_NUMERIC:
-                            cell = cell._replace(internal_value=float(cell.internal_value))
-                        elif cell.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
-                            cell = cell._replace(internal_value=unicode(cell.internal_value))
+                    cell = self._update_cell(cell)
                     full_row.append(cell)
                 else:
                     full_row.append(replacement_columns[column])
             current_row = row + 1
             yield tuple(full_row)
+
+    def _update_cell(self, cell):
+        if cell.style_id is not None:
+            style = self._style_table[int(cell.style_id)]
+            cell = cell._replace(number_format=style.number_format.format_code)
+        if cell.internal_value is not None:
+            if cell.data_type in Cell.TYPE_STRING:
+                cell = cell._replace(internal_value=unicode(self._string_table[int(cell.internal_value)]))
+            elif cell.data_type == Cell.TYPE_BOOL:
+                cell = cell._replace(internal_value=cell.internal_value == '1')
+            elif cell.is_date:
+                cell = cell._replace(internal_value=from_excel(
+                    float(cell.internal_value), self.base_date))
+            elif cell.data_type == Cell.TYPE_NUMERIC:
+                cell = cell._replace(internal_value=float(cell.internal_value))
+            elif cell.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
+                cell = cell._replace(internal_value=unicode(cell.internal_value))
+        return cell
 
 
     def get_cells(self, min_row, min_col, max_row, max_col):
