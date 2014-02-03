@@ -91,25 +91,6 @@ def absolute_coordinate(coord_string):
     else:
         return coord_string
 
-
-COLUMN_RE = re.compile("^[A-Z]{1,3}$")
-def column_index_from_string(column, fast=False):
-    """Convert a column letter into a column number (e.g. B -> 2)
-
-    Excel only supports 1-3 letter column names from A -> ZZZ, so we
-    restrict our column names to 1-3 characters, each in the range A-Z.
-    """
-    if len(column) > 3:
-        raise ValueError("Column string index can not be longer than 3 characters")
-    m = COLUMN_RE.match(column.upper())
-    if not m:
-        raise ValueError('Column string must contain only characters A-Z: got %s' % column)
-    idx = 0
-    for i, l in enumerate(reversed(m.group(0))):
-        idx += (ord(l) - 64) * pow(26, i)
-    return idx
-
-
 def get_column_letter(col_idx):
     """Convert a column number into a column letter (3 -> 'C')
 
@@ -132,6 +113,34 @@ def get_column_letter(col_idx):
             col_idx -= 1
         letters.append(chr(remainder+64))
     return ''.join(reversed(letters))
+
+
+COLUMN_RE = re.compile("^[A-Z]{1,3}$")
+def _column_index_from_string(column, fast=False):
+    """Convert a column letter into a column number (e.g. B -> 2)
+
+    Excel only supports 1-3 letter column names from A -> ZZZ, so we
+    restrict our column names to 1-3 characters, each in the range A-Z.
+    """
+    if len(column) > 3:
+        raise ValueError("Column string index can not be longer than 3 characters")
+    m = COLUMN_RE.match(column.upper())
+    if not m:
+        raise ValueError('Column string must contain only characters A-Z: got %s' % column)
+    idx = 0
+    for i, l in enumerate(reversed(m.group(0))):
+        idx += (ord(l) - 64) * pow(26, i)
+    return idx
+
+
+_COL_CONVERSION_CACHE = dict((get_column_letter(i), i) for i in xrange(1, 18279))
+def column_index_from_string(str_col, _col_conversion_cache=_COL_CONVERSION_CACHE):
+    # we use a function argument to get indexed name lookup
+    col = _col_conversion_cache.get(str_col.upper())
+    if col is None:
+        raise ValueError("{0} is not a valid column name".format(str_col))
+    return col
+del _COL_CONVERSION_CACHE
 
 
 PERCENT_REGEX = re.compile(r'^\-?(?P<number>[0-9]*\.?[0-9]*\s?)\%$')
@@ -465,7 +474,7 @@ class Cell(object):
 
             :rtype: tuple(int, int)
         """
-        left_columns = (column_index_from_string(self.column, True) - 1)
+        left_columns = (column_index_from_string(self.column) - 1)
         column_dimensions = self.parent.column_dimensions
         left_anchor = 0
         default_width = points_to_pixels(DEFAULT_COLUMN_WIDTH)
