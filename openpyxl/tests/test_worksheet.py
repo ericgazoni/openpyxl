@@ -72,13 +72,6 @@ class TestWorksheet(object):
     def test_set_bad_title_character(self, value):
         with pytest.raises(SheetTitleException):
             Worksheet(self.wb, value)
-        #assert_raises(SheetTitleException, Worksheet, self.wb, '[')
-        #assert_raises(SheetTitleException, Worksheet, self.wb, ']')
-        #assert_raises(SheetTitleException, Worksheet, self.wb, '*')
-        #assert_raises(SheetTitleException, Worksheet, self.wb, ':')
-        #assert_raises(SheetTitleException, Worksheet, self.wb, '?')
-        #assert_raises(SheetTitleException, Worksheet, self.wb, '/')
-        #assert_raises(SheetTitleException, Worksheet, self.wb, '\\')
 
 
     def test_unique_sheet_title(self):
