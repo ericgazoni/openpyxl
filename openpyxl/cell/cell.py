@@ -36,6 +36,7 @@ __docformat__ = "restructuredtext en"
 import datetime
 import re
 
+from openpyxl.compat import lru_cache
 from openpyxl.units import (
     NUMERIC_TYPES,
     DEFAULT_ROW_HEIGHT,
@@ -91,7 +92,8 @@ def absolute_coordinate(coord_string):
     else:
         return coord_string
 
-def _get_column_letter(col_idx):
+@lru_cache(maxsize=1000)
+def get_column_letter(col_idx):
     """Convert a column number into a column letter (3 -> 'C')
 
     Right shift the column col_idx by 26 to find column letters in reverse
@@ -111,16 +113,10 @@ def _get_column_letter(col_idx):
         letters.append(chr(remainder+64))
     return ''.join(reversed(letters))
 
-_COL_INDEX_CACHE = [_get_column_letter(i) for i in xrange(1, 18279)]
-def get_column_letter(col_idx, cache=_COL_INDEX_CACHE):
-    if not 1 <= col_idx <= 18278:
-        raise ValueError("Invalid column index {0}".format(col_idx))
-    return cache[col_idx-1]
-del _COL_INDEX_CACHE
 
-
+# Expensive better to use a cache based on generating column letters
 COLUMN_RE = re.compile("^[A-Z]{1,3}$")
-def _column_index_from_string(column, fast=False):
+def column_index_from_string(column):
     """Convert a column letter into a column number (e.g. B -> 2)
 
     Excel only supports 1-3 letter column names from A -> ZZZ, so we
