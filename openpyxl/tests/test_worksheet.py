@@ -24,6 +24,8 @@
 # 3rd party imports
 #from nose.tools import eq_, raises, assert_raises
 import pytest
+from .helper import compare_xml
+
 
 # package imports
 from openpyxl.workbook import Workbook
@@ -258,38 +260,24 @@ class TestWorksheet(object):
         ws.auto_filter.ref = 'c1:g9'
         assert ws.auto_filter.ref == 'C1:G9'
 
-    def test_page_margins(self):
+    def test_getitem(self):
         ws = Worksheet(self.wb)
-        ws.page_margins.left = 2.0
-        ws.page_margins.right = 2.0
-        ws.page_margins.top = 2.0
-        ws.page_margins.bottom = 2.0
-        ws.page_margins.header = 1.5
-        ws.page_margins.footer = 1.5
-        xml_string = write_worksheet(ws, None, None)
-        assert '<pageMargins left="2.00" right="2.00" top="2.00" bottom="2.00" header="1.50" footer="1.50"></pageMargins>' in xml_string
+        c = ws['A1']
+        assert isinstance(c, Cell)
+        assert c.get_coordinate() == "A1"
+        assert ws['A1'].value is None
 
+    def test_setitem(self):
         ws = Worksheet(self.wb)
-        xml_string = write_worksheet(ws, None, None)
-        assert '<pageMargins' not in xml_string
+        ws['A12'] = 5
+        assert ws['A12'].value == 5
 
-    def test_merge(self):
+    def test_getslice(self):
         ws = Worksheet(self.wb)
-        string_table = {'':'', 'Cell A1':'Cell A1', 'Cell B1':'Cell B1'}
+        cell_range = ws['A1':'B2']
+        assert isinstance(cell_range, tuple)
+        assert (cell_range) == ((ws['A1'], ws['B1']), (ws['A2'], ws['B2']))
 
-        ws.cell('A1').value = 'Cell A1'
-        ws.cell('B1').value = 'Cell B1'
-        xml_string = write_worksheet(ws, string_table, None)
-        assert '<v>Cell B1</v>' in xml_string
-
-        ws.merge_cells('A1:B1')
-        xml_string = write_worksheet(ws, string_table, None)
-        assert '<v>Cell B1</v>' not in xml_string
-        assert '<mergeCells count="1"><mergeCell ref="A1:B1"></mergeCell></mergeCells>' in xml_string
-
-        ws.unmerge_cells('A1:B1')
-        xml_string = write_worksheet(ws, string_table, None)
-        assert '<mergeCell ref="A1:B1"/>' not in xml_string
 
     def test_freeze(self):
         ws = Worksheet(self.wb)
@@ -305,6 +293,167 @@ class TestWorksheet(object):
         ws.freeze_panes = ws.cell('A1')
         assert ws.freeze_panes is None
 
+
+class TestWorkSheetWriter(object):
+
+    @classmethod
+    def setup_class(cls):
+        cls.wb = Workbook()
+
+    def test_write_empty(self):
+        ws = Worksheet(self.wb)
+        xml = write_worksheet(ws, None, None)
+        expected = """
+        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+          <sheetPr>
+            <outlinePr summaryRight="1" summaryBelow="1"/>
+          </sheetPr>
+          <dimension ref="A1:A1"/>
+          <sheetViews>
+            <sheetView workbookViewId="0">
+              <selection sqref="A1" activeCell="A1"/>
+            </sheetView>
+          </sheetViews>
+          <sheetFormatPr defaultRowHeight="15"/>
+          <sheetData/>
+        </worksheet>
+        """
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+
+    def test_page_margins(self):
+        ws = Worksheet(self.wb)
+        ws.page_margins.left = 2.0
+        ws.page_margins.right = 2.0
+        ws.page_margins.top = 2.0
+        ws.page_margins.bottom = 2.0
+        ws.page_margins.header = 1.5
+        ws.page_margins.footer = 1.5
+        xml = write_worksheet(ws, None, None)
+        expected = """
+        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+          <sheetPr>
+            <outlinePr summaryRight="1" summaryBelow="1"/>
+          </sheetPr>
+          <dimension ref="A1:A1"/>
+          <sheetViews>
+            <sheetView workbookViewId="0">
+              <selection sqref="A1" activeCell="A1"/>
+            </sheetView>
+          </sheetViews>
+          <sheetFormatPr defaultRowHeight="15"/>
+          <sheetData/>
+          <pageMargins left="2.00" right="2.00" top="2.00" bottom="2.00" header="1.50" footer="1.50"/>
+        </worksheet>
+        """
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+
+    def test_merge(self):
+        ws = Worksheet(self.wb)
+        string_table = {'':'', 'Cell A1':'Cell A1', 'Cell B1':'Cell B1'}
+        expected = """
+        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+          <sheetPr>
+            <outlinePr summaryRight="1" summaryBelow="1"/>
+          </sheetPr>
+          <dimension ref="A1:B1"/>
+          <sheetViews>
+            <sheetView workbookViewId="0">
+              <selection sqref="A1" activeCell="A1"/>
+            </sheetView>
+          </sheetViews>
+          <sheetFormatPr defaultRowHeight="15"/>
+          <cols>
+            <col min="1" max="1" width="9.10"/>
+            <col min="2" max="2" width="9.10"/>
+          </cols>
+          <sheetData>
+            <row r="1" spans="1:2">
+              <c r="A1" t="s">
+                <v>Cell A1</v>
+              </c>
+              <c r="B1" t="s">
+                <v>Cell B1</v>
+              </c>
+            </row>
+          </sheetData>
+        </worksheet>
+        """
+
+        ws.cell('A1').value = 'Cell A1'
+        ws.cell('B1').value = 'Cell B1'
+        xml = write_worksheet(ws, string_table, None)
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+        ws.merge_cells('A1:B1')
+        xml = write_worksheet(ws, string_table, None)
+        expected = """
+        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+          <sheetPr>
+            <outlinePr summaryRight="1" summaryBelow="1"/>
+          </sheetPr>
+          <dimension ref="A1:B1"/>
+          <sheetViews>
+            <sheetView workbookViewId="0">
+              <selection sqref="A1" activeCell="A1"/>
+            </sheetView>
+          </sheetViews>
+          <sheetFormatPr defaultRowHeight="15"/>
+          <cols>
+            <col min="1" max="1" width="9.10"/>
+            <col min="2" max="2" width="9.10"/>
+          </cols>
+          <sheetData>
+            <row r="1" spans="1:2">
+              <c r="A1" t="s">
+                <v>Cell A1</v>
+              </c>
+              <c r="B1" t="s"/>
+            </row>
+          </sheetData>
+          <mergeCells count="1">
+            <mergeCell ref="A1:B1"/>
+          </mergeCells>
+        </worksheet>
+        """
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+        ws.unmerge_cells('A1:B1')
+        xml = write_worksheet(ws, string_table, None)
+        expected = """
+        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+          <sheetPr>
+            <outlinePr summaryRight="1" summaryBelow="1"/>
+          </sheetPr>
+          <dimension ref="A1:B1"/>
+          <sheetViews>
+            <sheetView workbookViewId="0">
+              <selection sqref="A1" activeCell="A1"/>
+            </sheetView>
+          </sheetViews>
+          <sheetFormatPr defaultRowHeight="15"/>
+          <cols>
+            <col min="1" max="1" width="9.10"/>
+            <col min="2" max="2" width="9.10"/>
+          </cols>
+          <sheetData>
+            <row r="1" spans="1:2">
+              <c r="A1" t="s">
+                <v>Cell A1</v>
+              </c>
+              <c r="B1" t="s"/>
+            </row>
+          </sheetData>
+        </worksheet>
+        """
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
     def test_printer_settings(self):
         ws = Worksheet(self.wb)
         ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
@@ -314,16 +463,28 @@ class TestWorksheet(object):
         ws.page_setup.fitToWidth = 1
         ws.page_setup.horizontalCentered = True
         ws.page_setup.verticalCentered = True
-        xml_string = write_worksheet(ws, None, None)
-        assert '<pageSetup orientation="landscape" paperSize="3" fitToHeight="0" fitToWidth="1"></pageSetup>' in xml_string
-        assert '<pageSetUpPr fitToPage="1"></pageSetUpPr>' in xml_string
-        assert '<printOptions horizontalCentered="1" verticalCentered="1">' in xml_string
+        xml = write_worksheet(ws, None, None)
+        expected = """
+        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+          <sheetPr>
+            <outlinePr summaryRight="1" summaryBelow="1"/>
+            <pageSetUpPr fitToPage="1"/>
+          </sheetPr>
+          <dimension ref="A1:A1"/>
+          <sheetViews>
+            <sheetView workbookViewId="0">
+              <selection sqref="A1" activeCell="A1"/>
+            </sheetView>
+          </sheetViews>
+          <sheetFormatPr defaultRowHeight="15"/>
+          <sheetData/>
+          <printOptions horizontalCentered="1" verticalCentered="1"/>
+          <pageSetup orientation="landscape" paperSize="3" fitToHeight="0" fitToWidth="1"/>
+        </worksheet>
+        """
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
 
-        ws = Worksheet(self.wb)
-        xml_string = write_worksheet(ws, None, None)
-        assert "<pageSetup" not in xml_string
-        assert "<pageSetUpPr" not in xml_string
-        assert "<printOptions" not in xml_string
 
     def test_header_footer(self):
         ws = Worksheet(self.wb)
@@ -349,7 +510,6 @@ class TestWorksheet(object):
         ws.header_footer.right_footer.font_size = 14
         ws.header_footer.right_footer.font_color = "AABBCC"
         xml_string = write_worksheet(ws, None, None)
-        from .helper import compare_xml
         diff = compare_xml(xml_string, """
         <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
           <sheetPr>
@@ -389,25 +549,6 @@ class TestWorksheet(object):
         </worksheet>
         """)
         assert diff is None, diff
-
-
-    def test_getitem(self):
-        ws = Worksheet(self.wb)
-        c = ws['A1']
-        assert isinstance(c, Cell)
-        assert c.get_coordinate() == "A1"
-        assert ws['A1'].value is None
-
-    def test_setitem(self):
-        ws = Worksheet(self.wb)
-        ws['A12'] = 5
-        assert ws['A12'].value == 5
-
-    def test_getslice(self):
-        ws = Worksheet(self.wb)
-        cell_range = ws['A1':'B2']
-        assert isinstance(cell_range, tuple)
-        assert (cell_range) == ((ws['A1'], ws['B1']), (ws['A2'], ws['B2']))
 
 
 class TestPositioning(object):
