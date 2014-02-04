@@ -214,30 +214,35 @@ class IterableWorksheet(Worksheet):
         return self.get_squared_range(min_col, min_row, max_col, max_row)
 
     def get_squared_range(self, min_col, min_row, max_col, max_row):
+        """
+        The source worksheet file may have columns or rows missing.
+        Missing cells will be created.
+        """
         expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
-        current_row = min_row
+        row_counter = min_row
 
+        # get cells row by row
         for row, cells in groupby(self.get_cells(min_row, min_col,
                                                  max_row, max_col),
                                   operator.attrgetter('row')):
             full_row = []
-            if current_row < row:
-
-                for gap_row in xrange(current_row, row):
+            if row_counter < row:
+                # Rows requested before those in the worksheet
+                for gap_row in xrange(row_counter, row):
                     dummy_cells = get_missing_cells(gap_row, expected_columns)
                     yield tuple([dummy_cells[column] for column in expected_columns])
-                    current_row = row
-            retrieved_columns = dict([(c.column, c) for c in cells])
-            missing_columns = list(set(expected_columns) - set(retrieved_columns))
-            replacement_columns = get_missing_cells(row, missing_columns)
+                    row_counter = row
 
+            retrieved_columns = dict([(c.column, c) for c in cells])
             for column in expected_columns:
                 if column in retrieved_columns:
                     cell = retrieved_columns[column]
                     full_row.append(cell)
                 else:
-                    full_row.append(replacement_columns[column])
-            current_row = row + 1
+                    # create missing cell
+                    full_row.append(RawCell(row, column, '%s%s' % (column, row),
+                                  MISSING_VALUE, TYPE_NULL, None, None))
+            row_counter = row + 1
             yield tuple(full_row)
 
 
