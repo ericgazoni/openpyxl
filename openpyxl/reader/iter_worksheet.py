@@ -247,7 +247,7 @@ class IterableWorksheet(Worksheet):
 
 
     def get_cells(self, min_row, min_col, max_row, max_col):
-        p = iterparse(self.xml_source, tag=CELL_TAG, remove_blank_text=True)
+        p = iterparse(self.xml_source, events=('end',), tag=CELL_TAG, remove_blank_text=True)
         for _event, element in p:
             if element.tag == CELL_TAG:
                 coord = element.get('r')
