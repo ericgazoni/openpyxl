@@ -55,33 +55,71 @@ from openpyxl.xml.ooxml import (
 TYPE_NULL = Cell.TYPE_NULL
 MISSING_VALUE = None
 
-RAW_ATTRIBUTES = ['row', 'column', 'coordinate', 'internal_value',
-                  'data_type', 'style_id', 'number_format']
-
 
 class RawCell(object):
 
-    __slots__ = RAW_ATTRIBUTES
+    __slots__ = ('row', 'column', 'coordinate', '_value',
+                  'data_type', 'style_id', 'number_format')
+
 
     def __init__(self, row, column, coordinate, value, data_type, style_id=None,
                  number_format=None):
         self.row = row
         self.column = column
         self.coordinate = coordinate
-        self.internal_value = value
         self.data_type = data_type
-        self.style_id = style_id
-        self.number_format = number_format
+        self.number_format = None
+        self.set_style_id(style_id)
+        self.value = value
+
+    def __eq__(self, other):
+        for a in self.__slots__:
+            if getattr(self, a) != getattr(other, a):
+                return False
+        return True
+
+    @classmethod
+    def set_string_table(cls, string_table):
+        cls.string_table = string_table
+
+    @classmethod
+    def set_style_table(cls, style_table):
+        cls.style_table = style_table
 
     @property
     def is_date(self):
         return is_date_format(self.number_format)
 
-    def __eq__(self, other):
-        for a in RawCell.__slots__:
-            if getattr(self, a) != getattr(other, a):
-                return False
-        return True
+    @property
+    def internal_value(self):
+        return self.value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if self.data_type == Cell.TYPE_NUMERIC:
+            value = float(value)
+        if self.data_type == Cell.TYPE_BOOL:
+            self._value = value == '1'
+        elif self.is_date:
+            self._value = from_excel(value)
+        elif self.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
+            self._value = unicode(value)
+        elif self.data_type in Cell.TYPE_STRING and value is not None:
+            self._value = unicode(self.string_table[int(value)])
+        else:
+            self._value = value
+
+    def set_style_id(self, value):
+        if value is None:
+            self.style_id = None
+            return
+        value = int(value)
+        self.style_id = value
+        self.number_format = self.style_table[value].number_format.format_code
 
 
 def get_range_boundaries(range_string, row_offset=0, column_offset=1):
@@ -122,8 +160,8 @@ class IterableWorksheet(Worksheet):
                  xml_source, string_table, style_table):
         Worksheet.__init__(self, parent_workbook, title)
         self.worksheet_path = worksheet_path
-        self._string_table = string_table
-        self._style_table = style_table
+        RawCell.set_string_table(string_table)
+        RawCell.set_style_table(style_table)
 
         min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
         self.min_col = min_col
@@ -176,7 +214,6 @@ class IterableWorksheet(Worksheet):
         expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
         current_row = min_row
 
-        style_table = self._style_table
         for row, cells in groupby(self.get_cells(min_row, min_col,
                                                  max_row, max_col),
                                   operator.attrgetter('row')):
@@ -194,31 +231,11 @@ class IterableWorksheet(Worksheet):
             for column in expected_columns:
                 if column in retrieved_columns:
                     cell = retrieved_columns[column]
-                    cell = self._update_cell(cell)
                     full_row.append(cell)
                 else:
                     full_row.append(replacement_columns[column])
             current_row = row + 1
             yield tuple(full_row)
-
-
-    def _update_cell(self, cell):
-        if cell.style_id is not None:
-            style = self._style_table[int(cell.style_id)]
-            cell.number_format = style.number_format.format_code
-        if cell.internal_value is not None:
-            if cell.data_type in Cell.TYPE_STRING:
-                cell.internal_value = unicode(self._string_table[int(cell.internal_value)])
-            elif cell.data_type == Cell.TYPE_BOOL:
-                cell.internal_value = cell.internal_value == '1'
-            elif cell.is_date:
-                cell.internal_value = from_excel(float(cell.internal_value),
-                                                self.base_date)
-            elif cell.data_type == Cell.TYPE_NUMERIC:
-                cell.internal_value = float(cell.internal_value)
-            elif cell.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
-                cell.internal_value = unicode(cell.internal_value)
-        return cell
 
 
     def get_cells(self, min_row, min_col, max_row, max_col):
@@ -238,7 +255,8 @@ class IterableWorksheet(Worksheet):
                     if formula is not None and not self.parent.data_only:
                         data_type = Cell.TYPE_FORMULA
                         value = "=%s" % formula
-                    yield RawCell(row, column_str, coord, value, data_type, style_id, None)
+                    yield RawCell(row, column_str, coord, value, data_type,
+                                  style_id)
             if not LXML and element.tag in (VALUE_TAG, FORMULA_TAG):
                 # sub-elements of cells should be skipped
                 continue
