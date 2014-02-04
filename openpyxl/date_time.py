@@ -27,7 +27,6 @@ from __future__ import division
 """Manage Excel date weirdness."""
 
 # Python stdlib imports
-from math import floor
 import datetime
 import re
 import warnings
@@ -38,6 +37,7 @@ from jdcal import (
     MJD_0
 )
 
+from openpyxl.compat import lru_cache
 
 # constants
 MAC_EPOCH = datetime.date(1904, 1, 1)
@@ -101,7 +101,7 @@ class SharedDate(object):
     def from_julian(self, value=0):
         return from_excel(value, self.excel_base_date)
 
-
+@lru_cache()
 def to_excel(dt, offset=CALENDAR_WINDOWS_1900):
     jul = sum(gcal2jd(dt.year, dt.month, dt.day)) - offset
     if jul <= 60 and offset == CALENDAR_WINDOWS_1900:
@@ -110,7 +110,7 @@ def to_excel(dt, offset=CALENDAR_WINDOWS_1900):
         jul += time_to_days(dt)
     return jul
 
-
+@lru_cache()
 def from_excel(value, offset=CALENDAR_WINDOWS_1900):
     parts = list(jd2gcal(MJD_0, value + offset - MJD_0))
     fractions = value - int(value)
@@ -119,7 +119,7 @@ def from_excel(value, offset=CALENDAR_WINDOWS_1900):
         return days_to_time(diff)
     return datetime.datetime(*parts[:3]) + diff
 
-
+@lru_cache()
 def time_to_days(value):
     """Convert a time value to fractions of day"""
     return (
@@ -129,7 +129,7 @@ def time_to_days(value):
         + value.microsecond / 10**6
         ) / SECS_PER_DAY
 
-
+@lru_cache()
 def timedelta_to_days(value):
     """Convert a timedelta value to fractions of a day"""
     if not hasattr(value, 'total_seconds'):
@@ -139,7 +139,7 @@ def timedelta_to_days(value):
         secs =value.total_seconds()
     return secs / SECS_PER_DAY
 
-
+@lru_cache()
 def days_to_time(value):
     mins, seconds = divmod(value.seconds, 60)
     hours, mins = divmod(mins, 60)
