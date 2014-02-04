@@ -32,7 +32,7 @@ from lxml.doctestcompare import LXMLOutputChecker, PARSE_XML
 
 # package imports
 from openpyxl.compat import BytesIO
-from openpyxl.xml.xmltools import ElementTree
+from openpyxl.xml.functions import ElementTree
 
 # constants
 DATADIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'test_data'))

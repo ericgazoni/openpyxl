@@ -31,7 +31,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from openpyxl.compat import BytesIO
 
 # package imports
-from openpyxl.xml.ooxml import (
+from openpyxl.xml.constants import (
     ARC_SHARED_STRINGS,
     ARC_CONTENT_TYPES,
     ARC_ROOT_RELS,

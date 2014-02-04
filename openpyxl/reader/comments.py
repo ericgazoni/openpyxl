@@ -25,13 +25,13 @@ from __future__ import absolute_import
 import os.path
 
 from openpyxl.comments import Comment
-from openpyxl.xml.ooxml import (
+from openpyxl.xml.constants import (
     PACKAGE_WORKSHEET_RELS,
     PACKAGE_WORKSHEETS,
     SHEET_MAIN_NS,
     COMMENTS_NS
     )
-from openpyxl.xml.xmltools import fromstring, safe_iterator
+from openpyxl.xml.functions import fromstring, safe_iterator
 
 def _get_author_list(root):
     author_subtree = root.find('{%s}authors' % SHEET_MAIN_NS)

@@ -32,9 +32,9 @@ from openpyxl.compat import OrderedDict
 
 from openpyxl.cell import  get_column_letter, Cell
 from openpyxl.worksheet import Worksheet
-from openpyxl.xml.xmltools import (XMLGenerator, start_tag, end_tag, tag)
+from openpyxl.xml.functions import (XMLGenerator, start_tag, end_tag, tag)
 from openpyxl.date_time import to_excel
-from openpyxl.xml.ooxml import MAX_COLUMN, MAX_ROW
+from openpyxl.xml.constants import MAX_COLUMN, MAX_ROW
 from openpyxl.units import NUMERIC_TYPES
 from openpyxl.exceptions import WorkbookAlreadySaved
 from openpyxl.writer.excel import ExcelWriter
@@ -42,7 +42,7 @@ from openpyxl.writer.strings import write_string_table
 from openpyxl.writer.styles import StyleWriter
 from openpyxl.styles import Style, NumberFormat
 
-from openpyxl.xml.ooxml import (ARC_SHARED_STRINGS, PACKAGE_WORKSHEETS)
+from openpyxl.xml.constants import (ARC_SHARED_STRINGS, PACKAGE_WORKSHEETS)
 
 STYLES = {'datetime' : {'type':Cell.TYPE_NUMERIC,
                         'style':'1'},

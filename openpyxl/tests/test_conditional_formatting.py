@@ -33,7 +33,7 @@ from openpyxl.compat import iterkeys
 # package imports
 from openpyxl.reader.excel import load_workbook
 from openpyxl.reader.style import read_style_table
-from openpyxl.xml.ooxml import ARC_STYLE
+from openpyxl.xml.constants import ARC_STYLE
 from openpyxl.writer.worksheet import write_worksheet_conditional_formatting
 from openpyxl.writer.styles import StyleWriter
 from openpyxl.styles import Border, Color, Fill, Font, Borders, HashableObject

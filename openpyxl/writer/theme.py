@@ -26,7 +26,7 @@ from __future__ import absolute_import
 """Write the theme xml based on a fixed string."""
 
 # package imports
-from openpyxl.xml.xmltools import fromstring, get_document_content
+from openpyxl.xml.functions import fromstring, get_document_content
 
 
 def write_theme():

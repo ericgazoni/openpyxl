@@ -25,8 +25,8 @@ import os
 
 import pytest
 
-from openpyxl.xml.ooxml import CHART_DRAWING_NS, SHEET_DRAWING_NS
-from openpyxl.xml.xmltools import Element, fromstring
+from openpyxl.xml.constants import CHART_DRAWING_NS, SHEET_DRAWING_NS
+from openpyxl.xml.functions import Element, fromstring
 
 from .helper import compare_xml, get_xml, DATADIR
 from .schema import drawing_schema, chart_schema

@@ -24,8 +24,8 @@ from __future__ import absolute_import
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
-from openpyxl.xml.xmltools import Element, SubElement, get_document_content
-from openpyxl.xml.ooxml import (
+from openpyxl.xml.functions import Element, SubElement, get_document_content
+from openpyxl.xml.constants import (
     DRAWING_NS,
     SHEET_DRAWING_NS,
     CHART_NS,

@@ -38,7 +38,7 @@ except ImportError:
 from xml.etree.ElementTree import Element as pyElement
 
 def test_backend():
-    from openpyxl.xml.xmltools import Element
+    from openpyxl.xml.functions import Element
     if LXML is True:
         assert Element == lElement
     elif C is True:

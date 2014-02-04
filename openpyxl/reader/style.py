@@ -25,10 +25,10 @@ from __future__ import absolute_import
 """Read shared style definitions"""
 
 # package imports
-from openpyxl.xml.xmltools import fromstring
+from openpyxl.xml.functions import fromstring
 from openpyxl.exceptions import MissingNumberFormat
 from openpyxl.styles import Style, NumberFormat, Font, Fill, Borders, Protection, Color
-from openpyxl.xml.ooxml import SHEET_MAIN_NS
+from openpyxl.xml.constants import SHEET_MAIN_NS
 from copy import deepcopy
 
 def read_style_table(xml_source):

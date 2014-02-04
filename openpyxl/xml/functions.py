@@ -104,7 +104,7 @@ else:
         )
     from .namespace import register_namespace
 
-from openpyxl.xml.ooxml import (
+from openpyxl.xml.constants import (
     CHART_NS,
     DRAWING_NS,
     SHEET_DRAWING_NS,

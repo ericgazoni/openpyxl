@@ -1,8 +1,8 @@
 import pytest
 import os
 
-from openpyxl.xml.xmltools import Element, fromstring, safe_iterator
-from openpyxl.xml.ooxml import CHART_NS
+from openpyxl.xml.functions import Element, fromstring, safe_iterator
+from openpyxl.xml.constants import CHART_NS
 
 from openpyxl.writer.charts import (ChartWriter,
                                     PieChartWriter,

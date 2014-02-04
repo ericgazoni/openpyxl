@@ -23,8 +23,8 @@ from __future__ import absolute_import
 # @author: see AUTHORS file
 
 from openpyxl.compat import iteritems
-from openpyxl.xml.ooxml import SHEET_MAIN_NS
-from openpyxl.xml.xmltools import Element, SubElement, get_document_content
+from openpyxl.xml.constants import SHEET_MAIN_NS
+from openpyxl.xml.functions import Element, SubElement, get_document_content
 from openpyxl.cell import column_index_from_string
 
 vmlns="urn:schemas-microsoft-com:vml"

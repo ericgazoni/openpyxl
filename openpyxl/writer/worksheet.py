@@ -33,7 +33,7 @@ from openpyxl.compat import StringIO, long
 
 # package imports
 from openpyxl.cell import coordinate_from_string, column_index_from_string, COORD_RE
-from openpyxl.xml.xmltools import (
+from openpyxl.xml.functions import (
     Element,
     SubElement,
     XMLGenerator,
@@ -43,7 +43,7 @@ from openpyxl.xml.xmltools import (
     tag,
     fromstring,
     )
-from openpyxl.xml.ooxml import (
+from openpyxl.xml.constants import (
     SHEET_MAIN_NS,
     PKG_REL_NS,
     REL_NS,

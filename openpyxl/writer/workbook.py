@@ -27,9 +27,9 @@ from __future__ import absolute_import
 # package imports
 
 from openpyxl import LXML
-from openpyxl.xml.xmltools import Element, SubElement
+from openpyxl.xml.functions import Element, SubElement
 from openpyxl.cell import absolute_coordinate
-from openpyxl.xml.ooxml import (
+from openpyxl.xml.constants import (
     ARC_CORE,
     ARC_WORKBOOK,
     ARC_APP,
@@ -52,7 +52,7 @@ from openpyxl.xml.ooxml import (
     ARC_CONTENT_TYPES,
     ARC_ROOT_RELS
 )
-from openpyxl.xml.xmltools import get_document_content, fromstring
+from openpyxl.xml.functions import get_document_content, fromstring
 from openpyxl.date_time import datetime_to_W3CDTF
 from openpyxl.namedrange import NamedRange, NamedRangeContainingValue
 

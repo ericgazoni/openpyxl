@@ -29,14 +29,14 @@ from warnings import warn
 
 # compatibility imports
 from openpyxl.compat import BytesIO
-from openpyxl.xml.xmltools import iterparse
+from openpyxl.xml.functions import iterparse
 
 # package imports
 from openpyxl.cell import get_column_letter
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
-from openpyxl.xml.ooxml import SHEET_MAIN_NS
-from openpyxl.xml.xmltools import safe_iterator
+from openpyxl.xml.constants import SHEET_MAIN_NS
+from openpyxl.xml.functions import safe_iterator
 from openpyxl.styles import Color
 from openpyxl.styles.formatting import ConditionalFormatting
 
