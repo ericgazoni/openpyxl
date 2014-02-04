@@ -30,7 +30,6 @@ import operator
 from itertools import groupby
 import re
 
-
 # compatibility
 from openpyxl.compat import xrange, unicode
 from openpyxl.xml.functions import iterparse
@@ -86,6 +85,10 @@ class RawCell(object):
     def set_style_table(cls, style_table):
         cls.style_table = style_table
 
+    @classmethod
+    def set_base_date(cls, base_date):
+        cls.base_date = base_date
+
     @property
     def is_date(self):
         return is_date_format(self.number_format)
@@ -105,7 +108,7 @@ class RawCell(object):
         if self.data_type == Cell.TYPE_BOOL:
             self._value = value == '1'
         elif self.is_date:
-            self._value = from_excel(value)
+            self._value = from_excel(value, self.base_date)
         elif self.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
             self._value = unicode(value)
         elif self.data_type in Cell.TYPE_STRING and value is not None:
@@ -162,13 +165,13 @@ class IterableWorksheet(Worksheet):
         self.worksheet_path = worksheet_path
         RawCell.set_string_table(string_table)
         RawCell.set_style_table(style_table)
+        RawCell.set_base_date(parent_workbook.excel_base_date)
 
         min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
         self.min_col = min_col
         self.min_row = min_row
         self.max_row = max_row
         self.max_col = max_col
-        self.base_date = parent_workbook.excel_base_date
 
     @property
     def xml_source(self):
