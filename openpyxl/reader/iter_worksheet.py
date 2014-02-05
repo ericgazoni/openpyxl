@@ -55,16 +55,14 @@ from openpyxl.xml.constants import (
 class RawCell(object):
 
     __slots__ = ('row', 'column', 'coordinate', '_value',
-                  'data_type', 'style_id', 'number_format')
+                  'data_type', '_style_id')
 
 
-    def __init__(self, row, column, coordinate, value, data_type, style_id=None,
-                 number_format=None):
+    def __init__(self, row, column, coordinate, value, data_type, style_id=None):
         self.row = row
         self.column = column
         self.coordinate = coordinate
         self.data_type = data_type
-        self.number_format = number_format
         self.style_id = style_id
         self.value = value
 
@@ -79,12 +77,33 @@ class RawCell(object):
         cls.string_table = string_table
 
     @classmethod
+    def set_style_table(cls, style_table):
+        cls.style_table = style_table
+
+    @classmethod
     def set_base_date(cls, base_date):
         cls.base_date = base_date
 
     @property
     def is_date(self):
         return is_date_format(self.number_format)
+
+    @property
+    def number_format(self):
+        if self.style_id is None:
+            return
+        style = self.style_table[self._style_id]
+        return style.number_format.format_code
+
+    @property
+    def style_id(self):
+        return self._style_id
+
+    @style_id.setter
+    def style_id(self, value):
+        if value is not None:
+            value = int(value)
+        self._style_id = value
 
     @property
     def internal_value(self):
@@ -134,7 +153,7 @@ def get_range_boundaries(range_string, row_offset=0, column_offset=1):
 
 def empty_cell(row, column):
     return RawCell( row, column, '%s%s' % (column, row), None,
-                    Cell.TYPE_NULL, None, None)
+                    Cell.TYPE_NULL, None)
 
 #------------------------------------------------------------------------------
 
@@ -149,8 +168,8 @@ class IterableWorksheet(Worksheet):
                  xml_source, string_table, style_table):
         Worksheet.__init__(self, parent_workbook, title)
         self.worksheet_path = worksheet_path
-        self._style_table = style_table
         RawCell.set_string_table(string_table)
+        RawCell.set_style_table(style_table)
         RawCell.set_base_date(parent_workbook.excel_base_date)
 
         min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
@@ -242,10 +261,6 @@ class IterableWorksheet(Worksheet):
                     and min_row <= row <= max_row):
                     data_type = element.get('t', 'n')
                     style_id = element.get('s')
-                    number_format = None
-                    if style_id is not None:
-                        style_id = int(style_id)
-                        number_format = self._number_format(style_id)
                     formula = element.findtext(FORMULA_TAG)
                     value = element.findtext(VALUE_TAG)
                     if formula is not None and not self.parent.data_only:
@@ -253,16 +268,12 @@ class IterableWorksheet(Worksheet):
                         value = "=%s" % formula
 
                     yield RawCell(row, column_str, coord, value, data_type,
-                                  style_id, number_format)
+                                  style_id)
             if not LXML and element.tag in (VALUE_TAG, FORMULA_TAG):
                 # sub-elements of cells should be skipped
                 continue
             element.clear()
 
-    @lru_cache()
-    def _number_format(self, style_id):
-        style = self._style_table[style_id]
-        return style.number_format.format_code
 
     def cell(self, *args, **kwargs):
         # TODO return an individual cell
