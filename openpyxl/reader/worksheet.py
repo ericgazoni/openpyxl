@@ -32,6 +32,7 @@ from openpyxl.compat import BytesIO
 from openpyxl.xml.functions import iterparse
 
 # package imports
+from openpyxl import LXML
 from openpyxl.cell import get_column_letter
 from openpyxl.cell import Cell, coordinate_from_string
 from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
@@ -92,6 +93,13 @@ def read_dimension(xml_source):
 
 class WorkSheetParser(object):
 
+    COL_TAG = '{%s}col' % SHEET_MAIN_NS
+    ROW_TAG = '{%s}row' % SHEET_MAIN_NS
+    CELL_TAG = '{%s}c' % SHEET_MAIN_NS
+    VALUE_TAG = '{%s}v' % SHEET_MAIN_NS
+    FORMULA_TAG = '{%s}f' % SHEET_MAIN_NS
+    MERGE_TAG = '{%s}mergeCell' % SHEET_MAIN_NS
+
     def __init__(self, ws, xml_source, string_table, style_table, color_index=None):
         self.ws = ws
         self.source = xml_source
@@ -117,15 +125,20 @@ class WorkSheetParser(object):
             '{%s}conditionalFormatting' % SHEET_MAIN_NS: self.parser_conditional_formatting,
             '{%s}autoFilter' % SHEET_MAIN_NS: self.parse_auto_filter
                       }
+        tags = dispatcher.keys()
+        stream = _get_xml_iter(self.source)
+        it = iterparse(stream, tag=tags)
+
         for event, element in it:
             tag_name = element.tag
             if tag_name in dispatcher:
                 dispatcher[tag_name](element)
                 element.clear()
 
+
     def parse_cell(self, element):
-        value = element.findtext('{%s}v' % SHEET_MAIN_NS)
-        formula = element.find('{%s}f' % SHEET_MAIN_NS)
+        value = element.findtext(self.VALUE_TAG)
+        formula = element.find(self.FORMULA_TAG)
 
         coordinate = element.get('r')
         style_id = element.get('s')
@@ -162,7 +175,7 @@ class WorkSheetParser(object):
 
 
     def parse_column_dimensions(self, element):
-        for col in safe_iterator(element, '{%s}col' % SHEET_MAIN_NS):
+        for col in safe_iterator(element, self.COL_TAG):
             min = int(col.get('min')) if col.get('min') else 1
             max = int(col.get('max')) if col.get('max') else 1
             # Ignore ranges that go up to the max column 16384.  Columns need to be extended to handle
@@ -185,10 +198,11 @@ class WorkSheetParser(object):
                                                   visible=visible, outline_level=outline,
                                                   collapsed=collapsed)
                         self.ws.column_dimensions[column] = new_dim
+            col.clear()
 
 
     def parse_row_dimensions(self, element):
-        for row in safe_iterator(element, '{%s}row' % SHEET_MAIN_NS):
+        for row in safe_iterator(element, self.ROW_TAG):
             rowId = int(row.get('r'))
             if rowId not in self.ws.row_dimensions:
                 self.ws.row_dimensions[rowId] = RowDimension(self.ws, rowId)
