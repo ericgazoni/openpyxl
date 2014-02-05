@@ -88,7 +88,7 @@ class RawCell(object):
 
     @property
     def internal_value(self):
-        return self.value
+        return self._value
 
     @property
     def value(self):
