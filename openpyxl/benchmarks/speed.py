@@ -10,7 +10,7 @@ def standard():
     c = Cell(None, "A", "0", None)
 
 def iterative():
-    c = RawCell(None, None, (0, 0), None, 'n')
+    c = RawCell(None, None, None, 'n')
 
 def dictionary():
     c = {'ws':'None', 'col':'A', 'row':0, 'value':1}

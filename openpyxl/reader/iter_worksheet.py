@@ -54,14 +54,12 @@ from openpyxl.xml.constants import (
 
 class RawCell(object):
 
-    __slots__ = ('row', 'column', 'coordinate', '_value',
-                  'data_type', '_style_id')
+    __slots__ = ('row', 'column', '_value', 'data_type', '_style_id')
 
 
-    def __init__(self, row, column, coordinate, value, data_type, style_id=None):
+    def __init__(self, row, column, value, data_type, style_id=None):
         self.row = row
         self.column = column
-        self.coordinate = coordinate
         self.data_type = data_type
         self.style_id = style_id
         self.value = value
@@ -83,6 +81,10 @@ class RawCell(object):
     @classmethod
     def set_base_date(cls, base_date):
         cls.base_date = base_date
+
+    @property
+    def coordinate(self):
+        return "{1}{0}".format(self.row, self.column)
 
     @property
     def is_date(self):
@@ -152,8 +154,7 @@ def get_range_boundaries(range_string, row_offset=0, column_offset=1):
 
 
 def empty_cell(row, column):
-    return RawCell( row, column, '%s%s' % (column, row), None,
-                    Cell.TYPE_NULL, None)
+    return RawCell(row, column, None, Cell.TYPE_NULL, None)
 
 #------------------------------------------------------------------------------
 
@@ -267,7 +268,7 @@ class IterableWorksheet(Worksheet):
                         data_type = Cell.TYPE_FORMULA
                         value = "=%s" % formula
 
-                    yield RawCell(row, column_str, coord, value, data_type,
+                    yield RawCell(row, column_str, value, data_type,
                                   style_id)
             if not LXML and element.tag in (VALUE_TAG, FORMULA_TAG):
                 # sub-elements of cells should be skipped
