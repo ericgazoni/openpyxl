@@ -31,7 +31,7 @@ from itertools import groupby
 import re
 
 # compatibility
-from openpyxl.compat import unicode, lru_cache
+from openpyxl.compat import unicode, lru_cache, xrange
 from openpyxl.xml.functions import iterparse
 
 # package
