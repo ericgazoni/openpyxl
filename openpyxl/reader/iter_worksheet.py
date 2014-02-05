@@ -92,13 +92,15 @@ class RawCell(object):
 
     @property
     def value(self):
+        if self._value is None:
+            return
         if self.data_type == Cell.TYPE_BOOL:
             return self._value == '1'
         elif self.is_date:
             return from_excel(self._value, self.base_date)
         elif self.data_type in(Cell.TYPE_INLINE, Cell.TYPE_FORMULA_CACHE_STRING):
             return unicode(self._value)
-        elif self._value and self.data_type in Cell.TYPE_STRING:
+        elif self.data_type == Cell.TYPE_STRING:
             return unicode(self.string_table[int(self._value)])
         return self._value
 
