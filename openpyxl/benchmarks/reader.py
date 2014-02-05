@@ -30,7 +30,7 @@ def timer(fn):
     """
     print "lxml", openpyxl.LXML
     result = []
-    for opt in (False, True):
+    for opt in (False, True,):
         print "Workbook is {0}".format(opt and "optimised" or "not optimised")
         times = timeit.repeat("{0}({1})".format(fn.func_name, opt),
                               setup="from __main__ import {0}".format(fn.func_name),
