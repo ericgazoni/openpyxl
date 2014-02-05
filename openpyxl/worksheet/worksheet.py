@@ -231,7 +231,7 @@ class Worksheet(object):
         elif isinstance(topLeftCell, str):
             topLeftCell = topLeftCell.upper()
         else:  # Assume a cell
-            topLeftCell = topLeftCell.address
+            topLeftCell = topLeftCell.coordinate
         if topLeftCell == 'A1':
             topLeftCell = None
         self._freeze_panes = topLeftCell

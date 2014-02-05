@@ -35,6 +35,7 @@ __docformat__ = "restructuredtext en"
 # Python stdlib imports
 import datetime
 import re
+import warnings
 
 from openpyxl.compat import lru_cache, xrange
 from openpyxl.units import (
@@ -217,7 +218,7 @@ class Cell(object):
         return self.parent.parent.excel_base_date
 
     def __repr__(self):
-        return unicode("<Cell %s.%s>") % (self.parent.title, self.get_coordinate())
+        return unicode("<Cell %s.%s>") % (self.parent.title, self.coordinate)
 
     def check_string(self, value):
         """Check string coding, length, and line break character"""
@@ -412,12 +413,12 @@ class Cell(object):
     @property
     def has_style(self):
         """Check if the parent worksheet has a style for this cell"""
-        return self.get_coordinate() in self.parent._styles  # pylint: disable=W0212
+        return self.coordinate in self.parent._styles  # pylint: disable=W0212
 
     @property
     def style(self):
         """Returns the :class:`openpyxl.style.Style` object for this cell"""
-        return self.parent.get_style(self.get_coordinate())
+        return self.parent.get_style(self.coordinate)
 
     @property
     def data_type(self):
@@ -429,19 +430,21 @@ class Cell(object):
         self._data_type = value
 
     def get_coordinate(self):
+        warnings.warn("cell.get_coordinate() is deprecated use cell.coordinate instead")
+        return self.coordinate
+
+    @property
+    def coordinate(self):
         """Return the coordinate string for this cell (e.g. 'B12')
 
         :rtype: string
         """
-        return '%s%s' % (self.column, self.row)
+        return '{1}{0}'.format(self.row, self.column)
 
     @property
     def address(self):
-        """Return the coordinate string for this cell (e.g. 'B12')
-
-        :rtype: string
-        """
-        return self.get_coordinate()
+        warnings.warn("cell.address is deprecated, use cell.coordinate instead")
+        return self.coordinate
 
     def offset(self, row=0, column=0):
         """Returns a cell location relative to this cell.
@@ -516,7 +519,7 @@ class Cell(object):
         if value is not None and value._parent is not None and value is not self.comment:
             raise AttributeError(
                 "Comment already assigned to %s in worksheet %s. Cannot assign a comment to more than one cell" %
-                (value._parent.get_coordinate(), value._parent.parent.title)
+                (value._parent.coordinate, value._parent.parent.title)
                 )
 
         # Ensure the number of comments for the parent worksheet is up-to-date

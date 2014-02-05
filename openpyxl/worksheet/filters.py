@@ -30,7 +30,7 @@ def normalize_reference(cell_range):
     elif isinstance(cell_range, str):
         cell_range = cell_range.upper()
     else:  # Assume a range
-        cell_range = cell_range[0][0].address + ':' + cell_range[-1][-1].address
+        cell_range = cell_range[0][0].coordinate + ':' + cell_range[-1][-1].coordinate
     return cell_range
 
 

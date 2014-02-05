@@ -59,7 +59,7 @@ class CommentWriter(object):
 
         commentlist_tag = SubElement(root, "{%s}commentList" % SHEET_MAIN_NS)
         for comment in self.comments:
-            attrs = {'ref': comment._parent.get_coordinate(),
+            attrs = {'ref': comment._parent.coordinate,
                      'authorId': self.author_to_id[comment.author],
                      'shapeId': '0'}
             comment_tag = SubElement(commentlist_tag, "{%s}comment" % SHEET_MAIN_NS, attrs)

@@ -114,7 +114,7 @@ def test_merged_cells_named_range():
                        use_iterators = False)
     ws = wb.worksheets[0]
     cell = ws.range('TRAP_3')
-    assert 'B15' == cell.get_coordinate()
+    assert 'B15' == cell.coordinate
     assert 10 == cell.value
 
 
@@ -157,7 +157,7 @@ class TestNameRefersToValue(object):
 
     def test_worksheet_range(self):
         range = self.ws.range("MyRef")
-        assert range.get_coordinate() == "A1"
+        assert range.coordinate == "A1"
 
     def test_worksheet_range_error_on_value_range(self):
         with pytest.raises(NamedRangeException):

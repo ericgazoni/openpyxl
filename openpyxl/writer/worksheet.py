@@ -287,7 +287,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
         sorted_cells = sorted(row_cells, key=row_sort)
         for cell in sorted_cells:
             value = cell._value
-            coordinate = cell.get_coordinate()
+            coordinate = cell.coordinate
             attributes = {'r': coordinate}
             if cell.data_type != cell.TYPE_FORMULA:
                 attributes['t'] = cell.data_type
@@ -392,7 +392,7 @@ def write_worksheet_hyperlinks(doc, worksheet):
         for cell in worksheet.get_cell_collection():
             if cell.hyperlink_rel_id is not None:
                 attrs = {'display': cell.hyperlink,
-                        'ref': cell.get_coordinate(),
+                        'ref': cell.coordinate,
                         'r:id': cell.hyperlink_rel_id}
                 tag(doc, 'hyperlink', attrs)
         end_tag(doc, 'hyperlinks')

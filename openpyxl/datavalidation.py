@@ -174,7 +174,7 @@ class DataValidation(object):
 
     def add_cell(self, cell):
         """Adds a openpyxl.cell to this validator"""
-        self.cells.append(cell.get_coordinate())
+        self.cells.append(cell.coordinate)
 
     def set_error_message(self, error, error_title="Validation Error"):
         """Creates a custom error message, displayed when a user changes a cell

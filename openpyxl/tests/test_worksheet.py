@@ -58,7 +58,7 @@ class TestWorksheet(object):
     def test_get_cell(self):
         ws = Worksheet(self.wb)
         cell = ws.cell('A1')
-        assert cell.get_coordinate() == 'A1'
+        assert cell.coordinate == 'A1'
 
     def test_set_bad_title(self):
         with pytest.raises(SheetTitleException):
@@ -115,7 +115,7 @@ class TestWorksheet(object):
 
     def test_cell_offset(self):
         ws = Worksheet(self.wb)
-        assert 'C17', ws.cell('B15').offset(2 == 1).get_coordinate()
+        assert 'C17', ws.cell('B15').offset(2 == 1).coordinate
 
     def test_range_offset(self):
         ws = Worksheet(self.wb)
@@ -123,12 +123,12 @@ class TestWorksheet(object):
         assert isinstance(xlrange, tuple)
         assert 4 == len(xlrange)
         assert 3 == len(xlrange[0])
-        assert 'D2' == xlrange[0][0].get_coordinate()
+        assert 'D2' == xlrange[0][0].coordinate
 
     def test_cell_alternate_coordinates(self):
         ws = Worksheet(self.wb)
         cell = ws.cell(row=8, column=4)
-        assert 'E9' == cell.get_coordinate()
+        assert 'E9' == cell.coordinate
 
     def test_cell_insufficient_coordinates(self):
         ws = Worksheet(self.wb)
@@ -264,7 +264,7 @@ class TestWorksheet(object):
         ws = Worksheet(self.wb)
         c = ws['A1']
         assert isinstance(c, Cell)
-        assert c.get_coordinate() == "A1"
+        assert c.coordinate == "A1"
         assert ws['A1'].value is None
 
     def test_setitem(self):
