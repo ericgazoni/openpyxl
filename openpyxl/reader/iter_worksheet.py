@@ -46,6 +46,8 @@ from openpyxl.cell import (
 from openpyxl.styles import is_date_format
 from openpyxl.date_time import from_excel
 from openpyxl.reader.worksheet import read_dimension
+from openpyxl.xml.functions import safe_iterator
+
 from openpyxl.xml.constants import (
     PACKAGE_WORKSHEETS,
     SHEET_MAIN_NS
@@ -158,6 +160,7 @@ def empty_cell(row, column):
 
 #------------------------------------------------------------------------------
 
+ROW_TAG = '{%s}row' % SHEET_MAIN_NS
 CELL_TAG = '{%s}c' % SHEET_MAIN_NS
 VALUE_TAG = '{%s}v' % SHEET_MAIN_NS
 FORMULA_TAG = '{%s}f' % SHEET_MAIN_NS
@@ -251,27 +254,27 @@ class IterableWorksheet(Worksheet):
 
 
     def get_cells(self, min_row, min_col, max_row, max_col):
-        p = iterparse(self.xml_source, events=('end',), tag=CELL_TAG, remove_blank_text=True)
+        p = iterparse(self.xml_source, tag=[ROW_TAG], remove_blank_text=True)
         for _event, element in p:
-            if element.tag == CELL_TAG:
-                coord = element.get('r')
-                column_str, row = coordinate_from_string(coord)
-                column = column_index_from_string(column_str)
-
-                if (min_col <= column <= max_col
-                    and min_row <= row <= max_row):
-                    data_type = element.get('t', 'n')
-                    style_id = element.get('s')
-                    formula = element.findtext(FORMULA_TAG)
-                    value = element.findtext(VALUE_TAG)
-                    if formula is not None and not self.parent.data_only:
-                        data_type = Cell.TYPE_FORMULA
-                        value = "=%s" % formula
-
-                    yield RawCell(row, column_str, value, data_type,
-                                  style_id)
-            if not LXML and element.tag in (VALUE_TAG, FORMULA_TAG):
-                # sub-elements of cells should be skipped
+            if element.tag == ROW_TAG:
+                row = int(element.get("r"))
+                if min_row <= row <= max_row:
+                    for cell in safe_iterator(element, CELL_TAG):
+                        coord = cell.get('r')
+                        column_str, row = coordinate_from_string(coord)
+                        column = column_index_from_string(column_str)
+                        if (min_col <= column <= max_col):
+                            data_type = cell.get('t', 'n')
+                            style_id = cell.get('s')
+                            formula = cell.findtext(FORMULA_TAG)
+                            value = cell.findtext(VALUE_TAG)
+                            if formula is not None and not self.parent.data_only:
+                                data_type = Cell.TYPE_FORMULA
+                                value = "=%s" % formula
+                            yield RawCell(row, column_str, value, data_type,
+                                          style_id)
+            if element.tag in (CELL_TAG, VALUE_TAG, FORMULA_TAG):
+                # sub-elements of rows should be skipped
                 continue
             element.clear()
 
