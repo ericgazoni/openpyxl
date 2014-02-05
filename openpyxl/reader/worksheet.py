@@ -84,6 +84,7 @@ def read_dimension(xml_source):
                 else:
                     min_col = min(min_col, int(start))
                     max_col = max(max_col, int(stop))
+        el.clear()
     max_row = int(row)
     warn("Unsized worksheet")
     return get_column_letter(min_col), min_row, get_column_letter(max_col),  max_row
@@ -120,6 +121,7 @@ class WorkSheetParser(object):
             tag_name = element.tag
             if tag_name in dispatcher:
                 dispatcher[tag_name](element)
+                element.clear()
 
     def parse_cell(self, element):
         value = element.findtext('{%s}v' % SHEET_MAIN_NS)
