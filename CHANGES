@@ -6,6 +6,7 @@ Major changes
 -------------
 
 * Type inference is disabled by default
+* RawCell.internal_value and RawCell.value now behave the same as Cell
 
 
 Minor changes
@@ -31,7 +32,7 @@ Bug fixes
 
 Bugfix #256 - error when trying to read comments with optimised reader
 Bugfix #260 - unsized worksheets
-
+Bugfix #264 - only numeric cells can be dates
 
 
 1.8.2 (2014-01-17)
