@@ -90,7 +90,7 @@ class RawCell(object):
 
     @property
     def is_date(self):
-        return is_date_format(self.number_format)
+        return self.data_type == Cell.TYPE_NUMERIC and is_date_format(self.number_format)
 
     @property
     def number_format(self):
