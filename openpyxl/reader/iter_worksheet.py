@@ -258,12 +258,16 @@ class IterableWorksheet(Worksheet):
         for _event, element in p:
             if element.tag == ROW_TAG:
                 row = int(element.get("r"))
-                if min_row <= row <= max_row:
+                if row > max_row:
+                    break
+                if min_row <= row:
                     for cell in safe_iterator(element, CELL_TAG):
                         coord = cell.get('r')
                         column_str, row = coordinate_from_string(coord)
                         column = column_index_from_string(column_str)
-                        if (min_col <= column <= max_col):
+                        if column > max_col:
+                            break
+                        if min_col <= column:
                             data_type = cell.get('t', 'n')
                             style_id = cell.get('s')
                             formula = cell.findtext(FORMULA_TAG)
