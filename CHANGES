@@ -2,6 +2,7 @@
 ==================
 
 Bugfix #256 - error when trying to read comments with optimised reader
+Bugfix #260 - unsized worksheets
 Bugfix #264 - only numeric cells can be dates
 
 
