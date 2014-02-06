@@ -49,9 +49,13 @@ class TestWorksheet(object):
 
     def test_getitem(self):
         wb = self._open_wb()
-        ws = wb.get_active_sheet()
-        assert list(ws.iter_rows("A1")) == list(ws['A1'])
+        ws = wb['Sheet1 - Text']
+        assert list(ws.iter_rows("A1"))[0][0] == ws['A1']
         assert list(ws.iter_rows("A1:D30")) == list(ws["A1:D30"])
+        assert list(ws.iter_rows("A1:D30")) == list(ws["A1":"D30"])
+
+        ws = wb['Sheet2 - Numbers']
+        assert ws['A1'] is None
 
 
 class TestDims(TestWorksheet):

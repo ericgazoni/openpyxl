@@ -193,8 +193,10 @@ class IterableWorksheet(Worksheet):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            key = "{0}:{1}".format(key)
-        return self.iter_rows(key)
+            key = "{0}:{1}".format(key.start, key.stop)
+        if ":" in key:
+            return self.iter_rows(key)
+        return self.cell(key)
 
     def iter_rows(self, range_string='', row_offset=0, column_offset=1):
         """ Returns a squared range based on the `range_string` parameter,
@@ -283,10 +285,14 @@ class IterableWorksheet(Worksheet):
             element.clear()
 
 
-    def cell(self, *args, **kwargs):
-        # TODO return an individual cell
+    def _get_cell(self, coordinate):
+        """.iter_rows always returns a generator of rows each of which
+        contains a generator of cells. This can be empty in which case
+        return None"""
+        result = list(self.iter_rows(coordinate))
+        if result:
+            return result[0][0]
 
-        raise NotImplementedError("use 'iter_rows()' instead")
 
     def range(self, *args, **kwargs):
         # TODO return a range of cells, basically get_squared_range with same interface as Worksheet
