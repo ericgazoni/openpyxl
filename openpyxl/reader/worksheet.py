@@ -114,10 +114,9 @@ class WorkSheetParser(object):
         it = iterparse(stream)
 
         dispatcher = {
-            '{%s}c' % SHEET_MAIN_NS: self.parse_cell,
             '{%s}mergeCells' % SHEET_MAIN_NS: self.parse_merge,
-            '{%s}cols' % SHEET_MAIN_NS: self.parse_column_dimensions,
-            '{%s}sheetData' % SHEET_MAIN_NS: self.parse_row_dimensions,
+            '{%s}col' % SHEET_MAIN_NS: self.parse_column_dimensions,
+            '{%s}row' % SHEET_MAIN_NS: self.parse_row_dimensions,
             '{%s}printOptions' % SHEET_MAIN_NS: self.parse_print_options,
             '{%s}pageMargins' % SHEET_MAIN_NS: self.parse_margins,
             '{%s}pageSetup' % SHEET_MAIN_NS: self.parse_page_setup,
@@ -135,7 +134,6 @@ class WorkSheetParser(object):
                 dispatcher[tag_name](element)
                 element.clear()
 
-
     def parse_cell(self, element):
         value = element.findtext(self.VALUE_TAG)
         formula = element.find(self.FORMULA_TAG)
@@ -149,7 +147,7 @@ class WorkSheetParser(object):
             data_type = element.get('t', 'n')
             if data_type == Cell.TYPE_STRING:
                 value = self.string_table.get(int(value))
-            if data_type == Cell.TYPE_BOOL:
+            elif data_type == Cell.TYPE_BOOL:
                 value = bool(int(value))
             if formula is not None and not self.data_only:
                 if formula.text:
@@ -174,44 +172,43 @@ class WorkSheetParser(object):
             self.ws.merge_cells(mergeCell.get('ref'))
 
 
-    def parse_column_dimensions(self, element):
-        for col in safe_iterator(element, self.COL_TAG):
-            min = int(col.get('min')) if col.get('min') else 1
-            max = int(col.get('max')) if col.get('max') else 1
-            # Ignore ranges that go up to the max column 16384.  Columns need to be extended to handle
-            # ranges without creating an entry for every single one.
-            if max != 16384:
-                for colId in range(min, max + 1):
-                    column = get_column_letter(colId)
-                    width = col.get("width")
-                    auto_size = col.get('bestFit') == '1'
-                    visible = col.get('hidden') != '1'
-                    outline = col.get('outlineLevel') or 0
-                    collapsed = col.get('collapsed') == '1'
-                    style_index = col.get('style')
-                    if style_index is not None:
-                        self.ws._styles[column] = self.style_table.get(int(style_index))
-                    if column not in self.ws.column_dimensions:
-                        new_dim = ColumnDimension(self.ws,
-                                                  index=column,
-                                                  width=width, auto_size=auto_size,
-                                                  visible=visible, outline_level=outline,
-                                                  collapsed=collapsed)
-                        self.ws.column_dimensions[column] = new_dim
-            col.clear()
+    def parse_column_dimensions(self, col):
+        min = int(col.get('min')) if col.get('min') else 1
+        max = int(col.get('max')) if col.get('max') else 1
+        # Ignore ranges that go up to the max column 16384.  Columns need to be extended to handle
+        # ranges without creating an entry for every single one.
+        if max != 16384:
+            for colId in range(min, max + 1):
+                column = get_column_letter(colId)
+                width = col.get("width")
+                auto_size = col.get('bestFit') == '1'
+                visible = col.get('hidden') != '1'
+                outline = col.get('outlineLevel') or 0
+                collapsed = col.get('collapsed') == '1'
+                style_index = col.get('style')
+                if style_index is not None:
+                    self.ws._styles[column] = self.style_table.get(int(style_index))
+                if column not in self.ws.column_dimensions:
+                    new_dim = ColumnDimension(self.ws,
+                                              index=column,
+                                              width=width, auto_size=auto_size,
+                                              visible=visible, outline_level=outline,
+                                              collapsed=collapsed)
+                    self.ws.column_dimensions[column] = new_dim
 
 
-    def parse_row_dimensions(self, element):
-        for row in safe_iterator(element, self.ROW_TAG):
-            rowId = int(row.get('r'))
-            if rowId not in self.ws.row_dimensions:
-                self.ws.row_dimensions[rowId] = RowDimension(self.ws, rowId)
-            style_index = row.get('s')
-            if row.get('customFormat') and style_index:
-                self.ws._styles[rowId] = self.style_table.get(int(style_index))
-            ht = row.get('ht')
-            if ht is not None:
-                self.ws.row_dimensions[rowId].height = float(ht)
+    def parse_row_dimensions(self, row):
+        rowId = int(row.get('r'))
+        if rowId not in self.ws.row_dimensions:
+            self.ws.row_dimensions[rowId] = RowDimension(self.ws, rowId)
+        style_index = row.get('s')
+        if row.get('customFormat') and style_index:
+            self.ws._styles[rowId] = self.style_table.get(int(style_index))
+        ht = row.get('ht')
+        if ht is not None:
+            self.ws.row_dimensions[rowId].height = float(ht)
+        for cell in safe_iterator(row, self.CELL_TAG):
+            self.parse_cell(cell)
 
 
     def parse_print_options(self, element):
@@ -331,6 +328,7 @@ def fast_parse(ws, xml_source, string_table, style_table, color_index=None):
 
     parser = WorkSheetParser(ws, xml_source, string_table, style_table, color_index)
     parser.parse()
+    del parser
 
 
 def read_worksheet(xml_source, parent, preset_title, string_table,
