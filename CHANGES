@@ -2,6 +2,7 @@
 ==================
 
 Bugfix #256 - error when trying to read comments with optimised reader
+Bugfix #264 - only numeric cells can be dates
 
 
 1.8.2 (2014-01-17)

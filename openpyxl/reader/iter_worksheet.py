@@ -94,7 +94,7 @@ class RawCell(BaseRawCell):
 
     @property
     def is_date(self):
-        return is_date_format(self.number_format)
+        return self.data_type == Cell.TYPE_NUMERIC and is_date_format(self.number_format)
 
 def get_range_boundaries(range_string, row_offset=0, column_offset=1):
 
