@@ -155,8 +155,7 @@ def get_range_boundaries(range_string, row_offset=0, column_offset=1):
     return (min_col, min_row, max_col, max_row)
 
 
-def empty_cell(row, column):
-    return RawCell(row, column, None, Cell.TYPE_NULL, None)
+EMPTY_CELL = RawCell(None, None, None, Cell.TYPE_NULL, None)
 
 #------------------------------------------------------------------------------
 
@@ -240,7 +239,7 @@ class IterableWorksheet(Worksheet):
             if row_counter < row:
                 # Rows requested before those in the worksheet
                 for gap_row in xrange(row_counter, row):
-                    yield tuple(empty_cell(row, column) for column in expected_columns)
+                    yield tuple(EMPTY_CELL for column in expected_columns)
                     row_counter = row
 
             retrieved_columns = dict([(c.column, c) for c in cells])
@@ -250,7 +249,7 @@ class IterableWorksheet(Worksheet):
                     full_row.append(cell)
                 else:
                     # create missing cell
-                    full_row.append(empty_cell(row, column))
+                    full_row.append(EMPTY_CELL)
             row_counter = row + 1
             yield tuple(full_row)
 
