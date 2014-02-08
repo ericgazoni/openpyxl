@@ -22,7 +22,6 @@
 # @author: see AUTHORS file
 
 import datetime
-from itertools import izip
 import os.path
 
 import pytest
@@ -30,7 +29,7 @@ import pytest
 from openpyxl.tests.helper import DATADIR
 from openpyxl.worksheet.iter_worksheet import get_range_boundaries
 from openpyxl.reader.excel import load_workbook
-from openpyxl.compat import xrange
+from openpyxl.compat import xrange, izip
 
 
 def test_open_many_sheets():

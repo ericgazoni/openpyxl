@@ -35,8 +35,13 @@ from .strings import (
     safe_string
     )
 from .numbers import long
-from .itertools import xrange, ifilter, iteritems, iterkeys
-
+from .itertools import (
+    xrange,
+    ifilter,
+    iteritems,
+    iterkeys,
+    izip
+)
 try:
     from functools import lru_cache
 except ImportError:

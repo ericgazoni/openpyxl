@@ -1,11 +1,16 @@
 try:
     from itertools import ifilter
-except:
+except ImportError:
     ifilter = filter
 
 try:
+    from itertools import izip
+except ImportError:
+    izip = zip
+
+try:
     xrange = xrange
-except:
+except NameError:
     xrange = range
 
 def iteritems(iterable):
