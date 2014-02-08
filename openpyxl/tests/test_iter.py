@@ -22,6 +22,7 @@
 # @author: see AUTHORS file
 
 import datetime
+from itertools import izip
 import os.path
 
 import pytest
@@ -101,7 +102,7 @@ class TestText(TestWorksheet):
     def test_read_fast_integrated(self):
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-        for row, expected_row in zip(ws.iter_rows(), self.expected):
+        for row, expected_row in izip(ws.iter_rows(), self.expected):
             row_values = [x.value for x in row]
             assert row_values == expected_row
 
@@ -119,7 +120,7 @@ class TestIntegers(TestWorksheet):
     def test_read_fast_integrated(self):
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-        for row, expected_row in zip(ws.iter_rows(self.query_range), self.expected):
+        for row, expected_row in izip(ws.iter_rows(self.query_range), self.expected):
             row_values = [x.value for x in row]
             assert row_values == expected_row
 
@@ -133,7 +134,7 @@ class TestFloats(TestWorksheet):
     def test_read_fast_integrated(self):
         wb = self._open_wb()
         ws = wb.get_sheet_by_name(name = self.sheet_name)
-        for row, expected_row in zip(ws.iter_rows(self.query_range), self.expected):
+        for row, expected_row in izip(ws.iter_rows(self.query_range), self.expected):
             row_values = [x.value for x in row]
             assert row_values == expected_row
 
