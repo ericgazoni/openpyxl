@@ -335,7 +335,7 @@ def read_worksheet(xml_source, parent, preset_title, string_table,
                    style_table, color_index=None, worksheet_path=None, keep_vba=False):
     """Read an xml worksheet"""
     if worksheet_path:
-        from openpyxl.reader.iter_worksheet import IterableWorksheet
+        from openpyxl.worksheet.iter_worksheet import IterableWorksheet
         ws = IterableWorksheet(parent, preset_title,
                 worksheet_path, xml_source, string_table, style_table)
     else:

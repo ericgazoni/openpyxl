@@ -109,7 +109,7 @@ def load_workbook(filename, use_iterators=False, keep_vba=KEEP_VBA, guess_types=
 
     .. note::
 
-        When using lazy load, all worksheets will be :class:`openpyxl.reader.iter_worksheet.IterableWorksheet`
+        When using lazy load, all worksheets will be :class:`openpyxl.worksheet.iter_worksheet.IterableWorksheet`
         and the returned workbook will be read-only.
 
     """
