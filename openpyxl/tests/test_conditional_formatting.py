@@ -34,6 +34,8 @@ from openpyxl.compat import iterkeys
 from openpyxl.reader.excel import load_workbook
 from openpyxl.reader.style import read_style_table
 from openpyxl.xml.constants import ARC_STYLE
+from openpyxl.xml.functions import Element, SubElement, tostring
+from openpyxl.xml.constants import SHEET_MAIN_NS
 from openpyxl.writer.worksheet import write_worksheet_conditional_formatting
 from openpyxl.writer.styles import StyleWriter
 from openpyxl.styles import Border, Color, Fill, Font, Borders, HashableObject
@@ -116,6 +118,7 @@ class TestConditionalFormatting(object):
 
     class WB():
         style_properties = None
+        worksheets = []
 
     def setup(self):
         self.workbook = self.WB()
@@ -424,6 +427,59 @@ class TestConditionalFormatting(object):
 
         expected = '<conditionalFormatting sqref="A1:A4"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFFF7128"></color><color rgb="FFFFEF9C"></color></colorScale></cfRule></conditionalFormatting>'
         diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+    def test_conditional_font(self):
+        """Test to verify font style written correctly."""
+        class WS():
+            conditional_formatting = ConditionalFormatting()
+        worksheet = WS()
+
+        # Create cf rule
+        redFill = Fill()
+        redFill.start_color.index = 'FFEE1111'
+        redFill.end_color.index = 'FFEE1111'
+        redFill.fill_type = Fill.FILL_SOLID
+        whiteFont = Font()
+        whiteFont.color.index = "FFFFFFFF"
+        worksheet.conditional_formatting.addCellIs('A1:A3', 'equal', ['"Fail"'], False, self.workbook, whiteFont, None,
+                                                   redFill)
+
+        # First, verify conditional formatting xml
+        temp_buffer = StringIO()
+        doc = XMLGenerator(out=temp_buffer, encoding='utf-8')
+        write_worksheet_conditional_formatting(doc, worksheet)
+        doc.endDocument()
+        xml = temp_buffer.getvalue()
+        temp_buffer.close()
+
+        xmlExpected = Element('conditionalFormatting', {'sqref': 'A1:A3'})
+        xmlCFRule = SubElement(xmlExpected, 'cfRule', {'priority': '1', 'dxfId': '0', 'type': 'cellIs',
+                                                       'operator': 'equal'})
+        xmlFormula = SubElement(xmlCFRule, 'formula')
+        xmlFormula.text = '"Fail"'
+        expected = tostring(xmlExpected)
+
+        diff = compare_xml(expected, xml)
+        assert diff is None, diff
+
+        # Second, verify conditional formatting dxf styles
+        w = StyleWriter(self.workbook)
+        w._write_dxfs()
+        xml = get_xml(w._root)
+
+        xmlExpected = Element('styleSheet', {'xmlns': SHEET_MAIN_NS})
+        xmlDxfs = SubElement(xmlExpected, 'dxfs', {'count': '1'})
+        xmlDxf = SubElement(xmlDxfs, 'dxf')
+        xmlFont = SubElement(xmlDxf, 'font')
+        SubElement(xmlFont, 'color', {'rgb': 'FFFFFFFF'})
+        xmlFill = SubElement(xmlDxf, 'fill')
+        xmlPattern = SubElement(xmlFill, 'patternFill', {'patternType': 'solid'})
+        SubElement(xmlPattern, 'fgColor', {'rgb': 'FFEE1111'})
+        SubElement(xmlPattern, 'bgColor', {'rgb': 'FFEE1111'})
+        expected = tostring(xmlExpected)
+
+        diff = compare_xml(expected, xml)
         assert diff is None, diff
 
 

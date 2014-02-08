@@ -282,11 +282,13 @@ class StyleWriter(object):
                     # the font name from being applied in Excel.
                     #SubElement(font_node, 'scheme', {'val':'minor'})
                     if 'bold' in d['font'] and d['font']['bold']:
-                        SubElement(font_node, 'b')
+                        SubElement(font_node, 'b', {'val': '1'})
                     if 'italic' in d['font'] and d['font']['italic']:
-                        SubElement(font_node, 'i')
-                    if 'underline' in d['font'] and d['font']['underline'] == 'single':
-                        SubElement(font_node, 'u')
+                        SubElement(font_node, 'i', {'val': '1'})
+                    if 'underline' in d['font'] and d['font']['underline'] != 'none':
+                        SubElement(font_node, 'u', {'val': d['font']['underline']})
+                    if 'strike' in d['font'] and d['font']['strike']:
+                        SubElement(font_node, 'strike')
                 if 'fill' in d and len(d['fill']):
                     f = d['fill'][0]
                     fill = SubElement(dxf, 'fill')

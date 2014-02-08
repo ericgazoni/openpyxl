@@ -36,7 +36,10 @@ from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.styles import NumberFormat, Border, Color, Font
+from openpyxl.styles import NumberFormat, Border, Color, Font, Fill
+from openpyxl.styles.formatting import ConditionalFormatting
+from openpyxl.xml.functions import Element, SubElement, tostring
+from openpyxl.xml.constants import SHEET_MAIN_NS
 
 # test imports
 from openpyxl.tests.helper import DATADIR, get_xml, compare_xml
@@ -196,6 +199,47 @@ class TestStyleWriter(object):
         saved_wb = save_virtual_workbook(second_wb)
         third_wb = load_workbook(BytesIO(saved_wb))
         assert third_wb
+
+    def test_write_dxf(self):
+        redFill = Fill()
+        redFill.start_color.index = 'FFEE1111'
+        redFill.end_color.index = 'FFEE1111'
+        redFill.fill_type = Fill.FILL_SOLID
+        whiteFont = Font()
+        whiteFont.color.index = "FFFFFFFF"
+        whiteFont.bold = True
+        whiteFont.italic = True
+        whiteFont.underline = 'single'
+        whiteFont.strikethrough = True
+        cf = ConditionalFormatting()
+        cf.addDxfStyle(self.workbook, whiteFont, None, redFill)
+
+        assert len(self.workbook.style_properties['dxf_list']) == 1
+        assert 'font' in self.workbook.style_properties['dxf_list'][0]
+        assert 'fill' in self.workbook.style_properties['dxf_list'][0]
+
+        w = StyleWriter(self.workbook)
+        w._write_dxfs()
+        xml = get_xml(w._root)
+
+        xmlExpected = Element('styleSheet', {'xmlns': SHEET_MAIN_NS})
+        xmlDxfs = SubElement(xmlExpected, 'dxfs', {'count': '1'})
+        xmlDxf = SubElement(xmlDxfs, 'dxf')
+        xmlFont = SubElement(xmlDxf, 'font')
+        SubElement(xmlFont, 'color', {'rgb': 'FFFFFFFF'})
+        SubElement(xmlFont, 'b', {'val': '1'})
+        SubElement(xmlFont, 'i', {'val': '1'})
+        SubElement(xmlFont, 'u', {'val': 'single'})
+        SubElement(xmlFont, 'strike')
+        xmlFill = SubElement(xmlDxf, 'fill')
+        xmlPattern = SubElement(xmlFill, 'patternFill', {'patternType': 'solid'})
+        SubElement(xmlPattern, 'fgColor', {'rgb': 'FFEE1111'})
+        SubElement(xmlPattern, 'bgColor', {'rgb': 'FFEE1111'})
+        expected = tostring(xmlExpected)
+
+        diff = compare_xml(expected, xml)
+        assert diff is None, diff
+
 
 def test_read_style():
     reference_file = os.path.join(DATADIR, 'reader', 'simple-styles.xml')

@@ -159,11 +159,19 @@ def parse_dxfs(root, color_index):
             font_node = dxf.find('{%s}font' % SHEET_MAIN_NS)
             if font_node is not None:
                 dxf_item['font'] = {}
-                dxf_item['font']['bold'] = True if len(font_node.findall('{%s}b' % SHEET_MAIN_NS)) else False
-                dxf_item['font']['italic'] = True if len(font_node.findall('{%s}i' % SHEET_MAIN_NS)) else False
-                if len(font_node.findall('{%s}u' % SHEET_MAIN_NS)):
-                    underline = font_node.find('{%s}u' % SHEET_MAIN_NS).get('val')
-                    dxf_item['font']['underline'] = underline if underline else 'single'
+                bold = font_node.find('{%s}b' % SHEET_MAIN_NS)
+                if bold:
+                    dxf_item['font']['bold'] = True if bold.attrib('val') == '1' else False
+                else:
+                    dxf_item['font']['bold'] = False
+                italic = font_node.find('{%s}i' % SHEET_MAIN_NS)
+                if italic:
+                    dxf_item['font']['italic'] = True if italic.attrib('val') == '1' else False
+                else:
+                    dxf_item['font']['italic'] = False
+                underline = font_node.find('{%s}u' % SHEET_MAIN_NS)
+                dxf_item['font']['underline'] = underline.attrib('val') if underline else 'none'
+                dxf_item['font']['strike'] = True if len(font_node.findall('{%s}strike' % SHEET_MAIN_NS)) else False
                 color = font_node.find('{%s}color' % SHEET_MAIN_NS)
                 if color is not None:
                     dxf_item['font']['color'] = Color(Color.BLACK)
@@ -173,7 +181,7 @@ def parse_dxfs(root, color_index):
                         if color.get('tint') is not None:
                             dxf_item['font']['color'] .index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
                         else:
-                            dxf_item['font']['color'] .index = 'theme:%s:' % color.get('theme') # prefix color with theme
+                            dxf_item['font']['color'] .index = 'theme:%s:' % color.get('theme')
                     elif color.get('rgb'):
                         dxf_item['font']['color'] .index = color.get('rgb')
             fill_node = dxf.find('{%s}fill' % SHEET_MAIN_NS)
