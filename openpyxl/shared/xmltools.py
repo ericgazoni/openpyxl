@@ -74,19 +74,18 @@ if LXML is True:
     Element,
     ElementTree,
     SubElement,
-    QName,
     fromstring,
     tostring,
     register_namespace,
     iterparse
     )
+    from xml.etree.cElementTree import iterparse
 else:
     try:
         from xml.etree.cElementTree import (
         ElementTree,
         Element,
         SubElement,
-        QName,
         fromstring,
         tostring,
         iterparse
@@ -96,7 +95,6 @@ else:
         ElementTree,
         Element,
         SubElement,
-        QName,
         fromstring,
         tostring,
         iterparse

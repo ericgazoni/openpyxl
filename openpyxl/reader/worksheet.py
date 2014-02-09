@@ -118,6 +118,7 @@ class WorkSheetParser(object):
             tag_name = element.tag
             if tag_name in dispatcher:
                 dispatcher[tag_name](element)
+                element.clear()
 
 
     def parse_cell(self, element):
