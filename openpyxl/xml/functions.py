@@ -85,12 +85,12 @@ from openpyxl.xml.constants import (
     DCTERMS_PREFIX
 )
 
-if LXML is False:
-    _iterparse = iterparse
-    def safe_iterparse(source, *args, **kw):
-        return _iterparse(source)
+# allow LXML interface
+_iterparse = iterparse
+def safe_iterparse(source, *args, **kw):
+    return _iterparse(source)
 
-    iterparse = safe_iterparse
+iterparse = safe_iterparse
 
 
 register_namespace(DCTERMS_PREFIX, DCTERMS_NS)
