@@ -8,7 +8,7 @@ from openpyxl.styles import is_date_format
 from .cell import Cell
 
 
-class RawCell(object):
+class ReadOnlyCell(object):
 
     __slots__ = ('row', 'column', '_value', 'data_type', '_style_id')
 
@@ -59,6 +59,8 @@ class RawCell(object):
 
     @style_id.setter
     def style_id(self, value):
+        if hasattr(self, '_style_id'):
+            raise AttributeError("Cell is read only")
         if value is not None:
             value = int(value)
         self._style_id = value
@@ -83,10 +85,12 @@ class RawCell(object):
 
     @value.setter
     def value(self, value):
+        if hasattr(self, '_value'):
+            raise AttributeError("Cell is read only")
         if value is None:
             self.data_type = Cell.TYPE_NULL
         elif self.data_type == Cell.TYPE_NUMERIC:
             value = float(value)
         self._value = value
 
-EMPTY_CELL = RawCell(None, None, None, Cell.TYPE_NULL, None)
+EMPTY_CELL = ReadOnlyCell(None, None, None, Cell.TYPE_NULL, None)

@@ -41,7 +41,7 @@ from openpyxl.cell import (
     get_column_letter,
     Cell
 )
-from openpyxl.cell.read_only import RawCell, EMPTY_CELL
+from openpyxl.cell.read_only import ReadOnlyCell, EMPTY_CELL
 from openpyxl.reader.worksheet import read_dimension
 from openpyxl.xml.functions import safe_iterator
 from openpyxl.xml.constants import SHEET_MAIN_NS
@@ -80,9 +80,9 @@ class IterableWorksheet(Worksheet):
                  xml_source, string_table, style_table):
         Worksheet.__init__(self, parent_workbook, title)
         self.worksheet_path = worksheet_path
-        RawCell.set_string_table(string_table)
-        RawCell.set_style_table(style_table)
-        RawCell.set_base_date(parent_workbook.excel_base_date)
+        ReadOnlyCell.set_string_table(string_table)
+        ReadOnlyCell.set_style_table(style_table)
+        ReadOnlyCell.set_base_date(parent_workbook.excel_base_date)
 
         min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
         self.min_col = min_col
@@ -185,7 +185,7 @@ class IterableWorksheet(Worksheet):
                             if formula is not None and not self.parent.data_only:
                                 data_type = Cell.TYPE_FORMULA
                                 value = "=%s" % formula
-                            yield RawCell(row, column_str, value, data_type,
+                            yield ReadOnlyCell(row, column_str, value, data_type,
                                           style_id)
             if element.tag in (CELL_TAG, VALUE_TAG, FORMULA_TAG):
                 # sub-elements of rows should be skipped
