@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from openpyxl.compat import unicode
 from openpyxl.date_time import from_excel
 from openpyxl.styles import is_date_format
-from .cell import Cell
+from .cell import Cell, get_column_letter
 
 
 class ReadOnlyCell(object):
@@ -13,7 +13,7 @@ class ReadOnlyCell(object):
     __slots__ = ('row', 'column', '_value', 'data_type', '_style_id')
 
 
-    def __init__(self, row, column, value, data_type, style_id=None):
+    def __init__(self, row, column, value, data_type=Cell.TYPE_NULL, style_id=None):
         self.row = row
         self.column = column
         self.data_type = data_type
@@ -23,8 +23,11 @@ class ReadOnlyCell(object):
     def __eq__(self, other):
         for a in self.__slots__:
             if getattr(self, a) != getattr(other, a):
-                return False
+                return
         return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     @classmethod
     def set_string_table(cls, string_table):
@@ -40,6 +43,8 @@ class ReadOnlyCell(object):
 
     @property
     def coordinate(self):
+        if self.row is None or self.column is None:
+            raise AttributeError("Empty cells have no coordinates")
         return "{1}{0}".format(self.row, self.column)
 
     @property
@@ -93,4 +98,4 @@ class ReadOnlyCell(object):
             value = float(value)
         self._value = value
 
-EMPTY_CELL = ReadOnlyCell(None, None, None, Cell.TYPE_NULL, None)
+EMPTY_CELL = ReadOnlyCell(None, None, None)
