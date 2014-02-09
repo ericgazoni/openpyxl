@@ -1,5 +1,13 @@
-1.8.3
+1.8.3 (2014-02-09)
 ==================
+
+Major changes
+-------------
+Always parse using cElementTree
+
+Minor changes
+-------------
+Slight improvements in memory use when parsing
 
 Bugfix #256 - error when trying to read comments with optimised reader
 Bugfix #260 - unsized worksheets
