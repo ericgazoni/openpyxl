@@ -32,9 +32,9 @@ from openpyxl.reader.excel import load_workbook
 from openpyxl.compat import xrange, izip
 
 
-def test_open_many_sheets():
-    src = os.path.join(DATADIR, "reader", "bigfoot.xlsx")
-    wb = load_workbook(src, True) # if
+def test_open_many_sheets(datadir):
+    datadir.join("reader").chdir()
+    wb = load_workbook("bigfoot.xlsx", True) # if
     assert len(wb.worksheets) == 1024
 
 
@@ -45,7 +45,6 @@ def test_open_many_sheets():
                           ]
                          )
 def test_read_dimension(datadir, filename, expected):
-    path = os.path.join(DATADIR, 'reader', filename)
     datadir.join("reader").chdir()
     with open(filename) as handle:
         dimension = read_dimension(handle)
@@ -60,9 +59,9 @@ def test_calculate_dimension(datadir):
     assert '%s%s:%s%s' % ('D', 1, 'AA', 30) == dimensions
 
 
-def test_get_highest_row():
-    path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
-    wb = load_workbook(filename=path, use_iterators=True)
+def test_get_highest_row(datadir):
+    datadir.join("genuine").chdir()
+    wb = load_workbook("empty.xlsx", use_iterators=True)
     sheet2 = wb.get_sheet_by_name('Sheet2 - Numbers')
     max_row = sheet2.get_highest_row()
     assert 30 == max_row
