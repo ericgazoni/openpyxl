@@ -57,40 +57,6 @@ def _get_xml_iter(xml_source):
         return xml_source
 
 
-def read_dimension(xml_source):
-    min_row = min_col =  max_row = max_col = None
-    source = _get_xml_iter(xml_source)
-    it = iterparse(source)
-    for event, el in it:
-        if el.tag == '{%s}dimension' % SHEET_MAIN_NS:
-            dim = el.get("ref")
-            if ':' in dim:
-                start, stop = dim.split(':')
-            else:
-                start = stop = dim
-            min_col, min_row = coordinate_from_string(start)
-            max_col, max_row = coordinate_from_string(stop)
-            return min_col, min_row, max_col, max_row
-
-        if el.tag == '{%s}row' % SHEET_MAIN_NS:
-            row = el.get("r")
-            if min_row is None:
-                min_row = int(row)
-            span = el.get("spans")
-            if ":" in span:
-                start, stop = span.split(":")
-                if min_col is None:
-                    min_col = int(start)
-                    max_col = int(stop)
-                else:
-                    min_col = min(min_col, int(start))
-                    max_col = max(max_col, int(stop))
-        el.clear()
-    max_row = int(row)
-    warn("Unsized worksheet")
-    return get_column_letter(min_col), min_row, get_column_letter(max_col),  max_row
-
-
 class WorkSheetParser(object):
 
     COL_TAG = '{%s}col' % SHEET_MAIN_NS

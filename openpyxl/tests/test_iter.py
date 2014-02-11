@@ -27,7 +27,7 @@ import os.path
 import pytest
 
 from openpyxl.tests.helper import DATADIR
-from openpyxl.worksheet.iter_worksheet import get_range_boundaries
+from openpyxl.worksheet.iter_worksheet import get_range_boundaries, read_dimension
 from openpyxl.reader.excel import load_workbook
 from openpyxl.compat import xrange, izip
 
@@ -36,6 +36,37 @@ def test_open_many_sheets():
     src = os.path.join(DATADIR, "reader", "bigfoot.xlsx")
     wb = load_workbook(src, True) # if
     assert len(wb.worksheets) == 1024
+
+
+@pytest.mark.parametrize("filename, expected",
+                         [
+                             ("sheet2.xml", ('D', 1, 'AA', 30)),
+                             ("sheet2_no_dimension.xml", None),
+                          ]
+                         )
+def test_read_dimension(datadir, filename, expected):
+    path = os.path.join(DATADIR, 'reader', filename)
+    datadir.join("reader").chdir()
+    with open(filename) as handle:
+        dimension = read_dimension(handle)
+    assert dimension == expected
+
+
+def test_calculate_dimension(datadir):
+    datadir.join("genuine").chdir()
+    wb = load_workbook("empty.xlsx", use_iterators=True)
+    sheet2 = wb.get_sheet_by_name('Sheet2 - Numbers')
+    dimensions = sheet2.calculate_dimension()
+    assert '%s%s:%s%s' % ('D', 1, 'AA', 30) == dimensions
+
+
+def test_get_highest_row():
+    path = os.path.join(DATADIR, 'genuine', 'empty.xlsx')
+    wb = load_workbook(filename=path, use_iterators=True)
+    sheet2 = wb.get_sheet_by_name('Sheet2 - Numbers')
+    max_row = sheet2.get_highest_row()
+    assert 30 == max_row
+
 
 
 class TestWorksheet(object):

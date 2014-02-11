@@ -42,7 +42,6 @@ from openpyxl.cell import (
     Cell
 )
 from openpyxl.cell.read_only import ReadOnlyCell, EMPTY_CELL
-from openpyxl.reader.worksheet import read_dimension
 from openpyxl.xml.functions import safe_iterator
 from openpyxl.xml.constants import SHEET_MAIN_NS
 
@@ -65,16 +64,39 @@ def get_range_boundaries(range_string, row_offset=0, column_offset=1):
 
     return (min_col, min_row, max_col, max_row)
 
+from openpyxl.reader.worksheet import _get_xml_iter
 
-#------------------------------------------------------------------------------
+
+def read_dimension(source):
+    min_row = min_col =  max_row = max_col = None
+    DIMENSION_TAG = '{%s}dimension' % SHEET_MAIN_NS
+    DATA_TAG = '{%s}sheetData' % SHEET_MAIN_NS
+    it = iterparse(source, tag=[DIMENSION_TAG, DATA_TAG])
+    for _event, element in it:
+        if element.tag == DIMENSION_TAG:
+            dim = element.get("ref")
+            if ':' in dim:
+                start, stop = dim.split(':')
+            else:
+                start = stop = dim
+            min_col, min_row = coordinate_from_string(start)
+            max_col, max_row = coordinate_from_string(stop)
+            return min_col, min_row, max_col, max_row
+        elif element.tag == DATA_TAG:
+            # Dimensions missing
+            break
+
 
 ROW_TAG = '{%s}row' % SHEET_MAIN_NS
 CELL_TAG = '{%s}c' % SHEET_MAIN_NS
 VALUE_TAG = '{%s}v' % SHEET_MAIN_NS
 FORMULA_TAG = '{%s}f' % SHEET_MAIN_NS
-
+DIMENSION_TAG = '{%s}dimension' % SHEET_MAIN_NS
 
 class IterableWorksheet(Worksheet):
+
+    min_col = min_row = max_col = max_row = 1
+
 
     def __init__(self, parent_workbook, title, worksheet_path,
                  xml_source, string_table, style_table):
@@ -83,12 +105,9 @@ class IterableWorksheet(Worksheet):
         ReadOnlyCell.set_string_table(string_table)
         ReadOnlyCell.set_style_table(style_table)
         ReadOnlyCell.set_base_date(parent_workbook.excel_base_date)
-
-        min_col, min_row, max_col, max_row = read_dimension(xml_source=self.xml_source)
-        self.min_col = min_col
-        self.min_row = min_row
-        self.max_row = max_row
-        self.max_col = max_col
+        dimensions = read_dimension(self.xml_source)
+        if dimensions is not None:
+            self.min_col, self.min_row, self.max_col, self.max_row = dimensions
 
     @property
     def xml_source(self):
@@ -98,6 +117,10 @@ class IterableWorksheet(Worksheet):
     def xml_source(self, value):
         """Base class is always supplied XML source, IteratableWorksheet obtains it on demand."""
         pass
+
+    @property
+    def dimensions(self):
+        return '%s%s:%s%s' % (self.min_col, self.min_row, self.max_col, self.max_row)
 
     def __getitem__(self, key):
         if isinstance(key, slice):
@@ -210,7 +233,7 @@ class IterableWorksheet(Worksheet):
         return self.iter_rows()
 
     def calculate_dimension(self):
-        return '%s%s:%s%s' % (self.min_col, self.min_row, self.max_col, self.max_row)
+        return self.dimensions
 
     def get_highest_column(self):
         return column_index_from_string(self.max_col)
