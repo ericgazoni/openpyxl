@@ -311,7 +311,7 @@ class Worksheet(object):
         :rtype: int
         """
         if self.row_dimensions:
-            return max(self.row_dimensions.keys())
+            return max(self.row_dimensions)
         else:
             return 1
 
