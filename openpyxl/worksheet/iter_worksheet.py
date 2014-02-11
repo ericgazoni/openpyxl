@@ -85,6 +85,7 @@ def read_dimension(source):
         elif element.tag == DATA_TAG:
             # Dimensions missing
             break
+        element.clear()
 
 
 ROW_TAG = '{%s}row' % SHEET_MAIN_NS
@@ -93,10 +94,12 @@ VALUE_TAG = '{%s}v' % SHEET_MAIN_NS
 FORMULA_TAG = '{%s}f' % SHEET_MAIN_NS
 DIMENSION_TAG = '{%s}dimension' % SHEET_MAIN_NS
 
+
 class IterableWorksheet(Worksheet):
 
-    min_col = min_row = max_col = max_row = 1
-
+    min_col = 'A'
+    min_row = 1
+    max_col = max_row = None
 
     def __init__(self, parent_workbook, title, worksheet_path,
                  xml_source, string_table, style_table):
@@ -120,6 +123,8 @@ class IterableWorksheet(Worksheet):
 
     @property
     def dimensions(self):
+        if not all([self.max_col, self.max_row]):
+            raise ValueError("Worksheet is unsized, cannot calculate dimensions")
         return '%s%s:%s%s' % (self.min_col, self.min_row, self.max_col, self.max_row)
 
     def __getitem__(self, key):
@@ -149,9 +154,11 @@ class IterableWorksheet(Worksheet):
             min_col, min_row, max_col, max_row = get_range_boundaries(range_string, row_offset, column_offset)
         else:
             min_col = column_index_from_string(self.min_col)
-            max_col = column_index_from_string(self.max_col) + 1
+            max_col = self.max_col
+            if max_col is not None:
+                max_col = column_index_from_string(self.max_col) + 1
             min_row = self.min_row
-            max_row = self.max_row + 6
+            max_row = self.max_row
 
         return self.get_squared_range(min_col, min_row, max_col, max_row)
 
@@ -229,6 +236,7 @@ class IterableWorksheet(Worksheet):
         # TODO return a range of cells, basically get_squared_range with same interface as Worksheet
         raise NotImplementedError("use 'iter_rows()' instead")
 
+    @property
     def rows(self):
         return self.iter_rows()
 
@@ -236,7 +244,8 @@ class IterableWorksheet(Worksheet):
         return self.dimensions
 
     def get_highest_column(self):
-        return column_index_from_string(self.max_col)
+        if self.max_col is not None:
+            return column_index_from_string(self.max_col)
 
     def get_highest_row(self):
         return self.max_row
