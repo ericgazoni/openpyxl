@@ -167,7 +167,10 @@ class IterableWorksheet(Worksheet):
         The source worksheet file may have columns or rows missing.
         Missing cells will be created.
         """
-        expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
+        if max_col is not None:
+            expected_columns = [get_column_letter(ci) for ci in xrange(min_col, max_col)]
+        else:
+            expected_columns = []
         row_counter = min_row
 
         # get cells row by row
@@ -181,14 +184,17 @@ class IterableWorksheet(Worksheet):
                     yield tuple(EMPTY_CELL for column in expected_columns)
                     row_counter = row
 
-            retrieved_columns = dict([(c.column, c) for c in cells])
-            for column in expected_columns:
-                if column in retrieved_columns:
-                    cell = retrieved_columns[column]
-                    full_row.append(cell)
-                else:
-                    # create missing cell
-                    full_row.append(EMPTY_CELL)
+            if expected_columns:
+                retrieved_columns = dict([(c.column, c) for c in cells])
+                for column in expected_columns:
+                    if column in retrieved_columns:
+                        cell = retrieved_columns[column]
+                        full_row.append(cell)
+                    else:
+                        # create missing cell
+                        full_row.append(EMPTY_CELL)
+            else:
+                full_row = tuple(cells)
             row_counter = row + 1
             yield tuple(full_row)
 
@@ -198,14 +204,14 @@ class IterableWorksheet(Worksheet):
         for _event, element in p:
             if element.tag == ROW_TAG:
                 row = int(element.get("r"))
-                if row > max_row:
+                if max_row is not None and row > max_row:
                     break
                 if min_row <= row:
                     for cell in safe_iterator(element, CELL_TAG):
                         coord = cell.get('r')
                         column_str, row = coordinate_from_string(coord)
                         column = column_index_from_string(column_str)
-                        if column > max_col:
+                        if max_col is not None and column > max_col:
                             break
                         if min_col <= column:
                             data_type = cell.get('t', 'n')
