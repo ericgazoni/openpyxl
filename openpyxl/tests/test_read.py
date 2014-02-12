@@ -1,3 +1,5 @@
+# coding=utf8
+
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -222,31 +224,18 @@ def test_read_no_theme():
     assert wb
 
 
-class TestReadFormulae(object):
-
-    xml_src = """<?xml version="1.0" ?>
-<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac"><dimension ref="A1:B6"/><sheetViews><sheetView tabSelected="1" workbookViewId="0"><selection activeCell="A6" sqref="A6"/></sheetView></sheetViews><sheetFormatPr baseColWidth="10" defaultColWidth="9.140625" defaultRowHeight="15" x14ac:dyDescent="0.25"/><cols><col min="1" max="1" width="15.7109375" customWidth="1"/><col min="2" max="2" width="15.28515625" customWidth="1"/></cols><sheetData><row r="1" spans="1:2" x14ac:dyDescent="0.25">
-<c r="A1" t="s"><v>0</v></c>
-<c r="B1" t="str"><f>CONCATENATE(A1,A2)</f><v>Hello, world!</v></c></row><row r="2" spans="1:2" x14ac:dyDescent="0.25">
-<c r="A2" t="s"><v>1</v></c></row><row r="4" spans="1:2" x14ac:dyDescent="0.25">
-<c r="A4"><v>1</v></c></row><row r="5" spans="1:2" x14ac:dyDescent="0.25">
-<c r="A5"><v>2</v></c></row><row r="6" spans="1:2" x14ac:dyDescent="0.25">
-<c r="A6"><f>SUM(A4:A5)</f><v>3</v></c></row></sheetData><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>"""
-
-    @classmethod
-    def setup(self):
-        wb = Workbook()
-        self.ws = wb.get_active_sheet()
-
-    def test_fast_parse(self):
-        from openpyxl.reader.worksheet import fast_parse
-        fast_parse(self.ws, self.xml_src, {}, {}, None)
-        b1 = self.ws.cell('B1')
-        eq_(b1.data_type, 'f')
-        eq_(b1.value, '=CONCATENATE(A1,A2)')
-        a6 = self.ws.cell('A6')
-        eq_(a6.data_type, 'f')
-        eq_(a6.value, '=SUM(A4:A5)')
+def test_read_cell_formulae():
+    from openpyxl.reader.worksheet import fast_parse
+    src_file = os.path.join(DATADIR, "reader", "worksheet_formula.xml")
+    wb = Workbook()
+    ws = wb.active
+    fast_parse(ws, open(src_file), {}, {}, None)
+    b1 = ws['B1']
+    assert b1.data_type == 'f'
+    assert b1.value == '=CONCATENATE(A1,A2)'
+    a6 = ws['A6']
+    assert a6.data_type == 'f'
+    assert a6.value == '=SUM(A4:A5)'
 
 
 def test_read_complex_formulae():
@@ -266,6 +255,15 @@ def test_read_complex_formulae():
     assert ws.cell('A5').data_type == 'f'
     assert 'A5' not in ws.formula_attributes
     assert ws.cell('A5').value == '=SUM(A2:A4)'
+
+    # Test unicode
+    expected = '=IF(ISBLANK(B16), "Düsseldorf", B16)'
+    # Hack to prevent pytest doing it's own unicode conversion
+    try:
+        expected = unicode(expected, "UTF8")
+    except TypeError:
+        pass
+    assert ws['A16'].value == expected
 
     # Test shared forumlae
     assert ws.cell('B7').data_type == 'f'
