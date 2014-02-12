@@ -1,3 +1,5 @@
+# coding=utf8
+
 # Copyright (c) 2010-2014 openpyxl
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -253,6 +255,15 @@ def test_read_complex_formulae():
     assert ws.cell('A5').data_type == 'f'
     assert 'A5' not in ws.formula_attributes
     assert ws.cell('A5').value == '=SUM(A2:A4)'
+
+    # Test unicode
+    expected = '=IF(ISBLANK(B16), "Düsseldorf", B16)'
+    # Hack to prevent pytest doing it's own unicode conversion
+    try:
+        expected = unicode(expected, "UTF8")
+    except TypeError:
+        pass
+    assert ws['A16'].value == expected
 
     # Test shared forumlae
     assert ws.cell('B7').data_type == 'f'
