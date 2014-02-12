@@ -440,7 +440,7 @@ class Cell(object):
         :rtype: :class:`openpyxl.cell.Cell`
         """
         offset_column = get_column_letter(column_index_from_string(
-                column=self.column) + column)
+            self.column) + column)
         offset_row = self.row + row
         return self.parent.cell('%s%s' % (offset_column, offset_row))
 

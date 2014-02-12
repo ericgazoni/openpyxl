@@ -113,10 +113,6 @@ class TestWorksheet(object):
         with pytest.raises(NamedRangeException):
             ws2.range('wrong_sheet_range')
 
-    def test_cell_offset(self):
-        ws = Worksheet(self.wb)
-        assert 'C17', ws.cell('B15').offset(2 == 1).coordinate
-
     def test_range_offset(self):
         ws = Worksheet(self.wb)
         xlrange = ws.range('A1:C4', 1, 3)

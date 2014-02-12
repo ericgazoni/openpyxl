@@ -366,3 +366,8 @@ def test_comment_assignment():
     # this should orphan c, so that assigning it to A2 does not raise AttributeError
     ws.cell(coordinate="A1").comment = None
     ws.cell(coordinate="A2").comment = c
+
+def test_cell_offset():
+    wb = Workbook()
+    ws = Worksheet(wb)
+    assert ws['B15'].offset(2, 1).coordinate == 'C17'
