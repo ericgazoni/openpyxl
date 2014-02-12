@@ -7,6 +7,7 @@ Major changes
 * Type inference is disabled by default
 * RawCell renamed ReadOnlyCell
 * ReadOnlyCell.internal_value and ReadOnlyCell.value now behave the same as Cell
+* Provide no size information on unsized worksheets
 
 
 Minor changes
@@ -23,8 +24,17 @@ Pull requests
 
 Bug fixes
 ---------
-#137 - Workbooks with chartsheets
 #46  - ColumnDimension style error
+#137 - Workbooks with chartsheets
+#269 - Handling unsized worksheets in IterableWorksheet
+
+
+1.8.4 (unreleased)
+==================
+
+Bugfixes
+--------
+#268 non-ascii in formualae
 
 
 1.8.3 (2014-02-09)

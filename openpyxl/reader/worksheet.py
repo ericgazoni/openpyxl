@@ -117,7 +117,7 @@ class WorkSheetParser(object):
                 value = bool(int(value))
             if formula is not None and not self.data_only:
                 if formula.text:
-                    value = "=" + str(formula.text)
+                    value = "=" + formula.text
                 else:
                     value = "="
                 formula_type = formula.get('t')
