@@ -291,9 +291,9 @@ class Worksheet(object):
             new_cell = openpyxl.cell.Cell(self, column, row)
             self._cells[coordinate] = new_cell
             if column not in self.column_dimensions:
-                self.column_dimensions[column] = ColumnDimension(self, column)
+                self.column_dimensions[column] = ColumnDimension(column)
             if row not in self.row_dimensions:
-                self.row_dimensions[row] = RowDimension(self, row)
+                self.row_dimensions[row] = RowDimension(row)
         return self._cells[coordinate]
 
     def __getitem__(self, key):

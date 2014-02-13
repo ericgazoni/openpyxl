@@ -217,8 +217,8 @@ def test_read_complex_style():
     wb = load_workbook(reference_file)
     ws = wb.get_active_sheet()
     assert ws.column_dimensions['A'].width == 31.1640625
-    assert ws.column_dimensions['I'].style.fill.start_color.index == 'FF006600'
-    assert ws.column_dimensions['I'].style.font.color.index == 'FF3300FF'
+    assert ws.get_style('I').fill.start_color.index == 'FF006600'
+    assert ws.get_style('I').font.color.index == 'FF3300FF'
     assert ws.cell('A2').style.font.name == 'Arial'
     assert ws.cell('A2').style.font.size == '10'
     assert not ws.cell('A2').style.font.bold
@@ -270,8 +270,8 @@ def test_change_existing_styles():
     ws = wb.get_active_sheet()
 
     ws.column_dimensions['A'].width = 20
-    ws.column_dimensions['I'].style.fill.start_color.index = 'FF442200'
-    ws.column_dimensions['I'].style.font.color.index = 'FF002244'
+    ws.get_style('I').fill.start_color.index = 'FF442200'
+    ws.get_style('I').font.color.index = 'FF002244'
     ws.cell('A2').style.font.name = 'Times New Roman'
     ws.cell('A2').style.font.size = 12
     ws.cell('A2').style.font.bold = True
@@ -317,8 +317,8 @@ def test_change_existing_styles():
     ws = new_wb.get_active_sheet()
 
     assert ws.column_dimensions['A'].width == 20.0
-    assert ws.column_dimensions['I'].style.fill.start_color.index == 'FF442200'
-    assert ws.column_dimensions['I'].style.font.color.index == 'FF002244'
+    assert ws.get_style('I').fill.start_color.index == 'FF442200'
+    assert ws.get_style('I').font.color.index == 'FF002244'
     assert ws.cell('A2').style.font.name == 'Times New Roman'
     assert ws.cell('A2').style.font.size == '12'
     assert ws.cell('A2').style.font.bold

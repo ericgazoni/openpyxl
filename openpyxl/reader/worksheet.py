@@ -156,24 +156,22 @@ class WorkSheetParser(object):
                 if style_index is not None:
                     self.ws._styles[column] = self.style_table.get(int(style_index))
                 if column not in self.ws.column_dimensions:
-                    new_dim = ColumnDimension(self.ws,
-                                              index=column,
-                                              width=width, auto_size=auto_size,
-                                              visible=visible, outline_level=outline,
-                                              collapsed=collapsed)
+                    new_dim = ColumnDimension( index=column, width=width,
+                                               auto_size=auto_size, visible=visible,
+                                               outline_level=outline, collapsed=collapsed)
                     self.ws.column_dimensions[column] = new_dim
 
 
     def parse_row_dimensions(self, row):
         rowId = int(row.get('r'))
         if rowId not in self.ws.row_dimensions:
-            self.ws.row_dimensions[rowId] = RowDimension(self.ws, rowId)
+            self.ws.row_dimensions[rowId] = RowDimension(rowId)
         style_index = row.get('s')
         if row.get('customFormat') and style_index:
             self.ws._styles[rowId] = self.style_table.get(int(style_index))
         ht = row.get('ht')
         if ht is not None:
-            self.ws.row_dimensions[rowId].height = float(ht)
+            self.ws.row_dimensions[rowId].height = ht
         for cell in safe_iterator(row, self.CELL_TAG):
             self.parse_cell(cell)
 
