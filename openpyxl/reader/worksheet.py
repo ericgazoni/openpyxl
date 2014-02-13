@@ -164,14 +164,12 @@ class WorkSheetParser(object):
 
     def parse_row_dimensions(self, row):
         rowId = int(row.get('r'))
+        ht = row.get('ht', -1)
         if rowId not in self.ws.row_dimensions:
-            self.ws.row_dimensions[rowId] = RowDimension(rowId)
+            self.ws.row_dimensions[rowId] = RowDimension(rowId, height=ht)
         style_index = row.get('s')
         if row.get('customFormat') and style_index:
             self.ws._styles[rowId] = self.style_table.get(int(style_index))
-        ht = row.get('ht')
-        if ht is not None:
-            self.ws.row_dimensions[rowId].height = ht
         for cell in safe_iterator(row, self.CELL_TAG):
             self.parse_cell(cell)
 
