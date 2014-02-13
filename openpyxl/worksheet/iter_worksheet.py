@@ -64,8 +64,6 @@ def get_range_boundaries(range_string, row_offset=0, column_offset=1):
 
     return (min_col, min_row, max_col, max_row)
 
-from openpyxl.reader.worksheet import _get_xml_iter
-
 
 def read_dimension(source):
     min_row = min_col =  max_row = max_col = None
