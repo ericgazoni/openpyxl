@@ -202,8 +202,8 @@ def write_worksheet_cols(doc, worksheet, style_table):
                 col_def['collapsed'] = 'true'
             if columndimension.auto_size:
                 col_def['bestFit'] = 'true'
-            if columndimension.column_index in worksheet._styles:
-                col_def['style'] = str(style_table[hash(worksheet.get_style(columndimension.column_index))])
+            if column_string in worksheet._styles:
+                col_def['style'] = str(style_table[hash(worksheet.get_style(column_string))])
             if columndimension.width > 0:
                 col_def['width'] = str(columndimension.width)
             else:
@@ -279,8 +279,8 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
         if row_dimension.height > 0:
             attrs['ht'] = str(row_dimension.height)
             attrs['customHeight'] = '1'
-        if row_dimension.row_index in worksheet._styles:
-            attrs['s'] = str(style_table[hash(worksheet.get_style(row_dimension.row_index))])
+        if row_idx in worksheet._styles:
+            attrs['s'] = str(style_table[hash(worksheet.get_style(row_idx))])
             attrs['customFormat'] = '1'
         start_tag(doc, 'row', attrs)
         row_cells = cells_by_row[row_idx]

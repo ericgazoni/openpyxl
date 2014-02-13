@@ -22,15 +22,33 @@ from __future__ import absolute_import
 # @license: http://www.opensource.org/licenses/mit-license.php
 # @author: see AUTHORS file
 
+from openpyxl.cell import get_column_letter
 
-class RowDimension(object):
-    """Information about the display properties of a row."""
+class Dimension(object):
+    """Information about the display properties of a row or column."""
     __slots__ = ('parent',
-                 'row_index',
-                 'height',
+                 'index',
                  'visible',
                  'outline_level',
                  'collapsed',)
+
+    def __init__(self,
+                 worksheet,
+                 index=0,
+                 visible=True,
+                 outline_level=0,
+                 collapsed=False):
+        self.parent = worksheet
+        self.index = index
+        self.visible = visible
+        self.outline_level = outline_level
+        self.collapsed = collapsed
+
+
+class RowDimension(Dimension):
+    """Information about the display properties of a row."""
+
+    __slots__ = Dimension.__slots__ + ('height',)
 
     def __init__(self,
                  worksheet,
@@ -39,28 +57,19 @@ class RowDimension(object):
                  visible=True,
                  outline_level=0,
                  collapsed=False):
-        self.parent = worksheet
-        self.row_index = index
-        self.height = height
-        self.visible = visible
-        self.outline_level = outline_level
-        self.collapsed = collapsed
+        super(RowDimension, self).__init__(worksheet, index, visible, outline_level, collapsed)
+        self.height = float(height)
 
     @property
     def style(self):
         """Returns the :class:`openpyxl.styles.Style` object for this row"""
-        return self.parent.get_style(self.row_index)
+        return self.parent.get_style(self.index)
 
 
-class ColumnDimension(object):
+class ColumnDimension(Dimension):
     """Information about the display properties of a column."""
-    __slots__ = ('parent',
-                 'column_index',
-                 'width',
-                 'auto_size',
-                 'visible',
-                 'outline_level',
-                 'collapsed',)
+
+    __slots__ = Dimension.__slots__ + ('width', 'auto_size')
 
     def __init__(self,
                  worksheet,
@@ -70,17 +79,15 @@ class ColumnDimension(object):
                  visible=True,
                  outline_level=0,
                  collapsed=False):
-        self.parent = worksheet
-        self.column_index = index
+        super(ColumnDimension, self).__init__(worksheet, index, visible, outline_level, collapsed)
         self.width = float(width)
         self.auto_size = auto_size
-        self.visible = visible
-        self.outline_level = int(outline_level)
-        self.collapsed = collapsed
+
+    #@property
+    #def col_label(self):
+        #return get_column_letter(self.index)
 
     @property
     def style(self):
         """Returns the :class:`openpyxl.styles.Style` object for this column"""
-        return self.parent.get_style(self.column_index)
-
-
+        return self.parent.get_style(self.index)
