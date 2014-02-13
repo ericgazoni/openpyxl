@@ -1,7 +1,7 @@
 "Benchmark some different implementations for cells"
 
 from openpyxl.cell import Cell
-from openpyxl.reader.iter_worksheet import RawCell
+from openpyxl.cell.read_only import ReadOnlyCell
 from memory_profiler import memory_usage
 import time
 
@@ -10,7 +10,7 @@ def standard():
     c = Cell(None, "A", "0", None)
 
 def iterative():
-    c = RawCell(None, None, None, 'n')
+    c = ReadOnlyCell(None, None, None, 'n')
 
 def dictionary():
     c = {'ws':'None', 'col':'A', 'row':0, 'value':1}
