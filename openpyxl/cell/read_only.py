@@ -17,8 +17,8 @@ class ReadOnlyCell(object):
         self.row = row
         self.column = column
         self.data_type = data_type
-        self.style_id = style_id
-        self.value = value
+        self._set_value(value)
+        self._set_style_id(style_id)
 
     def __eq__(self, other):
         for a in self.__slots__:
@@ -62,10 +62,7 @@ class ReadOnlyCell(object):
     def style_id(self):
         return self._style_id
 
-    @style_id.setter
-    def style_id(self, value):
-        if hasattr(self, '_style_id'):
-            raise AttributeError("Cell is read only")
+    def _set_style_id(self, value):
         if value is not None:
             value = int(value)
         self._style_id = value
@@ -88,10 +85,7 @@ class ReadOnlyCell(object):
             return unicode(self.string_table[int(self._value)])
         return self._value
 
-    @value.setter
-    def value(self, value):
-        if hasattr(self, '_value'):
-            raise AttributeError("Cell is read only")
+    def _set_value(self, value):
         if value is None:
             self.data_type = Cell.TYPE_NULL
         elif self.data_type == Cell.TYPE_NUMERIC:
