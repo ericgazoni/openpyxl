@@ -98,9 +98,27 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.font.bold = True
         w = StyleWriter(self.workbook)
         w._write_fonts()
-        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /></font></fonts></styleSheet>"""
         xml = get_xml(w._root)
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <fonts count="2">
+            <font>
+              <sz val="11" />
+              <color theme="1" />
+              <name val="Calibri" />
+              <family val="2" />
+              <scheme val="minor" />
+            </font>
+            <font>
+              <sz val="12" />
+              <color rgb="FF000000" />
+              <name val="Calibri" />
+              <family val="2" />
+              <b />
+            </font>
+          </fonts>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
     def test_fonts_with_underline(self):
@@ -109,9 +127,28 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.font.underline = Font.UNDERLINE_SINGLE
         w = StyleWriter(self.workbook)
         w._write_fonts()
-        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u /></font></fonts></styleSheet>"""
         xml = get_xml(w._root)
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <fonts count="2">
+            <font>
+              <sz val="11" />
+              <color theme="1" />
+              <name val="Calibri" />
+              <family val="2" />
+              <scheme val="minor" />
+            </font>
+            <font>
+              <sz val="12" />
+              <color rgb="FF000000" />
+              <name val="Calibri" />
+              <family val="2" />
+              <b />
+              <u />
+            </font>
+          </fonts>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
     def test_fills(self):
@@ -119,9 +156,24 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.fill.start_color.index = Color.DARKYELLOW
         w = StyleWriter(self.workbook)
         w._write_fills()
-        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fills count="3"><fill><patternFill patternType="none" /></fill><fill><patternFill patternType="gray125" /></fill><fill><patternFill patternType="solid"><fgColor rgb="FF808000" /></patternFill></fill></fills></styleSheet>"""
         xml = get_xml(w._root)
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <fills count="3">
+            <fill>
+              <patternFill patternType="none" />
+            </fill>
+            <fill>
+              <patternFill patternType="gray125" />
+            </fill>
+            <fill>
+              <patternFill patternType="solid">
+                <fgColor rgb="FF808000" />
+              </patternFill>
+            </fill>
+          </fills>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
     def test_borders(self):
@@ -129,9 +181,29 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.borders.top.color.index = Color.DARKYELLOW
         w = StyleWriter(self.workbook)
         w._write_borders()
-        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><borders count="2"><border><left /><right /><top /><bottom /><diagonal /></border><border><left /><right /><top style="thin"><color rgb="FF808000" /></top><bottom /><diagonal /></border></borders></styleSheet>"""
         xml = get_xml(w._root)
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <borders count="2">
+            <border>
+              <left />
+              <right />
+              <top />
+              <bottom />
+              <diagonal />
+            </border>
+            <border>
+              <left />
+              <right />
+              <top style="thin">
+                <color rgb="FF808000" />
+              </top>
+              <bottom />
+              <diagonal />
+            </border>
+          </borders>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
     def test_write_cell_xfs_1(self):
@@ -222,9 +294,27 @@ class TestStyleWriter(object):
         w._write_dxfs()
         xml = get_xml(w._root)
 
-        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dxfs count="1"><dxf><font><color rgb="FFFFFFFF"/><b val="1"/><i val="1"/><u val="single"/><strike/></font><fill><patternFill patternType="solid"><fgColor rgb="FFEE1111"/><bgColor rgb="FFEE1111"/></patternFill></fill></dxf></dxfs></styleSheet>"""
-
-        diff = compare_xml(expected, xml)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <dxfs count="1">
+            <dxf>
+              <font>
+                <color rgb="FFFFFFFF" />
+                <b val="1" />
+                <i val="1" />
+                <u val="single" />
+                <strike />
+              </font>
+              <fill>
+                <patternFill patternType="solid">
+                  <fgColor rgb="FFEE1111" />
+                  <bgColor rgb="FFEE1111" />
+                </patternFill>
+              </fill>
+            </dxf>
+          </dxfs>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
 

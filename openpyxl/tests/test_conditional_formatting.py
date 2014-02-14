@@ -381,8 +381,13 @@ class TestConditionalFormatting(object):
         temp_buffer.close()
 
         assert dxfId == 0
-        expected = '<conditionalFormatting sqref="C1:C10"><cfRule dxfId="0" type="expression" stopIfTrue="1" priority="1"><formula>ISBLANK(C1)</formula></cfRule></conditionalFormatting>'
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <conditionalFormatting sqref="C1:C10">
+          <cfRule dxfId="0" type="expression" stopIfTrue="1" priority="1">
+            <formula>ISBLANK(C1)</formula>
+          </cfRule>
+        </conditionalFormatting>
+        """)
         assert diff is None, diff
 
     def test_conditional_formatting_addDxfStyle(self):
@@ -424,9 +429,18 @@ class TestConditionalFormatting(object):
         doc.endDocument()
         xml = temp_buffer.getvalue()
         temp_buffer.close()
-
-        expected = '<conditionalFormatting sqref="A1:A4"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFFF7128"></color><color rgb="FFFFEF9C"></color></colorScale></cfRule></conditionalFormatting>'
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <conditionalFormatting sqref="A1:A4">
+          <cfRule type="colorScale" priority="1">
+            <colorScale>
+              <cfvo type="min" />
+              <cfvo type="max" />
+              <color rgb="FFFF7128" />
+              <color rgb="FFFFEF9C" />
+            </colorScale>
+          </cfRule>
+        </conditionalFormatting>
+        """)
         assert diff is None, diff
 
     def test_conditional_font(self):
@@ -452,20 +466,36 @@ class TestConditionalFormatting(object):
         doc.endDocument()
         xml = temp_buffer.getvalue()
         temp_buffer.close()
-
-        expected = """<conditionalFormatting sqref="A1:A3"><cfRule dxfId="0" operator="equal" priority="1" type="cellIs"><formula>"Fail"</formula></cfRule></conditionalFormatting>"""
-
-        diff = compare_xml(expected, xml)
+        diff = compare_xml(xml, """
+        <conditionalFormatting sqref="A1:A3">
+          <cfRule dxfId="0" operator="equal" priority="1" type="cellIs">
+            <formula>"Fail"</formula>
+          </cfRule>
+        </conditionalFormatting>
+        """)
         assert diff is None, diff
 
         # Second, verify conditional formatting dxf styles
         w = StyleWriter(self.workbook)
         w._write_dxfs()
         xml = get_xml(w._root)
-
-        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dxfs count="1"><dxf><font><color rgb="FFFFFFFF"/></font><fill><patternFill patternType="solid"><fgColor rgb="FFEE1111"/><bgColor rgb="FFEE1111"/></patternFill></fill></dxf></dxfs></styleSheet>"""
-
-        diff = compare_xml(expected, xml)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <dxfs count="1">
+            <dxf>
+              <font>
+                <color rgb="FFFFFFFF" />
+              </font>
+              <fill>
+                <patternFill patternType="solid">
+                  <fgColor rgb="FFEE1111" />
+                  <bgColor rgb="FFEE1111" />
+                </patternFill>
+              </fill>
+            </dxf>
+          </dxfs>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
 
