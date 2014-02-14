@@ -131,20 +131,9 @@ class ConditionalFormatting(object):
             wb.style_properties['dxf_list'] = []
 
         dxf = {}
-        if font:
+        if font and isinstance(font, Font):
             # DXF font is limited to color, bold, italic, underline and strikethrough
-            if isinstance(font, Font):
-                dxf['font'] = {'color': font.color}
-                if font.bold:
-                    dxf['font']['bold'] = True
-                if font.italic:
-                    dxf['font']['italic'] = True
-                if font.underline:
-                    dxf['font']['underline'] = font.underline
-                if font.strikethrough:
-                    dxf['font']['strike'] = font.strikethrough
-            elif isinstance(font, dict):
-                dxf['font'] = font
+            dxf['font'] = font
         if border:
             dxf['border'] = [border]
         if fill:

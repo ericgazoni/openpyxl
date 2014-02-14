@@ -453,12 +453,7 @@ class TestConditionalFormatting(object):
         xml = temp_buffer.getvalue()
         temp_buffer.close()
 
-        xmlExpected = Element('conditionalFormatting', {'sqref': 'A1:A3'})
-        xmlCFRule = SubElement(xmlExpected, 'cfRule', {'priority': '1', 'dxfId': '0', 'type': 'cellIs',
-                                                       'operator': 'equal'})
-        xmlFormula = SubElement(xmlCFRule, 'formula')
-        xmlFormula.text = '"Fail"'
-        expected = tostring(xmlExpected)
+        expected = """<conditionalFormatting sqref="A1:A3"><cfRule dxfId="0" operator="equal" priority="1" type="cellIs"><formula>"Fail"</formula></cfRule></conditionalFormatting>"""
 
         diff = compare_xml(expected, xml)
         assert diff is None, diff
@@ -468,16 +463,7 @@ class TestConditionalFormatting(object):
         w._write_dxfs()
         xml = get_xml(w._root)
 
-        xmlExpected = Element('styleSheet', {'xmlns': SHEET_MAIN_NS})
-        xmlDxfs = SubElement(xmlExpected, 'dxfs', {'count': '1'})
-        xmlDxf = SubElement(xmlDxfs, 'dxf')
-        xmlFont = SubElement(xmlDxf, 'font')
-        SubElement(xmlFont, 'color', {'rgb': 'FFFFFFFF'})
-        xmlFill = SubElement(xmlDxf, 'fill')
-        xmlPattern = SubElement(xmlFill, 'patternFill', {'patternType': 'solid'})
-        SubElement(xmlPattern, 'fgColor', {'rgb': 'FFEE1111'})
-        SubElement(xmlPattern, 'bgColor', {'rgb': 'FFEE1111'})
-        expected = tostring(xmlExpected)
+        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dxfs count="1"><dxf><font><color rgb="FFFFFFFF"/></font><fill><patternFill patternType="solid"><fgColor rgb="FFEE1111"/><bgColor rgb="FFEE1111"/></patternFill></fill></dxf></dxfs></styleSheet>"""
 
         diff = compare_xml(expected, xml)
         assert diff is None, diff
@@ -564,9 +550,9 @@ def test_parse_dxfs():
         assert diff is None, diff
 
     cond_styles = wb.style_properties['dxf_list'][0]
-    assert cond_styles['font']['color'] == Color('FF9C0006')
-    assert cond_styles['font']['bold'] == False
-    assert cond_styles['font']['italic'] == False
+    assert cond_styles['font'].color == Color('FF9C0006')
+    assert cond_styles['font'].bold == False
+    assert cond_styles['font'].italic == False
     f = Fill()
     f.end_color = Color('FFFFC7CE')
     assert cond_styles['fill'][0] == f

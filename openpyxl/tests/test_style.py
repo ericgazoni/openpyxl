@@ -222,20 +222,7 @@ class TestStyleWriter(object):
         w._write_dxfs()
         xml = get_xml(w._root)
 
-        xmlExpected = Element('styleSheet', {'xmlns': SHEET_MAIN_NS})
-        xmlDxfs = SubElement(xmlExpected, 'dxfs', {'count': '1'})
-        xmlDxf = SubElement(xmlDxfs, 'dxf')
-        xmlFont = SubElement(xmlDxf, 'font')
-        SubElement(xmlFont, 'color', {'rgb': 'FFFFFFFF'})
-        SubElement(xmlFont, 'b', {'val': '1'})
-        SubElement(xmlFont, 'i', {'val': '1'})
-        SubElement(xmlFont, 'u', {'val': 'single'})
-        SubElement(xmlFont, 'strike')
-        xmlFill = SubElement(xmlDxf, 'fill')
-        xmlPattern = SubElement(xmlFill, 'patternFill', {'patternType': 'solid'})
-        SubElement(xmlPattern, 'fgColor', {'rgb': 'FFEE1111'})
-        SubElement(xmlPattern, 'bgColor', {'rgb': 'FFEE1111'})
-        expected = tostring(xmlExpected)
+        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dxfs count="1"><dxf><font><color rgb="FFFFFFFF"/><b val="1"/><i val="1"/><u val="single"/><strike/></font><fill><patternFill patternType="solid"><fgColor rgb="FFEE1111"/><bgColor rgb="FFEE1111"/></patternFill></fill></dxf></dxfs></styleSheet>"""
 
         diff = compare_xml(expected, xml)
         assert diff is None, diff

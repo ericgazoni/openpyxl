@@ -31,6 +31,7 @@ from openpyxl.styles import Style, NumberFormat, Font, Fill, Borders, Protection
 from openpyxl.xml.constants import SHEET_MAIN_NS
 from copy import deepcopy
 
+
 def read_style_table(xml_source):
     """Read styles from the shared style table"""
     style_prop = {'table': {}}
@@ -116,6 +117,7 @@ def read_style_table(xml_source):
             style_prop['table'][index] = new_style
     return style_prop
 
+
 def parse_custom_num_formats(root):
     """Read in custom numeric formatting rules from the shared style table"""
     custom_formats = {}
@@ -126,6 +128,7 @@ def parse_custom_num_formats(root):
             custom_formats[int(num_fmt_node.get('numFmtId'))] = \
                     num_fmt_node.get('formatCode').lower()
     return custom_formats
+
 
 def parse_color_index(root):
     """Read in the list of indexed colors"""
@@ -148,6 +151,7 @@ def parse_color_index(root):
                        'FF003366', 'FF339966', 'FF003300', 'FF333300', 'FF993300', 'FF993366', 'FF333399', 'FF333333']
     return color_index
 
+
 def parse_dxfs(root, color_index):
     """Read in the dxfs effects - used by conditional formatting."""
     dxf_list = []
@@ -156,34 +160,9 @@ def parse_dxfs(root, color_index):
         nodes = dxfs.findall('{%s}dxf' % SHEET_MAIN_NS)
         for dxf in nodes:
             dxf_item = {}
-            font_node = dxf.find('{%s}font' % SHEET_MAIN_NS)
-            if font_node is not None:
-                dxf_item['font'] = {}
-                bold = font_node.find('{%s}b' % SHEET_MAIN_NS)
-                if bold:
-                    dxf_item['font']['bold'] = True if bold.attrib('val') == '1' else False
-                else:
-                    dxf_item['font']['bold'] = False
-                italic = font_node.find('{%s}i' % SHEET_MAIN_NS)
-                if italic:
-                    dxf_item['font']['italic'] = True if italic.attrib('val') == '1' else False
-                else:
-                    dxf_item['font']['italic'] = False
-                underline = font_node.find('{%s}u' % SHEET_MAIN_NS)
-                dxf_item['font']['underline'] = underline.attrib('val') if underline else 'none'
-                dxf_item['font']['strike'] = True if len(font_node.findall('{%s}strike' % SHEET_MAIN_NS)) else False
-                color = font_node.find('{%s}color' % SHEET_MAIN_NS)
-                if color is not None:
-                    dxf_item['font']['color'] = Color(Color.BLACK)
-                    if color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
-                        dxf_item['font']['color'].index = color_index[int(color.get('indexed'))]
-                    elif color.get('theme') is not None:
-                        if color.get('tint') is not None:
-                            dxf_item['font']['color'] .index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
-                        else:
-                            dxf_item['font']['color'] .index = 'theme:%s:' % color.get('theme')
-                    elif color.get('rgb'):
-                        dxf_item['font']['color'] .index = color.get('rgb')
+            font_list = parse_fonts(dxf, color_index, True)
+            if len(font_list):
+                dxf_item['font'] = font_list[0]
             fill_node = dxf.find('{%s}fill' % SHEET_MAIN_NS)
             if fill_node is not None:
                 dxf_item['fill'] = parse_fills(dxf, color_index, True)
@@ -191,25 +170,39 @@ def parse_dxfs(root, color_index):
             dxf_list.append(dxf_item)
     return dxf_list
 
-def parse_fonts(root, color_index):
+
+def parse_fonts(root, color_index, parse_dxf=False):
     """Read in the fonts"""
     font_list = []
-    fonts = root.find('{%s}fonts' % SHEET_MAIN_NS)
+    if parse_dxf:
+        fonts = root
+    else:
+        fonts = root.find('{%s}fonts' % SHEET_MAIN_NS)
     if fonts is not None:
         font_nodes = fonts.findall('{%s}font' % SHEET_MAIN_NS)
         for font_node in font_nodes:
             font = Font()
-            fontSizeEl = font_node.find('{%s}sz' % SHEET_MAIN_NS)
-            if fontSizeEl is not None:
-                font.size = fontSizeEl.get('val')
-            fontNameEl = font_node.find('{%s}name' % SHEET_MAIN_NS)
-            if fontNameEl is not None:
-                font.name = fontNameEl.get('val')
-            font.bold = True if len(font_node.findall('{%s}b' % SHEET_MAIN_NS)) else False
-            font.italic = True if len(font_node.findall('{%s}i' % SHEET_MAIN_NS)) else False
+            if not parse_dxf:
+                fontSizeEl = font_node.find('{%s}sz' % SHEET_MAIN_NS)
+                if fontSizeEl is not None:
+                    font.size = fontSizeEl.get('val')
+                fontNameEl = font_node.find('{%s}name' % SHEET_MAIN_NS)
+                if fontNameEl is not None:
+                    font.name = fontNameEl.get('val')
+            bold = font_node.find('{%s}b' % SHEET_MAIN_NS)
+            if bold is not None and 'val' in bold.attrib:
+                font.bold = bool(bold.get('val'))
+            else:
+                font.bold = True if bold is not None else False
+            italic = font_node.find('{%s}i' % SHEET_MAIN_NS)
+            if italic is not None and 'val' in italic.attrib:
+                font.italic = bool(italic.get('val'))
+            else:
+                font.italic = True if italic is not None else False
             if len(font_node.findall('{%s}u' % SHEET_MAIN_NS)):
                 underline = font_node.find('{%s}u' % SHEET_MAIN_NS).get('val')
                 font.underline = underline if underline else 'single'
+            font.strikethrough = True if len(font_node.findall('{%s}strike' % SHEET_MAIN_NS)) else False
             color = font_node.find('{%s}color' % SHEET_MAIN_NS)
             if color is not None:
                 if color.get('indexed') is not None and 0 <= int(color.get('indexed')) < len(color_index):
@@ -218,11 +211,14 @@ def parse_fonts(root, color_index):
                     if color.get('tint') is not None:
                         font.color.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
                     else:
-                        font.color.index = 'theme:%s:' % color.get('theme') # prefix color with theme
+                        font.color.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
                 elif color.get('rgb'):
                     font.color.index = color.get('rgb')
+            elif parse_dxf:
+                font.color = None
             font_list.append(font)
     return font_list
+
 
 def parse_fills(root, color_index, skip_find=False):
     """Read in the list of fills"""
@@ -273,6 +269,7 @@ def parse_fills(root, color_index, skip_find=False):
                 count += 1
                 fill_list.append(newFill)
     return fill_list
+
 
 def parse_borders(root, color_index, skip_find=False):
     """Read in the boarders"""
