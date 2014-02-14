@@ -29,6 +29,7 @@ from openpyxl.xml.functions import Element, SubElement
 from openpyxl.xml.functions import get_document_content
 from openpyxl.styles import DEFAULTS
 
+
 class StyleWriter(object):
 
     def __init__(self, workbook):
@@ -267,26 +268,25 @@ class StyleWriter(object):
             dxfs = SubElement(self._root, 'dxfs', {'count': str(len(self._style_properties['dxf_list']))})
             for d in self._style_properties['dxf_list']:
                 dxf = SubElement(dxfs, 'dxf')
-                if 'font' in d and d['font']:
+                if 'font' in d and d['font'] is not None:
                     font_node = SubElement(dxf, 'font')
-                    if 'color' in d['font']:
-                        if str(d['font']['color'].index).split(':')[0] == 'theme':  # strip prefix theme if marked
-                            if str(d['font']['color'].index).split(':')[2]:
-                                SubElement(font_node, 'color', {'theme': str(d['font']['color'].index).split(':')[1],
-                                                                'tint': str(d['font']['color'].index).split(':')[2]})
+                    if d['font'].color is not None:
+                        if str(d['font'].color.index).split(':')[0] == 'theme':  # strip prefix theme if marked
+                            if str(d['font'].color.index).split(':')[2]:
+                                SubElement(font_node, 'color', {'theme': str(d['font'].color.index).split(':')[1],
+                                                                'tint': str(d['font'].color.index).split(':')[2]})
                             else:
-                                SubElement(font_node, 'color', {'theme': str(d['font']['color'].index).split(':')[1]})
+                                SubElement(font_node, 'color', {'theme': str(d['font'].color.index).split(':')[1]})
                         else:
-                            SubElement(font_node, 'color', {'rgb': str(d['font']['color'].index)})
-                    # Don't write the 'scheme' element because it appears to prevent
-                    # the font name from being applied in Excel.
-                    #SubElement(font_node, 'scheme', {'val':'minor'})
-                    if 'bold' in d['font'] and d['font']['bold']:
-                        SubElement(font_node, 'b')
-                    if 'italic' in d['font'] and d['font']['italic']:
-                        SubElement(font_node, 'i')
-                    if 'underline' in d['font'] and d['font']['underline'] == 'single':
-                        SubElement(font_node, 'u')
+                            SubElement(font_node, 'color', {'rgb': str(d['font'].color.index)})
+                    if d['font'].bold:
+                        SubElement(font_node, 'b', {'val': '1'})
+                    if d['font'].italic:
+                        SubElement(font_node, 'i', {'val': '1'})
+                    if d['font'].underline != 'none':
+                        SubElement(font_node, 'u', {'val': d['font'].underline})
+                    if d['font'].strikethrough:
+                        SubElement(font_node, 'strike')
                 if 'fill' in d and len(d['fill']):
                     f = d['fill'][0]
                     fill = SubElement(dxf, 'fill')

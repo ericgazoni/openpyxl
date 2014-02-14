@@ -26,6 +26,7 @@ from collections import Mapping
 
 from openpyxl.compat import iteritems, OrderedDict
 from .colors import Color
+from openpyxl.styles import Font
 
 
 class FormatRule(Mapping):
@@ -130,8 +131,9 @@ class ConditionalFormatting(object):
             wb.style_properties['dxf_list'] = []
 
         dxf = {}
-        if font:
-            dxf['font'] = [font]
+        if font and isinstance(font, Font):
+            # DXF font is limited to color, bold, italic, underline and strikethrough
+            dxf['font'] = font
         if border:
             dxf['border'] = [border]
         if fill:

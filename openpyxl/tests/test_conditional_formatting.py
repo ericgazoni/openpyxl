@@ -34,6 +34,8 @@ from openpyxl.compat import iterkeys
 from openpyxl.reader.excel import load_workbook
 from openpyxl.reader.style import read_style_table
 from openpyxl.xml.constants import ARC_STYLE
+from openpyxl.xml.functions import Element, SubElement, tostring
+from openpyxl.xml.constants import SHEET_MAIN_NS
 from openpyxl.writer.worksheet import write_worksheet_conditional_formatting
 from openpyxl.writer.styles import StyleWriter
 from openpyxl.styles import Border, Color, Fill, Font, Borders, HashableObject
@@ -116,6 +118,7 @@ class TestConditionalFormatting(object):
 
     class WB():
         style_properties = None
+        worksheets = []
 
     def setup(self):
         self.workbook = self.WB()
@@ -378,8 +381,13 @@ class TestConditionalFormatting(object):
         temp_buffer.close()
 
         assert dxfId == 0
-        expected = '<conditionalFormatting sqref="C1:C10"><cfRule dxfId="0" type="expression" stopIfTrue="1" priority="1"><formula>ISBLANK(C1)</formula></cfRule></conditionalFormatting>'
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <conditionalFormatting sqref="C1:C10">
+          <cfRule dxfId="0" type="expression" stopIfTrue="1" priority="1">
+            <formula>ISBLANK(C1)</formula>
+          </cfRule>
+        </conditionalFormatting>
+        """)
         assert diff is None, diff
 
     def test_conditional_formatting_addDxfStyle(self):
@@ -421,9 +429,73 @@ class TestConditionalFormatting(object):
         doc.endDocument()
         xml = temp_buffer.getvalue()
         temp_buffer.close()
+        diff = compare_xml(xml, """
+        <conditionalFormatting sqref="A1:A4">
+          <cfRule type="colorScale" priority="1">
+            <colorScale>
+              <cfvo type="min" />
+              <cfvo type="max" />
+              <color rgb="FFFF7128" />
+              <color rgb="FFFFEF9C" />
+            </colorScale>
+          </cfRule>
+        </conditionalFormatting>
+        """)
+        assert diff is None, diff
 
-        expected = '<conditionalFormatting sqref="A1:A4"><cfRule type="colorScale" priority="1"><colorScale><cfvo type="min"></cfvo><cfvo type="max"></cfvo><color rgb="FFFF7128"></color><color rgb="FFFFEF9C"></color></colorScale></cfRule></conditionalFormatting>'
-        diff = compare_xml(xml, expected)
+    def test_conditional_font(self):
+        """Test to verify font style written correctly."""
+        class WS():
+            conditional_formatting = ConditionalFormatting()
+        worksheet = WS()
+
+        # Create cf rule
+        redFill = Fill()
+        redFill.start_color.index = 'FFEE1111'
+        redFill.end_color.index = 'FFEE1111'
+        redFill.fill_type = Fill.FILL_SOLID
+        whiteFont = Font()
+        whiteFont.color.index = "FFFFFFFF"
+        worksheet.conditional_formatting.addCellIs('A1:A3', 'equal', ['"Fail"'], False, self.workbook, whiteFont, None,
+                                                   redFill)
+
+        # First, verify conditional formatting xml
+        temp_buffer = StringIO()
+        doc = XMLGenerator(out=temp_buffer, encoding='utf-8')
+        write_worksheet_conditional_formatting(doc, worksheet)
+        doc.endDocument()
+        xml = temp_buffer.getvalue()
+        temp_buffer.close()
+        diff = compare_xml(xml, """
+        <conditionalFormatting sqref="A1:A3">
+          <cfRule dxfId="0" operator="equal" priority="1" type="cellIs">
+            <formula>"Fail"</formula>
+          </cfRule>
+        </conditionalFormatting>
+        """)
+        assert diff is None, diff
+
+        # Second, verify conditional formatting dxf styles
+        w = StyleWriter(self.workbook)
+        w._write_dxfs()
+        xml = get_xml(w._root)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <dxfs count="1">
+            <dxf>
+              <font>
+                <color rgb="FFFFFFFF" />
+              </font>
+              <fill>
+                <patternFill patternType="solid">
+                  <fgColor rgb="FFEE1111" />
+                  <bgColor rgb="FFEE1111" />
+                </patternFill>
+              </fill>
+            </dxf>
+          </dxfs>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
 
@@ -508,9 +580,9 @@ def test_parse_dxfs():
         assert diff is None, diff
 
     cond_styles = wb.style_properties['dxf_list'][0]
-    assert cond_styles['font']['color'] == Color('FF9C0006')
-    assert cond_styles['font']['bold'] == False
-    assert cond_styles['font']['italic'] == False
+    assert cond_styles['font'].color == Color('FF9C0006')
+    assert cond_styles['font'].bold == False
+    assert cond_styles['font'].italic == False
     f = Fill()
     f.end_color = Color('FFFFC7CE')
     assert cond_styles['fill'][0] == f

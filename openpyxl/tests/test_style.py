@@ -36,7 +36,10 @@ from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.styles import NumberFormat, Border, Color, Font
+from openpyxl.styles import NumberFormat, Border, Color, Font, Fill
+from openpyxl.styles.formatting import ConditionalFormatting
+from openpyxl.xml.functions import Element, SubElement, tostring
+from openpyxl.xml.constants import SHEET_MAIN_NS
 
 # test imports
 from openpyxl.tests.helper import DATADIR, get_xml, compare_xml
@@ -95,9 +98,27 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.font.bold = True
         w = StyleWriter(self.workbook)
         w._write_fonts()
-        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /></font></fonts></styleSheet>"""
         xml = get_xml(w._root)
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <fonts count="2">
+            <font>
+              <sz val="11" />
+              <color theme="1" />
+              <name val="Calibri" />
+              <family val="2" />
+              <scheme val="minor" />
+            </font>
+            <font>
+              <sz val="12" />
+              <color rgb="FF000000" />
+              <name val="Calibri" />
+              <family val="2" />
+              <b />
+            </font>
+          </fonts>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
     def test_fonts_with_underline(self):
@@ -106,9 +127,28 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.font.underline = Font.UNDERLINE_SINGLE
         w = StyleWriter(self.workbook)
         w._write_fonts()
-        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11" /><color theme="1" /><name val="Calibri" /><family val="2" /><scheme val="minor" /></font><font><sz val="12" /><color rgb="FF000000" /><name val="Calibri" /><family val="2" /><b /><u /></font></fonts></styleSheet>"""
         xml = get_xml(w._root)
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <fonts count="2">
+            <font>
+              <sz val="11" />
+              <color theme="1" />
+              <name val="Calibri" />
+              <family val="2" />
+              <scheme val="minor" />
+            </font>
+            <font>
+              <sz val="12" />
+              <color rgb="FF000000" />
+              <name val="Calibri" />
+              <family val="2" />
+              <b />
+              <u />
+            </font>
+          </fonts>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
     def test_fills(self):
@@ -116,9 +156,24 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.fill.start_color.index = Color.DARKYELLOW
         w = StyleWriter(self.workbook)
         w._write_fills()
-        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fills count="3"><fill><patternFill patternType="none" /></fill><fill><patternFill patternType="gray125" /></fill><fill><patternFill patternType="solid"><fgColor rgb="FF808000" /></patternFill></fill></fills></styleSheet>"""
         xml = get_xml(w._root)
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <fills count="3">
+            <fill>
+              <patternFill patternType="none" />
+            </fill>
+            <fill>
+              <patternFill patternType="gray125" />
+            </fill>
+            <fill>
+              <patternFill patternType="solid">
+                <fgColor rgb="FF808000" />
+              </patternFill>
+            </fill>
+          </fills>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
     def test_borders(self):
@@ -126,9 +181,29 @@ class TestStyleWriter(object):
         self.worksheet.cell('A1').style.borders.top.color.index = Color.DARKYELLOW
         w = StyleWriter(self.workbook)
         w._write_borders()
-        expected = """<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><borders count="2"><border><left /><right /><top /><bottom /><diagonal /></border><border><left /><right /><top style="thin"><color rgb="FF808000" /></top><bottom /><diagonal /></border></borders></styleSheet>"""
         xml = get_xml(w._root)
-        diff = compare_xml(xml, expected)
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <borders count="2">
+            <border>
+              <left />
+              <right />
+              <top />
+              <bottom />
+              <diagonal />
+            </border>
+            <border>
+              <left />
+              <right />
+              <top style="thin">
+                <color rgb="FF808000" />
+              </top>
+              <bottom />
+              <diagonal />
+            </border>
+          </borders>
+        </styleSheet>
+        """)
         assert diff is None, diff
 
     def test_write_cell_xfs_1(self):
@@ -196,6 +271,52 @@ class TestStyleWriter(object):
         saved_wb = save_virtual_workbook(second_wb)
         third_wb = load_workbook(BytesIO(saved_wb))
         assert third_wb
+
+    def test_write_dxf(self):
+        redFill = Fill()
+        redFill.start_color.index = 'FFEE1111'
+        redFill.end_color.index = 'FFEE1111'
+        redFill.fill_type = Fill.FILL_SOLID
+        whiteFont = Font()
+        whiteFont.color.index = "FFFFFFFF"
+        whiteFont.bold = True
+        whiteFont.italic = True
+        whiteFont.underline = 'single'
+        whiteFont.strikethrough = True
+        cf = ConditionalFormatting()
+        cf.addDxfStyle(self.workbook, whiteFont, None, redFill)
+
+        assert len(self.workbook.style_properties['dxf_list']) == 1
+        assert 'font' in self.workbook.style_properties['dxf_list'][0]
+        assert 'fill' in self.workbook.style_properties['dxf_list'][0]
+
+        w = StyleWriter(self.workbook)
+        w._write_dxfs()
+        xml = get_xml(w._root)
+
+        diff = compare_xml(xml, """
+        <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <dxfs count="1">
+            <dxf>
+              <font>
+                <color rgb="FFFFFFFF" />
+                <b val="1" />
+                <i val="1" />
+                <u val="single" />
+                <strike />
+              </font>
+              <fill>
+                <patternFill patternType="solid">
+                  <fgColor rgb="FFEE1111" />
+                  <bgColor rgb="FFEE1111" />
+                </patternFill>
+              </fill>
+            </dxf>
+          </dxfs>
+        </styleSheet>
+        """)
+        assert diff is None, diff
+
 
 def test_read_style():
     reference_file = os.path.join(DATADIR, 'reader', 'simple-styles.xml')
