@@ -409,7 +409,8 @@ class Cell(object):
 
         :rtype: bool
         """
-        return (is_date_format(self.number_format)
+        return (self.has_style
+                and is_date_format(self.number_format)
                 and self.data_type == self.TYPE_NUMERIC)
 
     @property
