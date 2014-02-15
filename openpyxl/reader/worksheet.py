@@ -31,14 +31,17 @@ from openpyxl.shared.compat import BytesIO
 from openpyxl.shared.xmltools import iterparse
 
 # package imports
-from openpyxl.cell import get_column_letter
 from openpyxl.shared.xmltools import safe_iterator
-from openpyxl.cell import Cell, coordinate_from_string
+from openpyxl.cell import (
+    Cell,
+    coordinate_from_string,
+    get_column_letter,
+    column_index_from_string
+    )
 from openpyxl.worksheet import Worksheet, ColumnDimension, RowDimension
 from openpyxl.shared.ooxml import SHEET_MAIN_NS
 from openpyxl.style import Color
 from openpyxl.styles.formatting import ConditionalFormatting
-
 
 def _get_xml_iter(xml_source):
 
@@ -70,11 +73,11 @@ def read_dimension(xml_source):
             max_col, max_row = coordinate_from_string(stop)
             return min_col, min_row, max_col, max_row
 
-        if el.tag == '{%s}row' % SHEET_MAIN_NS:
+        elif el.tag == '{%s}row' % SHEET_MAIN_NS:
             row = el.get("r")
             if min_row is None:
                 min_row = int(row)
-            span = el.get("spans")
+            span = el.get("spans", "")
             if ":" in span:
                 start, stop = span.split(":")
                 if min_col is None:
@@ -83,6 +86,16 @@ def read_dimension(xml_source):
                 else:
                     min_col = min(min_col, int(start))
                     max_col = max(max_col, int(stop))
+
+        elif el.tag == '{%s}c' % SHEET_MAIN_NS:
+            coord = el.get('r')
+            column_str, row = coordinate_from_string(coord)
+            column = column_index_from_string(column_str)
+            if min_col is None:
+                min_col = column
+            else:
+                min_col = min(column, min_col)
+            max_col = max(column, max_col)
     max_row = int(row)
     warn("Unsized worksheet")
     return get_column_letter(min_col), min_row, get_column_letter(max_col),  max_row
