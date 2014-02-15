@@ -409,11 +409,11 @@ class Worksheet(object):
             else:
                 return tuple(result)
 
-    def get_style(self, coordinate):
+    def get_style(self, coordinate, read_only=False):
         """Return the style object for the specified cell."""
         if not coordinate in self._styles:
             self._styles[coordinate] = Style()
-        elif self._styles[coordinate].static:
+        elif self._styles[coordinate].static and not read_only:
             self._styles[coordinate] = self._styles[coordinate].copy()
         return self._styles[coordinate]
 

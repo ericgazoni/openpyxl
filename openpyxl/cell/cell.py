@@ -56,7 +56,8 @@ from openpyxl.exceptions import (
     IllegalCharacterError
 )
 from openpyxl.units import points_to_pixels
-from openpyxl.styles import NumberFormat
+from openpyxl.styles import NumberFormat, is_date_format
+
 
 # package imports
 
@@ -305,7 +306,7 @@ class Cell(object):
         if match:
             value = float(match.group('number')) / 100
             self.set_explicit_value(value, self.TYPE_NUMERIC)
-            self._set_number_format(NumberFormat.FORMAT_PERCENTAGE)
+            self.number_format = NumberFormat.FORMAT_PERCENTAGE
             return True
 
     def _bind_time(self, value):
@@ -326,19 +327,19 @@ class Cell(object):
             value = datetime.datetime.strptime(value, pattern)
             value = time_to_days(value)
             self.set_explicit_value(value, self.TYPE_NUMERIC)
-            self._set_number_format(fmt)
+            self.number_format = fmt
             return True
 
     def _bind_datetime(self, value):
         if isinstance(value, datetime.date):
             value = to_excel(value, self.base_date)
-            self._set_number_format(NumberFormat.FORMAT_DATE_YYYYMMDD2)
+            self.number_format = NumberFormat.FORMAT_DATE_YYYYMMDD2
         elif isinstance(value, datetime.time):
             value = time_to_days(value)
-            self._set_number_format(NumberFormat.FORMAT_DATE_TIME6)
+            self.number_format = NumberFormat.FORMAT_DATE_TIME6
         elif isinstance(value, datetime.timedelta):
             value = timedelta_to_days(value)
-            self._set_number_format(NumberFormat.FORMAT_DATE_TIMEDELTA)
+            self.number_format = NumberFormat.FORMAT_DATE_TIMEDELTA
         self.set_explicit_value(value, self.TYPE_NUMERIC)
         return True
 
@@ -388,9 +389,28 @@ class Cell(object):
         return self._hyperlink_rel is not None and \
                 self._hyperlink_rel.id or None
 
-    def _set_number_format(self, format_code):
+    @property
+    def number_format(self):
+        style = self.parent.get_style(self.coordinate, read_only=True)
+        return style.number_format.format_code
+
+    @number_format.setter
+    def number_format(self, format_code):
         """Set a new formatting code for numeric values"""
         self.style.number_format.format_code = format_code
+
+    def _set_number_format(self, format_code):
+        """Set a new formatting code for numeric values"""
+        warnings.warn("cell._set_number_format(value) is deprecated use cell.number_format = value instead")
+        self.number_format = format_code
+
+    def is_date(self):
+        """Whether the value is formatted as a date
+
+        :rtype: bool
+        """
+        return (is_date_format(self.number_format)
+                and self.data_type == self.TYPE_NUMERIC)
 
     @property
     def has_style(self):
@@ -443,15 +463,6 @@ class Cell(object):
             self.column) + column)
         offset_row = self.row + row
         return self.parent.cell('%s%s' % (offset_column, offset_row))
-
-    def is_date(self):
-        """Returns whether the value is *probably* a date or not
-
-        :rtype: bool
-        """
-        return (self.has_style
-                and self.style.number_format.is_date_format()
-                and isinstance(self._value, NUMERIC_TYPES))
 
     @property
     def anchor(self):
