@@ -80,6 +80,88 @@ class FormatRule(Mapping):
         return len(self.keys())
 
 
+class ColorScale(object):
+
+    __slots__ = (
+        "start_type", "_start_value", "start_color",
+        "mid_type", "_mid_value", "mid_color",
+        "end_type", "_end_value", "end_color"
+    )
+
+    valid_types = ('min', 'max', 'num', 'percent', 'percentile', 'formula')
+
+
+    def __init__(self,
+                 start_type=None,
+                 start_value=None,
+                 start_color=None,
+                 mid_type=None,
+                 mid_value=None,
+                 mid_color=None,
+                 end_type=None,
+                 end_value=None,
+                 end_color=None
+                 ):
+        self.start_type = start_type
+        self.start_value = start_value
+        self.start_color = start_color
+        self.mid_type = mid_type
+        self.mid_value = mid_value
+        self.mid_color = mid_color
+        self.end_type = end_type
+        self.end_value = end_value
+        self.end_color = end_color
+
+    @property
+    def start_value(self):
+        return self._start_value
+
+    @start_value.setter
+    def start_value(self, value):
+        if value is not None and self.start_type in ('min', 'max'):
+            raise ValueError("ColorScale with min or max cannot have values")
+        self._start_value = value
+
+    @property
+    def end_value(self):
+        return self._end_value
+
+    @end_value.setter
+    def end_value(self, value):
+        if value is not None and self.end_type in ('min', 'max'):
+            raise ValueError("ColorScale with min or max cannot have values")
+        self._end_value = value
+
+    @property
+    def mid_value(self):
+        return self._mid_value
+
+    @mid_value.setter
+    def mid_value(self, value):
+        if value is not None and self.mid_type in ('min', 'max'):
+            raise ValueError("ColorScale with min or max cannot have values")
+        self._mid_value = value
+
+    @property
+    def cfvo(self):
+        """Return a dictionary representation"""
+        vals = []
+        for attr in 'start', 'mid', 'end':
+            typ = getattr(self, attr + '_type')
+            if typ is None:
+                continue
+            d = {'type': typ}
+            v = getattr(self, attr + '_value')
+            if v is not None:
+                d['val'] = str(v)
+            vals.append(d)
+        return vals
+
+    @property
+    def colors(self):
+        """Return start, mid and end colours"""
+        return [v for v in (self.start_color, self.mid_color, self.end_color) if v is not None]
+
 
 class ConditionalFormatting(object):
     """Conditional formatting rules."""
@@ -168,34 +250,24 @@ class ConditionalFormatting(object):
         :param end_value: Ending value.
         :param end_rgb: End RGB color, such as 'FFAABB11'
         """
-        rule = {'type': 'colorScale', 'colorScale': {'color': [Color(start_rgb), Color(end_rgb)], 'cfvo': []}}
-        if start_type in ('max', 'min'):
-            rule['colorScale']['cfvo'].append({'type': start_type})
-        else:
-            rule['colorScale']['cfvo'].append({'type': start_type, 'val': str(start_value)})
-        if end_type in ('max', 'min'):
-            rule['colorScale']['cfvo'].append({'type': end_type})
-        else:
-            rule['colorScale']['cfvo'].append({'type': end_type, 'val': str(end_value)})
+        cs = ColorScale()
+        cs.start_type = start_type
+        cs.start_value = start_value
+        cs.start_color = start_rgb
+        cs.end_type = end_type
+        cs.end_value = end_value
+        cs.end_color = end_rgb
+        rule ={'type': 'colorScale', 'colorScale': {'color': cs.colors, 'cfvo': cs.cfvo}}
+
         self.addCustomRule(range_string, rule)
 
     def add3ColorScale(self, range_string, start_type, start_value, start_rgb, mid_type, mid_value, mid_rgb, end_type,
                        end_value, end_rgb):
         """Add a 3-color scale to the conditional formatting.  See `add2ColorScale` for parameter descriptions."""
-        rule = {'type': 'colorScale', 'colorScale': {'color': [Color(start_rgb), Color(mid_rgb), Color(end_rgb)],
-                                                     'cfvo': []}}
-        if start_type in ('max', 'min'):
-            rule['colorScale']['cfvo'].append({'type': start_type})
-        else:
-            rule['colorScale']['cfvo'].append({'type': start_type, 'val': str(start_value)})
-        if mid_type in ('max', 'min'):
-            rule['colorScale']['cfvo'].append({'type': mid_type})
-        else:
-            rule['colorScale']['cfvo'].append({'type': mid_type, 'val': str(mid_value)})
-        if end_type in ('max', 'min'):
-            rule['colorScale']['cfvo'].append({'type': end_type})
-        else:
-            rule['colorScale']['cfvo'].append({'type': end_type, 'val': str(end_value)})
+        cs = ColorScale(start_type=start_type, start_value=start_value, start_color=start_rgb,
+                       mid_type=mid_type, mid_value=mid_value, mid_color=mid_rgb,
+                       end_type=end_type, end_value=end_value, end_color=end_rgb)
+        rule ={'type': 'colorScale', 'colorScale': {'color': cs.colors, 'cfvo': cs.cfvo}}
         self.addCustomRule(range_string, rule)
 
     def addCellIs(self, range_string, operator, formula, stopIfTrue, wb, font, border, fill):
@@ -216,4 +288,3 @@ class ConditionalFormatting(object):
         if stopIfTrue:
             rule['stopIfTrue'] = '1'
         self.addCustomRule(range_string, rule)
-
