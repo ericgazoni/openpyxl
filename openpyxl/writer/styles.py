@@ -25,8 +25,13 @@ from __future__ import absolute_import
 """Write the shared style table."""
 
 # package imports
-from openpyxl.xml.functions import Element, SubElement
-from openpyxl.xml.functions import get_document_content
+from openpyxl.xml.functions import (
+    Element,
+    SubElement,
+    get_document_content
+    )
+from openpyxl.xml.constants import SHEET_MAIN_NS
+
 from openpyxl.styles import DEFAULTS
 
 
@@ -35,8 +40,7 @@ class StyleWriter(object):
     def __init__(self, workbook):
         self._style_list = self._get_style_list(workbook)
         self._style_properties = workbook.style_properties
-        self._root = Element('styleSheet',
-            {'xmlns':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'})
+        self._root = Element('styleSheet', {'xmlns':SHEET_MAIN_NS})
 
     def _get_style_list(self, workbook):
         crc = {}
@@ -86,7 +90,7 @@ class StyleWriter(object):
         table = {}
         index = 1
         for st in self._style_list:
-            if hash(st.font) != hash(DEFAULTS.font) and hash(st.font) not in table:
+            if st.font != DEFAULTS.font and st.font not in table:
                 table[hash(st.font)] = str(index)
                 font_node = SubElement(fonts, 'font')
                 SubElement(font_node, 'sz', {'val':str(st.font.size)})
@@ -128,7 +132,7 @@ class StyleWriter(object):
             if st.fill != DEFAULTS.fill and st.fill not in table:
                 table[hash(st.fill)] = str(index)
                 fill = SubElement(fills, 'fill')
-                if st.fill.fill_type != hash(DEFAULTS.fill.fill_type):
+                if st.fill.fill_type != DEFAULTS.fill.fill_type:
                     node = SubElement(fill, 'patternFill', {'patternType':st.fill.fill_type})
                     if st.fill.start_color != DEFAULTS.fill.start_color:
                         if str(st.fill.start_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
@@ -168,7 +172,7 @@ class StyleWriter(object):
         table = {}
         index = 1
         for st in self._style_list:
-            if hash(st.borders) != hash(DEFAULTS.borders) and hash(st.borders) not in table:
+            if st.borders != DEFAULTS.borders and st.borders not in table:
                 table[hash(st.borders)] = str(index)
                 border = SubElement(borders, 'border')
                 # caution: respect this order
@@ -213,15 +217,15 @@ class StyleWriter(object):
         for st in self._style_list:
             vals = _get_default_vals()
 
-            if hash(st.font) != hash(DEFAULTS.font):
+            if st.font != DEFAULTS.font:
                 vals['fontId'] = fonts_table[hash(st.font)]
                 vals['applyFont'] = '1'
 
-            if hash(st.borders) != hash(DEFAULTS.borders):
+            if st.borders != DEFAULTS.borders:
                 vals['borderId'] = borders_table[hash(st.borders)]
                 vals['applyBorder'] = '1'
 
-            if hash(st.fill) != hash(DEFAULTS.fill):
+            if st.fill != DEFAULTS.fill:
                 vals['fillId'] = fills_table[hash(st.fill)]
                 vals['applyFill'] = '1'
 
@@ -229,22 +233,22 @@ class StyleWriter(object):
                 vals['numFmtId'] = '%d' % number_format_table[st.number_format]
                 vals['applyNumberFormat'] = '1'
 
-            if hash(st.alignment) != hash(DEFAULTS.alignment):
+            if st.alignment != DEFAULTS.alignment:
                 vals['applyAlignment'] = '1'
 
             node = SubElement(cell_xfs, 'xf', vals)
 
-            if hash(st.alignment) != hash(DEFAULTS.alignment):
+            if st.alignment != DEFAULTS.alignment:
                 alignments = {}
 
                 for align_attr in ['horizontal', 'vertical']:
-                    if hash(getattr(st.alignment, align_attr)) != hash(getattr(DEFAULTS.alignment, align_attr)):
+                    if getattr(st.alignment, align_attr) != getattr(DEFAULTS.alignment, align_attr):
                         alignments[align_attr] = getattr(st.alignment, align_attr)
 
-                    if hash(st.alignment.wrap_text) != hash(DEFAULTS.alignment.wrap_text):
+                    if st.alignment.wrap_text != DEFAULTS.alignment.wrap_text:
                         alignments['wrapText'] = '1'
 
-                    if hash(st.alignment.shrink_to_fit) != hash(DEFAULTS.alignment.shrink_to_fit):
+                    if st.alignment.shrink_to_fit != DEFAULTS.alignment.shrink_to_fit:
                         alignments['shrinkToFit'] = '1'
 
                     if st.alignment.indent > 0:
@@ -294,7 +298,7 @@ class StyleWriter(object):
                         node = SubElement(fill, 'patternFill', {'patternType': f.fill_type})
                     else:
                         node = SubElement(fill, 'patternFill')
-                    if hash(f.start_color) != hash(DEFAULTS.fill.start_color):
+                    if f.start_color != DEFAULTS.fill.start_color:
                         if str(f.start_color.index).split(':')[0] == 'theme':  # strip prefix theme if marked
                             if str(f.start_color.index).split(':')[2]:
                                 SubElement(node, 'fgColor', {'theme': str(f.start_color.index).split(':')[1],
@@ -303,7 +307,7 @@ class StyleWriter(object):
                                 SubElement(node, 'fgColor', {'theme': str(f.start_color.index).split(':')[1]})
                         else:
                             SubElement(node, 'fgColor', {'rgb': str(f.start_color.index)})
-                    if hash(f.end_color) != hash(DEFAULTS.fill.end_color):
+                    if f.end_color != DEFAULTS.fill.end_color:
                         if str(f.end_color.index).split(':')[0] == 'theme':  # strip prefix theme if marked
                             if str(f.end_color.index).split(':')[2]:
                                 SubElement(node, 'bgColor', {'theme': str(f.end_color.index).split(':')[1],
