@@ -125,12 +125,12 @@ class StyleWriter(object):
         table = {}
         index = 2
         for st in self._style_list:
-            if hash(st.fill) != hash(DEFAULTS.fill) and hash(st.fill) not in table:
+            if st.fill != DEFAULTS.fill and st.fill not in table:
                 table[hash(st.fill)] = str(index)
                 fill = SubElement(fills, 'fill')
-                if hash(st.fill.fill_type) != hash(DEFAULTS.fill.fill_type):
+                if st.fill.fill_type != hash(DEFAULTS.fill.fill_type):
                     node = SubElement(fill, 'patternFill', {'patternType':st.fill.fill_type})
-                    if hash(st.fill.start_color) != hash(DEFAULTS.fill.start_color):
+                    if st.fill.start_color != DEFAULTS.fill.start_color:
                         if str(st.fill.start_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
                             if str(st.fill.start_color.index).split(':')[2]:
                                 SubElement(node, 'fgColor', {'theme':str(st.fill.start_color.index).split(':')[1],
@@ -139,7 +139,7 @@ class StyleWriter(object):
                                 SubElement(node, 'fgColor', {'theme':str(st.fill.start_color.index).split(':')[1]})
                         else:
                             SubElement(node, 'fgColor', {'rgb':str(st.fill.start_color.index)})
-                    if hash(st.fill.end_color) != hash(DEFAULTS.fill.end_color):
+                    if st.fill.end_color != DEFAULTS.fill.end_color:
                         if str(st.fill.end_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
                             if str(st.fill.end_color.index).split(':')[2]:
                                 SubElement(node, 'bgColor', {'theme':str(st.fill.end_color.index).split(':')[1],
