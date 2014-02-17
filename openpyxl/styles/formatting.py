@@ -223,7 +223,10 @@ class ConditionalFormatting(object):
         """Add a custom rule.  Rule is a dictionary containing a key called type, and other keys, as found in
         `ConditionalFormatting.rule_attributes`.  The priority will be added automatically.
         """
-        rule = cfRule.rule
+        if isinstance(cfRule, dict):
+            rule = cfRule
+        else:
+            rule = cfRule.rule
         rule['priority'] = self.max_priority + 1
         self.max_priority += 1
         if range_string not in self.cf_rules:
@@ -278,12 +281,12 @@ class ConditionalFormatting(object):
             for rule in rules:
                 if 'dxf' in rule:
                     dxf = {}
-                    if rule['dxf']['font'] and isinstance(rule['dxf']['font'], Font):
+                    if 'font' in rule['dxf'] and isinstance(rule['dxf']['font'], Font):
                         # DXF font is limited to color, bold, italic, underline and strikethrough
                         dxf['font'] = rule['dxf']['font']
-                    if rule['dxf']['border'] and isinstance(rule['dxf']['border'], Borders):
+                    if 'border' in rule['dxf'] and isinstance(rule['dxf']['border'], Borders):
                         dxf['border'] = rule['dxf']['border']
-                    if rule['dxf']['fill'] and isinstance(rule['dxf']['fill'], Fill):
+                    if 'fill' in rule['dxf'] and isinstance(rule['dxf']['fill'], Fill):
                         dxf['fill'] = rule['dxf']['fill']
 
                     wb.style_properties['dxf_list'].append(dxf)

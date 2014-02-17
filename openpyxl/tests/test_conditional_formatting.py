@@ -387,6 +387,30 @@ class TestConditionalFormatting(object):
         """)
         assert diff is None, diff
 
+    def test_conditional_formatting_addCustomRule(self):
+        class WS():
+            conditional_formatting = ConditionalFormatting()
+        worksheet = WS()
+        worksheet.conditional_formatting.add('C1:C10', {'type': 'expression', 'formula': ['ISBLANK(C1)'],
+                                                        'stopIfTrue': '1', 'dxf': {}})
+        worksheet.conditional_formatting.setDxfStyles(self.workbook)
+        temp_buffer = StringIO()
+        doc = XMLGenerator(out=temp_buffer, encoding='utf-8')
+        write_worksheet_conditional_formatting(doc, worksheet)
+        doc.endDocument()
+        xml = temp_buffer.getvalue()
+        temp_buffer.close()
+
+        diff = compare_xml(xml, """
+        <conditionalFormatting sqref="C1:C10">
+          <cfRule dxfId="0" type="expression" stopIfTrue="1" priority="1">
+            <formula>ISBLANK(C1)</formula>
+          </cfRule>
+        </conditionalFormatting>
+        """)
+        assert diff is None, diff
+
+
     def test_conditional_formatting_addDxfStyle(self):
         cf = ConditionalFormatting()
         fill = Fill()
