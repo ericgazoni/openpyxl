@@ -80,6 +80,7 @@ class FormatRule(Mapping):
 
 
 class ColorScaleRule(object):
+    """Conditional formatting rule based on a color scale rule."""
     valid_types = ('min', 'max', 'num', 'percent', 'percentile', 'formula')
 
     def __init__(self,
@@ -159,6 +160,7 @@ class ColorScaleRule(object):
 
 
 class FormulaRule(object):
+    """Conditional formatting rule based on a formula."""
     def __init__(self, formula=None, stopIfTrue=None, font=None, border=None, fill=None):
         self.formula = formula
         self.stopIfTrue = stopIfTrue
@@ -176,6 +178,7 @@ class FormulaRule(object):
 
 
 class CellIsRule(object):
+    """Conditional formatting rule based on cell contents."""
     # Excel doesn't use >, >=, etc, but allow for ease of python development
     expand = {">": "greaterThan", ">=": "greaterThanOrEqual", "<": "lessThan", "<=": "lessThanOrEqual",
               "=": "equal", "==": "equal", "!=": "notEqual"}
@@ -220,8 +223,11 @@ class ConditionalFormatting(object):
         self.max_priority = 0
 
     def add(self, range_string, cfRule):
-        """Add a custom rule.  Rule is a dictionary containing a key called type, and other keys, as found in
-        `ConditionalFormatting.rule_attributes`.  The priority will be added automatically.
+        """Add a rule.  Rule is either:
+         1. A dictionary containing a key called type, and other keys, as in `ConditionalFormatting.rule_attributes`.
+         2. A rule object, such as ColorScaleRule, FormulaRule or CellIsRule
+
+         The priority will be added automatically.
         """
         if isinstance(cfRule, dict):
             rule = cfRule
@@ -261,16 +267,13 @@ class ConditionalFormatting(object):
                     self.max_priority = priority
 
     def setDxfStyles(self, wb):
-        """Formatting for non color scale conditional formatting uses the dxf style list in styles.xml.  Add a style
-        and get the corresponding style id to use in the conditional formatting rule.
+        """Formatting for non color scale conditional formatting uses the dxf style list in styles.xml. This scans
+        the cf_rules for dxf styles which have not been added - and saves them to the workbook.
 
-        Excel adds a dxf style for each conditional formatting, even if it already exists.
+        When adding a conditional formatting rule that uses a font, border or fill, this must be called at least once
+        before saving the workbook.
 
         :param wb: the workbook
-        :param font: openpyxl.style.Font
-        :param border: openpyxl.style.Border
-        :param fill: openpyxl.style.Fill
-        :return: dxfId (excel uses a 0 based index for the dxfId)
         """
         if not wb.style_properties:
             wb.style_properties = {'dxf_list': []}
