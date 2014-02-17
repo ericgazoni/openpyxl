@@ -276,7 +276,7 @@ class WorkSheetParser(object):
 
                 rules[range_string].append(rule)
         if len(rules):
-            self.ws.conditional_formatting.setRules(rules)
+            self.ws.conditional_formatting.update(rules)
 
     def parse_auto_filter(self, element):
         self.ws.auto_filter.ref = element.get("ref")

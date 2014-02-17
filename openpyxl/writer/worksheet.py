@@ -214,6 +214,8 @@ def write_worksheet_cols(doc, worksheet, style_table):
 
 def write_worksheet_conditional_formatting(doc, worksheet):
     """Write conditional formatting to xml."""
+    worksheet.conditional_formatting.fixPriority()
+
     for range_string, rules in iteritems(worksheet.conditional_formatting.cf_rules):
         if not len(rules):
             # Skip if there are no rules.  This is possible if a dataBar rule was read in and ignored.
