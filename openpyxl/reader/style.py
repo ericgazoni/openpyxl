@@ -25,9 +25,10 @@ from __future__ import absolute_import
 """Read shared style definitions"""
 
 # package imports
-from openpyxl.xml.functions import fromstring
+from openpyxl.xml.functions import fromstring, safe_iterator
 from openpyxl.exceptions import MissingNumberFormat
-from openpyxl.styles import Style, NumberFormat, Font, Fill, Borders, Protection, Color
+from openpyxl.styles import Style, NumberFormat, Font, Fill, Borders, Protection
+from openpyxl.styles.colors import COLOR_INDEX, Color
 from openpyxl.xml.constants import SHEET_MAIN_NS
 from copy import deepcopy
 
@@ -137,19 +138,9 @@ def parse_color_index(root):
     if colors is not None:
         indexedColors = colors.find('{%s}indexedColors' % SHEET_MAIN_NS)
         if indexedColors is not None:
-            color_nodes = indexedColors.findall('{%s}rgbColor' % SHEET_MAIN_NS)
-            for color_node in color_nodes:
-                color_index.append(color_node.get('rgb'))
-    if not color_index:
-        # Default Color Index as per http://dmcritchie.mvps.org/excel/colors.htm
-        color_index = ['FF000000', 'FFFFFFFF', 'FFFF0000', 'FF00FF00', 'FF0000FF', 'FFFFFF00', 'FFFF00FF', 'FF00FFFF',
-                       'FF800000', 'FF008000', 'FF000080', 'FF808000', 'FF800080', 'FF008080', 'FFC0C0C0', 'FF808080',
-                       'FF9999FF', 'FF993366', 'FFFFFFCC', 'FFCCFFFF', 'FF660066', 'FFFF8080', 'FF0066CC', 'FFCCCCFF',
-                       'FF000080', 'FFFF00FF', 'FFFFFF00', 'FF00FFFF', 'FF800080', 'FF800000', 'FF008080', 'FF0000FF',
-                       'FF00CCFF', 'FFCCFFFF', 'FFCCFFCC', 'FFFFFF99', 'FF99CCFF', 'FFFF99CC', 'FFCC99FF', 'FFFFCC99',
-                       'FF3366FF', 'FF33CCCC', 'FF99CC00', 'FFFFCC00', 'FFFF9900', 'FFFF6600', 'FF666699', 'FF969696',
-                       'FF003366', 'FF339966', 'FF003300', 'FF333300', 'FF993300', 'FF993366', 'FF333399', 'FF333333']
-    return color_index
+            color_nodes = safe_iterator(indexedColors, '{%s}rgbColor' % SHEET_MAIN_NS)
+            color_index = [node.get('rgb') for node in color_nodes]
+    return color_index or COLOR_INDEX
 
 
 def parse_dxfs(root, color_index):
