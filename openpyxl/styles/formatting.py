@@ -221,6 +221,7 @@ class ConditionalFormatting(object):
     def __init__(self):
         self.cf_rules = OrderedDict()
         self.max_priority = 0
+        self.parse_rules = {}
 
     def add(self, range_string, cfRule):
         """Add a rule.  Rule is either:
@@ -242,27 +243,26 @@ class ConditionalFormatting(object):
     def update(self, cfRules):
         """Set the conditional formatting rules from a dictionary.  Intended for use when loading a document.
         cfRules use the structure: {range_string: [rule1, rule2]}, eg:
-        {'A1:A4': [{'type': 'colorScale', 'priority': '13', 'colorScale': {'cfvo': [{'type': 'min'}, {'type': 'max'}],
+        {'A1:A4': [{'type': 'colorScale', 'priority': 13, 'colorScale': {'cfvo': [{'type': 'min'}, {'type': 'max'}],
         'color': [Color('FFFF7128'), Color('FFFFEF9C')]}]}
         """
         for range_string, rules in iteritems(cfRules):
-            self.cf_rules[range_string] = rules
-            for rule in rules:
-                if int(rule['priority']) > self.max_priority:
-                    self.max_priority = int(rule['priority'])
+            if range_string not in self.cf_rules:
+                self.cf_rules[range_string] = rules
+            else:
+                self.cf_rules[range_string] += rules
 
-    def adjustPriority(self):
-        """Fixes any gap in the priority range before writing to the worksheet."""
+        # Fix any gap in the priority range.
         self.max_priority = 0
         priorityMap = []
         for range_string, rules in iteritems(self.cf_rules):
             for rule in rules:
-                priorityMap.append(int(rule['priority']))
+                priorityMap.append(rule['priority'])
         priorityMap.sort()
         for range_string, rules in iteritems(self.cf_rules):
             for rule in rules:
-                priority = priorityMap.index(int(rule['priority'])) + 1
-                rule['priority'] = str(priority)
+                priority = priorityMap.index(rule['priority']) + 1
+                rule['priority'] = priority
                 if 'priority' in rule and priority > self.max_priority:
                     self.max_priority = priority
 
