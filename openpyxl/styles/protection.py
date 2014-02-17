@@ -28,8 +28,8 @@ from .hashable import HashableObject
 class Protection(HashableObject):
     """Protection options for use in styles."""
     PROTECTION_INHERIT = 'inherit'
-    PROTECTION_PROTECTED = 'protected'
-    PROTECTION_UNPROTECTED = 'unprotected'
+    PROTECTION_PROTECTED = True
+    PROTECTION_UNPROTECTED = False
 
     __fields__ = ('locked',
                   'hidden')

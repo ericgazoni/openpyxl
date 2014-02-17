@@ -64,56 +64,37 @@ def read_style_table(xml_source):
             if cell_xfs_node.get('applyAlignment') == '1':
                 alignment = cell_xfs_node.find('{%s}alignment' % SHEET_MAIN_NS)
                 if alignment is not None:
-                    if alignment.get('horizontal') is not None:
-                        new_style.alignment.horizontal = alignment.get('horizontal')
-                    if alignment.get('vertical') is not None:
-                        new_style.alignment.vertical = alignment.get('vertical')
+                    for key in ('horizontal', 'vertical', 'indent'):
+                        _value = alignment.get(key)
+                        if _value is not None:
+                            setattr(new_style.alignment, key, _value)
                     if alignment.get('wrapText'):
                         new_style.alignment.wrap_text = True
                     if alignment.get('shrinkToFit'):
                         new_style.alignment.shrink_to_fit = True
-                    if alignment.get('indent') is not None:
-                        new_style.alignment.ident = int(alignment.get('indent'))
                     if alignment.get('textRotation') is not None:
                         new_style.alignment.text_rotation = int(alignment.get('textRotation'))
                     # ignore justifyLastLine option when horizontal = distributed
 
             if cell_xfs_node.get('applyFont') == '1':
                 new_style.font = deepcopy(font_list[int(cell_xfs_node.get('fontId'))])
-                new_style.font.color = deepcopy(font_list[int(cell_xfs_node.get('fontId'))].color)
 
             if cell_xfs_node.get('applyFill') == '1':
                 new_style.fill = deepcopy(fill_list[int(cell_xfs_node.get('fillId'))])
-                new_style.fill.start_color = deepcopy(fill_list[int(cell_xfs_node.get('fillId'))].start_color)
-                new_style.fill.end_color = deepcopy(fill_list[int(cell_xfs_node.get('fillId'))].end_color)
 
             if cell_xfs_node.get('applyBorder') == '1':
                 new_style.borders = deepcopy(border_list[int(cell_xfs_node.get('borderId'))])
-                new_style.borders.left = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].left)
-                new_style.borders.left.color = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].left.color)
-                new_style.borders.right = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].right)
-                new_style.borders.right.color = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].right.color)
-                new_style.borders.top = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].top)
-                new_style.borders.top.color = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].top.color)
-                new_style.borders.bottom = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].bottom)
-                new_style.borders.bottom.color = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].bottom.color)
-                new_style.borders.diagonal = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].diagonal)
-                new_style.borders.diagonal.color = deepcopy(border_list[int(cell_xfs_node.get('borderId'))].diagonal.color)
 
             if cell_xfs_node.get('applyProtection') == '1':
                 protection = cell_xfs_node.find('{%s}protection' % SHEET_MAIN_NS)
                 # Ignore if there are no protection sub-nodes
                 if protection is not None:
-                    if protection.get('locked') is not None:
-                        if protection.get('locked') == '1':
-                            new_style.protection.locked = Protection.PROTECTION_PROTECTED
-                        else:
-                            new_style.protection.locked = Protection.PROTECTION_UNPROTECTED
-                    if protection.get('hidden') is not None:
-                        if protection.get('hidden') == '1':
-                            new_style.protection.hidden = Protection.PROTECTION_PROTECTED
-                        else:
-                            new_style.protection.hidden = Protection.PROTECTION_UNPROTECTED
+                    _protected = protection.get('locked')
+                    if _protected is not None:
+                        new_style.protection.locked = bool(_protected)
+                    _hidden = protection.get('hidden')
+                    if _hidden is not None:
+                        new_style.protection.hidden = bool(_hidden)
 
             style_prop['table'][index] = new_style
     return style_prop
