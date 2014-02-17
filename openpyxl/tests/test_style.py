@@ -36,8 +36,8 @@ from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.styles import NumberFormat, Border, Color, Font, Fill
-from openpyxl.styles.formatting import ConditionalFormatting
+from openpyxl.styles import NumberFormat, Border, Color, Font, Fill, Borders
+from openpyxl.styles.formatting import ConditionalFormatting, FormulaRule
 from openpyxl.xml.functions import Element, SubElement, tostring
 from openpyxl.xml.constants import SHEET_MAIN_NS
 
@@ -283,11 +283,21 @@ class TestStyleWriter(object):
         whiteFont.italic = True
         whiteFont.underline = 'single'
         whiteFont.strikethrough = True
+        blueBorder = Borders()
+        blueBorder.left.border_style = 'medium'
+        blueBorder.left.color = Color(Color.BLUE)
+        blueBorder.right.border_style = 'medium'
+        blueBorder.right.color = Color(Color.BLUE)
+        blueBorder.top.border_style = 'medium'
+        blueBorder.top.color = Color(Color.BLUE)
+        blueBorder.bottom.border_style = 'medium'
+        blueBorder.bottom.color = Color(Color.BLUE)
         cf = ConditionalFormatting()
-        cf.addDxfStyle(self.workbook, whiteFont, None, redFill)
-
+        cf.add('A1:A2', FormulaRule(formula="[A1=1]", font=whiteFont, border=blueBorder, fill=redFill))
+        cf.setDxfStyles(self.workbook)
         assert len(self.workbook.style_properties['dxf_list']) == 1
         assert 'font' in self.workbook.style_properties['dxf_list'][0]
+        assert 'border' in self.workbook.style_properties['dxf_list'][0]
         assert 'fill' in self.workbook.style_properties['dxf_list'][0]
 
         w = StyleWriter(self.workbook)
@@ -311,6 +321,20 @@ class TestStyleWriter(object):
                   <bgColor rgb="FFEE1111" />
                 </patternFill>
               </fill>
+              <border>
+                <left style="medium">
+                    <color rgb="FF0000FF"></color>
+                </left>
+                <right style="medium">
+                    <color rgb="FF0000FF"></color>
+                </right>
+                <top style="medium">
+                    <color rgb="FF0000FF"></color>
+                </top>
+                <bottom style="medium">
+                    <color rgb="FF0000FF"></color>
+                </bottom>
+            </border>
             </dxf>
           </dxfs>
         </styleSheet>

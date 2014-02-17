@@ -163,10 +163,12 @@ def parse_dxfs(root, color_index):
             font_list = parse_fonts(dxf, color_index, True)
             if len(font_list):
                 dxf_item['font'] = font_list[0]
-            fill_node = dxf.find('{%s}fill' % SHEET_MAIN_NS)
-            if fill_node is not None:
-                dxf_item['fill'] = parse_fills(dxf, color_index, True)
-                dxf_item['border'] = parse_borders(dxf, color_index, True)
+            fill_list = parse_fills(dxf, color_index, True)
+            if len(fill_list):
+                dxf_item['fill'] = fill_list[0]
+            border_list = parse_borders(dxf, color_index, True)
+            if len(border_list):
+                dxf_item['border'] = border_list[0]
             dxf_list.append(dxf_item)
     return dxf_list
 
