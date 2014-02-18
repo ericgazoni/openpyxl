@@ -28,6 +28,7 @@ Bug fixes
 #46  - ColumnDimension style error
 #137 - Workbooks with chartsheets
 #269 - Handling unsized worksheets in IterableWorksheet
+#275 - Handling auto filters where there are only custom filters
 
 
 1.8.4 (unreleased)

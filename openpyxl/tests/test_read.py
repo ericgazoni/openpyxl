@@ -399,3 +399,10 @@ def test_get_xml_iter():
     stream = FUT(z.open("test"))
     assert hasattr(stream, "read")
     z.close()
+
+
+def test_read_autofilter(datadir):
+    datadir.join("reader").chdir()
+    wb = load_workbook("bug275.xlsx")
+    ws = wb.active
+    assert ws.auto_filter.ref == 'A1:B6'
