@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 from collections import Mapping
 
+from openpyxl.compat import iteritems
 from openpyxl.styles import Font, Fill, Borders
 
 

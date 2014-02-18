@@ -47,7 +47,7 @@ from openpyxl.units import (
     DEFAULT_ROW_HEIGHT
     )
 from openpyxl.styles import Style, DEFAULTS as DEFAULTS_STYLE
-from openpyxl.styles.formatting import ConditionalFormatting
+from openpyxl.formatting import ConditionalFormatting
 from openpyxl.namedrange import NamedRangeContainingValue
 from openpyxl.compat import OrderedDict, unicode, xrange, basestring
 from openpyxl.compat.itertools import iteritems

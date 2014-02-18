@@ -38,7 +38,8 @@ from openpyxl.workbook import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.writer.styles import StyleWriter
 from openpyxl.styles import NumberFormat, Border, Color, Font, Fill, Borders
-from openpyxl.styles.formatting import ConditionalFormatting, FormulaRule
+from openpyxl.formatting import ConditionalFormatting
+from openpyxl.formatting.rules import FormulaRule
 from openpyxl.xml.functions import Element, SubElement, tostring
 from openpyxl.xml.constants import SHEET_MAIN_NS
 
