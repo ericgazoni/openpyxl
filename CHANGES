@@ -20,6 +20,7 @@ Minor changes
 Pull requests
 -------------
 #70 Add filterColumn, sortCondition support to AutoFilter (SHIBUKAWA Yoshiki)
+#82 Update API for conditional formatting
 
 
 Bug fixes
