@@ -33,16 +33,19 @@ class FormatRule(Mapping):
 
     __slots__ = ('aboveAverage', 'bottom', 'dxfId', 'equalAverage',
                  'operator', 'percent', 'priority', 'rank', 'stdDev', 'stopIfTrue',
-                 'text')
+                 'text', 'type')
 
     def update(self, dictionary):
         for k, v in iteritems(dictionary):
             self[k] = v
 
+    def __contains__(self, key):
+        return hasattr(self, key)
+
     def __getitem__(self, key):
         if key not in self.__slots__:
             raise KeyError("{0} is not a valid key for a formatting rule".format(key))
-        return getattr(self, key)
+        return getattr(self, key, None)
 
     def __setitem__(self, key, value):
         if key not in self.__slots__:
