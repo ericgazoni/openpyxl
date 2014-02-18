@@ -101,6 +101,10 @@ class WorkSheetParser(object):
                 dispatcher[tag_name](element)
                 element.clear()
 
+        # Handle parsed conditional formatting rules together.
+        if len(self.ws.conditional_formatting.parse_rules):
+            self.ws.conditional_formatting.update(self.ws.conditional_formatting.parse_rules)
+
     def parse_cell(self, element):
         value = element.findtext(self.VALUE_TAG)
         formula = element.find(self.FORMULA_TAG)
@@ -209,14 +213,14 @@ class WorkSheetParser(object):
 
 
     def parser_conditional_formatting(self, element):
-        rules = {}
         for cf in safe_iterator(element, '{%s}conditionalFormatting' % SHEET_MAIN_NS):
             if not cf.get('sqref'):
                 # Potentially flag - this attribute should always be present.
                 continue
             range_string = cf.get('sqref')
             cfRules = cf.findall('{%s}cfRule' % SHEET_MAIN_NS)
-            rules[range_string] = []
+            if range_string not in self.ws.conditional_formatting.parse_rules:
+                self.ws.conditional_formatting.parse_rules[range_string] = []
             for cfRule in cfRules:
                 if not cfRule.get('type') or cfRule.get('type') == 'dataBar':
                     # dataBar conditional formatting isn't supported, as it relies on the complex <extLst> tag
@@ -224,7 +228,10 @@ class WorkSheetParser(object):
                 rule = {'type': cfRule.get('type')}
                 for attr in ConditionalFormatting.rule_attributes:
                     if cfRule.get(attr) is not None:
-                        rule[attr] = cfRule.get(attr)
+                        if attr == 'priority':
+                            rule[attr] = int(cfRule.get(attr))
+                        else:
+                            rule[attr] = cfRule.get(attr)
 
                 formula = cfRule.findall('{%s}formula' % SHEET_MAIN_NS)
                 for f in formula:
@@ -274,9 +281,7 @@ class WorkSheetParser(object):
                             cfvo['val'] = node.get('val')
                         rule['iconSet']['cfvo'].append(cfvo)
 
-                rules[range_string].append(rule)
-        if len(rules):
-            self.ws.conditional_formatting.setRules(rules)
+                self.ws.conditional_formatting.parse_rules[range_string].append(rule)
 
     def parse_auto_filter(self, element):
         self.ws.auto_filter.ref = element.get("ref")

@@ -291,8 +291,8 @@ class StyleWriter(object):
                         SubElement(font_node, 'u', {'val': d['font'].underline})
                     if d['font'].strikethrough:
                         SubElement(font_node, 'strike')
-                if 'fill' in d and len(d['fill']):
-                    f = d['fill'][0]
+                if 'fill' in d:
+                    f = d['fill']
                     fill = SubElement(dxf, 'fill')
                     if f.fill_type:
                         node = SubElement(fill, 'patternFill', {'patternType': f.fill_type})
@@ -316,11 +316,11 @@ class StyleWriter(object):
                                 SubElement(node, 'bgColor', {'theme': str(f.end_color.index).split(':')[1]})
                         else:
                             SubElement(node, 'bgColor', {'rgb': str(f.end_color.index)})
-                if 'border' in d and len(d['border']):
-                    borders = d['border'][0]
+                if 'border' in d:
+                    borders = d['border']
                     border = SubElement(dxf, 'border')
                     # caution: respect this order
-                    for side in ('left', 'right', 'top', 'bottom', 'diagonal'):
+                    for side in ('left', 'right', 'top', 'bottom'):
                         obj = getattr(borders, side)
                         if obj.border_style is None or obj.border_style == 'none':
                             node = SubElement(border, side)
