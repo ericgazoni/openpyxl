@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 from collections import Mapping
 
+from openpyxl.compat import iteritems
 from openpyxl.styles import Font, Fill, Borders
 
 
@@ -12,7 +13,7 @@ class FormatRule(Mapping):
 
     __slots__ = ('aboveAverage', 'bottom', 'dxfId', 'equalAverage',
                  'operator', 'percent', 'priority', 'rank', 'stdDev', 'stopIfTrue',
-                 'text', 'type')
+                 'text', 'type', 'formula', 'colorScale', 'iconSet')
 
     def update(self, dictionary):
         for k, v in iteritems(dictionary):
@@ -194,3 +195,6 @@ class CellIsRule(object):
         return r
 
 
+class IconSetRule(object):
+
+    pass
