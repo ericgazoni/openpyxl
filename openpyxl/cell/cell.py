@@ -64,7 +64,7 @@ from openpyxl.styles import NumberFormat, is_date_format
 # constants
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
 ABSOLUTE_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)(:[$]?([A-Z]+)[$]?(\d+))?$')
-ILLEGAL_CHARACTERS_RE = re.compile('|'.join(chr(x) for x in range(33)))
+ILLEGAL_CHARACTERS_RE = re.compile(r'[\000-\037]')
 
 
 
@@ -212,7 +212,7 @@ class Cell(object):
         # string must never be longer than 32,767 characters
         # truncate if necessary
         value = value[:32767]
-        if ILLEGAL_CHARACTERS_RE.match(value):
+        if next(ILLEGAL_CHARACTERS_RE.finditer(value), None):
             raise IllegalCharacterError
         # we require that newline is represented as "\n" in core,
         # not as "\r\n" or "\r"

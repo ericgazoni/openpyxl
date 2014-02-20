@@ -249,11 +249,18 @@ def test_illegal_chacters():
     from openpyxl.exceptions import IllegalCharacterError
     ws = build_dummy_worksheet()
     cell = Cell(ws, 'A', 1)
-    for i in range(33):
+
+    # The bytes 0x00 through 0x1F inclusive must be manually escaped in values.
+
+    for i in range(32):
         with pytest.raises(IllegalCharacterError):
             cell.value = chr(i)
-    # test legal UTF-8
+
+        with pytest.raises(IllegalCharacterError):
+            cell.value = "A {0} B".format(chr(i))
+
     cell.value = chr(33)
+    cell.value = " Leading and trailing spaces are legal "
 
 
 values = (

@@ -1,3 +1,4 @@
+\.tox
 syntax: regexp
 \.pyc$
 .coverage
