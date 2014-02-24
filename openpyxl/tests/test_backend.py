@@ -52,5 +52,7 @@ def test_namespace_register():
     from openpyxl.shared.ooxml import SHEET_MAIN_NS
 
     e = Element('{%s}sheet' % SHEET_MAIN_NS)
-    assert tostring(e).startswith("<s:sheet")
-    #s:sheet xmlns:s="http://schemas.openxmlformats.org/spreadsheetml/2006/main"/>"""
+    xml = tostring(e)
+    if hasattr(xml, "decode"):
+        xml = xml.decode("utf-8")
+    assert xml.startswith("<s:sheet")
