@@ -95,6 +95,9 @@ def write_worksheet(worksheet, string_table, style_table):
     tag(doc, 'sheetFormatPr', {'defaultRowHeight': '15'})
     write_worksheet_cols(doc, worksheet, style_table)
     write_worksheet_data(doc, worksheet, string_table, style_table)
+    if worksheet.protection.enabled:
+        tag(doc, 'sheetProtection',
+            {'objects': '1', 'scenarios': '1', 'sheet': '1'})
     write_worksheet_autofilter(doc, worksheet)
     write_worksheet_mergecells(doc, worksheet)
     write_worksheet_datavalidations(doc, worksheet)

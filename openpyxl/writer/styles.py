@@ -32,7 +32,7 @@ from openpyxl.xml.functions import (
     )
 from openpyxl.xml.constants import SHEET_MAIN_NS
 
-from openpyxl.styles import DEFAULTS
+from openpyxl.styles import DEFAULTS, Protection
 
 
 class StyleWriter(object):
@@ -236,6 +236,9 @@ class StyleWriter(object):
             if st.alignment != DEFAULTS.alignment:
                 vals['applyAlignment'] = '1'
 
+            if st.protection != DEFAULTS.protection:
+                vals['applyProtection'] = '1'
+
             node = SubElement(cell_xfs, 'xf', vals)
 
             if st.alignment != DEFAULTS.alignment:
@@ -261,6 +264,20 @@ class StyleWriter(object):
 
                 SubElement(node, 'alignment', alignments)
 
+            if st.protection != DEFAULTS.protection:
+                protections = {}
+
+                if st.protection.locked == Protection.PROTECTION_PROTECTED:
+                    protections['locked'] = '1'
+                elif st.protection.locked == Protection.PROTECTION_UNPROTECTED:
+                    protections['locked'] = '0'
+
+                if st.protection.hidden == Protection.PROTECTION_PROTECTED:
+                    protections['hidden'] = '1'
+                elif st.protection.hidden == Protection.PROTECTION_UNPROTECTED:
+                    protections['hidden'] = '0'
+
+                SubElement(node, 'protection', protections)
 
     def _write_cell_style(self):
         cell_styles = SubElement(self._root, 'cellStyles', {'count':'1'})
