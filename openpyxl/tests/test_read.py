@@ -113,7 +113,7 @@ def test_read_empty_archive():
     null_file = os.path.join(DATADIR, 'reader', 'null_archive.xlsx')
     wb = load_workbook(null_file)
 
-@pytest.mark.parametrize("filename", ["sheet2.xml", "sheet2_no_dimension.xml"])
+@pytest.mark.parametrize("filename", ["sheet2.xml", "sheet2_no_dimension.xml", "sheet2_no_span.xml"])
 def test_read_dimension(filename):
     path = os.path.join(DATADIR, 'reader', filename)
     dimension = None
