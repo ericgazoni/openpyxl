@@ -113,21 +113,17 @@ class SharedStylesParser(object):
                     if fontNameEl is not None:
                         font.name = fontNameEl.get('val')
                 bold = font_node.find('{%s}b' % SHEET_MAIN_NS)
-                if bold is not None and 'val' in bold.attrib:
-                    font.bold = bool(bold.get('val'))
-                else:
-                    font.bold = True if bold is not None else False
+                if bold is not None:
+                    font.bold = bool(bold.get('val', True))
                 italic = font_node.find('{%s}i' % SHEET_MAIN_NS)
                 if italic is not None:
-                    font.italic = bool(italic.get('val'))
-                if italic is not None and 'val' in italic.attrib:
-                    font.italic = bool(italic.get('val'))
-                else:
-                    font.italic = True if italic is not None else False
-                if len(font_node.findall('{%s}u' % SHEET_MAIN_NS)):
-                    underline = font_node.find('{%s}u' % SHEET_MAIN_NS).get('val')
-                    font.underline = underline if underline else 'single'
-                font.strikethrough = True if len(font_node.findall('{%s}strike' % SHEET_MAIN_NS)) else False
+                    font.italic = bool(italic.get('val', True))
+                underline =font_node.find('{%s}u' % SHEET_MAIN_NS)
+                if underline is not None:
+                    font.underline = underline.get('val', 'single')
+                strikethrough = font_node.find('{%s}strike' % SHEET_MAIN_NS)
+                if strikethrough is not None:
+                    font.strikethrough = True
                 color = font_node.find('{%s}color' % SHEET_MAIN_NS)
                 if color is not None:
                     if color.get('indexed') is not None and (
