@@ -126,21 +126,29 @@ class SharedStylesParser(object):
                     font.strikethrough = True
                 color = font_node.find('{%s}color' % SHEET_MAIN_NS)
                 if color is not None:
-                    if color.get('indexed') is not None and (
-                    0 <= int(color.get('indexed')) < len(self.color_index)
-                    ):
-                        font.color.index = self.color_index[int(color.get('indexed'))]
-                    elif color.get('theme') is not None:
-                        if color.get('tint') is not None:
-                            font.color.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
-                        else:
-                            font.color.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
-                    elif color.get('rgb'):
-                        font.color.index = color.get('rgb')
+                    font.color.index = self._get_relevant_color(color)
                 elif node:
                     font.color = None
                 font_list.append(font)
         return font_list
+
+
+    def _get_relevant_color(self, color):
+        """Utility method for getting the color from different attributes"""
+        value = None
+        if (
+            color.get('indexed') is not None
+            and 0 <= int(color.get('indexed')) < len(self.color_index)
+            ):
+            value = self.color_index[int(color.get('indexed'))]
+        elif color.get('theme') is not None:
+            if color.get('tint') is not None:
+                value = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
+            else:
+                value = 'theme:%s:' % color.get('theme')  # prefix color with theme
+        elif color.get('rgb'):
+            value = color.get('rgb')
+        return value
 
 
     def parse_fills(self, node=False):
@@ -161,37 +169,11 @@ class SharedStylesParser(object):
 
                     fgColor = patternFill.find('{%s}fgColor' % SHEET_MAIN_NS)
                     if fgColor is not None:
-                        if fgColor.get('indexed') is not None and (
-                            0 <= int(fgColor.get('indexed')) < len(self.color_index)
-                            ):
-                            newFill.start_color.index = self.color_index[int(fgColor.get('indexed'))]
-                        elif fgColor.get('indexed') is not None:
-                            # Invalid color - out of range of color_index, set to white
-                            newFill.start_color.index = 'FFFFFFFF'
-                        elif fgColor.get('theme') is not None:
-                            if fgColor.get('tint') is not None:
-                                newFill.start_color.index = 'theme:%s:%s' % (fgColor.get('theme'), fgColor.get('tint'))
-                            else:
-                                newFill.start_color.index = 'theme:%s:' % fgColor.get('theme')  # prefix color with theme
-                        else:
-                            newFill.start_color.index = fgColor.get('rgb')
+                        newFill.start_color.index = self._get_relevant_color(fgColor)
 
                     bgColor = patternFill.find('{%s}bgColor' % SHEET_MAIN_NS)
                     if bgColor is not None:
-                        if bgColor.get('indexed') is not None and (
-                            0 <= int(bgColor.get('indexed')) < len(self.color_index)
-                            ):
-                            newFill.end_color.index = self.color_index[int(bgColor.get('indexed'))]
-                        elif bgColor.get('indexed') is not None:
-                            # Invalid color - out of range of color_index, set to white
-                            newFill.end_color.index = 'FFFFFFFF'
-                        elif bgColor.get('theme') is not None:
-                            if bgColor.get('tint') is not None:
-                                newFill.end_color.index = 'theme:%s:%s' % (bgColor.get('theme'), bgColor.get('tint'))
-                            else:
-                                newFill.end_color.index = 'theme:%s:' % bgColor.get('theme')  # prefix color with theme
-                        elif bgColor.get('rgb'):
-                            newFill.end_color.index = bgColor.get('rgb')
+                        newFill.end_color.index = self._get_relevant_color(bgColor)
                     fill_list.append(newFill)
         return fill_list
 
@@ -223,18 +205,19 @@ class SharedStylesParser(object):
                             borderSide.border_style = node.get('style')
                         color = node.find('{%s}color' % SHEET_MAIN_NS)
                         if color is not None:
+                            borderSide.color.index = self._get_relevant_color(color)
                             # Ignore 'auto'
-                            if color.get('indexed') is not None and (
-                                0 <= int(color.get('indexed')) < len(self.color_index)
-                                ):
-                                borderSide.color.index = self.color_index[int(color.get('indexed'))]
-                            elif color.get('theme') is not None:
-                                if color.get('tint') is not None:
-                                    borderSide.color.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
-                                else:
-                                    borderSide.color.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
-                            elif color.get('rgb'):
-                                borderSide.color.index = color.get('rgb')
+                            #if color.get('indexed') is not None and (
+                                #0 <= int(color.get('indexed')) < len(self.color_index)
+                                #):
+                                #borderSide.color.index = self.color_index[int(color.get('indexed'))]
+                            #elif color.get('theme') is not None:
+                                #if color.get('tint') is not None:
+                                    #borderSide.color.index = 'theme:%s:%s' % (color.get('theme'), color.get('tint'))
+                                #else:
+                                    #borderSide.color.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
+                            #elif color.get('rgb'):
+                                #borderSide.color.index = color.get('rgb')
                 border_list.append(newBorder)
         return border_list
 
