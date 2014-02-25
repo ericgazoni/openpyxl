@@ -49,8 +49,8 @@ def test_backend():
 
 
 def test_namespace_register():
-    from openpyxl.shared.xmltools import Element, tostring
-    from openpyxl.shared.ooxml import SHEET_MAIN_NS
+    from openpyxl.xml.functions import Element, tostring
+    from openpyxl.xml.constants import SHEET_MAIN_NS
 
     e = Element('{%s}sheet' % SHEET_MAIN_NS)
     xml = tostring(e)
