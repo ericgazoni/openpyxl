@@ -1,14 +1,24 @@
-OpenPyxl is a Python library to read/write Excel 2010 xlsx/xlsm files.
+openpyxl
+========
 
-It was born from lack of existing library to read/write natively from Python the new Office Open XML format.
+openpyxl is a Python library to read/write Excel 2010 xlsx/xlsm files.
 
-All kudos to the PHPExcel team as openpyxl is based on PHPExcel http://www.phpexcel.net/
+It was born from lack of existing library to read/write natively from Python
+the new Office Open XML format.
 
-== Mailing List ==
+All kudos to the PHPExcel team as openpyxl is based on PHPExcel
+http://www.phpexcel.net/
 
-Official user list can be found on http://groups.google.com/group/openpyxl-users
 
-== Official documentation ==
+Mailing List
+============
+
+Official user list can be found on
+http://groups.google.com/group/openpyxl-users
+
+
+Official documentation
+======================
 
 The homepage is http://openpyxl.readthedocs.org
 You will find:
