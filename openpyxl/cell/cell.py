@@ -64,7 +64,7 @@ from openpyxl.styles import NumberFormat, is_date_format
 # constants
 COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
 ABSOLUTE_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)(:[$]?([A-Z]+)[$]?(\d+))?$')
-ILLEGAL_CHARACTERS_RE = re.compile(r'[\000-\011]|[\013-\037]')
+ILLEGAL_CHARACTERS_RE = re.compile(r'[\000-\010]|[\013-\014]|[\016-\037]')
 
 
 

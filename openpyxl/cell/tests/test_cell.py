@@ -252,7 +252,8 @@ def test_illegal_chacters():
 
     # The bytes 0x00 through 0x1F inclusive must be manually escaped in values.
 
-    for i in range(32):
+    illegal_chrs = range(9) + range(11, 13) + range(14, 32)
+    for i in illegal_chrs:
         with pytest.raises(IllegalCharacterError):
             cell.value = chr(i)
 
@@ -260,6 +261,9 @@ def test_illegal_chacters():
             cell.value = "A {0} B".format(chr(i))
 
     cell.value = chr(33)
+    cell.value = chr(9)  # Tab
+    cell.value = chr(10)  # Newline
+    cell.value = chr(13)  # Carriage return
     cell.value = " Leading and trailing spaces are legal "
 
 
