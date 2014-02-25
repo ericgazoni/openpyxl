@@ -3,7 +3,9 @@
 
 Bugfixes
 --------
+#260 better handling of undimensioned worksheets
 #268 non-ascii in formualae
+#282 correct implementation of register_namepsace for Python 2.6
 
 
 1.8.3 (2014-02-09)
