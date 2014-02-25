@@ -46,7 +46,7 @@ def read_style_table(xml_source):
     builtin_formats = NumberFormat._BUILTIN_FORMATS
     cell_xfs = root.find('{%s}cellXfs' % SHEET_MAIN_NS)
     if cell_xfs is not None:  # can happen on bad OOXML writers (e.g. Gnumeric)
-        cell_xfs_nodes = cell_xfs.findall('{%s}xf' % SHEET_MAIN_NS)
+        cell_xfs_nodes = safe_iterator(cell_xfs, '{%s}xf' % SHEET_MAIN_NS)
         for index, cell_xfs_node in enumerate(cell_xfs_nodes):
             new_style = Style(static=True)
             number_format_id = int(cell_xfs_node.get('numFmtId'))
@@ -153,7 +153,7 @@ def parse_fonts(root, color_index, parse_dxf=False):
     else:
         fonts = root.find('{%s}fonts' % SHEET_MAIN_NS)
     if fonts is not None:
-        font_nodes = fonts.findall('{%s}font' % SHEET_MAIN_NS)
+        font_nodes = safe_iterator(fonts, '{%s}font' % SHEET_MAIN_NS)
         for font_node in font_nodes:
             font = Font()
             if not parse_dxf:
@@ -169,6 +169,8 @@ def parse_fonts(root, color_index, parse_dxf=False):
             else:
                 font.bold = True if bold is not None else False
             italic = font_node.find('{%s}i' % SHEET_MAIN_NS)
+            if italic is not None:
+                font.italic = bool(italic.get('val'))
             if italic is not None and 'val' in italic.attrib:
                 font.italic = bool(italic.get('val'))
             else:
@@ -201,9 +203,8 @@ def parse_fills(root, color_index, skip_find=False):
         fills = root
     else:
         fills = root.find('{%s}fills' % SHEET_MAIN_NS)
-    count = 0
     if fills is not None:
-        fillNodes = fills.findall('{%s}fill' % SHEET_MAIN_NS)
+        fillNodes = safe_iterator(fills, '{%s}fill' % SHEET_MAIN_NS)
         for fill in fillNodes:
             # Rotation is unset
             patternFill = fill.find('{%s}patternFill' % SHEET_MAIN_NS)
@@ -240,7 +241,6 @@ def parse_fills(root, color_index, skip_find=False):
                             newFill.end_color.index = 'theme:%s:' % bgColor.get('theme')  # prefix color with theme
                     elif bgColor.get('rgb'):
                         newFill.end_color.index = bgColor.get('rgb')
-                count += 1
                 fill_list.append(newFill)
     return fill_list
 
@@ -253,8 +253,7 @@ def parse_borders(root, color_index, skip_find=False):
     else:
         borders = root.find('{%s}borders' % SHEET_MAIN_NS)
     if borders is not None:
-        boarderNodes = borders.findall('{%s}border' % SHEET_MAIN_NS)
-        count = 0
+        boarderNodes = safe_iterator(borders, '{%s}border' % SHEET_MAIN_NS)
         for border in boarderNodes:
             newBorder = Borders()
             if border.get('diagonalup') == 1:
@@ -283,7 +282,6 @@ def parse_borders(root, color_index, skip_find=False):
                                 borderSide.color.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
                         elif color.get('rgb'):
                             borderSide.color.index = color.get('rgb')
-            count += 1
             border_list.append(newBorder)
 
     return border_list
