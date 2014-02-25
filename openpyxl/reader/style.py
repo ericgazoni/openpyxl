@@ -39,17 +39,14 @@ class SharedStylesParser(object):
         self.root = fromstring(xml_source)
         self.style_prop = {'table': {}}
         self.color_index = COLOR_INDEX
-        self.border_list = []
-        self.fill_list = []
-        self.font_list = []
 
     def parse(self):
         self.parse_custom_num_formats()
         self.parse_color_index()
         self.style_prop['color_index'] = self.color_index
-        self.parse_fonts()
-        self.parse_fills()
-        self.parse_borders()
+        self.font_list = self.parse_fonts()
+        self.fill_list = self.parse_fills()
+        self.border_list = self.parse_borders()
         self.parse_dxfs()
         self.parse_cell_xfs()
 
@@ -84,14 +81,14 @@ class SharedStylesParser(object):
             nodes = dxfs.findall('{%s}dxf' % SHEET_MAIN_NS)
             for dxf in nodes:
                 dxf_item = {}
-                font_list = parse_fonts(dxf)
-                if len(font_list):
+                font_list = self.parse_fonts(dxf)
+                if font_list:
                     dxf_item['font'] = font_list[0]
-                fill_list = parse_fills(dxf)
-                if len(fill_list):
+                fill_list = self.parse_fills(dxf)
+                if fill_list:
                     dxf_item['fill'] = fill_list[0]
-                border_list = parse_borders(dxf)
-                if len(border_list):
+                border_list = self.parse_borders(dxf)
+                if border_list:
                     dxf_item['border'] = border_list[0]
                 dxf_list.append(dxf_item)
         self.style_prop['dxf_list'] = dxf_list
@@ -99,6 +96,7 @@ class SharedStylesParser(object):
 
     def parse_fonts(self, node=False):
         """Read in the fonts"""
+        font_list = []
         if node:
             fonts = node
         else:
@@ -145,11 +143,13 @@ class SharedStylesParser(object):
                         font.color.index = color.get('rgb')
                 elif node:
                     font.color = None
-                self.font_list.append(font)
+                font_list.append(font)
+        return font_list
 
 
     def parse_fills(self, node=False):
         """Read in the list of fills"""
+        fill_list = []
         if node:
             fills = node
         else:
@@ -196,11 +196,13 @@ class SharedStylesParser(object):
                                 newFill.end_color.index = 'theme:%s:' % bgColor.get('theme')  # prefix color with theme
                         elif bgColor.get('rgb'):
                             newFill.end_color.index = bgColor.get('rgb')
-                    self.fill_list.append(newFill)
+                    fill_list.append(newFill)
+        return fill_list
 
 
     def parse_borders(self, node=False):
         """Read in the boarders"""
+        border_list = []
         if node:
             borders = node
         else:
@@ -237,7 +239,8 @@ class SharedStylesParser(object):
                                     borderSide.color.index = 'theme:%s:' % color.get('theme')  # prefix color with theme
                             elif color.get('rgb'):
                                 borderSide.color.index = color.get('rgb')
-                self.border_list.append(newBorder)
+                border_list.append(newBorder)
+        return border_list
 
 
     def parse_cell_xfs(self):
