@@ -37,6 +37,7 @@ except ImportError:
 
 from xml.etree.ElementTree import Element as pyElement
 
+
 def test_backend():
     from openpyxl.xml.functions import Element
     if LXML is True:
@@ -45,3 +46,14 @@ def test_backend():
         assert Element == cElement
     else:
         assert Element == pyElement
+
+
+def test_namespace_register():
+    from openpyxl.shared.xmltools import Element, tostring
+    from openpyxl.shared.ooxml import SHEET_MAIN_NS
+
+    e = Element('{%s}sheet' % SHEET_MAIN_NS)
+    xml = tostring(e)
+    if hasattr(xml, "decode"):
+        xml = xml.decode("utf-8")
+    assert xml.startswith("<s:sheet")

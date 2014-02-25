@@ -35,6 +35,7 @@ import re
 
 # Python 2.6 without lxml
 def register_namespace(prefix, uri):
+    from xml.etree.ElementTree import _namespace_map
     if re.match("ns\d+$", prefix):
         raise ValueError("Prefix format reserved for internal use")
     for k, v in _namespace_map.items():
@@ -42,18 +43,6 @@ def register_namespace(prefix, uri):
             del _namespace_map[k]
     _namespace_map[uri] = prefix
 
-_namespace_map = {
-    # "well-known" namespace prefixes
-    "http://www.w3.org/XML/1998/namespace": "xml",
-    "http://www.w3.org/1999/xhtml": "html",
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns#": "rdf",
-    "http://schemas.xmlsoap.org/wsdl/": "wsdl",
-    # xml schema
-    "http://www.w3.org/2001/XMLSchema": "xs",
-    "http://www.w3.org/2001/XMLSchema-instance": "xsi",
-    # dublin core
-    "http://purl.org/dc/elements/1.1/": "dc",
-}
 
 try:
     from xml.etree.cElementTree import register_namespace
