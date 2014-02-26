@@ -247,12 +247,14 @@ def test_set_bad_type():
 
 def test_illegal_chacters():
     from openpyxl.exceptions import IllegalCharacterError
+    from openpyxl.compat import xrange
+    from itertools import chain
     ws = build_dummy_worksheet()
     cell = Cell(ws, 'A', 1)
 
     # The bytes 0x00 through 0x1F inclusive must be manually escaped in values.
 
-    illegal_chrs = range(9) + range(11, 13) + range(14, 32)
+    illegal_chrs = chain(xrange(9), xrange(11, 13), xrange(14, 32))
     for i in illegal_chrs:
         with pytest.raises(IllegalCharacterError):
             cell.value = chr(i)
