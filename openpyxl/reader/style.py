@@ -181,9 +181,9 @@ class SharedStylesParser(object):
     def parse_border(self, border_node):
         """Read individual border"""
         newBorder = Borders()
-        if border_node.get('diagonalup') == 1:
+        if bool(border_node.get('diagonalup')):
             newBorder.diagonal_direction = newBorder.DIAGONAL_UP
-        if border_node.get('diagonalDown') == 1:
+        if bool(border_node.get('diagonalDown')):
             if newBorder.diagonal_direction == newBorder.DIAGONAL_UP:
                 newBorder.diagonal_direction = newBorder.DIAGONAL_BOTH
             else:
@@ -202,64 +202,60 @@ class SharedStylesParser(object):
         return newBorder
 
 
-
     def parse_cell_xfs(self):
         """Read styles from the shared style table"""
         cell_xfs = self.root.find('{%s}cellXfs' % SHEET_MAIN_NS)
+
+        if cell_xfs is None:  # can happen on bad OOXML writers (e.g. Gnumeric)
+            return
+
         builtin_formats = NumberFormat._BUILTIN_FORMATS
+        cell_xfs_nodes = safe_iterator(cell_xfs, '{%s}xf' % SHEET_MAIN_NS)
+        for index, cell_xfs_node in enumerate(cell_xfs_nodes):
+            new_style = Style(static=True)
+            number_format_id = int(cell_xfs_node.get('numFmtId'))
+            if number_format_id < 164:
+                new_style.number_format.format_code = \
+                        builtin_formats.get(number_format_id, 'General')
+            else:
 
-        if cell_xfs is not None:  # can happen on bad OOXML writers (e.g. Gnumeric)
-            cell_xfs_nodes = safe_iterator(cell_xfs, '{%s}xf' % SHEET_MAIN_NS)
-            for index, cell_xfs_node in enumerate(cell_xfs_nodes):
-                new_style = Style(static=True)
-                number_format_id = int(cell_xfs_node.get('numFmtId'))
-                if number_format_id < 164:
+                if number_format_id in self.custom_num_formats:
                     new_style.number_format.format_code = \
-                            builtin_formats.get(number_format_id, 'General')
+                            self.custom_num_formats[number_format_id]
                 else:
+                    raise MissingNumberFormat('%s' % number_format_id)
 
-                    if number_format_id in self.custom_num_formats:
-                        new_style.number_format.format_code = \
-                                self.custom_num_formats[number_format_id]
-                    else:
-                        raise MissingNumberFormat('%s' % number_format_id)
+            if bool(cell_xfs_node.get('applyAlignment')):
+                alignment = cell_xfs_node.find('{%s}alignment' % SHEET_MAIN_NS)
+                if alignment is not None:
+                    for key in ('horizontal', 'vertical', 'indent'):
+                        _value = alignment.get(key)
+                        if _value is not None:
+                            setattr(new_style.alignment, key, _value)
+                    new_style.alignment.wrap_text = bool(alignment.get('wrapText'))
+                    new_style.alignment.shrink_to_fit = bool(alignment.get('shrinkToFit'))
+                    text_rotation = alignment.get('textRotation')
+                    if text_rotation is not None:
+                        new_style.alignment.text_rotation = int(text_rotation)
+                    # ignore justifyLastLine option when horizontal = distributed
 
-                if cell_xfs_node.get('applyAlignment') == '1':
-                    alignment = cell_xfs_node.find('{%s}alignment' % SHEET_MAIN_NS)
-                    if alignment is not None:
-                        for key in ('horizontal', 'vertical', 'indent'):
-                            _value = alignment.get(key)
-                            if _value is not None:
-                                setattr(new_style.alignment, key, _value)
-                        if alignment.get('wrapText'):
-                            new_style.alignment.wrap_text = True
-                        if alignment.get('shrinkToFit'):
-                            new_style.alignment.shrink_to_fit = True
-                        if alignment.get('textRotation') is not None:
-                            new_style.alignment.text_rotation = int(alignment.get('textRotation'))
-                        # ignore justifyLastLine option when horizontal = distributed
+            if bool(cell_xfs_node.get('applyFont')):
+                new_style.font = deepcopy(self.font_list[int(cell_xfs_node.get('fontId'))])
 
-                if cell_xfs_node.get('applyFont') == '1':
-                    new_style.font = deepcopy(self.font_list[int(cell_xfs_node.get('fontId'))])
+            if bool(cell_xfs_node.get('applyFill')):
+                new_style.fill = deepcopy(self.fill_list[int(cell_xfs_node.get('fillId'))])
 
-                if cell_xfs_node.get('applyFill') == '1':
-                    new_style.fill = deepcopy(self.fill_list[int(cell_xfs_node.get('fillId'))])
+            if bool(cell_xfs_node.get('applyBorder')):
+                new_style.borders = deepcopy(self.border_list[int(cell_xfs_node.get('borderId'))])
 
-                if cell_xfs_node.get('applyBorder') == '1':
-                    new_style.borders = deepcopy(self.border_list[int(cell_xfs_node.get('borderId'))])
+            if bool(cell_xfs_node.get('applyProtection')):
+                protection = cell_xfs_node.find('{%s}protection' % SHEET_MAIN_NS)
+                # Ignore if there are no protection sub-nodes
+                if protection is not None:
+                    new_style.protection.locked = bool(protection.get('locked'))
+                    new_style.protection.hidden = bool(protection.get('hidden'))
 
-                if cell_xfs_node.get('applyProtection') == '1':
-                    protection = cell_xfs_node.find('{%s}protection' % SHEET_MAIN_NS)
-                    # Ignore if there are no protection sub-nodes
-                    if protection is not None:
-                        _protected = protection.get('locked')
-                        if _protected is not None:
-                            new_style.protection.locked = bool(_protected)
-                        _hidden = protection.get('hidden')
-                        if _hidden is not None:
-                            new_style.protection.hidden = bool(_hidden)
-
-                self.style_prop['table'][index] = new_style
+            self.style_prop['table'][index] = new_style
 
 
 def read_style_table(xml_source):
