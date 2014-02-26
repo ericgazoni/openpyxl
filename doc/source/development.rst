@@ -2,8 +2,7 @@ Development
 ===========
 
 With the ongoing development of openpyxl, there is occasional information
-useful to assist developers.  This documentation contains examples for
-making the development process easier.
+useful to assist developers.
 
 
 What is suppoprted
@@ -20,6 +19,14 @@ Supporting different Python versions
 We have a small library of utility functions to support development for
 Python 2 and 3. This is openpyxl.compat for Python and openpyxl.xml for XML
 functions.
+
+
+Coding style
+------------
+
+Use PEP-8 except when implementing attributes for roundtripping but always
+use Python data conventions (boolean, None, etc.) Note exceptions in
+docstrings.
 
 
 Testing
