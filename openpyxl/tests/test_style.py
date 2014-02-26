@@ -37,7 +37,7 @@ from openpyxl.reader.style import read_style_table
 from openpyxl.workbook import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.writer.styles import StyleWriter
-from openpyxl.styles import NumberFormat, Border, Color, Font, Fill, Borders
+from openpyxl.styles import NumberFormat, Border, Color, Font, Fill, Borders, Protection
 from openpyxl.formatting import ConditionalFormatting
 from openpyxl.formatting.rules import FormulaRule
 from openpyxl.xml.functions import Element, SubElement, tostring
@@ -60,10 +60,12 @@ class TestCreateStyle(object):
         cls.worksheet.cell(coordinate='C14').value = 'This is a test'
         cls.worksheet.cell(coordinate='D9').value = '31.31415'
         cls.worksheet.cell(coordinate='D9').style.number_format.format_code = NumberFormat.FORMAT_NUMBER_00
+        cls.worksheet.cell(coordinate='D9').style.protection.locked = Protection.PROTECTION_UNPROTECTED
+        cls.worksheet.cell(coordinate='E1').style.protection.hidden = Protection.PROTECTION_UNPROTECTED
         cls.writer = StyleWriter(cls.workbook)
 
     def test_create_style_table(self):
-        assert len(self.writer.style_table) == 3
+        assert len(self.writer.style_table) == 4
 
     @pytest.mark.xfail
     def test_write_style_table(self):
@@ -342,6 +344,17 @@ class TestStyleWriter(object):
         </styleSheet>
         """)
         assert diff is None, diff
+
+    def test_protection(self):
+        self.worksheet.cell('A1').style.protection.locked = Protection.PROTECTION_UNPROTECTED
+        self.worksheet.cell('A1').style.protection.hidden = Protection.PROTECTION_UNPROTECTED
+        w = StyleWriter(self.workbook)
+        nft = w._write_number_formats()
+        w._write_cell_xfs(nft, {}, {}, {})
+        xml = get_xml(w._root)
+        assert 'protection' in xml
+        assert 'locked="0"' in xml
+        assert 'hidden="0"' in xml
 
 
 def test_read_style():

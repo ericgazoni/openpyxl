@@ -46,12 +46,14 @@ class SheetProtection(object):
         self.pivot_tables = False
         self.select_unlocked_cells = False
         self._password = ''
+        self.enabled = False
 
     def set_password(self, value='', already_hashed=False):
         """Set a password on this sheet."""
         if not already_hashed:
             value = hash_password(value)
         self._password = value
+        self.enabled = True
 
     def _set_raw_password(self, value):
         """Set a password directly, forcing a hash step."""
@@ -60,6 +62,12 @@ class SheetProtection(object):
     def _get_raw_password(self):
         """Return the password value, regardless of hash."""
         return self._password
+
+    def enable(self):
+        self.enabled = True
+
+    def disable(self):
+        self.enabled = False
 
     password = property(_get_raw_password, _set_raw_password,
             'get/set the password (if already hashed, '
