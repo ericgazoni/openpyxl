@@ -58,8 +58,9 @@ class SharedStylesParser(object):
         if num_fmts is not None:
             num_fmt_nodes = safe_iterator(num_fmts, '{%s}numFmt' % SHEET_MAIN_NS)
             for num_fmt_node in num_fmt_nodes:
-                custom_formats[int(num_fmt_node.get('numFmtId'))] = \
-                        num_fmt_node.get('formatCode').lower()
+                fmt_id = int(num_fmt_node.get('numFmtId'))
+                fmt_code = num_fmt_node.get('formatCode').lower()
+                custom_formats[fmt_id] = fmt_code
         self.custom_num_formats = custom_formats
 
 
