@@ -21,6 +21,7 @@ Pull requests
 -------------
 #70 Add filterColumn, sortCondition support to AutoFilter (SHIBUKAWA Yoshiki)
 #82 Update API for conditional formatting
+#87 Add support for writing Protection styles, others.
 
 
 Bug fixes

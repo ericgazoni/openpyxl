@@ -16,7 +16,7 @@ I'd also like to greatly thank all those who participate in the project (in alph
 * Charlie Clark
 * Maarten De Paepe
 * Etienne Desautels
-* echlebek_
+* Eric Chlebek
 * Alexandre Fayolle
 * Eric Gazoni
 * Brice Gelineau
