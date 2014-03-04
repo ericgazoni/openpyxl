@@ -73,6 +73,16 @@ necessarily guarantee that everything is fine but is preferable to reverse
 engineering!
 
 
+Microsoft Tools
++++++++++++++++
+
+Along with the SDK, Microsoft also has a "Productivity Tool" for working with
+Office OpenXML. http://www.microsoft.com/en-us/download/details.aspx?id=30425
+
+It allows you to quickly inspect a whole Excel file. Unfortunately,
+validation errors contain many false positives.
+
+
 Contributing
 ------------
 
