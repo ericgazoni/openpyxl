@@ -42,7 +42,7 @@ from openpyxl.xml.functions import (
     end_tag,
     tag,
     fromstring,
-    )
+)
 from openpyxl.xml.constants import (
     SHEET_MAIN_NS,
     PKG_REL_NS,
@@ -73,20 +73,20 @@ def write_worksheet(worksheet, string_table, style_table):
     xml_file = StringIO()
     doc = XMLGenerator(out=xml_file, encoding='utf-8')
     start_tag(doc, 'worksheet',
-            {'xmlns': SHEET_MAIN_NS,
-            'xmlns:r': REL_NS})
+              {'xmlns': SHEET_MAIN_NS,
+               'xmlns:r': REL_NS})
     if vba_root is not None:
         el = vba_root.find('{%s}sheetPr' % SHEET_MAIN_NS)
         if el is not None:
-                codename =el.get('codeName', worksheet.title)
-                start_tag(doc, 'sheetPr', {"codeName": codename})
+            codename =el.get('codeName', worksheet.title)
+            start_tag(doc, 'sheetPr', {"codeName": codename})
         else:
-                start_tag(doc, 'sheetPr')
+            start_tag(doc, 'sheetPr')
     else:
         start_tag(doc, 'sheetPr')
     tag(doc, 'outlinePr',
-            {'summaryBelow': '%d' % (worksheet.show_summary_below),
-            'summaryRight': '%d' % (worksheet.show_summary_right)})
+        {'summaryBelow': '%d' % (worksheet.show_summary_below),
+         'summaryRight': '%d' % (worksheet.show_summary_right)})
     if worksheet.page_setup.fitToPage:
         tag(doc, 'pageSetUpPr', {'fitToPage':'1'})
     end_tag(doc, 'sheetPr')
@@ -192,7 +192,7 @@ def write_worksheet_cols(doc, worksheet, style_table):
     if worksheet.column_dimensions:
         start_tag(doc, 'cols')
         for column_string, columndimension in \
-                sorted(iteritems(worksheet.column_dimensions)):
+            sorted(iteritems(worksheet.column_dimensions)):
             col_index = column_index_from_string(column_string)
             col_def = {'min': str(col_index), 'max': str(col_index)}
             if columndimension.width != -1:
@@ -296,7 +296,7 @@ def write_worksheet_data(doc, worksheet, string_table, style_table):
                 attributes['t'] = cell.data_type
             if coordinate in worksheet._styles:
                 attributes['s'] = '%d' % style_id_by_hash[
-                        hash(worksheet._styles[coordinate])]
+                    hash(worksheet._styles[coordinate])]
 
             if value in ('', None):
                 tag(doc, 'c', attributes)
@@ -395,8 +395,8 @@ def write_worksheet_hyperlinks(doc, worksheet):
         for cell in worksheet.get_cell_collection():
             if cell.hyperlink_rel_id is not None:
                 attrs = {'display': cell.hyperlink,
-                        'ref': cell.coordinate,
-                        'r:id': cell.hyperlink_rel_id}
+                         'ref': cell.coordinate,
+                         'r:id': cell.hyperlink_rel_id}
                 tag(doc, 'hyperlink', attrs)
         end_tag(doc, 'hyperlinks')
 
@@ -411,18 +411,18 @@ def write_worksheet_rels(worksheet, drawing_id, comments_id):
         SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
     if worksheet._charts or worksheet._images:
         attrs = {'Id' : 'rId1',
-            'Type' : '%s/drawing' % REL_NS,
-            'Target' : '../drawings/drawing%s.xml' % drawing_id }
+                 'Type' : '%s/drawing' % REL_NS,
+                 'Target' : '../drawings/drawing%s.xml' % drawing_id }
         SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
     if worksheet._comment_count > 0:
         # there's only one comments sheet per worksheet,
         # so there's no reason to call the Id rIdx
         attrs = {'Id': 'comments',
-            'Type': COMMENTS_NS,
-            'Target' : '../comments%s.xml' % comments_id}
+                 'Type': COMMENTS_NS,
+                 'Target' : '../comments%s.xml' % comments_id}
         SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
         attrs = {'Id': 'commentsvml',
-            'Type': VML_NS,
-            'Target': '../drawings/commentsDrawing%s.vml' % comments_id}
+                 'Type': VML_NS,
+                 'Target': '../drawings/commentsDrawing%s.vml' % comments_id}
         SubElement(root, '{%s}Relationship' % PKG_REL_NS, attrs)
     return get_document_content(root)
