@@ -71,6 +71,26 @@ class StyleWriter(object):
 
         return get_document_content(xml_node=self._root)
 
+
+    def _unpack_color(self, node, color, key='color'):
+        """Convert colors encoded as RGB, theme or tints
+        Possible values
+        RGB: #4F81BD
+        Theme: theme:9
+        Tint: theme:9:7 # guess work
+        """
+        if color is None:
+            return
+        if not ":" in color:
+            SubElement(node, key, {'rgb':color})
+        else:
+            _, theme, tint = color.split(":")
+            if tint == '':
+                SubElement(node, key, {'theme':theme})
+            else:
+                SubElement(node, key, {'theme':theme, 'tint':tint})
+
+
     def _write_fonts(self):
         """ add fonts part to root
             return {font.crc => index}
@@ -94,14 +114,7 @@ class StyleWriter(object):
                 table[hash(st.font)] = str(index)
                 font_node = SubElement(fonts, 'font')
                 SubElement(font_node, 'sz', {'val':str(st.font.size)})
-                if str(st.font.color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
-                    if str(st.font.color.index).split(':')[2]:
-                        SubElement(font_node, 'color', {'theme':str(st.font.color.index).split(':')[1],
-                                                        'tint':str(st.font.color.index).split(':')[2]})
-                    else:
-                        SubElement(font_node, 'color', {'theme':str(st.font.color.index).split(':')[1]})
-                else:
-                    SubElement(font_node, 'color', {'rgb':str(st.font.color.index)})
+                self._unpack_color(font_node, st.font.color.index)
                 SubElement(font_node, 'name', {'val':st.font.name})
                 SubElement(font_node, 'family', {'val':'2'})
                 # Don't write the 'scheme' element because it appears to prevent
@@ -135,23 +148,11 @@ class StyleWriter(object):
                 if st.fill.fill_type != DEFAULTS.fill.fill_type:
                     node = SubElement(fill, 'patternFill', {'patternType':st.fill.fill_type})
                     if st.fill.start_color != DEFAULTS.fill.start_color:
-                        if str(st.fill.start_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
-                            if str(st.fill.start_color.index).split(':')[2]:
-                                SubElement(node, 'fgColor', {'theme':str(st.fill.start_color.index).split(':')[1],
-                                                             'tint':str(st.fill.start_color.index).split(':')[2]})
-                            else:
-                                SubElement(node, 'fgColor', {'theme':str(st.fill.start_color.index).split(':')[1]})
-                        else:
-                            SubElement(node, 'fgColor', {'rgb':str(st.fill.start_color.index)})
+                        self._unpack_color(node, st.fill.start_color.index, 'fgColor')
+
                     if st.fill.end_color != DEFAULTS.fill.end_color:
-                        if str(st.fill.end_color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
-                            if str(st.fill.end_color.index).split(':')[2]:
-                                SubElement(node, 'bgColor', {'theme':str(st.fill.end_color.index).split(':')[1],
-                                                             'tint':str(st.fill.end_color.index).split(':')[2]})
-                            else:
-                                SubElement(node, 'bgColor', {'theme':str(st.fill.end_color.index).split(':')[1]})
-                        else:
-                            SubElement(node, 'bgColor', {'rgb':str(st.fill.end_color.index)})
+                        self._unpack_color(node, st.fill.end_color.index, 'bgColor')
+
                 index += 1
 
         fills.attrib["count"] = str(index)
@@ -182,14 +183,8 @@ class StyleWriter(object):
                         node = SubElement(border, side)
                     else:
                         node = SubElement(border, side, {'style':obj.border_style})
-                        if str(obj.color.index).split(':')[0] == 'theme': # strip prefix theme if marked as such
-                            if str(obj.color.index).split(':')[2]:
-                                SubElement(node, 'color', {'theme':str(obj.color.index).split(':')[1],
-                                                                'tint':str(obj.color.index).split(':')[2]})
-                            else:
-                                SubElement(node, 'color', {'theme':str(obj.color.index).split(':')[1]})
-                        else:
-                            SubElement(node, 'color', {'rgb':str(obj.color.index)})
+                        self._unpack_color(node, obj.color.index)
+
                 index += 1
 
         borders.attrib["count"] = str(index)
