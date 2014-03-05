@@ -220,8 +220,8 @@ class SharedStylesParser(object):
                 new_style.number_format.format_code = \
                         builtin_formats.get(number_format_id, 'General')
             else:
-
-                if number_format_id in self.custom_num_formats:
+                fmt_code = self.custom_num_formats.get(number_format_id)
+                if fmt_code is not None:
                     new_style.number_format.format_code = \
                             self.custom_num_formats[number_format_id]
                 else:
