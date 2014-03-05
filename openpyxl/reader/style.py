@@ -222,8 +222,7 @@ class SharedStylesParser(object):
             else:
                 fmt_code = self.custom_num_formats.get(number_format_id)
                 if fmt_code is not None:
-                    new_style.number_format.format_code = \
-                            self.custom_num_formats[number_format_id]
+                    new_style.number_format.format_code = fmt_code
                 else:
                     raise MissingNumberFormat('%s' % number_format_id)
 
