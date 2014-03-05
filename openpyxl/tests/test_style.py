@@ -52,7 +52,7 @@ class TestCreateStyle(object):
     @classmethod
     def setup_class(cls):
         now = datetime.datetime.now()
-        cls.workbook = Workbook()
+        cls.workbook = Workbook(guess_types=True)
         cls.worksheet = cls.workbook.create_sheet()
         cls.worksheet.cell(coordinate='A1').value = '12.34%'
         cls.worksheet.cell(coordinate='B4').value = now

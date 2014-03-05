@@ -145,7 +145,7 @@ def test_write_formula():
 
 
 def test_write_style():
-    wb = Workbook()
+    wb = Workbook(guess_types=True)
     ws = wb.create_sheet()
     ws.cell('F1').value = '13%'
     ws._styles['F'] = ws._styles['F1']

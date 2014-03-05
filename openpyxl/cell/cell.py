@@ -209,6 +209,8 @@ class Cell(object):
 
     def check_string(self, value):
         """Check string coding, length, and line break character"""
+        if value is None:
+            return
         # convert to unicode string
         if not isinstance(value, unicode):
             value = unicode(value, self.encoding)
