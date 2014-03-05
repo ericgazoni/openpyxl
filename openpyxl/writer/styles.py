@@ -111,7 +111,7 @@ class StyleWriter(object):
         index = 1
         for st in self._style_list:
             if st.font != DEFAULTS.font and st.font not in table:
-                table[st.font] = str(index)
+                table[st.font] = index
                 font_node = SubElement(fonts, 'font')
                 SubElement(font_node, 'sz', {'val':str(st.font.size)})
                 self._unpack_color(font_node, st.font.color.index)
@@ -143,7 +143,7 @@ class StyleWriter(object):
         index = 2
         for st in self._style_list:
             if st.fill != DEFAULTS.fill and st.fill not in table:
-                table[st.fill] = str(index)
+                table[st.fill] = index
                 fill = SubElement(fills, 'fill')
                 if st.fill.fill_type != DEFAULTS.fill.fill_type:
                     node = SubElement(fill, 'patternFill', {'patternType':st.fill.fill_type})
@@ -174,7 +174,7 @@ class StyleWriter(object):
         index = 1
         for st in self._style_list:
             if st.borders != DEFAULTS.borders and st.borders not in table:
-                table[st.borders] = str(index)
+                table[st.borders] = index
                 border = SubElement(borders, 'border')
                 # caution: respect this order
                 for side in ('left', 'right', 'top', 'bottom', 'diagonal'):
@@ -213,15 +213,15 @@ class StyleWriter(object):
             vals = _get_default_vals()
 
             if st.font != DEFAULTS.font:
-                vals['fontId'] = fonts_table[st.font]
+                vals['fontId'] = str(fonts_table[st.font])
                 vals['applyFont'] = '1'
 
             if st.borders != DEFAULTS.borders:
-                vals['borderId'] = borders_table[st.borders]
+                vals['borderId'] = str(borders_table[st.borders])
                 vals['applyBorder'] = '1'
 
             if st.fill != DEFAULTS.fill:
-                vals['fillId'] = fills_table[st.fill]
+                vals['fillId'] = str(fills_table[st.fill])
                 vals['applyFill'] = '1'
 
             if st.number_format != DEFAULTS.number_format:
