@@ -31,7 +31,7 @@ Shortcut functions taken from:
 
 # Python stdlib imports
 from xml.sax.saxutils import XMLGenerator
-from xml.sax.xmlreader import AttributesNSImpl
+from xml.sax.xmlreader import AttributesNSImpl, AttributesImpl
 
 
 # compatibility
@@ -127,39 +127,26 @@ def pretty_indent(elem, level=0):
             elem.tail = i
 
 
-def start_tag(doc, name, attr=None, body=None, namespace=None):
+def start_tag(doc, name, attr=None, body=None):
     """Wrapper to start an xml tag."""
     if attr is None:
         attr = {}
-        dct_type = dict
-    elif isinstance(attr, OrderedDict):
-        dct_type = OrderedDict
-    else:
-        dct_type = dict
-
-    attr_vals = dct_type()
-    attr_keys = dct_type()
-    for key, val in attr.items():
-        key_tuple = (namespace, key)
-        attr_vals[key_tuple] = val
-        attr_keys[key_tuple] = key
-    attr2 = AttributesNSImpl(attr_vals, attr_keys)
-    doc.startElementNS((namespace, name), name, attr2)
+    doc.startElement(name, attr)
     if body:
         doc.characters(body)
 
 
-def end_tag(doc, name, namespace=None):
+def end_tag(doc, name):
     """Wrapper to close an xml tag."""
-    doc.endElementNS((namespace, name), name)
+    doc.endElement(name)
 
 
-def tag(doc, name, attr=None, body=None, namespace=None):
+def tag(doc, name, attr=None, body=None):
     """Wrapper to print xml tags and comments."""
     if attr is None:
         attr = {}
-    start_tag(doc, name, attr, body, namespace)
-    end_tag(doc, name, namespace)
+    start_tag(doc, name, attr, body)
+    end_tag(doc, name)
 
 
 def safe_iterator(node, tag=None):
