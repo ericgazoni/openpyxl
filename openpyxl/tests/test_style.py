@@ -212,16 +212,16 @@ class TestStyleWriter(object):
 
     @pytest.mark.parametrize("value, expected",
                              [
-                                 ('FFFFFF', [('rgb', 'FFFFFF')]),
-                                 ('theme:7:', [('theme', '7')]),
-                                 ('theme:7:8', [('theme', '7'), ('tint', '8')])
+                                 ('FFFFFF', {'rgb': 'FFFFFF'}),
+                                 ('theme:7:', {'theme': '7'}),
+                                 ('theme:7:8', {'theme':'7', 'tint':'8'})
                              ])
     def test_unpack_color(self, value, expected):
         w = StyleWriter(self.workbook)
         root = Element("root")
         w._unpack_color(root, value)
         assert root.find('color') is not None
-        assert root.find('color').items() == expected
+        assert root.find('color').attrib == expected
 
 
     def test_write_cell_xfs_1(self):
