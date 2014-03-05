@@ -185,9 +185,9 @@ class Cell(object):
         self._value = None
         self._hyperlink_rel = None
         self.data_type = self.TYPE_NULL
+        self.parent = worksheet
         if value:
             self.value = value
-        self.parent = worksheet
         self.xf_index = 0
         self.merged = False
         self._comment = None
@@ -199,6 +199,10 @@ class Cell(object):
     @property
     def base_date(self):
         return self.parent.parent.excel_base_date
+
+    @property
+    def guess_types(self):
+        return getattr(self.parent.parent, '_guess_types', False)
 
     def __repr__(self):
         return unicode("<Cell %s.%s>") % (self.parent.title, self.coordinate)
@@ -287,7 +291,7 @@ class Cell(object):
         if value is None:
             self.set_explicit_value('', self.TYPE_NULL)
             return True
-        elif self.data_type == self.TYPE_STRING:
+        elif self.guess_types and self.data_type == self.TYPE_STRING:
             # percentage detection
             if self._bind_percentage(value):
                 return

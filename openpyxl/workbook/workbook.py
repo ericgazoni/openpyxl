@@ -77,7 +77,7 @@ class Workbook(object):
     def __init__(self, optimized_write=False, encoding='utf-8',
                  worksheet_class=Worksheet,
                  optimized_worksheet_class=DumpWorksheet,
-                 guess_types=True,
+                 guess_types=False,
                  data_only=False):
         self.worksheets = []
         self._active_sheet_index = 0

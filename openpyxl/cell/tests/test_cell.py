@@ -189,10 +189,16 @@ class TestCellValueTypes(object):
         self.cell.value = 3.14
         assert Cell.TYPE_NUMERIC == self.cell.data_type
 
-    def test_insert_percentage(self):
+    @pytest.mark.parametrize("infer, expected",
+                             [
+                                 (False, '3.14%'),
+                                 (True, safe_string(0.0314)),
+                             ]
+                             )
+    def test_insert_percentage(self, infer, expected):
+        self.cell.parent.parent._guess_types= infer
         self.cell.value = '3.14%'
-        assert Cell.TYPE_NUMERIC == self.cell.data_type
-        assert safe_string(0.0314) == safe_string(self.cell.internal_value)
+        assert expected == safe_string(self.cell.internal_value)
 
     def test_insert_datetime(self):
         self.cell.value = date.today()
@@ -291,7 +297,7 @@ values = (
 @pytest.mark.parametrize("value, expected",
                          values)
 def test_time(value, expected):
-    wb = Workbook()
+    wb = Workbook(guess_types=True)
     ws = Worksheet(wb)
     cell = Cell(ws, 'A', 1)
     cell.value = value
