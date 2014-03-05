@@ -28,6 +28,7 @@ from __future__ import absolute_import
 from openpyxl.xml.functions import (
     Element,
     SubElement,
+    ConditionalElement,
     get_document_content
     )
 from openpyxl.xml.constants import SHEET_MAIN_NS
@@ -120,12 +121,9 @@ class StyleWriter(object):
                 # Don't write the 'scheme' element because it appears to prevent
                 # the font name from being applied in Excel.
                 #SubElement(font_node, 'scheme', {'val':'minor'})
-                if st.font.bold:
-                    SubElement(font_node, 'b')
-                if st.font.italic:
-                    SubElement(font_node, 'i')
-                if st.font.underline == 'single':
-                    SubElement(font_node, 'u')
+                ConditionalElement(font_node, "b", st.font.bold)
+                ConditionalElement(font_node, "i", st.font.italic)
+                ConditionalElement(font_node, "u",  st.font.underline == 'single')
 
                 index += 1
 
@@ -288,14 +286,12 @@ class StyleWriter(object):
                     font_node = SubElement(dxf, 'font')
                     if d['font'].color is not None:
                         self._unpack_color(font_node, d['font'].color.index)
-                    if d['font'].bold:
-                        SubElement(font_node, 'b', {'val': '1'})
-                    if d['font'].italic:
-                        SubElement(font_node, 'i', {'val': '1'})
-                    if d['font'].underline != 'none':
-                        SubElement(font_node, 'u', {'val': d['font'].underline})
-                    if d['font'].strikethrough:
-                        SubElement(font_node, 'strike')
+                    ConditionalElement(font_node, 'b', d['font'].bold, 'val')
+                    ConditionalElement(font_node, 'i', d['font'].italic, 'val')
+                    ConditionalElement(font_node, 'u', d['font'].underline != 'none',
+                                       {'val': d['font'].underline})
+                    ConditionalElement(font_node, 'strike', d['font'].strikethrough)
+
 
                 if 'fill' in d:
                     f = d['fill']
