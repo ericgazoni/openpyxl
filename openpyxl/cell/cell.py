@@ -240,7 +240,7 @@ class Cell(object):
         """Coerce values according to their explicit type"""
         if data_type not in self.VALID_TYPES:
             raise ValueError('Invalid data type: %s' % data_type)
-        if isinstance(value, basestring):
+        if isinstance(value, (str, unicode, bytes)):
             value = self.check_string(value)
         self._value = value
         self.data_type = data_type
