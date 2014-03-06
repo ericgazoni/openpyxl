@@ -115,12 +115,14 @@ class WorkSheetParser(object):
         if style_id is not None:
             self.ws._styles[coordinate] = self.style_table.get(int(style_id))
 
-        if value is not None:
+        if value is not None and value is not '':
             data_type = element.get('t', 'n')
             if data_type == Cell.TYPE_STRING:
                 value = self.string_table.get(int(value))
             elif data_type == Cell.TYPE_BOOL:
                 value = bool(int(value))
+            elif data_type == 'n':
+                value = float(value)
             if formula is not None and not self.data_only:
                 if formula.text:
                     value = "=" + formula.text
