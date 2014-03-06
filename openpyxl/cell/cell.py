@@ -151,7 +151,7 @@ class Cell(object):
     __slots__ = ('column',
                  'row',
                  '_value',
-                 '_data_type',
+                 'data_type',
                  'parent',
                  'xf_index',
                  '_hyperlink_rel',
@@ -428,14 +428,14 @@ class Cell(object):
         """Returns the :class:`openpyxl.style.Style` object for this cell"""
         return self.parent.get_style(self.coordinate)
 
-    @property
-    def data_type(self):
-        """Return the data type represented by this cell"""
-        return self._data_type
+    #@property
+    #def data_type(self):
+        #"""Return the data type represented by this cell"""
+        #return self._data_type
 
-    @data_type.setter
-    def data_type(self, value):
-        self._data_type = value
+    #@data_type.setter
+    #def data_type(self, value):
+        #self._data_type = value
 
     def get_coordinate(self):
         warnings.warn("cell.get_coordinate() is deprecated use cell.coordinate instead")
