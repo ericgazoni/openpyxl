@@ -13,7 +13,6 @@ from openpyxl.worksheet import Worksheet
 from openpyxl.workbook import Workbook
 from openpyxl.exceptions import (
     CellCoordinatesException,
-    DataTypeException
     )
 from openpyxl.date_time import CALENDAR_WINDOWS_1900
 from openpyxl.cell import (
@@ -247,7 +246,7 @@ def test_data_type_check(value, datatype):
 def test_set_bad_type():
     ws = build_dummy_worksheet()
     cell = Cell(ws, 'A', 1)
-    with pytest.raises(DataTypeException):
+    with pytest.raises(ValueError):
         cell.set_explicit_value(1, 'q')
 
 

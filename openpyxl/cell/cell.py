@@ -52,7 +52,6 @@ from openpyxl.date_time import (
     )
 from openpyxl.exceptions import (
     CellCoordinatesException,
-    DataTypeException,
     IllegalCharacterError
 )
 from openpyxl.units import points_to_pixels
@@ -142,6 +141,7 @@ TIME_REGEX = re.compile(r"""
 """, re.VERBOSE)
 NUMBER_REGEX = re.compile(r'^-?([\d]|[\d]+\.[\d]*|\.[\d]+|[1-9][\d]+\.?[\d]*)((E|e)-?[\d]+)?$')
 
+
 class Cell(object):
     """Describes cell associated properties.
 
@@ -175,8 +175,18 @@ class Cell(object):
     TYPE_ERROR = 'e'
     TYPE_FORMULA_CACHE_STRING = 'str'
 
-    VALID_TYPES = [TYPE_STRING, TYPE_FORMULA, TYPE_NUMERIC, TYPE_BOOL,
-                   TYPE_NULL, TYPE_INLINE, TYPE_ERROR, TYPE_FORMULA_CACHE_STRING]
+    VALID_TYPES = (TYPE_STRING, TYPE_FORMULA, TYPE_NUMERIC, TYPE_BOOL,
+                   TYPE_NULL, TYPE_INLINE, TYPE_ERROR, TYPE_FORMULA_CACHE_STRING)
+
+    TYPE_MAPPING = {
+        TYPE_INLINE: "check_string",
+        TYPE_STRING: "check_string",
+        TYPE_FORMULA: "check_string",
+        TYPE_NUMERIC: "check_numeric",
+        TYPE_BOOL: "bool",
+        TYPE_ERROR: "check_error"}
+
+    bool = bool
 
     def __init__(self, worksheet, column, row, value=None):
         self.column = column.upper()
@@ -243,19 +253,11 @@ class Cell(object):
 
     def set_explicit_value(self, value=None, data_type=TYPE_STRING):
         """Coerce values according to their explicit type"""
-        type_coercion_map = {
-            self.TYPE_INLINE: self.check_string,
-            self.TYPE_STRING: self.check_string,
-            self.TYPE_FORMULA: self.check_string,
-            self.TYPE_NUMERIC: self.check_numeric,
-            self.TYPE_BOOL: bool,
-            self.TYPE_ERROR: self.check_error}
-        try:
-            self._value = type_coercion_map[data_type](value)
-        except KeyError:
-            if data_type not in self.VALID_TYPES:
-                msg = 'Invalid data type: %s' % data_type
-                raise DataTypeException(msg)
+        fn = self.TYPE_MAPPING.get(data_type)
+        if fn is None:
+            raise ValueError('Invalid data type: %s' % data_type)
+        validator = getattr(self, fn)
+        self._value = validator(value)
         self.data_type = data_type
 
     # preserve old method name
