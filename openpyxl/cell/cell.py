@@ -296,7 +296,7 @@ class Cell(object):
             except ValueError:
                 value = float(value)
             self.set_explicit_value(value, self.TYPE_NUMERIC)
-            return True
+            return value
 
     def _cast_percentage(self, value):
         """Explicitly convert a string to numeric value and format as a

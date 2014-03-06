@@ -116,13 +116,14 @@ class WorkSheetParser(object):
             self.ws._styles[coordinate] = self.style_table.get(int(style_id))
 
         if value is not None and value is not '':
+            cell = self.ws[coordinate]
             data_type = element.get('t', 'n')
             if data_type == Cell.TYPE_STRING:
                 value = self.string_table.get(int(value))
             elif data_type == Cell.TYPE_BOOL:
                 value = bool(int(value))
             elif data_type == 'n':
-                value = float(value)
+                value = cell._cast_numeric(value)
             if formula is not None and not self.data_only:
                 if formula.text:
                     value = "=" + formula.text
@@ -136,9 +137,9 @@ class WorkSheetParser(object):
                     if formula.get('ref'):  # Range for shared formulas
                         self.ws.formula_attributes[coordinate]['ref'] = formula.get('ref')
             if not self.guess_types and formula is None:
-                self.ws.cell(coordinate).set_explicit_value(value=value, data_type=data_type)
+                cell.set_explicit_value(value=value, data_type=data_type)
             else:
-                self.ws.cell(coordinate).value = value
+                cell.value = value
 
 
     def parse_merge(self, element):
