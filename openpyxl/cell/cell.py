@@ -280,8 +280,6 @@ class Cell(object):
             data_type = self.TYPE_NUMERIC
         elif isinstance(value, basestring) and value.strip() in self.ERROR_CODES:
             data_type = self.TYPE_ERROR
-        elif isinstance(value, list):
-            data_type = self.TYPE_ERROR
         else:
             data_type = self.TYPE_STRING
         return data_type
