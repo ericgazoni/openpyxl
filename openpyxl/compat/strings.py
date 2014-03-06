@@ -34,6 +34,7 @@ if VER[0] == 3:
     file = BufferedReader
     from io import BufferedRandom
     tempfile = BufferedRandom
+    bytes = bytes
 else:
     from StringIO import StringIO
     BytesIO = StringIO
@@ -41,6 +42,7 @@ else:
     unicode = unicode
     file = file
     tempfile = file
+    bytes = str
 
 
 def safe_string(value):

@@ -43,7 +43,7 @@ from openpyxl.units import (
     DEFAULT_ROW_HEIGHT,
     DEFAULT_COLUMN_WIDTH
 )
-from openpyxl.compat import unicode, basestring
+from openpyxl.compat import unicode, basestring, bytes
 from openpyxl.date_time import (
     to_excel,
     time_to_days,
@@ -66,7 +66,7 @@ ABSOLUTE_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)(:[$]?([A-Z]+)[$]?(\d+))?$')
 ILLEGAL_CHARACTERS_RE = re.compile(r'[\000-\010]|[\013-\014]|[\016-\037]')
 
 TIME_TYPES = (datetime.datetime, datetime.date, datetime.time, datetime.timedelta)
-KNOWN_TYPES = NUMERIC_TYPES + TIME_TYPES + (basestring, unicode, bool, type(None))
+KNOWN_TYPES = NUMERIC_TYPES + TIME_TYPES + (basestring, unicode, bytes, bool, type(None))
 
 def coordinate_from_string(coord_string):
     """Convert a coordinate string like 'B12' to a tuple ('B', 12)"""
@@ -274,14 +274,15 @@ class Cell(object):
             data_type = self.TYPE_NUMERIC
         elif isinstance(value, TIME_TYPES):
             data_type = self.TYPE_NUMERIC
-        elif isinstance(value, basestring) and value[0] == '=':
-            data_type = self.TYPE_FORMULA
-        elif isinstance(value, unicode) and NUMBER_REGEX.match(value):
-            data_type = self.TYPE_NUMERIC
-        elif not isinstance(value, unicode) and NUMBER_REGEX.match(str(value)):
-            data_type = self.TYPE_NUMERIC
-        elif isinstance(value, basestring) and value.strip() in self.ERROR_CODES:
-            data_type = self.TYPE_ERROR
+        elif isinstance(value, basestring):
+            if value.startswith("="):
+                data_type = self.TYPE_FORMULA
+            elif value in self.ERROR_CODES:
+                data_type = self.TYPE_ERROR
+            if not isinstance(value, unicode):
+                value = str(value)
+            if NUMBER_REGEX.match(value):
+                data_type = self.TYPE_NUMERIC
         return data_type
 
     def bind_value(self, value):

@@ -28,6 +28,7 @@ from tempfile import NamedTemporaryFile
 from .strings import (
     basestring,
     unicode,
+    bytes,
     StringIO,
     file,
     BytesIO,
