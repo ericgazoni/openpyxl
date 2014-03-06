@@ -179,7 +179,7 @@ class TestCellValueTypes(object):
         self.cell.value = '0800'
         assert self.cell.TYPE_STRING == self.cell.data_type
 
-    @pytest.mark.parametrize("error_string", Cell.ERROR_CODES.keys())
+    @pytest.mark.parametrize("error_string", Cell.ERROR_CODES)
     def test_error_codes(self, error_string):
         self.cell.value = error_string
         assert self.cell.TYPE_ERROR == self.cell.data_type

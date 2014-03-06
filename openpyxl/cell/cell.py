@@ -159,13 +159,13 @@ class Cell(object):
                  'merged',
                  '_comment')
 
-    ERROR_CODES = {'#NULL!': 0,
-                   '#DIV/0!': 1,
-                   '#VALUE!': 2,
-                   '#REF!': 3,
-                   '#NAME?': 4,
-                   '#NUM!': 5,
-                   '#N/A': 6}
+    ERROR_CODES = ('#NULL!',
+                   '#DIV/0!',
+                   '#VALUE!',
+                   '#REF!',
+                   '#NAME?',
+                   '#NUM!',
+                   '#N/A')
 
     TYPE_STRING = 's'
     TYPE_FORMULA = 'f'
