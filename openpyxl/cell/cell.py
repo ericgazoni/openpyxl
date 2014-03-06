@@ -179,16 +179,6 @@ class Cell(object):
     VALID_TYPES = (TYPE_STRING, TYPE_FORMULA, TYPE_NUMERIC, TYPE_BOOL,
                    TYPE_NULL, TYPE_INLINE, TYPE_ERROR, TYPE_FORMULA_CACHE_STRING)
 
-    TYPE_MAPPING = {
-        TYPE_INLINE: "check_string",
-        TYPE_STRING: "check_string",
-        TYPE_FORMULA: "check_string",
-        TYPE_NUMERIC: "check_numeric",
-        TYPE_BOOL: "bool",
-        TYPE_ERROR: "check_error"}
-
-    bool = bool
-
     def __init__(self, worksheet, column, row, value=None):
         self.column = column.upper()
         self.row = row
@@ -202,6 +192,9 @@ class Cell(object):
         self.xf_index = 0
         self.merged = False
         self._comment = None
+
+    def bool(self, value):
+        return bool(value)
 
     @property
     def encoding(self):
@@ -236,15 +229,6 @@ class Cell(object):
         value = value.replace('\r\n', '\n')
         return value
 
-    def check_numeric(self, value):
-        """Cast value to int or float if necessary"""
-        if not isinstance(value, Number):
-            try:
-                value = int(value)
-            except ValueError:
-                value = float(value)
-        return value
-
     def check_error(self, value):
         """Tries to convert Error" else N/A"""
         try:
@@ -254,11 +238,11 @@ class Cell(object):
 
     def set_explicit_value(self, value=None, data_type=TYPE_STRING):
         """Coerce values according to their explicit type"""
-        fn = self.TYPE_MAPPING.get(data_type)
-        if fn is None:
+        if data_type not in self.VALID_TYPES:
             raise ValueError('Invalid data type: %s' % data_type)
-        validator = getattr(self, fn)
-        self._value = validator(value)
+        if isinstance(value, basestring):
+            value = self.check_string(value)
+        self._value = value
         self.data_type = data_type
 
     def data_type_for_value(self, value):
@@ -279,10 +263,6 @@ class Cell(object):
                 data_type = self.TYPE_FORMULA
             elif value in self.ERROR_CODES:
                 data_type = self.TYPE_ERROR
-            if not isinstance(value, unicode):
-                value = str(value)
-            if NUMBER_REGEX.match(value):
-                data_type = self.TYPE_NUMERIC
         return data_type
 
     def bind_value(self, value):
@@ -292,20 +272,35 @@ class Cell(object):
             self.set_explicit_value('', self.TYPE_NULL)
             return
         elif self.guess_types and self.data_type == self.TYPE_STRING:
+            if not isinstance(value, unicode):
+                value = str(value)
+            # number detection
+            if self._cast_numeric(value):
+                return
             # percentage detection
-            if self._bind_percentage(value):
+            if self._cast_percentage(value):
                 return
             # time detection
-            if self._bind_time(value):
+            if self._cast_time(value):
                 return
         if self.data_type == self.TYPE_NUMERIC:
-            if self._bind_datetime(value):
+            if self._cast_datetime(value):
                 return
         self.set_explicit_value(value, self.data_type)
 
-    def _bind_percentage(self, value):
-        if not isinstance(value, unicode):
-            value = str(value)
+    def _cast_numeric(self, value):
+        """Explicity convert a string to a numeric value"""
+        if NUMBER_REGEX.match(value):
+            try:
+                value = int(value)
+            except ValueError:
+                value = float(value)
+            self.set_explicit_value(value, self.TYPE_NUMERIC)
+            return True
+
+    def _cast_percentage(self, value):
+        """Explicitly convert a string to numeric value and format as a
+        percentage"""
         match = PERCENT_REGEX.match(value)
         if match:
             value = float(match.group('number')) / 100
@@ -313,9 +308,9 @@ class Cell(object):
             self.number_format = NumberFormat.FORMAT_PERCENTAGE
             return True
 
-    def _bind_time(self, value):
-        if not isinstance(value, unicode):
-            value = str(value)
+    def _cast_time(self, value):
+        """Explicitly convert a string to a number and format as datetime or
+        time"""
         match = TIME_REGEX.match(value)
         if match:
             if match.group("microsecond") is not None:
@@ -334,7 +329,7 @@ class Cell(object):
             self.number_format = fmt
             return True
 
-    def _bind_datetime(self, value):
+    def _cast_datetime(self, value):
         if isinstance(value, datetime.date):
             value = to_excel(value, self.base_date)
             self.number_format = NumberFormat.FORMAT_DATE_YYYYMMDD2
@@ -346,7 +341,6 @@ class Cell(object):
             self.number_format = NumberFormat.FORMAT_DATE_TIMEDELTA
         self.set_explicit_value(value, self.TYPE_NUMERIC)
         return True
-
 
     @property
     def value(self):

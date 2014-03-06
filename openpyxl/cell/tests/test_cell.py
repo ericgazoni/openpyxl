@@ -115,7 +115,7 @@ def test_column_letter(value, expected):
 def test_initial_value():
     ws = build_dummy_worksheet()
     cell = Cell(ws, 'A', 1, value='17.5')
-    assert cell.TYPE_NUMERIC == cell.data_type
+    assert cell.TYPE_STRING == cell.data_type
 
 
 class TestCellValueTypes(object):
@@ -151,6 +151,7 @@ class TestCellValueTypes(object):
                              ]
                             )
     def test_numeric(self, value, expected):
+        self.cell.parent.parent._guess_types = True
         self.cell.value = value
         assert self.cell.internal_value == expected
         assert self.cell.TYPE_NUMERIC == self.cell.data_type
@@ -238,6 +239,7 @@ class TestCellValueTypes(object):
                          ])
 def test_data_type_check(value, datatype):
     ws = build_dummy_worksheet()
+    ws.parent._guess_types = True
     cell = Cell(ws, 'A', 1)
     cell.bind_value(value)
     assert cell.data_type == datatype
