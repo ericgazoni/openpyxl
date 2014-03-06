@@ -238,7 +238,7 @@ class Cell(object):
 
     def check_numeric(self, value):
         """Cast value to int or float if necessary"""
-        if not isinstance(value, NUMERIC_TYPES):
+        if not isinstance(value, Number):
             try:
                 value = int(value)
             except ValueError:
