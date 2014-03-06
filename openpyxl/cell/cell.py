@@ -65,7 +65,8 @@ COORD_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)$')
 ABSOLUTE_RE = re.compile('^[$]?([A-Z]+)[$]?(\d+)(:[$]?([A-Z]+)[$]?(\d+))?$')
 ILLEGAL_CHARACTERS_RE = re.compile(r'[\000-\010]|[\013-\014]|[\016-\037]')
 
-
+TIME_TYPES = (datetime.datetime, datetime.date, datetime.time, datetime.timedelta)
+KNOWN_TYPES = NUMERIC_TYPES + TIME_TYPES + (basestring, unicode, bool, type(None))
 
 def coordinate_from_string(coord_string):
     """Convert a coordinate string like 'B12' to a tuple ('B', 12)"""
@@ -262,16 +263,17 @@ class Cell(object):
 
     def data_type_for_value(self, value):
         """Given a value, infer the correct data type"""
+        if not isinstance(value, KNOWN_TYPES):
+            raise ValueError("Cannot convert {0} to Excel".format(value))
+        data_type = self.TYPE_STRING
         if value is None:
             data_type = self.TYPE_NULL
-        elif value is True or value is False:
+        elif isinstance(value, bool):
             data_type = self.TYPE_BOOL
         elif isinstance(value, NUMERIC_TYPES):
             data_type = self.TYPE_NUMERIC
-        elif isinstance(value, (datetime.datetime, datetime.date, datetime.time, datetime.timedelta)):
+        elif isinstance(value, TIME_TYPES):
             data_type = self.TYPE_NUMERIC
-        elif not value:
-            data_type = self.TYPE_STRING
         elif isinstance(value, basestring) and value[0] == '=':
             data_type = self.TYPE_FORMULA
         elif isinstance(value, unicode) and NUMBER_REGEX.match(value):
@@ -280,8 +282,6 @@ class Cell(object):
             data_type = self.TYPE_NUMERIC
         elif isinstance(value, basestring) and value.strip() in self.ERROR_CODES:
             data_type = self.TYPE_ERROR
-        else:
-            data_type = self.TYPE_STRING
         return data_type
 
     def bind_value(self, value):
@@ -289,7 +289,7 @@ class Cell(object):
         self.data_type = self.data_type_for_value(value)
         if value is None:
             self.set_explicit_value('', self.TYPE_NULL)
-            return True
+            return
         elif self.guess_types and self.data_type == self.TYPE_STRING:
             # percentage detection
             if self._bind_percentage(value):
