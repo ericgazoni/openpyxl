@@ -123,7 +123,9 @@ class WorkSheetParser(object):
             elif data_type == Cell.TYPE_BOOL:
                 value = bool(int(value))
             elif data_type == 'n':
-                value = cell._cast_numeric(value)
+                cell._cast_numeric(value)
+                if self.data_only or formula is None:
+                    return
             if formula is not None and not self.data_only:
                 if formula.text:
                     value = "=" + formula.text
