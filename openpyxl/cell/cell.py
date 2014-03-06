@@ -428,15 +428,6 @@ class Cell(object):
         """Returns the :class:`openpyxl.style.Style` object for this cell"""
         return self.parent.get_style(self.coordinate)
 
-    #@property
-    #def data_type(self):
-        #"""Return the data type represented by this cell"""
-        #return self._data_type
-
-    #@data_type.setter
-    #def data_type(self, value):
-        #self._data_type = value
-
     def get_coordinate(self):
         warnings.warn("cell.get_coordinate() is deprecated use cell.coordinate instead")
         return self.coordinate
