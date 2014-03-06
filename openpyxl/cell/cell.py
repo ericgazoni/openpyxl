@@ -260,9 +260,6 @@ class Cell(object):
         self._value = validator(value)
         self.data_type = data_type
 
-    # preserve old method name
-    set_value_explicit = set_explicit_value
-
     def data_type_for_value(self, value):
         """Given a value, infer the correct data type"""
         if value is None:
