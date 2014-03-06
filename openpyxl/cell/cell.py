@@ -421,7 +421,7 @@ class Cell(object):
     @property
     def has_style(self):
         """Check if the parent worksheet has a style for this cell"""
-        return self.coordinate in self.parent._styles  # pylint: disable=W0212
+        return self.coordinate in self.parent._styles
 
     @property
     def style(self):
