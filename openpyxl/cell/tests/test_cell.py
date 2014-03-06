@@ -391,3 +391,30 @@ def test_cell_offset():
     wb = Workbook()
     ws = Worksheet(wb)
     assert ws['B15'].offset(2, 1).coordinate == 'C17'
+
+def test_bad_encoding():
+    try:
+        # Python 2
+        pound = unichr(163)
+    except NameError:
+        # Python 3
+        pound = chr(163)
+    test_string = ('Compound Value (' + pound + ')').encode('latin1')
+
+    utf_book = Workbook()
+    utf_sheet = utf_book.get_active_sheet()
+    with pytest.raises(UnicodeDecodeError):
+        utf_sheet.cell('A1').value = test_string
+
+def test_good_encoding():
+    try:
+        # Python 2
+        pound = unichr(163)
+    except NameError:
+        # Python 3
+        pound = chr(163)
+    test_string = ('Compound Value (' + pound + ')').encode('latin1')
+
+    lat_book = Workbook(encoding='latin1')
+    lat_sheet = lat_book.get_active_sheet()
+    lat_sheet.cell('A1').value = test_string
