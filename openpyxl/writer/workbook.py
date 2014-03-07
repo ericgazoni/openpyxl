@@ -103,21 +103,26 @@ def write_content_types(workbook):
         root = fromstring(workbook.vba_archive.read(ARC_CONTENT_TYPES))
         for elem in root.findall('{%s}Override' % CONTYPES_NS):
             seen.add(elem.attrib['PartName'])
+        for elem in root.findall('{%s}Default' % CONTYPES_NS):
+            seen.add(elem.attrib['Extension'])
     else:
         if LXML:
             NSMAP = {None : CONTYPES_NS}
             root = Element('{%s}Types' % CONTYPES_NS, nsmap=NSMAP)
         else:
             root = Element('{%s}Types' % CONTYPES_NS)
-        for setting_type, name, content_type in static_content_types_config:
-            if setting_type == 'Override':
+    for setting_type, name, content_type in static_content_types_config:
+        attrib = {'ContentType': content_type}
+        if setting_type == 'Override':
+            if '/' + name not in seen:
                 tag = '{%s}Override' % CONTYPES_NS
-                attrib = {'PartName': '/' + name}
-            else:
+                attrib['PartName'] = '/' + name
+                SubElement(root, tag, attrib)
+        else:
+            if name not in seen:
                 tag = '{%s}Default' % CONTYPES_NS
-                attrib = {'Extension': name}
-            attrib['ContentType'] = content_type
-            SubElement(root, tag, attrib)
+                attrib['Extension'] =  name
+                SubElement(root, tag, attrib)
 
     drawing_id = 1
     chart_id = 1
