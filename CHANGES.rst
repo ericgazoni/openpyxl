@@ -19,9 +19,10 @@ Minor changes
 
 Pull requests
 -------------
-#70 Add filterColumn, sortCondition support to AutoFilter (SHIBUKAWA Yoshiki)
+#70 Add filterColumn, sortCondition support to AutoFilter
 #82 Update API for conditional formatting
-#87 Add support for writing Protection styles, others.
+#87 Add support for writing Protection styles, others
+#89 Better handling of content types when preserving macros
 
 
 Bug fixes
